@@ -58,3 +58,5 @@ BEHAVIOR / TECHNICAL REQUIREMENTS
 - Accessibility: aria-label on nav, aria-expanded/aria-controls on the toggle, aria-hidden on
   decorative SVGs, visible keyboard focus.
 - Vanilla JS only, everything inline in one .html file. Body text 16px, line-height 1.75.
+- Verbatim example phrases/questions from the notes must be kept,
+  wrapped in quotes and rendered as <em>…</em> inside the bullets.
