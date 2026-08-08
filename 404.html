@@ -3,37 +3,31 @@ layout: null
 ---
 
 <!doctype html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="utf-8">
   <title>Redirecting...</title>
 </head>
-
 <body>
 
-<script>
-const resources = {
-{% assign files = site.static_files
+{% assign resource_files = site.static_files
   | where_exp: "file", "file.path contains '/resources/'"
+  | where_exp: "file", "file.extname == '.html'"
   | sort: "name"
 %}
 
-{% for file in files %}
-  {% if file.extname == ".html" %}
-    {% assign number = file.name | split: "-" | first %}
-    "{{ number }}": "{{ file.path }}"{% unless forloop.last %},{% endunless %}
-  {% endif %}
+<script>
+const resources = {
+{% for file in resource_files %}
+  {% assign number = file.name | split: "-" | first %}
+  "{{ number }}": "{{ file.path }}"{% unless forloop.last %},{% endunless %}
 {% endfor %}
 };
 
-
-// /01/ → 01
-const key = window.location.pathname
-  .replace(/^\/+|\/+$/g, "");
-
+const key = location.pathname.replace(/^\/+|\/+$/g, "");
 
 if (resources[key]) {
-  window.location.replace(resources[key]);
+  location.replace(resources[key]);
 } else {
   document.body.innerHTML = `
     <h1>404</h1>
