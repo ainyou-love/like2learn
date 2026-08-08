@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép · No.05 — Kỷ luật của bình minh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+  color:var(--ink);
+  font-family:"Be Vietnam Pro", sans-serif;
+  font-size:16px;
+  line-height:1.75;
+}
+.mono{font-family:"IBM Plex Mono", monospace;}
+a{color:var(--green);}
+a:focus-visible, button:focus-visible{outline:2px solid var(--seal); outline-offset:2px;}
+
+/* ===== Layout ===== */
+.layout{
+  max-width:1240px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:288px 1fr;
+  gap:48px;
+  padding:0 24px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  padding:32px 4px 32px 0;
+  scrollbar-width:thin;
+  scrollbar-color:var(--green-line) transparent;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--green-line); border-radius:3px;}
+
+.cover{
+  border:2px solid var(--green);
+  border-radius:var(--radius);
+  background:var(--card);
+  padding:20px 18px;
+  position:relative;
+  margin-bottom:24px;
+}
+.cover::after{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border:1px dashed var(--green-line);
+  border-radius:6px;
+  pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--seal);
+  display:block;
+  margin-bottom:8px;
+}
+.cover h2{
+  font-family:"Bricolage Grotesque", sans-serif;
+  font-weight:700;
+  font-size:22px;
+  line-height:1.25;
+  color:var(--green);
+}
+
+.toc ol{
+  list-style:none;
+  counter-reset:none;
+}
+.toc li{margin-bottom:4px;}
+.toc a{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  padding:9px 12px;
+  text-decoration:none;
+  color:var(--ink-soft);
+  border-radius:6px;
+  border-left:3px solid transparent;
+  font-size:14.5px;
+  line-height:1.4;
+}
+.toc a .idx{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  font-weight:500;
+  color:var(--brass);
+  min-width:24px;
+  text-align:right;
+  flex-shrink:0;
+}
+.toc a:hover{background:var(--paper-deep); color:var(--green);}
+.toc a.active{
+  background:var(--card);
+  color:var(--green);
+  font-weight:600;
+  border-left:3px solid var(--seal);
+}
+
+/* ===== Main / Hero ===== */
+main{padding:48px 0 32px;}
+.hero{position:relative; margin-bottom:56px;}
+.kicker{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--seal);
+  display:block;
+  margin-bottom:14px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque", sans-serif;
+  font-weight:700;
+  font-size:clamp(34px, 4.5vw, 56px);
+  line-height:1.12;
+  color:var(--green);
+  max-width:640px;
+  margin-bottom:18px;
+}
+.hero .sub{
+  color:var(--ink-soft);
+  max-width:560px;
+  margin-bottom:22px;
+}
+.meta{display:flex; flex-wrap:wrap; gap:10px;}
+.meta span{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  font-weight:500;
+  color:var(--green);
+  border:1px solid var(--green-line);
+  background:var(--card);
+  border-radius:999px;
+  padding:5px 14px;
+}
+.stamp{
+  position:absolute;
+  top:0;
+  right:12px;
+  transform:rotate(7deg);
+  opacity:.92;
+}
+
+/* ===== Section ledger cards ===== */
+section.entry{
+  background:var(--card);
+  border:1px solid var(--green-line);
+  border-radius:var(--radius);
+  margin-bottom:40px;
+  scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:28px;
+  align-items:start;
+  padding:28px 32px 22px;
+  border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--brass);
+  display:block;
+  margin-bottom:8px;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque", sans-serif;
+  font-weight:700;
+  font-size:27px;
+  line-height:1.22;
+  color:var(--green);
+  margin-bottom:8px;
+}
+.entry-head .oneline{
+  font-style:italic;
+  color:var(--ink-soft);
+  font-size:15px;
+}
+.frame{
+  width:168px;
+  height:138px;
+  border:2px solid var(--green);
+  border-radius:6px;
+  background:var(--paper);
+  position:relative;
+  transform:rotate(-1.4deg);
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.frame::after{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border:1px dashed var(--green-line);
+  border-radius:3px;
+  pointer-events:none;
+}
+.frame svg{width:140px; height:105px; display:block;}
+
+.entry-body{padding:24px 32px 28px;}
+.entry-body ul{list-style:none;}
+.entry-body li{
+  padding-left:26px;
+  position:relative;
+  margin-bottom:12px;
+}
+.entry-body li::before{
+  content:"—";
+  position:absolute;
+  left:0;
+  color:var(--brass);
+  font-weight:600;
+}
+.entry-body strong{color:var(--green); font-weight:600;}
+
+.callout{
+  border-left:3px solid var(--seal);
+  background:var(--paper);
+  border-radius:0 6px 6px 0;
+  padding:16px 20px;
+  margin-top:22px;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--seal);
+  display:block;
+  margin-bottom:6px;
+}
+.callout p{color:var(--ink);}
+
+/* ===== Footer ===== */
+footer{
+  border-top:1px dashed var(--green-line);
+  padding:22px 0 40px;
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+
+/* ===== Drawer toggle (mobile) ===== */
+.toc-toggle{
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  z-index:60;
+  background:var(--green);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:12px 20px;
+  font-family:"IBM Plex Mono", monospace;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.08em;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(28,43,34,.28);
+}
+.backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(28,43,34,.45);
+  z-index:50;
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.backdrop.show{display:block; opacity:1;}
+
+/* ===== Mobile ===== */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr; gap:0; padding:0 18px;}
+  .stamp{display:none;}
+  .toc-toggle{display:inline-block;}
+  .sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:min(82vw, 320px);
+    height:100vh;
+    background:var(--paper);
+    z-index:55;
+    padding:24px 18px;
+    transform:translateX(-100%);
+    transition:transform .3s ease;
+    box-shadow:4px 0 20px rgba(28,43,34,.15);
+  }
+  @supports (height:100dvh){
+    .sidebar{height:100dvh;}
+  }
+  .sidebar.open{transform:translateX(0);}
+  .entry-head{
+    grid-template-columns:1fr;
+    padding:24px 22px 20px;
+  }
+  .frame{
+    width:100%;
+    max-width:220px;
+    order:-1;
+  }
+  .entry-body{padding:20px 22px 24px;}
+  main{padding:36px 0 24px;}
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *, *::before, *::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.05</span>
+      <h2>Kỷ luật của bình minh — triết lý Jim Rohn</h2>
+    </div>
+    <nav class="toc" aria-label="Mục lục ghi chú">
+      <ol>
+        <li><a href="#muc-1"><span class="idx">01</span>4:00 sáng — vũ khí bí mật</a></li>
+        <li><a href="#muc-2"><span class="idx">02</span>Nỗi đau kỷ luật hay hối tiếc</a></li>
+        <li><a href="#muc-3"><span class="idx">03</span>Năm việc nhỏ lúc bình minh</a></li>
+        <li><a href="#muc-4"><span class="idx">04</span>Hệ thống không thể thất bại</a></li>
+        <li><a href="#muc-5"><span class="idx">05</span>Kế hoạch 30 ngày</a></li>
+        <li><a href="#muc-6"><span class="idx">06</span>Để tiền bạc đuổi theo bạn</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+    <header class="hero">
+      <span class="kicker mono">Ghi chép từ 6 phần bài giảng</span>
+      <h1>Kỷ luật của bình minh</h1>
+      <p class="sub">Ghi chú rút gọn theo từng phần: vì sao buổi sáng quyết định số phận, hệ thống thay thế ý chí, kế hoạch 30 ngày và các nguyên tắc để thịnh vượng tự tìm đến — theo triết lý Jim Rohn.</p>
+      <div class="meta">
+        <span>Jim Rohn</span>
+        <span>6 phần · thói quen sáng</span>
+        <span>Kỷ luật · Thịnh vượng</span>
+      </div>
+      <svg class="stamp" width="128" height="128" viewBox="0 0 128 128" aria-hidden="true">
+        <circle cx="64" cy="64" r="58" fill="none" stroke="#B0492F" stroke-width="3"/>
+        <circle cx="64" cy="64" r="44" fill="none" stroke="#B0492F" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="64" y="58" text-anchor="middle" fill="#B0492F" font-family="'IBM Plex Mono', monospace" font-size="17" font-weight="500" letter-spacing="2">ĐÃ GHI</text>
+        <text x="64" y="80" text-anchor="middle" fill="#B0492F" font-family="'IBM Plex Mono', monospace" font-size="13" letter-spacing="1">SỔ · 2026</text>
+      </svg>
+    </header>
+
+    <!-- ===== MỤC 01 ===== -->
+    <section class="entry" id="muc-1">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 01</span>
+          <h2>4:00 sáng — vũ khí bí mật của kỷ luật</h2>
+          <p class="oneline">Không cần ý chí sắt đá — cần một hệ thống khiến bạn không còn lựa chọn nào ngoài tiến lên.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="80" cy="66" r="34"/>
+            <line x1="80" y1="66" x2="80" y2="44"/>
+            <line x1="80" y1="66" x2="94" y2="76"/>
+            <path class="s" d="M56 34 L48 26" stroke="#B0492F"/>
+            <path class="s" d="M104 34 L112 26" stroke="#B0492F"/>
+            <path class="b thin" d="M20 62 L34 62" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="b thin" d="M126 62 L140 62" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="b thin" d="M30 34 L40 42" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="b thin" d="M130 34 L120 42" stroke="#9C7A2E" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>4h sáng là khoảng duy nhất <strong>không bị thế giới gián đoạn</strong> — nơi bạn làm chủ mình trước khi cuộc sống xen vào; kỷ luật là <strong>cây cầu nối ước mơ và hiện thực</strong>, xây từ những lựa chọn khi không ai nhìn thấy.</li>
+          <li><strong>Ý chí không phải giải pháp — hệ thống mới là.</strong> Bạn không thay đổi cuộc đời bằng bốc đồng, mà bằng hệ thống sống lặp lại mỗi ngày.</li>
+          <li>Hệ thống 5 nguyên tắc: <strong>(1) giao ước từ đêm trước</strong> — quyết định lúc tắt đèn, không phải lúc 3:55; tự nhủ trước khi ngủ: <em>"Ngày mai tôi không dậy sớm để được thoải mái — tôi dậy để chiến thắng bản thân"</em>, rồi hình dung khoảnh khắc mở mắt, cái lạnh luồn qua chăn, và mình vẫn bước ra; <strong>(2) môi trường không cho lùi bước</strong> — báo thức xa giường, quần áo gấp sẵn, lời nhắc dán cạnh đồng hồ: <em>"Dậy vì mình, không phải vì việc"</em>; <strong>(3) nghi thức mở màn 2 phút</strong> phá vỡ mô thức — 10 hơi thở sâu, 60 giây tư thế chiến binh, một câu lập trình não: <em>"Tôi đang thức vì tôi đang sống cho một thứ lớn hơn chính mình"</em>; <strong>(4) mục tiêu rõ như lưỡi dao</strong> — "muốn phát triển bản thân" là không đủ, phải trả lời chính xác: tôi đọc gì, bao nhiêu trang, ghi gì ra; viết gì, bao lâu, ra sản phẩm gì; <strong>(5) lặp lại đến ngày 30</strong> — ngày 3 vẫn mệt, ngày 5 có chút tự hào, ngày 10 người khác nhận ra, ngày 30 bạn không còn là bạn cũ.</li>
+          <li>Khoa học: não sản xuất <strong>gấp đôi dopamine và norepinephrine</strong> trong khung 4–6h sáng — nhiên liệu tinh khiết nhất cho quyết định táo bạo, nhưng đa số vứt phí vào giấc ngủ chập chờn.</li>
+          <li>5 nghi thức chuyển hóa mỗi sáng: <strong>tự vấn 3 câu hỏi</strong> — <em>"Hôm nay tôi có thể cải thiện điều gì?"</em> (chỉ một điểm yếu, một con số nhích lên 1%), <em>"Ai là người tôi cần biết ơn?"</em>, <em>"Hành động nào đưa tôi đến gần mục tiêu nhất?"</em> — nếu câu trả lời không làm bạn hơi sợ, bạn đang chọn sai trận chiến → <strong>đọc 10 trang</strong> sách thách thức mình, gạch chân và hỏi <em>"tôi áp dụng điều này thế nào ngay hôm nay?"</em> → <strong>nhật ký thành tựu + 3 điều biết ơn</strong> → <strong>vận động nhẹ 15–30 phút</strong> → <strong>làm một việc quan trọng nhất</strong>: 1 giờ sáng sớm giá trị hơn 3 giờ ban ngày.</li>
+          <li>5 nhân vật minh chứng — mỗi người bắt đầu bằng một câu tự vấn riêng: Linh (kiến trúc sư): <em>"Tôi muốn để lại dấu ấn gì qua công trình của mình?"</em>; Hoàng (đầu bếp): <em>"Tôi muốn thực khách cảm nhận gì qua món ăn?"</em>; Trang (môi trường): <em>"Tôi muốn để lại di sản gì cho hành tinh?"</em>; Vũ (nhạc sĩ): <em>"Âm nhạc của tôi mang lại điều gì cho thế giới?"</em>; Lan: <em>"Tôi là ai? Tôi muốn gì? Tôi phải làm gì?"</em> — cùng một công thức, kiên trì 6–24 tháng; họ <strong>không đổi nghề — đổi cách sống với nghề</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Bài học</span>
+          <p>Dậy 4h sáng không phải để làm nhiều hơn, mà để <strong>trở nên nhiều hơn</strong> — thành công không phải đích đến, nó là con người bạn trở thành trên hành trình.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 02 ===== -->
+    <section class="entry" id="muc-2">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 02</span>
+          <h2>Nỗi đau kỷ luật hay nỗi đau hối tiếc</h2>
+          <p class="oneline">Tư duy là rễ, niềm tin là lửa, kỷ luật là cầu — và tiến bộ phải đo được từng ngày.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 92 L48 92"/>
+            <path d="M112 92 L150 92"/>
+            <path d="M48 92 Q80 48 112 92"/>
+            <path class="thin" d="M48 92 L48 74" stroke-width="2"/>
+            <path class="thin" d="M112 92 L112 74" stroke-width="2"/>
+            <path class="b thin" d="M56 100 Q80 108 104 100" stroke="#9C7A2E" stroke-width="2" stroke-dasharray="5 5"/>
+            <line class="s" x1="80" y1="70" x2="80" y2="52" stroke="#B0492F"/>
+            <path class="s" d="M80 52 L96 58 L80 64" stroke="#B0492F"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Ai cũng phải chịu một trong hai: <strong>nỗi đau của kỷ luật</strong> — đắng từng chút mỗi ngày nhưng chữa lành, hoặc <strong>nỗi đau của hối tiếc</strong> — đến muộn, ở lại rất lâu, không thuốc nào xoa dịu.</li>
+          <li>Phần lớn thất bại không vì thiếu cơ hội hay thiếu thông minh, mà vì <strong>thiếu một hệ thống tiến lên mỗi ngày</strong> giữa thời đại nhiễu loạn.</li>
+          <li>Tư duy méo mó thì trái ngọt không chín: hành động mới trên nền tư duy cũ vẫn thất bại. <strong>"Ta không nhận được điều mình muốn — ta nhận được điều mình tin"</strong>; niềm tin nuôi bằng việc giữ lời hứa nhỏ với chính mình.</li>
+          <li>Không đổi được cơn gió, chỉ điều chỉnh được cánh buồm: <strong>tầm nhìn soi đường → mục tiêu giữ hướng → hành động đưa đến đích</strong>. Đừng chờ cảm hứng rồi mới làm — làm rồi cảm hứng sẽ tìm đến.</li>
+          <li>4 bước thực hành: <strong>(1) thước đo tiến bộ rõ ràng</strong>, cá nhân hóa — một trang sách, 10 phút thiền, một lời hứa được giữ; mơ hồ là thứ giết tiến bộ âm thầm nhất; <strong>(2) hành động nhỏ ngay lập tức</strong> — bắt đầu bất kỳ vẫn tốt hơn không bắt đầu; <strong>(3) kiên trì thông minh + kỷ luật</strong> — 1% mỗi ngày, biết lúc nào điều chỉnh chiến lược; <strong>(4) môi trường hỗ trợ</strong> — bạn là trung bình của 5 người gần nhất; chọn người, không gian, thông tin và học cách nói không.</li>
+          <li>Tony Robbins: từ nghèo khó → chuỗi <strong>quyết định → niềm tin → tầm nhìn → kỷ luật → thích nghi → biết ơn</strong>; đứng dậy sau mỗi lần ngã mới là sức mạnh thật.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Nguyên tắc</span>
+          <p><strong>Kiến thức không hành động là vô dụng.</strong> Viết ra một điều muốn tiến bộ, đặt một thước đo nhỏ, và bắt đầu ngay hôm nay — người có kỷ luật luôn đi trước người có cảm hứng.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 03 ===== -->
+    <section class="entry" id="muc-3">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 03</span>
+          <h2>Năm việc nhỏ lúc bình minh</h2>
+          <p class="oneline">Năm chiếc chìa khóa mở cánh cửa ý chí — như giọt nước làm đầy bình, từng chút một.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="52" cy="52" r="18"/>
+            <circle cx="52" cy="52" r="7" class="thin" stroke-width="2"/>
+            <line x1="68" y1="60" x2="118" y2="86"/>
+            <path d="M104 79 L100 88"/>
+            <path d="M116 85 L112 94"/>
+            <path class="b" d="M124 30 Q140 38 138 56" stroke="#9C7A2E"/>
+            <path class="s thin" d="M20 96 Q28 90 36 96" stroke="#B0492F" stroke-width="2"/>
+            <path class="s thin" d="M120 20 L126 14" stroke="#B0492F" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Nút "báo lại" không cho bạn thêm giấc ngủ — nó lấy đi <strong>5 phút tỉnh táo cuối cùng của linh hồn</strong>; mỗi lần thất bại buổi sáng bào mòn thêm niềm tin rằng mình có thể làm chủ cuộc sống.</li>
+          <li>Năm việc nhỏ: <strong>(1) viết 3 điều quan trọng nhất</strong> — mục tiêu mơ hồ sinh hành động lộn xộn; <strong>(2) đánh thức cơ thể 10 phút</strong> — năng lượng thể chất là tiền tệ của ý chí; <strong>(3) đọc sách nuôi tâm trí</strong> — để bậc thầy thì thầm vào tai thay vì drama mạng xã hội; <strong>(4) hình dung tương lai</strong> — não không phân biệt tưởng tượng và hiện thực, hãy cho nó thấy phiên bản tốt nhất; <strong>(5) điều chỉnh kế hoạch</strong> — nghệ thuật uốn cong mà không gãy, chia mục tiêu thành mốc tuần.</li>
+          <li>Sau 30 ngày, dậy sớm thành phản xạ: <strong>kiên trì không phải cố chịu đựng — là lặp lại có chủ đích</strong>, như sóng vỗ bờ mài mòn cả tảng đá.</li>
+          <li><strong>John</strong> — nhân viên tệ nhất công ty: thiền vụng về, 10 cái chống đẩy, nhật ký biết ơn viết những dòng như <em>"Cảm ơn vì tôi còn một công việc để cố gắng — cảm ơn vì tôi đủ tỉnh táo để thay đổi"</em>; kết luận: <em>"Tôi không thành siêu nhân, tôi chỉ thành công trong việc không bỏ cuộc."</em> <strong>Sarah</strong> — phá sản 3 lần, nợ 100.000$: đọc triết học khắc kỷ (<em>"khi biết tại sao, bạn chịu đựng được bất kỳ như thế nào"</em>), vẫn tập yoga ngày ốm ở ngày thứ 45; trả lời nhà đầu tư: <em>"Tôi đã học được cách thất bại đúng"</em> → hợp đồng 2 triệu USD.</li>
+          <li><strong>Minh và Lan</strong>: chỉ 15 phút mỗi sáng — một câu mục tiêu, một trang sách, 3 phút suy ngẫm, 10 phút vận động, danh sách 3 việc — đủ để đổi quỹ đạo sự nghiệp và chạm đến giấc mơ cửa hàng riêng.</li>
+          <li>Đừng để cảm xúc điều khiển hành động — <strong>hãy để hành động định hình cảm xúc</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Bài học</span>
+          <p><strong>"Ngày mai" là lời hứa dối trá nhất.</strong> Sự kiên trì chỉ bắt đầu từ hôm nay — thành công không đến từ đam mê bùng cháy, mà từ ngọn lửa nhỏ được nhen nhóm mỗi ngày.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 04 ===== -->
+    <section class="entry" id="muc-4">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 04</span>
+          <h2>Hệ thống buổi sáng không thể thất bại</h2>
+          <p class="oneline">Không cần ý chí thép — cần một hệ thống đủ dễ để bản thân không thể nói không.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M80 24 A38 38 0 1 1 46 44"/>
+            <path d="M46 30 L46 45 L61 45"/>
+            <path class="s" d="M72 56 L80 68 L94 46" stroke="#B0492F"/>
+            <circle class="b thin" cx="128" cy="26" r="5" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="b thin" d="M24 86 L32 92" stroke="#9C7A2E" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><strong>80% năng lượng cả ngày bị đánh cắp</strong> bởi những lựa chọn vô thức trong 5 phút đầu sau khi tỉnh — cái nút báo lại, ánh mắt dán vào điện thoại; trì hoãn buổi sáng là căn bệnh âm thầm gặm nhấm sự tự tin.</li>
+          <li><strong>4 nguyên tắc không thể thất bại</strong>: chuẩn bị mọi thứ từ tối hôm trước (áo tập, ly nước, cuốn sách); đuổi điện thoại khỏi tầm tay — nó là hố đen thời gian; chọn <strong>một hành động "mồi lửa"</strong> dễ đến mức không thể từ chối; biến buổi sáng thành <strong>không gian cảm hứng, không phải trại huấn luyện</strong>.</li>
+          <li><strong>Công thức 5 phút</strong>: phút 1 — đánh thức <strong>thân</strong> bằng hơi thở/chuyển động nhẹ; phút 2 — đánh thức <strong>tim</strong> bằng 3 điều biết ơn giản dị (<em>"tôi biết ơn vì mình còn thức dậy được, vì có cái giường êm, vì hôm nay có cơ hội làm lại"</em>); phút 3 — đánh thức <strong>trí</strong> bằng một câu hỏi mở khóa: <em>"Nếu hôm nay là ngày cuối cùng, tôi sẽ sống thế nào?"</em> hoặc <em>"Điều gì khiến tôi tự hào nếu hoàn thành hôm nay?"</em> — câu hỏi chạy nền cả ngày như la bàn; phút 4 — đánh thức <strong>ý chí</strong> bằng một hành động 1 phút (gấp chăn, uống ly nước, gửi một tin cảm ơn); phút 5 — đánh thức <strong>hồn</strong> bằng câu tuyên bố: <em>"Hôm nay tôi chọn sống có mục đích"</em>, <em>"Tôi là người tạo ra động lực, không cần chờ nó đến."</em></li>
+          <li><strong>Kịch bản 15 phút cho người bận</strong>: phút đầu không đụng điện thoại, tắt báo thức và nhắc mình <em>"Hôm nay là một món quà, tôi chọn sống trọn vẹn"</em> → kích hoạt cơ thể → nước ấm + ánh sáng tự nhiên (serotonin) → viết 3 gạch đầu dòng: <em>"Tôi biết ơn điều gì sáng nay? Việc gì hoàn thành sẽ khiến tôi tự hào? Ai là người tôi muốn kết nối/giúp đỡ hôm nay?"</em> → 3 phút nội dung tích cực thay vì tin tức → một hành động nhỏ chốt lại, ví dụ viết câu <em>"Tôi đủ tốt và đang tiến lên."</em></li>
+          <li><strong>Luật tiến hóa cảm xúc</strong>: não được thiết kế để sinh tồn chứ không để hạnh phúc — radar luôn tìm cái sai; hack nó bằng cách <strong>ghi một điểm tích cực mỗi sáng</strong> so với chính mình hôm qua, kiểu <em>"hôm nay tôi dậy sớm hơn hôm qua 3 phút"</em>, <em>"tôi không lướt điện thoại trong 10 phút đầu"</em> → dopamine + vùng đệm cảm xúc miễn dịch với tiêu cực đầu ngày.</li>
+          <li>Buổi sáng là <strong>vòng lặp chiến thắng</strong>: kích hoạt ý chí → chặn trì hoãn → ghi nhận tiến hóa → hành động vi mô → một dòng tri thức; như rèn sắt — nhát búa không cần mạnh, chỉ cần đều.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Nguyên tắc</span>
+          <p>Không phải bạn dậy lúc mấy giờ — mà là <strong>bạn dậy với tinh thần thế nào</strong>. Đừng nhấn "báo lại" với cuộc đời mình.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 05 ===== -->
+    <section class="entry" id="muc-5">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 05</span>
+          <h2>Kế hoạch 30 ngày tái tạo chính mình</h2>
+          <p class="oneline">Cuộc đời không phải bí ẩn để khám phá — nó là tác phẩm để kiến tạo, từng viên gạch mỗi ngày.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="34" y="28" width="92" height="72" rx="6"/>
+            <line x1="34" y1="48" x2="126" y2="48"/>
+            <line class="thin" x1="56" y1="20" x2="56" y2="34" stroke-width="2"/>
+            <line class="thin" x1="104" y1="20" x2="104" y2="34" stroke-width="2"/>
+            <line class="b thin" x1="65" y1="64" x2="95" y2="64" stroke="#9C7A2E" stroke-width="2"/>
+            <line class="b thin" x1="65" y1="78" x2="88" y2="78" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="s" d="M104 76 L111 85 L124 62" stroke="#B0492F"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><strong>30 ngày</strong>: đủ dài để tạo thói quen, đủ gấp để không trì hoãn; thay đổi từ gốc rễ danh tính — <strong>"tôi là người dậy sớm"</strong> thay vì "tôi đang cố dậy sớm", mọi hành động sẽ tự thay đổi theo.</li>
+          <li><strong>Viết ra con người mới</strong>: 3–5 đặc điểm cụ thể (dậy 5h, xong việc quan trọng trước 10h, đọc 30 phút mỗi tối) và hành xử như thể đã là người đó ngay hôm nay — "phiên bản tốt nhất của tôi sẽ làm gì lúc này?"</li>
+          <li><strong>Đổ nước cũ trước khi rót nước mới</strong>: nhận diện 3 thói xấu (lướt mạng vô thức, than vãn đổ lỗi, thức khuya vô cớ) → thay bằng đọc 20 phút, nhật ký biết ơn, hoàn thành việc quan trọng trước 9h sáng.</li>
+          <li><strong>Thiết kế ngày thay vì để nó trôi</strong>: 5–8h khung giờ vàng cho bản thân (tập — thiền — học); 8–12h việc quan trọng nhất (Pomodoro, tắt thông báo); 13–17h việc phụ trợ và kết nối; 18–22h tái tạo, ngủ trước 22h.</li>
+          <li>Nuôi <strong>cơ thể</strong> (dinh dưỡng thật, vận động, ngủ 7–8 tiếng — nơi duy nhất bạn phải sống) và mài <strong>trí óc</strong> (học liên tục, thiền định, viết nhật ký); chia mục tiêu lớn thành <strong>viên gạch hàng ngày</strong>; biến <strong>nỗi đau thành nhiên liệu</strong> thay vì né tránh.</li>
+          <li>Bảo vệ thành quả: tạo <strong>khu vực miễn nhiễm sao nhãng</strong> (tắt thông báo, điện thoại phòng khác, nói không); <strong>gác cổng tâm trí</strong> — lọc thông tin độc hại, kiểm soát đối thoại nội tâm: khi nghe <em>"tôi không thể làm được"</em>, đáp lại <em>"tôi sẽ học cách làm được"</em>; khi nản, hỏi <em>"phiên bản tốt nhất của tôi sẽ không bỏ cuộc — họ sẽ tìm ra cách nào?"</em>; <strong>theo dõi hàng ngày — suy ngẫm hàng tuần — điều chỉnh linh hoạt</strong>; chọn lại vòng tròn 5 người gần nhất, cắt mối quan hệ độc hại.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Bài học</span>
+          <p>Kiên định không phải là không bao giờ vấp ngã — mà là <strong>khả năng phục hồi sau mỗi lần vấp ngã</strong>. Đừng để một ngày tồi tệ hủy cả kế hoạch 30 ngày.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 06 ===== -->
+    <section class="entry" id="muc-6">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 06</span>
+          <h2>Để tiền bạc đuổi theo bạn</h2>
+          <p class="oneline">Bạn không thu hút những gì bạn muốn — bạn thu hút những gì bạn là.</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 120" aria-hidden="true" fill="none" stroke="#2F5D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M44 26 L44 66 A26 26 0 0 0 96 66 L96 26"/>
+            <path d="M36 26 L52 26"/>
+            <path d="M88 26 L104 26"/>
+            <circle class="b" cx="122" cy="88" r="9" stroke="#9C7A2E"/>
+            <circle class="b thin" cx="140" cy="66" r="7" stroke="#9C7A2E" stroke-width="2"/>
+            <path class="s thin" d="M104 96 Q112 92 114 88" stroke="#B0492F" stroke-width="2" stroke-dasharray="4 4"/>
+            <path class="s thin" d="M118 70 Q124 66 130 66" stroke="#B0492F" stroke-width="2" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Đuổi theo tiền là một cái bẫy: tiền không tìm người làm chăm — tiền tìm <strong>người có giá trị</strong>. Mối quan hệ với tiền không nằm ở việc bạn làm, mà ở <strong>con người bạn đang trở thành</strong>.</li>
+          <li><strong>6 trụ cột</strong>: (1) làm việc cho bản thân chăm hơn cho công việc — <strong>thu nhập hiếm khi vượt mức phát triển bản thân</strong>; (2) giải quyết vấn đề lớn hơn — thu nhập tỉ lệ với quy mô vấn đề bạn giải cho người khác; (3) kỷ luật là <strong>tự yêu thương</strong>, xây từ lời hứa nhỏ được giữ; (4) nhân giá trị qua <strong>dịch vụ + kỹ năng giao tiếp</strong> — ý tưởng lớn bị giam nếu không truyền đạt được; (5) <strong>mạng lưới là tài sản ròng</strong> — cho đi trước, kết nối sâu thay vì gom danh thiếp; (6) <strong>tư duy dài hạn</strong> — gieo hạt có thể không thu hoạch trong nhiều năm.</li>
+          <li><strong>7 phẩm chất bổ sung</strong>: chịu trách nhiệm hoàn toàn — nói "tôi chịu trách nhiệm" thì <strong>não ngừng tìm lý do và bắt đầu tìm giải pháp</strong>; bảo vệ năng lượng khỏi drama, tin tiêu cực, đố kỵ; là <strong>bản gốc, không phải bản sao</strong> — không cạnh tranh về giá, cạnh tranh về sự độc đáo; luôn cho đi — <strong>cho hạt giống, không phải hạt gạo</strong>; kiên trì đứng vững sau khi đám đông bỏ cuộc; <strong>rõ ràng tài chính</strong> — tiền tránh xa sự mơ hồ, cần con số, thời hạn, chiến lược; trở thành người mà <strong>tiền cảm thấy an toàn khi ở bên</strong>.</li>
+          <li>Cả hệ thống đan xen: giá trị bản thân → vấn đề lớn hơn → kỷ luật giữ nhịp → dịch vụ và mạng lưới nhân rộng → tầm nhìn dài hạn giữ hướng.</li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Nguyên tắc</span>
+          <p><strong>Tiền chỉ là giấy — bạn mới là tài sản thực sự.</strong> Ngừng đuổi theo tiền; hãy kiến tạo con người mà tiền không ngừng đuổi theo.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Nguồn: ghi chép từ 6 phần bài giảng YouTube về triết lý Jim Rohn · Sổ ghi chép No.05 · 2026
+    </footer>
+  </main>
+</div>
+
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+<div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var sections = document.querySelectorAll('section.entry');
+  var linkMap = {};
+  links.forEach(function(l){ linkMap[l.getAttribute('href').slice(1)] = l; });
+
+  var mq = window.matchMedia('(max-width: 900px)');
+
+  // Scrollspy
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        var link = linkMap[entry.target.id];
+        if (!link) return;
+        links.forEach(function(l){ l.classList.remove('active'); });
+        link.classList.add('active');
+        if (!mq.matches) {
+          link.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(function(s){ io.observe(s); });
+
+  // Drawer (mobile)
+  var btn = document.getElementById('tocToggle');
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    btn.setAttribute('aria-expanded', String(open));
+  }
+
+  btn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setDrawer(false);
+  });
+  links.forEach(function(l){
+    l.addEventListener('click', function(){
+      if (mq.matches) setDrawer(false);
+    });
+  });
+})();
+</script>
+</body>
+</html>

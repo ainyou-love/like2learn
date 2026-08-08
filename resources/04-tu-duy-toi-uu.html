@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép No.04 — Tư duy tối ưu (First Things First)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+  color:var(--ink);
+  font-family:"Be Vietnam Pro",sans-serif;
+  font-size:16px;
+  line-height:1.75;
+}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px;border-radius:4px}
+
+/* ===== Layout ===== */
+.wrap{
+  max-width:1240px;margin:0 auto;
+  display:grid;grid-template-columns:288px 1fr;gap:48px;
+  padding:0 24px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar{
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;
+  padding:32px 8px 32px 0;
+  scrollbar-width:thin;
+}
+.cover{
+  border:2px solid var(--green);
+  border-radius:var(--radius);
+  padding:6px;
+  background:var(--card);
+  margin-bottom:28px;
+}
+.cover-inner{
+  border:1px dashed var(--green-line);
+  border-radius:calc(var(--radius) - 4px);
+  padding:18px 16px;
+}
+.cover-label{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--seal);
+  margin-bottom:10px;
+}
+.cover-title{
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:700;font-size:21px;line-height:1.3;
+  color:var(--green);
+}
+.cover-sub{
+  font-size:12.5px;color:var(--ink-soft);margin-top:8px;
+}
+.toc{list-style:none;counter-reset:toc}
+.toc li{margin-bottom:4px}
+.toc a{
+  display:flex;align-items:baseline;gap:12px;
+  padding:9px 12px;border-radius:8px;
+  border-left:3px solid transparent;
+  font-size:14px;color:var(--ink-soft);
+  transition:background .2s,color .2s,border-color .2s;
+}
+.toc a .idx{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12px;color:var(--brass);
+  min-width:26px;text-align:right;flex-shrink:0;
+}
+.toc a:hover{background:var(--paper-deep)}
+.toc a.active{
+  background:var(--card);color:var(--green);
+  font-weight:600;border-left:3px solid var(--seal);
+}
+
+/* ===== Main ===== */
+main{padding:48px 0 64px;min-width:0}
+
+/* Hero */
+.hero{position:relative;margin-bottom:48px;padding-right:180px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--seal);
+  margin-bottom:14px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:700;color:var(--green);
+  font-size:clamp(34px,4.5vw,56px);
+  line-height:1.12;margin-bottom:16px;
+}
+.hero .sub{
+  font-size:17px;color:var(--ink-soft);max-width:640px;margin-bottom:20px;
+}
+.meta{display:flex;flex-wrap:wrap;gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12px;color:var(--green);
+  border:1px solid var(--green-line);
+  background:var(--card);
+  border-radius:999px;padding:5px 14px;
+}
+.stamp{
+  position:absolute;top:0;right:0;
+  width:150px;height:150px;
+  transform:rotate(7deg);
+}
+
+/* Section cards */
+.entry{
+  background:var(--card);
+  border:1px solid var(--green-line);
+  border-radius:var(--radius);
+  margin-bottom:36px;
+  scroll-margin-top:24px;
+  overflow:hidden;
+}
+.entry-head{
+  display:grid;grid-template-columns:1fr auto;gap:28px;
+  align-items:start;
+  padding:28px 32px 22px;
+  border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brass);
+  margin-bottom:8px;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:700;color:var(--green);
+  font-size:26px;line-height:1.25;margin-bottom:8px;
+}
+.entry-head .lede{font-style:italic;color:var(--ink-soft);font-size:14.5px}
+.illus{
+  width:168px;height:138px;flex-shrink:0;
+  border:2px solid var(--green);
+  border-radius:6px;
+  background:var(--paper);
+  padding:4px;
+  transform:rotate(-1.4deg);
+}
+.illus-inner{
+  width:100%;height:100%;
+  border:1px dashed var(--green-line);
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+}
+.illus svg{width:88%;height:88%;stroke:var(--green);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.illus .b{stroke:var(--brass)}
+.illus .s{stroke:var(--seal)}
+.illus .thin{stroke-width:2}
+.entry-body{padding:26px 32px 30px}
+.entry-body p{margin-bottom:14px;color:var(--ink)}
+.entry-body ul{list-style:none;margin-bottom:18px}
+.entry-body li{
+  position:relative;padding-left:26px;margin-bottom:10px;
+}
+.entry-body li::before{
+  content:"—";position:absolute;left:0;color:var(--brass);font-weight:600;
+}
+.entry-body strong{color:var(--green);font-weight:600}
+.entry-body em{color:var(--ink-soft);font-style:italic}
+.callout{
+  border-left:3px solid var(--seal);
+  background:var(--paper);
+  border-radius:0 8px 8px 0;
+  padding:16px 20px;
+  margin-top:20px;
+}
+.callout .tag{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--seal);
+  display:block;margin-bottom:6px;
+}
+.callout p{margin:0;font-size:15.5px}
+
+/* Footer */
+footer{
+  border-top:1px dashed var(--green-line);
+  padding:24px 0 8px;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12px;color:var(--ink-soft);
+}
+
+/* Mobile toggle & backdrop */
+.toc-toggle{
+  display:none;
+  position:fixed;bottom:20px;left:20px;z-index:60;
+  background:var(--green);color:var(--card);
+  border:none;border-radius:999px;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:13px;letter-spacing:.08em;
+  padding:12px 20px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(28,43,34,.25);
+}
+.backdrop{
+  display:none;position:fixed;inset:0;z-index:40;
+  background:rgba(28,43,34,.45);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s;
+}
+.backdrop.show{opacity:1;pointer-events:auto}
+
+/* ===== Mobile ===== */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:0 18px}
+  .sidebar{
+    position:fixed;top:0;left:0;z-index:50;
+    width:min(82vw,320px);
+    height:100vh;height:100dvh;
+    background:var(--paper);
+    padding:24px 18px;
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    box-shadow:4px 0 24px rgba(28,43,34,.18);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .backdrop{display:block}
+  .toc-toggle{display:block}
+  .hero{padding-right:0}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr;padding:22px 20px 18px}
+  .illus{width:100%;max-width:220px;transform:rotate(-1.4deg)}
+  .entry-body{padding:20px 20px 24px}
+  main{padding:32px 0 96px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <div class="cover-inner">
+        <div class="cover-label">Sổ ghi chép · No.04</div>
+        <div class="cover-title">Tư duy tối ưu</div>
+        <div class="cover-sub">First Things First — Stephen Covey</div>
+      </div>
+    </div>
+    <nav aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#muc-1"><span class="idx">01</span>Khởi nguồn của tư duy ưu tiên</a></li>
+        <li><a href="#muc-2"><span class="idx">02</span>Ưu tiên điều quan trọng nhất</a></li>
+        <li><a href="#muc-3"><span class="idx">03</span>Hợp lực làm việc cùng nhau</a></li>
+        <li><a href="#muc-4"><span class="idx">04</span>Sống theo nguyên tắc</a></li>
+        <li><a href="#muc-5"><span class="idx">05</span>Thông điệp khép sổ</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 150 150" aria-hidden="true">
+        <circle cx="75" cy="75" r="70" fill="none" stroke="#B0492F" stroke-width="4"/>
+        <circle cx="75" cy="75" r="54" fill="none" stroke="#B0492F" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="75" y="68" text-anchor="middle" fill="#B0492F"
+              font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="500" letter-spacing="2">ĐÃ GHI</text>
+        <text x="75" y="94" text-anchor="middle" fill="#B0492F"
+              font-family="'IBM Plex Mono',monospace" font-size="15" letter-spacing="1">SỔ · 2026</text>
+      </svg>
+      <p class="kicker">Ghi chép đọc sách · Sổ tiết kiệm tri thức</p>
+      <h1>Tư duy tối ưu</h1>
+      <p class="sub">Vấn đề của chúng ta không phải thiếu thời gian, mà thiếu sự rõ ràng — rõ về điều gì quan trọng nhất, có ý nghĩa và xứng đáng để đặt trái tim mình vào.</p>
+      <div class="meta">
+        <span class="pill">Stephen Covey</span>
+        <span class="pill">First Things First</span>
+        <span class="pill">Quản trị bản thân</span>
+      </div>
+    </header>
+
+    <!-- ============ MỤC 01 ============ -->
+    <section class="entry" id="muc-1">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 01</p>
+          <h2>Khởi nguồn của tư duy ưu tiên</h2>
+          <p class="lede">Tiếng chuông cảnh tỉnh: bạn đang chạy vì điều gì vậy?</p>
+        </div>
+        <div class="illus"><div class="illus-inner">
+          <!-- Đồng hồ vs la bàn -->
+          <svg viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="48" cy="60" r="30"/>
+            <line x1="48" y1="60" x2="48" y2="40" class="thin"/>
+            <line x1="48" y1="60" x2="62" y2="66" class="thin"/>
+            <circle cx="115" cy="60" r="30" class="b"/>
+            <path d="M115 38 L122 60 L115 82 L108 60 Z" class="s"/>
+            <circle cx="115" cy="60" r="3" class="s"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Dấu hiệu quen thuộc: <strong>làm rất nhiều nhưng trống rỗng</strong> — sáng mở mắt đã vội, tối nhắm mắt vẫn dang dở, không chắc mình đang làm đúng điều quan trọng.</li>
+          <li>Khoảnh khắc tự hỏi <em>"mình đang chạy vì điều gì vậy?"</em> chính là <strong>tiếng chuông cảnh tỉnh</strong> — đến từ một biến cố, một lần kiệt sức, hay chỉ một buổi chiều chợt nhận ra đã bỏ lỡ điều quan trọng vì bận.</li>
+          <li>Tiếng chuông ấy không êm ái — như có ai đặt tay lên vai bạn và nói: <em>"Này, nhìn lại đi, nếu cứ tiếp tục như thế này liệu bạn có đang đánh đổi quá nhiều thứ không?"</em></li>
+          <li>Căn bệnh chung: bận đến mức <strong>không còn thời gian tự hỏi mình muốn gì</strong>, quên lý do bắt đầu — và càng bận càng nhầm lẫn giữa <strong>quan trọng</strong> và <strong>cấp bách</strong>.</li>
+          <li>Hai hình ảnh trung tâm: <strong>chiếc đồng hồ</strong> (lịch trình, deadline, mọi thứ phải làm) và <strong>cái la bàn</strong> (giá trị, nguyên tắc, sứ mệnh, lương tâm — mọi thứ ta tin là quan trọng).</li>
+          <li>Đồng hồ lúc nào cũng kêu <em>"gấp, cần ngay, quan trọng lắm"</em>; la bàn thì <strong>im lặng, kiên nhẫn</strong>, không hối thúc — vì thế phần lớn chúng ta bị đồng hồ điều khiển.</li>
+          <li>Tăng năng suất 15–20% không giải quyết được gì: bản chất vấn đề không ở <strong>làm nhanh</strong> mà ở <strong>làm đúng</strong>. Làm sai thứ quan trọng thì cải thiện tốc độ chỉ là chạy nhanh hơn về sai hướng.</li>
+          <li>Chọn giữa tốt–xấu thì dễ; khó là chọn giữa <strong>việc tốt và việc tốt nhất</strong>. Ta chìm trong việc tốt (email, họp, xử lý phát sinh) đến mức hết chỗ cho việc tốt nhất — việc quan trọng cho tương lai, không ai nhắc, hậu quả chậm nhưng rất nặng. Câu hỏi tự vấn: <em>"Nếu những thứ đó đều là việc tốt thì việc tốt nhất của bạn là gì?"</em></li>
+          <li>Việc tốt nhất luôn gắn với <strong>bốn nhu cầu cốt lõi</strong>: Sống (sức khỏe, sự nghiệp, tài chính) · Yêu thương (quan hệ ý nghĩa) · Học tập (phát triển, sáng tạo không ngừng) · Để lại di sản (mục đích, giá trị bền vững cho thế hệ sau).</li>
+          <li>Việc bạn làm không nuôi dưỡng bốn nhóm này = <strong>đồng hồ đang áp đảo la bàn</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="tag">Bài học</span>
+          <p>Chưa cần thay đổi ngay, chưa cần giải pháp — chỉ cần nhìn lại một cách trung thực khoảng cách giữa điều ta làm và điều ta thật sự coi trọng. Nhìn ra khoảng cách ấy, ta hiểu vì sao mình mệt dù bên ngoài có vẻ đang làm rất tốt.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MỤC 02 ============ -->
+    <section class="entry" id="muc-2">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 02</p>
+          <h2>Nguyên tắc ưu tiên điều quan trọng nhất</h2>
+          <p class="lede">Ma trận bốn ô và những viên đá lớn phải vào bình trước.</p>
+        </div>
+        <div class="illus"><div class="illus-inner">
+          <!-- Bình thủy tinh với đá lớn -->
+          <svg viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M55 20 L55 95 Q55 105 65 105 L95 105 Q105 105 105 95 L105 20"/>
+            <line x1="48" y1="20" x2="112" y2="20" class="thin"/>
+            <circle cx="72" cy="88" r="12" class="b"/>
+            <circle cx="92" cy="90" r="10" class="b"/>
+            <circle cx="82" cy="70" r="11" class="b"/>
+            <circle cx="66" cy="55" r="4" class="thin s"/>
+            <circle cx="95" cy="52" r="4" class="thin s"/>
+            <circle cx="80" cy="45" r="3" class="thin s"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Gốc của rối ren: không phân biệt được <strong>tính khẩn cấp</strong> và <strong>tính quan trọng</strong>. Điện thoại reo, email đến, ai đó gọi <em>"cần gấp, giúp tôi với"</em> — có vẻ khẩn cấp; còn điều quan trọng nhất thì rất im lặng: cuộc gọi cho bố mẹ, buổi tập đã hứa với chính mình, cuốn sách muốn đọc, giấc ngủ đúng giờ.</li>
+          <li><strong>Điều quan trọng không bao giờ gấp</strong> — và vì không gấp nên dễ bị bỏ qua.</li>
+          <li>Căn bệnh <strong>nghiện khẩn cấp</strong>: mỗi lần xử lý xong việc gấp, ta thấy mình có ích, được công nhận ngay lập tức → nghiện cảm giác bận rộn, quên mất điều quan trọng.</li>
+          <li>Nghiện khẩn cấp giống <strong>thuốc giảm đau</strong>: dịu ngay cảm giác bức bối nhưng không chữa gốc rễ; kéo dài sẽ phá hủy đời sống bên trong.</li>
+          <li>Dấu hiệu rõ nhất: một buổi sáng rảnh, không ai gọi, không ai nhắn — <em>"bạn có thấy lo lo không?"</em>, có cảm giác <em>"mình không làm gì cả"</em> và <strong>bắt đầu tự nhồi việc</strong> cho bản thân.</li>
+          <li><strong>Ma trận 4 ô</strong> — mọi việc mỗi ngày rơi vào một trong bốn ô:</li>
+          <li><strong>Ô 1</strong> — quan trọng + khẩn cấp: khủng hoảng, deadline, sự cố. Ai cũng phải xử lý, nhưng sống toàn bộ trong ô này thì luôn mệt mỏi, bị đẩy đi, không còn giây phút để thở.</li>
+          <li><strong>Ô 2</strong> — quan trọng + không khẩn cấp: sức khỏe, học tập, mối quan hệ, chuẩn bị, lập kế hoạch, nuôi dưỡng tinh thần. Đây là <strong>"phần tư vàng"</strong> — âm thầm nhưng quyết định chất lượng cuộc đời.</li>
+          <li><strong>Ô 3</strong> — khẩn cấp + không quan trọng: việc người khác nhờ, việc tưởng quan trọng nhưng không liên quan mục tiêu đời mình. Sống ở đây quá lâu = <strong>sống cuộc đời của người khác</strong>.</li>
+          <li><strong>Ô 4</strong> — không quan trọng + không khẩn cấp: lướt mạng vô thức, xem gì đó cho qua thời gian.</li>
+          <li>Người thực sự làm chủ cuộc đời là người <strong>dành phần lớn thời gian cho Ô 2</strong> — nơi dựng nền tảng, nơi tránh cho ta khỏi sống mãi trong Ô 1.</li>
+          <li>Ẩn dụ <strong>viên đá lớn</strong>: đổ cát rồi sỏi rồi nước vào bình trước — hết chỗ cho đá lớn; cho <strong>đá lớn vào trước</strong>, rồi sỏi len vào khe, rồi cát, rồi nước — tất cả vừa khít.</li>
+          <li>Đá lớn = hoạt động Ô 2; sỏi–cát–nước = việc vặt, việc gấp, việc phát sinh — nhìn thì bận rộn nhưng <strong>chẳng đưa bạn đến đâu</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="tag">Nguyên tắc</span>
+          <p>Hãy chọn điều quan trọng trước khi cuộc đời buộc bạn phải chọn điều khẩn cấp. Ưu tiên viên đá lớn — bạn vẫn làm được mọi việc khác, nhưng không bị cuốn trôi và không bỏ sót những điều thật sự đáng sống.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MỤC 03 ============ -->
+    <section class="entry" id="muc-3">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 03</p>
+          <h2>Hợp lực làm việc cùng nhau</h2>
+          <p class="lede">Từ độc lập đến tương thuộc: 1 + 1 = 3, hoặc nhiều hơn.</p>
+        </div>
+        <div class="illus"><div class="illus-inner">
+          <!-- Hai vòng tròn giao nhau tạo giá trị mới -->
+          <svg viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="62" cy="62" r="30"/>
+            <circle cx="98" cy="62" r="30" class="b"/>
+            <line x1="80" y1="48" x2="80" y2="76" class="s"/>
+            <line x1="66" y1="62" x2="94" y2="62" class="s"/>
+            <path d="M72 22 L80 10 L88 22" class="thin s"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Có những mục tiêu <strong>không thể đạt được một mình</strong> dù cố gắng đến đâu — đây là giai đoạn chuyển đổi: rời khỏi tư duy <em>"một mình tôi làm tất cả"</em>.</li>
+          <li><strong>Độc lập không phải đỉnh cao của trưởng thành</strong> — chỉ là một nấc thang. Nấc cao hơn là <strong>tương thuộc</strong>: ba cấp độ lệ thuộc → độc lập → tương thuộc.</li>
+          <li>Lệ thuộc là cần người khác để sống; độc lập là tự lo được cho bản thân; tương thuộc là <strong>biết kết nối để tạo ra kết quả lớn hơn</strong> điều một cá nhân có thể làm.</li>
+          <li>Mối quan hệ giữa người với người <strong>phức tạp hơn mọi kế hoạch hay ma trận</strong>: chỉ một tranh cãi, một hiểu lầm cũng đủ đảo lộn cả tuần. Con người không phải là "việc", quan hệ không vận hành theo logic nhiệm vụ.</li>
+          <li>Cách làm việc với con người: không lợi dụng, không kiểm soát — mà <strong>tôn trọng, tin tưởng và đồng sáng tạo</strong>.</li>
+          <li>Niềm tin là <strong>tài khoản tình cảm</strong>: giữ lời, lắng nghe thật sự, không phán xét vội = gửi tiền; thất hứa, phản ứng nóng nảy, áp đặt = rút tiền.</li>
+          <li>Khi tài khoản cạn kiệt, mọi giao tiếp trở nên khó khăn — bạn có thể nói đúng, logic, hợp lý nhưng <strong>người kia sẽ không nghe</strong>, đơn giản vì không còn niềm tin.</li>
+          <li>Hợp lực là <strong>phép nhân</strong>: không phải 1 + 1 = 2 mà là 3, 4, thậm chí 10 — vợ chồng hợp lực tạo môi trường cho con lớn lên khỏe mạnh; nhóm hợp lực vượt xa kỳ vọng vì mỗi người bù đắp cho nhau.</li>
+          <li>Hợp lực không phải tìm ai đúng ai sai — mà tìm <strong>lựa chọn thứ ba</strong>: lựa chọn cả hai đều không nghĩ ra nếu chỉ đứng một mình.</li>
+          <li>Ưu tiên trong cuộc sống không chỉ là quản lý thời gian mà còn là <strong>quản lý mối quan hệ</strong> — vì điều quan trọng nhất luôn liên quan đến người khác.</li>
+        </ul>
+        <div class="callout">
+          <span class="tag">Bài học</span>
+          <p>Không ai xây sự nghiệp lớn một mình, không ai sửa một mối quan hệ chỉ bằng công thức. Hợp lực là khả năng nhìn thấy giá trị của người khác, đón nhận sự khác biệt như cơ hội chứ không phải mối đe dọa — và nói <em>"chúng ta cùng làm sẽ tốt hơn"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MỤC 04 ============ -->
+    <section class="entry" id="muc-4">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 04</p>
+          <h2>Sống theo nguyên tắc để đạt bình yên nội tâm</h2>
+          <p class="lede">Nguyên tắc là ngọn hải đăng giữa đêm bão — không bao giờ phản bội bạn.</p>
+        </div>
+        <div class="illus"><div class="illus-inner">
+          <!-- Hải đăng giữa sóng -->
+          <svg viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M70 100 L76 35 L92 35 L98 100"/>
+            <path d="M73 35 L73 24 L95 24 L95 35"/>
+            <path d="M60 24 L73 28" class="thin b"/>
+            <path d="M108 24 L95 28" class="thin b"/>
+            <path d="M20 105 Q35 95 50 105 T80 105 T110 105 T140 105" class="thin"/>
+            <line x1="72" y1="62" x2="96" y2="62" class="thin s"/>
+            <line x1="71" y1="80" x2="97" y2="80" class="thin s"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Không còn ma trận hay chiến lược sắp xếp thời gian — điều sâu hơn: <strong>hiệu quả thực sự đến từ bên trong</strong>. Thiếu điểm tựa vững vàng thì mọi phương pháp không chịu được thử thách, mọi nguyên tắc trước đó chỉ là hình thức.</li>
+          <li>Điểm tựa ấy là <strong>nguyên tắc</strong>: không phải quy tắc cứng nhắc do người khác áp đặt, mà là <strong>chân lý vượt thời gian</strong> giúp ta giữ bình an dù cuộc sống đảo lộn.</li>
+          <li>Nhiều người nghĩ mình sống theo mục tiêu nhưng thực chất <strong>sống theo cảm xúc nhất thời</strong>; tưởng sống theo giá trị nhưng là sống theo <strong>mong đợi của người khác</strong>; nghĩ mình chủ động nhưng chạy theo tiêu chuẩn không phải của mình.</li>
+          <li>Các <strong>trung tâm sai lầm</strong>: xoay quanh tiền bạc, công việc, tình yêu, gia đình, bạn bè, niềm vui trước mắt — không xấu, nhưng để chúng dẫn dắt toàn bộ cuộc đời thì dễ tổn thương: tiền có thể mất, công việc có thể thay đổi, tình yêu có thể rời đi.</li>
+          <li><strong>Nguyên tắc không bao giờ phản bội bạn</strong> — trung tâm bất biến như ngọn hải đăng giữa đêm bão: không chạy theo cảm xúc, không bị ảnh hưởng bởi khen chê, không lệ thuộc hoàn cảnh.</li>
+          <li>Ba điều để sống theo nguyên tắc: <strong>tính chính trực</strong> — thẳng thắn với chính mình, làm điều đúng ngay cả khi không ai nhìn thấy, giữ lời hứa.</li>
+          <li><strong>Tính kỷ luật</strong> — duy trì điều quan trọng dù không thích; kỷ luật là <strong>cầu nối giữa mục tiêu và thành tựu</strong>.</li>
+          <li><strong>Tiếng nói nội tâm (lương tâm)</strong> — la bàn thực sự: không hét lên, chỉ thì thầm; lắng nghe sẽ biết điều gì đúng, điều gì nên từ chối, điều gì cần dừng lại.</li>
+          <li>Bình yên đến khi <strong>sống đồng bộ</strong>: điều bạn tin – nghĩ – nói – làm nhất quán. Tin một điều nhưng sống ngược lại → bất an; nói một điều rồi phá bỏ → thấy mình yếu đuối.</li>
+          <li>Bình yên là khi <strong>không phải đóng vai nữa</strong>, không cần chứng minh với ai, không chạy theo tiêu chuẩn bên ngoài — chỉ cần sống đúng nguyên tắc của mình.</li>
+          <li><strong>Mài cưa</strong>: cưa không mài sẽ vô dụng — thường xuyên tái tạo bốn mặt: <strong>thể chất, trí tuệ, cảm xúc, tinh thần</strong>. Bốn mặt mạnh lên, bạn có đủ nội lực làm điều <strong>đúng</strong> chứ không phải điều <strong>dễ</strong>.</li>
+          <li>Kết quả: <strong>lựa chọn phản ứng</strong> thay vì phản ứng ngay lập tức; biết điều gì xứng đáng với thời gian của mình; hành động theo giá trị của chính mình.</li>
+        </ul>
+        <div class="callout">
+          <span class="tag">Bài học</span>
+          <p>Bình yên nội tâm là thứ không phụ thuộc vào ngoại cảnh — nó chỉ đến khi bạn đồng bộ với chính mình: điều bạn tin, điều bạn nghĩ, điều bạn nói và điều bạn làm là một.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MỤC 05 ============ -->
+    <section class="entry" id="muc-5">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 05</p>
+          <h2>Thông điệp khép sổ</h2>
+          <p class="lede">Mỗi ngày chỉ cần chọn đúng một điều quan trọng nhất.</p>
+        </div>
+        <div class="illus"><div class="illus-inner">
+          <!-- Con đường và lá cờ -->
+          <svg viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M30 105 Q70 90 65 60 Q60 35 100 28"/>
+            <line x1="112" y1="18" x2="112" y2="52" class="b"/>
+            <path d="M112 18 L138 25 L112 32" class="s"/>
+            <circle cx="30" cy="105" r="4" class="thin b"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Khác biệt giữa một cuộc đời bận rộn và một cuộc đời có ý nghĩa đôi khi chỉ nằm ở việc <strong>bạn có dám dừng lại hay không</strong> — dừng để nghe tiếng chuông cảnh tỉnh, nhìn vào la bàn, và hỏi <em>"điều gì là thật sự quan trọng với mình?"</em>.</li>
+          <li>Tư duy tối ưu không yêu cầu thay đổi cả cuộc đời ngay lập tức: <strong>mỗi ngày chọn đúng một điều quan trọng nhất</strong>, cả cuộc đời sẽ dẫn đi đúng hướng.</li>
+          <li>Tối ưu <strong>không phải chạy nhanh hơn</strong>, không phải nhét thêm việc vào một ngày — mà là biết dừng lại, nhìn vào điều quan trọng nhất và <strong>đủ dũng khí đặt nó lên hàng đầu</strong>.</li>
+          <li>Tối ưu không phải chiến đấu một mình — là khả năng <strong>kết nối, hợp lực</strong> để tạo ra điều một cá nhân không thể làm được.</li>
+          <li>Và tối ưu là có <strong>một chiếc la bàn bên trong</strong>: hệ nguyên tắc, giá trị và niềm tin giúp ta đứng vững ngay cả khi cuộc đời nổi gió.</li>
+        </ul>
+        <div class="callout">
+          <span class="tag">Ghi nhớ</span>
+          <p>Đồng hồ hỏi "gấp không?" — la bàn hỏi "đúng không?". Sống tối ưu là để la bàn trả lời trước.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Nguồn: video tóm tắt sách — kênh "Mỗi ngày một quyển" · Sách: First Things First (Tư duy tối ưu), Stephen R. Covey · Sổ ghi chép No.04
+    </footer>
+  </main>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var toggle = document.getElementById('tocToggle');
+  var links = document.querySelectorAll('.toc a');
+  var isDesktop = function(){ return window.matchMedia('(min-width:901px)').matches; };
+
+  /* ---- Drawer state (single source of truth) ---- */
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  }
+  toggle.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setDrawer(false);
+  });
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  /* ---- Scrollspy ---- */
+  var sections = document.querySelectorAll('.entry');
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var link = map[entry.target.id];
+      if(!link) return;
+      if(entry.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('active'); });
+        link.classList.add('active');
+        if(isDesktop()){
+          link.scrollIntoView({block:'nearest'});
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(function(s){ observer.observe(s); });
+})();
+</script>
+</body>
+</html>
