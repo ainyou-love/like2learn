@@ -1,0 +1,47 @@
+---
+layout: null
+---
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+</head>
+
+<body>
+
+<script>
+const resources = {
+{% assign files = site.static_files
+  | where_exp: "file", "file.path contains '/resources/'"
+  | sort: "name"
+%}
+
+{% for file in files %}
+  {% if file.extname == ".html" %}
+    {% assign number = file.name | split: "-" | first %}
+    "{{ number }}": "{{ file.path }}"{% unless forloop.last %},{% endunless %}
+  {% endif %}
+{% endfor %}
+};
+
+
+// /01/ → 01
+const key = window.location.pathname
+  .replace(/^\/+|\/+$/g, "");
+
+
+if (resources[key]) {
+  window.location.replace(resources[key]);
+} else {
+  document.body.innerHTML = `
+    <h1>404</h1>
+    <p>Không tìm thấy: ${key}</p>
+    <p><a href="/">← Trang chủ</a></p>
+  `;
+}
+</script>
+
+</body>
+</html>
