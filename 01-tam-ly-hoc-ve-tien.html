@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tâm Lý Học Về Tiền — Sổ ghi chép</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE;
+  --paper-deep:#EAEEE3;
+  --ink:#1C2B22;
+  --ink-soft:#44544A;
+  --green:#2F5D4A;
+  --green-line:#C3D0C0;
+  --brass:#9C7A2E;
+  --seal:#B0492F;
+  --card:#FBFCF8;
+  --radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+body{
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.75;
+}
+.mono{font-family:"IBM Plex Mono",monospace}
+
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:288px minmax(0,1fr);max-width:1240px;margin:0 auto;gap:0 48px;padding:0 28px}
+
+/* ---------- sidebar ---------- */
+nav.toc{
+  position:sticky;top:0;align-self:start;
+  height:100vh;overflow-y:auto;
+  padding:36px 4px 48px 0;
+  scrollbar-width:thin;scrollbar-color:var(--green-line) transparent;
+}
+.toc-head{
+  border:2px solid var(--green);border-radius:var(--radius);
+  padding:14px 16px 12px;background:var(--card);
+  margin-bottom:18px;position:relative;overflow:hidden;
+}
+.toc-head::after{
+  content:"";position:absolute;inset:4px;border:1px dashed var(--green-line);
+  border-radius:6px;pointer-events:none;
+}
+.toc-head .mono{font-size:11px;letter-spacing:.18em;color:var(--seal);text-transform:uppercase}
+.toc-head strong{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  display:block;font-size:17px;line-height:1.3;color:var(--green);
+}
+.toc ol{list-style:none}
+.toc a{
+  display:flex;gap:10px;align-items:baseline;
+  padding:6px 10px 6px 8px;border-radius:6px;
+  color:var(--ink-soft);text-decoration:none;font-size:13.5px;line-height:1.45;
+  border-left:3px solid transparent;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.toc a .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--brass);min-width:22px;text-align:right}
+.toc a:hover{background:var(--paper-deep);color:var(--ink)}
+.toc a.active{
+  background:var(--card);color:var(--green);font-weight:600;
+  border-left-color:var(--seal);
+}
+
+/* ---------- hero ---------- */
+header.hero{padding:64px 0 40px;position:relative}
+.hero .kicker{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--seal);
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  font-size:clamp(34px,4.6vw,56px);line-height:1.06;color:var(--green);
+  margin:14px 0 10px;max-width:14ch;
+}
+.hero .sub{max-width:56ch;color:var(--ink-soft);font-size:16.5px}
+.hero .meta{
+  margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);
+}
+.hero .meta span{
+  border:1px solid var(--green-line);border-radius:99px;
+  padding:5px 13px;background:var(--card);
+}
+.stamp{
+  position:absolute;right:0;top:58px;width:132px;height:132px;
+  transform:rotate(7deg);opacity:.92;
+}
+@media(max-width:900px){.stamp{display:none}}
+
+/* ---------- sections ---------- */
+main{padding-bottom:110px;min-width:0}
+section.entry{
+  margin-top:56px;background:var(--card);
+  border:1px solid var(--green-line);border-radius:var(--radius);
+  padding:0 0 28px;overflow:hidden;
+  scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid;grid-template-columns:minmax(0,1fr) 168px;gap:20px;align-items:center;
+  padding:26px 30px 20px;border-bottom:1px dashed var(--green-line);
+  background:linear-gradient(0deg, rgba(47,93,74,.03), transparent);
+}
+.entry-head .idx{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.16em;
+  color:var(--brass);text-transform:uppercase;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  font-size:clamp(22px,2.6vw,29px);line-height:1.18;color:var(--green);margin-top:6px;
+}
+.entry-head .one{margin-top:8px;color:var(--ink-soft);font-size:14.5px;font-style:italic}
+.fig{
+  width:168px;height:138px;flex:none;
+  border:2px solid var(--green);border-radius:var(--radius);
+  background:var(--paper);display:flex;align-items:center;justify-content:center;
+  transform:rotate(-1.4deg);position:relative;
+}
+.fig::after{content:"";position:absolute;inset:4px;border:1px dashed var(--green-line);border-radius:6px}
+.fig svg{width:88%;height:88%}
+.entry .body{padding:22px 30px 0}
+.entry ul{list-style:none;display:grid;gap:10px}
+.entry li{padding-left:22px;position:relative;color:var(--ink)}
+.entry li::before{
+  content:"—";position:absolute;left:0;color:var(--brass);font-weight:600;
+}
+.entry li strong{color:var(--green)}
+.callout{
+  margin:18px 30px 0;border-left:3px solid var(--seal);
+  background:var(--paper);border-radius:0 8px 8px 0;
+  padding:12px 18px;font-size:15.5px;color:var(--ink);
+}
+.callout .mono{font-size:10.5px;letter-spacing:.16em;color:var(--seal);text-transform:uppercase;display:block;margin-bottom:3px}
+
+/* svg strokes */
+.il{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.il .b{stroke:var(--brass)}
+.il .s{stroke:var(--seal)}
+.il .f{fill:var(--green);stroke:none}
+.il .fb{fill:var(--brass);stroke:none}
+.il .fs{fill:var(--seal);stroke:none}
+.il .thin{stroke-width:2}
+
+footer{
+  margin-top:70px;padding:26px 0 60px;border-top:1px dashed var(--green-line);
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);
+}
+
+/* ---------- mobile ---------- */
+.toc-toggle{display:none}
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr;padding:0 18px}
+  .backdrop{
+    position:fixed;inset:0;background:rgba(28,43,34,.35);z-index:39;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  .backdrop.show{opacity:1;pointer-events:auto}
+  nav.toc{
+    position:fixed;inset:0 auto 0 0;width:min(82vw,320px);height:100vh;height:100dvh;
+    background:var(--paper);z-index:40;padding:22px 18px;
+    transform:translateX(-102%);transition:transform .22s ease;
+    border-right:2px solid var(--green);box-shadow:8px 0 30px rgba(28,43,34,.12);
+  }
+  nav.toc.open{transform:translateX(0)}
+  .toc-toggle{
+    display:flex;align-items:center;gap:8px;
+    position:fixed;left:14px;bottom:14px;z-index:41;
+    background:var(--green);color:var(--paper);border:none;border-radius:99px;
+    padding:11px 18px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    letter-spacing:.12em;cursor:pointer;box-shadow:0 6px 18px rgba(28,43,34,.28);
+  }
+  .entry-head{grid-template-columns:1fr;padding:22px 20px 18px}
+  .fig{width:100%;max-width:220px;height:120px}
+  .entry .body{padding:20px 20px 0}
+  .callout{margin:16px 20px 0}
+}
+</style>
+</head>
+<body>
+
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="toc">☰ MỤC LỤC</button>
+<div class="backdrop" id="backdrop"></div>
+
+<div class="wrap">
+
+<nav class="toc" id="toc" aria-label="Mục lục">
+  <div class="toc-head">
+    <span class="mono">Sổ ghi chép · No.01</span>
+    <strong>Tâm Lý Học Về Tiền</strong>
+  </div>
+  <ol>
+    <li><a href="#gioi-thieu"><span class="n">00</span>Giới thiệu sách</a></li>
+    <li><a href="#s1"><span class="n">01</span>Không ai điên cả</a></li>
+    <li><a href="#s2"><span class="n">02</span>May mắn &amp; rủi ro</a></li>
+    <li><a href="#s3"><span class="n">03</span>Cái bẫy "không bao giờ đủ"</a></li>
+    <li><a href="#s4"><span class="n">04</span>Lãi kép — siêu năng lực</a></li>
+    <li><a href="#s5"><span class="n">05</span>Giữ giàu khó hơn làm giàu</a></li>
+    <li><a href="#s6"><span class="n">06</span>Tự do — lợi nhuận cao nhất</a></li>
+    <li><a href="#s7"><span class="n">07</span>Giàu có vô hình</a></li>
+    <li><a href="#s8"><span class="n">08</span>Tiết kiệm</a></li>
+    <li><a href="#s9"><span class="n">09</span>Hợp lý đánh bại lý trí</a></li>
+    <li><a href="#s10"><span class="n">10</span>Câu chuyện riêng mỗi người</a></li>
+    <li><a href="#s11"><span class="n">11</span>Lịch sử &amp; con người</a></li>
+    <li><a href="#s12"><span class="n">12</span>Mỗi người một trò chơi</a></li>
+    <li><a href="#s13"><span class="n">13</span>May mắn ≠ kỹ năng</a></li>
+    <li><a href="#s14"><span class="n">14</span>Chỉ cần đúng vài lần</a></li>
+    <li><a href="#s15"><span class="n">15</span>Thứ không đo lường được</a></li>
+    <li><a href="#s16"><span class="n">16</span>Hành vi &gt; trí thông minh</a></li>
+    <li><a href="#s17"><span class="n">17</span>Bản ngã — kẻ thù số một</a></li>
+    <li><a href="#s18"><span class="n">18</span>Biết mình muốn gì</a></li>
+    <li><a href="#s19"><span class="n">19</span>Không ai thành công một mình</a></li>
+    <li><a href="#s20"><span class="n">20</span>Biết đủ</a></li>
+    <li><a href="#ket"><span class="n">∎</span>Kết — tấm gương soi mình</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="kicker">Ghi chú đọc sách · Morgan Housel</div>
+  <h1>Tâm Lý Học Về Tiền</h1>
+  <p class="sub">Tiền không phải toán học — tiền là hành vi. 20 ghi chú cốt lõi về cách con người nghĩ, cảm và cư xử với tiền bạc, ghi lại theo từng ý của sách.</p>
+  <div class="meta">
+    <span>20 ý chính</span>
+    <span>Nguồn: kênh "Mỗi ngày một quyển"</span>
+    <span>Bestseller · 40+ ngôn ngữ</span>
+  </div>
+  <svg class="stamp" viewBox="0 0 132 132" aria-hidden="true">
+    <circle cx="66" cy="66" r="60" fill="none" stroke="var(--seal)" stroke-width="3"/>
+    <circle cx="66" cy="66" r="46" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <text x="66" y="60" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="var(--seal)" letter-spacing="2">ĐÃ GHI</text>
+    <text x="66" y="80" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="var(--seal)" letter-spacing="2">SỔ · 2026</text>
+  </svg>
+</header>
+
+<!-- 00 -->
+<section class="entry" id="gioi-thieu">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 00 · Mở sổ</div>
+      <h2>Giới thiệu sách</h2>
+      <p class="one">Một tấm gương soi lại chính mình, không phải giáo trình tài chính.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M30 92V32c0-6 4-10 10-10h38v70H40c-6 0-10 4-10 10s4 10 10 10h38"/>
+        <path d="M78 22h40c6 0 10 4 10 10v60c0 6-4 10-10 10H78" class="b"/>
+        <path d="M42 40h24M42 52h24M42 64h16" class="thin"/>
+        <circle cx="104" cy="58" r="13" class="s"/>
+        <path d="M104 51v14M99 58h10" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Sách <strong>không dạy làm giàu nhanh</strong>, không phải sách tài chính kỹ thuật, không hứa công thức thần tốc.</li>
+      <li>Nó đào sâu cách con người <strong>suy nghĩ, cảm nhận và hành xử với tiền</strong> — đầy cảm xúc, phi lý trí, mang dấu ấn riêng của mỗi cá nhân.</li>
+      <li>Kể chuyện gần gũi, ví dụ đời thường — khám phá mối quan hệ giữa tiền và hành vi, điều trường học và biểu đồ tài chính không dạy.</li>
+      <li>Bestseller toàn cầu, dịch ra hơn 40 ngôn ngữ, có mặt trong các danh sách sách nên đọc của NYT, WSJ, Forbes.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="entry" id="s1">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 01</div>
+      <h2>Không ai điên cả</h2>
+      <p class="one">Mỗi người nhìn tiền qua một chiếc gương khác — được đúc từ quá khứ của riêng họ.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="80" cy="60" r="24" class="b"/>
+        <text x="80" y="68" text-anchor="middle" font-size="22" fill="var(--brass)" font-family="IBM Plex Mono">₫</text>
+        <circle cx="30" cy="46" r="9"/>
+        <path d="M30 55v20M30 62l-9 9M30 62l9 9"/>
+        <path d="M42 50l12 4" class="thin"/>
+        <circle cx="130" cy="46" r="9" class="s"/>
+        <path d="M130 55v20M130 62l-9 9M130 62l9 9" class="s"/>
+        <path d="M118 50l-12 4" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Người tiêu tiền "ngu ngốc" (vé số, nợ thẻ tín dụng) thực ra đang hành xử <strong>hợp lý theo trải nghiệm riêng</strong> của họ.</li>
+      <li>Ta sống trong "bong bóng trải nghiệm cá nhân": lớn lên nghèo → tiết kiệm là sống còn; thấy cha mẹ mất trắng vì cổ phiếu → không tin thị trường; sinh ra thời ổn định → không hiểu vì sao thế hệ trước ám ảnh giữ tiền mặt.</li>
+      <li>Trải nghiệm cá nhân chỉ chiếm <strong>~0,001% lịch sử tài chính</strong> nhưng quyết định <strong>~80%</strong> cách ta nghĩ tiền vận hành.</li>
+      <li><strong>Tiền không phải toán học — tiền là hành vi.</strong> Nếu tài chính chỉ là con số thì người thông minh luôn giàu; thực tế ngược lại.</li>
+      <li>Ronald Read — người gác cổng — để lại <strong>8 triệu đô</strong> nhờ tiết kiệm và đầu tư đều đặn; trong khi giám đốc ngân hàng tốt nghiệp Harvard phá sản vì vung tiền, vay nợ, đánh cược.</li>
+      <li>Người thu nhập thấp mua vé số không phải vì tin sẽ trúng — họ mua <strong>hy vọng</strong>, tấm vé cho giấc mơ thoát khỏi cảnh mắc kẹt. Không đúng, nhưng hợp lý nếu hiểu câu chuyện phía sau.</li>
+      <li>Ta ra quyết định tài chính khi mệt mỏi, khi có con, khi thấy thua kém bạn bè, khi bị quảng cáo và đám đông tác động — phản ứng của một tâm trí đang cố sống sót.</li>
+    </ul>
+    <div class="callout"><span class="mono">Bài học</span>Thấu cảm thay vì chỉ trích — với người khác và với chính mình. Nhận thức được câu chuyện đã định hình mình, ta mới viết lại được nó.</div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="entry" id="s2">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 02</div>
+      <h2>May mắn &amp; rủi ro</h2>
+      <p class="one">Hai mặt của cùng một đồng xu — kết quả không phải bản sao trung thực của kỹ năng.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M80 14v14M80 20l-7 8M80 20l7 8" class="thin"/>
+        <circle cx="46" cy="66" r="26" class="b"/>
+        <path d="M46 54l4 8 9 1-6 7 1 9-8-4-8 4 1-9-6-7 9-1z" class="b thin"/>
+        <circle cx="114" cy="66" r="26" class="s"/>
+        <path d="M104 56l20 20M124 56l-20 20" class="s"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Bill Gates tài năng — <strong>và</strong> may mắn: học ở một trong số cực ít trường trung học có máy tính năm 1968.</li>
+      <li>Kent Evans — bạn thân của Gates, thông minh và tham vọng không kém, từng dự định lập công ty chung — mất trong tai nạn leo núi khi còn là học sinh. Một người trúng xác suất một-trên-triệu; người kia trúng rủi ro với xác suất tương tự.</li>
+      <li>Ta phớt lờ may mắn vì: nói người khác thành công nhờ may mắn → bị coi là đố kỵ; thừa nhận mình gặp thời → thấy không xứng đáng. Nên hầu hết chỉ công nhận nỗ lực và tài năng — vừa nguy hiểm vừa thiển cận.</li>
+      <li>Richard Fuscone: giám đốc cấp cao Merrill Lynch, học Harvard, biệt thự tiêu 90.000 đô/tháng → khủng hoảng 2008 → phá sản, mất sạch. Đối lập hoàn toàn với người gác cổng Ronald Read.</li>
+      <li>Học người thành công là tốt, nhưng nhớ: họ có thể sinh đúng nơi, đúng thời, gặp đúng người. Nếu Gates sinh ở vùng quê không máy tính, có Microsoft không?</li>
+      <li>Ngược lại, một biến cố nhỏ — bệnh bất ngờ, biến động thị trường, một cú lừa, sai thời điểm — có thể cuốn bay cả cơ đồ. Bạn có thể làm mọi thứ đúng vẫn thất bại, làm liều vẫn thắng lớn.</li>
+    </ul>
+    <div class="callout"><span class="mono">Ba việc cần làm</span><strong>Khiêm tốn trước thành công</strong> (luôn có phần may mắn ẩn sau) · <strong>Tử tế với người thất bại</strong> (họ có thể chỉ thiếu một phần triệu may mắn bạn có) · <strong>Chuẩn bị cho rủi ro</strong>: quỹ khẩn cấp, đa dạng hóa, luôn hỏi "nếu mọi thứ tệ đi, tôi có sống sót không?"</div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="entry" id="s3">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 03</div>
+      <h2>Cái bẫy "không bao giờ đủ"</h2>
+      <p class="one">Chạy trên máy chạy bộ tăng tốc — càng chạy càng nhanh, không bao giờ tới đích.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M22 96h116" />
+        <ellipse cx="80" cy="96" rx="52" ry="9" class="thin"/>
+        <circle cx="74" cy="34" r="9"/>
+        <path d="M74 43v22M74 50l12 6M74 50l-11 8M74 65l10 18M74 65l-12 16"/>
+        <path d="M108 40h22M124 32l8 8-8 8" class="s"/>
+        <circle cx="140" cy="66" r="8" class="b"/>
+        <text x="140" y="71" text-anchor="middle" font-size="11" fill="var(--brass)" font-family="IBM Plex Mono">₫</text>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>"Thêm một chút nữa là tôi hài lòng" — nhưng đạt được rồi lại muốn thêm. Cái bẫy khiến người ta đánh đổi sức khỏe, thời gian, danh tiếng, cả tự do.</li>
+      <li><strong>Giàu có</strong> là thứ dễ thấy: siêu xe, biệt thự, đồ hiệu. <strong>Thịnh vượng</strong> là thứ ngược lại: số tiền chưa tiêu, quỹ khẩn cấp, tự do lựa chọn, bình yên tâm trí. Nhiều người giàu không thịnh vượng — và ngược lại.</li>
+      <li>Giá trị thực nằm ở <strong>khả năng từ chối</strong> — từ chối thứ không cần, từ chối chạy đua.</li>
+      <li>Bernie Madoff đã quá đủ nhưng không dừng được — muốn thêm tiền, quyền lực, kiểm soát → dựng mô hình Ponzi lớn nhất lịch sử → mất tài sản, danh tiếng, gia đình, tự do, chết trong tù. Bi kịch: ông ta <strong>không cần</strong> phải làm vậy.</li>
+      <li>Mạng xã hội khiến ai cũng có vẻ giàu hơn bạn → bạn muốn thứ mình không thật sự muốn, chỉ vì sợ thua trong trò chơi mình không biết mình đang chơi.</li>
+      <li>Chuyện ở tiệc tỷ phú: "Gã kia kiếm một ngày nhiều hơn anh kiếm cả đời." — "Có thể, nhưng tôi có thứ ông ấy không có: <strong>đủ</strong>."</li>
+      <li>Kỹ năng khó nhất không phải đầu tư sinh lời mà là <strong>làm cột mốc thành công ngừng dịch chuyển</strong>.</li>
+    </ul>
+    <div class="callout"><span class="mono">Cách xác định "đủ"</span>Tự hỏi mình có đang đánh đổi quá nhiều vì thứ không quan trọng · nhìn lại giá trị cốt lõi (thời gian bên con, yên tâm, sức khỏe) · viết ra cái "đủ" cụ thể · tập trung vào tự do, không phải xa hoa. Tiền là công cụ, không phải thước đo cuộc đời.</div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="entry" id="s4">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 04</div>
+      <h2>Lãi kép — siêu năng lực</h2>
+      <p class="one">Như trồng cây: ban đầu không thấy gì, rễ cắm sâu, rồi đột nhiên vượt lên tất cả.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M20 100h120"/>
+        <circle cx="38" cy="90" r="7" class="b"/>
+        <path d="M38 83v-8"/>
+        <circle cx="72" cy="90" r="7" class="b"/>
+        <path d="M72 83V62M72 70l-9-7M72 70l9-7"/>
+        <circle cx="116" cy="90" r="7" class="b"/>
+        <path d="M116 83V34M116 66l-15-12M116 66l15-12M116 48l-11-9M116 48l11-9"/>
+        <circle cx="116" cy="28" r="7" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Buffett giàu không nhờ cổ phiếu siêu đỉnh hay chiến lược bí truyền — mà nhờ <strong>đầu tư đều đặn hơn 80 năm</strong>, từ năm 10 tuổi. Nếu bắt đầu năm 30 và nghỉ năm 60 với cùng hiệu suất, tài sản của ông <strong>chưa tới 1%</strong> hiện tại.</li>
+      <li>Lãi kép không phải mẹo hay kỹ thuật — là <strong>quy luật tự nhiên của thời gian</strong>: tích lũy chậm, đều, và khi đủ lâu thì bùng nổ.</li>
+      <li>Không phải ai giỏi hơn mà <strong>ai bền hơn</strong>: người lời 8%/năm suốt 40 năm giàu hơn người lời 20%/năm nhưng chỉ trong 10 năm.</li>
+      <li>Cái khó không phải kiến thức mà là <strong>niềm tin và kỷ luật</strong> — ta không được lập trình để chờ, ta thích kết quả nhanh, tôn vinh thành công một đêm.</li>
+      <li>Lãi kép bị đánh giá thấp vì nhàm chán: không có cảm giác thắng lớn, không có chuyện ly kỳ, không hấp dẫn truyền thông. Nó chỉ ngồi đó, lặng lẽ làm điều kỳ diệu.</li>
+    </ul>
+    <div class="callout"><span class="mono">Để lãi kép phát huy</span><strong>Bắt đầu càng sớm càng tốt</strong> (cần thời gian dài, không cần tiền lớn) · <strong>giữ đều, không gián đoạn</strong> (không rút khi thị trường giảm, không đoán đỉnh đáy) · <strong>chống cám dỗ "làm cho nhanh"</strong> — phần lớn ai ham lợi nhanh đều rời cuộc chơi sớm. Trì hoãn 5 năm có thể trả giá bằng 1/3 tổng tài sản sau này.</div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="entry" id="s5">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 05</div>
+      <h2>Giữ giàu khó hơn làm giàu</h2>
+      <p class="one">Làm giàu là trò tấn công, giữ giàu là trò phòng thủ — phải chơi được cả hai.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M80 16l38 12v26c0 26-16 42-38 52-22-10-38-26-38-52V28z"/>
+        <circle cx="80" cy="56" r="14" class="b"/>
+        <text x="80" y="62" text-anchor="middle" font-size="14" fill="var(--brass)" font-family="IBM Plex Mono">₫</text>
+        <path d="M62 82h36" class="thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Kỹ năng làm giàu và giữ giàu <strong>gần như trái ngược</strong>: làm giàu cần táo bạo, dám chấp nhận rủi ro; giữ giàu cần khiêm tốn, thận trọng, biết sợ, biết nói không.</li>
+      <li>Nhiều người kiếm hàng triệu đô rồi mất trắng sau một cơn khủng hoảng — vì tưởng mình bất khả chiến bại, nhầm may mắn với tài năng, không biết dừng.</li>
+      <li>Jesse Livermore: năm 1929 bán khống thu 100 triệu đô, được coi là thiên tài → tiếp tục đánh cược → vài năm sau mất trắng, phá sản, trầm cảm. <strong>Thiên tài cũng cần biết dừng.</strong></li>
+      <li><strong>Biên an toàn (margin of safety)</strong>: kế hoạch chỉ thành công khi mọi thứ hoàn hảo thì không phải kế hoạch. Cầu tải tối đa 10 tấn thì đừng bắt gánh đúng 10 tấn mỗi ngày.</li>
+      <li><strong>Khiêm tốn với tương lai</strong>: đừng nghĩ mình đoán được thị trường — thái độ thông minh nhất là "không thể lường trước chuyện gì sẽ xảy ra".</li>
+      <li>Lời 15%/năm trong 40 năm đưa bạn lên đỉnh — nhưng chỉ khi <strong>không bị quét sạch ở năm thứ 5</strong>. Cạm bẫy "một lần nữa thôi": mỗi lần cược là đặt tương lai vào tay may rủi.</li>
+    </ul>
+    <div class="callout"><span class="mono">Cốt lõi</span>Sự kiên định đánh bại sự xuất sắc ngắt quãng. Khiêm tốn giữ bạn an toàn, biên an toàn giữ bạn sống sót, kiên trì giữ bạn thắng cuộc.</div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="entry" id="s6">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 06</div>
+      <h2>Tự do — lợi nhuận cao nhất</h2>
+      <p class="one">Tiền không mua hạnh phúc, nhưng mua được quyền kiểm soát thời gian.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="62" cy="62" r="34"/>
+        <path d="M62 42v20l14 10"/>
+        <path d="M104 44c10-12 26-10 30 0-8 2-12 2-16 8 0 0-8 2-14-8z" class="s"/>
+        <path d="M110 52c-4 8-12 12-20 12" class="s thin"/>
+        <path d="M118 36l6-8M126 42l9-5" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Hỏi sâu "muốn tiền để làm gì?" → câu trả lời thực: <strong>làm điều mình muốn, khi mình muốn, với người mình muốn</strong>. Đó là tự do.</li>
+      <li>"Thức dậy và tự quyết hôm nay làm gì" là dạng tự do sâu sắc nhất tiền có thể mang lại.</li>
+      <li>Chuyện ngư dân: người giàu khuyên bắt thêm cá, mua thuyền, mở công ty để "vài năm nữa được nghỉ ngơi" — ngư dân cười: "Nhưng tôi đang nghỉ ngơi rồi mà." Nếu đánh đổi tự do hiện tại để mua tự do tương lai, phải biết điểm dừng.</li>
+      <li>Kiếm 100 triệu tiêu 95 triệu <strong>không tự do hơn</strong> kiếm 15 triệu tiêu 5 triệu. Tự do nằm ở <strong>khoảng cách giữa cái có và cái cần</strong> — càng ít nhu cầu càng dễ tự do.</li>
+      <li>Vòng xoáy nguy hiểm: làm nhiều hơn → kiếm nhiều hơn → tiêu nhiều hơn → phải làm nhiều hơn để duy trì. Kết quả: giàu trên giấy, nghèo thời gian, nghèo cảm xúc, nghèo kết nối.</li>
+      <li>Nhiều người đánh đổi tuổi trẻ, sức khỏe, các mối quan hệ để kiếm tiền — rồi dùng tiền đó cố mua lại chính những thứ đã mất.</li>
+    </ul>
+    <div class="callout"><span class="mono">Biến tiền thành tự do</span>Tiêu ít hơn kiếm được · xây "quỹ tự do" — mỗi lần gửi vào là mua lại một phần cuộc sống · hỏi <strong>cái giá</strong> thay vì giá tiền: phải đánh đổi bao nhiêu thời gian, năng lượng, yên bình? Tiền không dùng mua tự do thì đang mua xiềng xích vàng.</div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="entry" id="s7">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 07</div>
+      <h2>Giàu có vô hình</h2>
+      <p class="one">Sự giàu có thật là những gì bạn không nhìn thấy — tiền được giữ lại mới là sức mạnh.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M16 52h128" class="thin"/>
+        <path d="M64 52l16-22 16 22z" class="b"/>
+        <path d="M52 52l28 52 28-52" />
+        <circle cx="80" cy="76" r="6" class="thin"/>
+        <circle cx="68" cy="90" r="4" class="thin"/>
+        <circle cx="93" cy="88" r="4" class="thin"/>
+        <path d="M22 46c6-5 12-5 18 0M120 46c6-5 12-5 18 0" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Tiêu tiền để chứng minh mình giàu là <strong>cách nhanh nhất để hết giàu</strong>. Càng nhiều người biết bạn giàu, khả năng giữ được sự giàu càng thấp — vì bạn tiêu để <strong>chứng minh</strong> chứ không để <strong>xây dựng</strong>.</li>
+      <li>Xe sang = tiền đã rời khỏi bạn; đồng hồ đắt tiền không sinh lời mà còn tốn thêm tiền để "trông xịn". Giàu thật là thứ vô hình: tài khoản tiết kiệm, cổ phiếu tăng trưởng, tài sản đầu tư âm thầm.</li>
+      <li><strong>Nghịch lý Ferrari</strong>: thấy người bước ra từ Ferrari, phản ứng của ta không phải "anh ta thật tuyệt" mà là "mình muốn chiếc xe kia". Món đồ được ngưỡng mộ — không phải bạn.</li>
+      <li>Mỗi lần tiêu tiền để gây ấn tượng là một lần bỏ qua cơ hội dùng tiền mua tự do. Tự tin thật không đến từ những gì thể hiện mà từ việc <strong>không cần thể hiện gì</strong>.</li>
+      <li>Người giàu ngầm quen thuộc: sống giản dị nhưng luôn có tiền, không vay mượn nhưng vẫn đầu tư, không khoe trên mạng nhưng có thể nghỉ hưu sớm — có thể giàu hơn tất cả người "sang chảnh" bạn thấy.</li>
+    </ul>
+    <div class="callout"><span class="mono">Xây giàu thầm lặng</span>Im lặng trước khi khoe — sức mạnh thật không cần tiếng vỗ tay · tiêu dưới mức kiếm · đầu tư vào sự yên tâm hơn ánh nhìn người khác — một đêm ngủ ngon hơn ngàn lời khen Facebook · tự định nghĩa "giàu" theo cách riêng.</div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="entry" id="s8">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 08</div>
+      <h2>Tiết kiệm</h2>
+      <p class="one">Yếu tố quan trọng nhất và bị đánh giá thấp nhất — chiếc ô khi thị trường nổi giông.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M80 22c-26 0-44 16-46 34h92c-2-18-20-34-46-34zM80 16v6M80 56v34c0 8 10 8 12 2" />
+        <path d="M48 56c4-6 10-6 14 0M66 56c4-6 10-6 14 0M84 56c4-6 10-6 14 0M102 56c4-6 10-6 14 0" class="thin"/>
+        <circle cx="46" cy="94" r="7" class="b"/>
+        <circle cx="60" cy="100" r="7" class="b"/>
+        <circle cx="52" cy="106" r="7" class="b"/>
+        <path d="M118 84l4 10M128 78l3 8M136 90l3 8" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Tiết kiệm nghe không hào nhoáng, không có chuyện đổi đời một đêm — nhưng là <strong>nền móng của mọi sự bền vững</strong>.</li>
+      <li>Đầu tư có thể lời hoặc lỗ; tiết kiệm <strong>luôn có giá trị</strong>: tấm đệm vượt khủng hoảng, lý do bạn được "chọn" thay vì phải "chịu".</li>
+      <li><strong>Tiết kiệm là chức năng của thói quen, không phải của thu nhập</strong>: có người kiếm 100 triệu/tháng không để ra được đồng nào; có người kiếm 15 triệu vẫn đều đặn dành 3 triệu.</li>
+      <li>Hầu hết mọi người không cần giàu thêm — chỉ cần <strong>tiêu ít hơn</strong>. Thu nhập tăng thì cám dỗ tăng theo: tưởng nâng cấp cuộc sống nhưng thật ra đang tăng áp lực lên tương lai.</li>
+      <li>Ronald Read: không mạo hiểm, không lướt sóng, chỉ tiết kiệm đều đặn nhiều thập kỷ → 8 triệu đô. Bí quyết: <strong>chưa bao giờ sống quá khả năng</strong>.</li>
+      <li>Tiết kiệm cho <strong>khả năng nói không</strong> — với công việc mình ghét, khách hàng không phù hợp, cám dỗ đầu tư rủi ro. Nó mua thời gian, và thời gian là tự do sâu sắc nhất.</li>
+    </ul>
+    <div class="callout"><span class="mono">Nguyên tắc bền vững</span>Tiết kiệm trước, tiêu sau — tự động trích ngay khi nhận lương · theo phần trăm (vd 20%) chứ không theo số cố định · tách tài khoản tiết kiệm khỏi tài khoản chi tiêu · định nghĩa rõ "đủ". Có tiết kiệm đủ sống vài tháng không cần ai trợ giúp = đã vượt xa phần lớn thế giới.</div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="entry" id="s9">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 09</div>
+      <h2>Hợp lý đánh bại lý trí</h2>
+      <p class="one">Kinh tế học dạy tối đa lợi nhuận — cuộc sống dạy tối đa bình yên.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M24 92h112" class="thin"/>
+        <path d="M28 88c10-2 14-18 24-18s12 10 20 10 12-24 22-24 12 14 20 14 10-6 18-8" class="s"/>
+        <path d="M40 46c8 0 8-8 16-8 6 0 8 4 8 8 4-2 12 0 12 6 0 8-8 8-12 8H44c-6 0-10-4-10-8s3-6 6-6z" class="b"/>
+        <path d="M46 30l-2-6M58 26l0-6M70 30l2-6" class="b thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Không cần quyết định <strong>tối ưu nhất</strong> — cần quyết định <strong>phù hợp với tâm lý và hoàn cảnh</strong> của mình. Tài chính cá nhân là <em>cá nhân</em>.</li>
+      <li>Biết đầu tư dài hạn lời hơn gửi ngân hàng nhưng vẫn chọn gửi tiết kiệm vì thấy an toàn, không vay vì sợ nợ, giữ tiền mặt để dễ ngủ — <strong>không sai</strong>.</li>
+      <li>Chính Housel giữ phần lớn tài sản trong tài khoản tiết kiệm — không phải vì không biết đầu tư, mà vì hiểu bản thân: cảm giác chủ động, bình tĩnh <strong>đáng giá hơn lợi suất cao</strong>.</li>
+      <li><strong>Kế hoạch lý tưởng không theo nổi tệ hơn kế hoạch đơn giản duy trì được 30 năm.</strong></li>
+      <li>Ta bị ám ảnh tối ưu hóa vì mạng xã hội, sách vở, chuyên gia gieo cảm giác "không làm thế này là phí tiền". Sự thật: không cần thắng thị trường, chỉ cần <strong>không bị loại khỏi cuộc chơi</strong>.</li>
+    </ul>
+    <div class="callout"><span class="mono">Ba cách sống hợp lý</span>Hiểu rõ mình là ai — đừng sống theo kế hoạch của người khác · tôn trọng cảm xúc bản thân — chiến lược tốt là chiến lược ngủ ngon được · giữ linh hoạt — kế hoạch co giãn theo hoàn cảnh và con người đang thay đổi từng năm.</div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="entry" id="s10">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 10</div>
+      <h2>Câu chuyện riêng của mỗi người</h2>
+      <p class="one">Mỗi quyết định tài chính là gương phản chiếu cuộc đời — không ai hoàn toàn khách quan.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="66" cy="54" r="28"/>
+        <path d="M86 76l24 24" />
+        <circle cx="66" cy="54" r="12" class="b thin"/>
+        <text x="66" y="59" text-anchor="middle" font-size="12" fill="var(--brass)" font-family="IBM Plex Mono">₫</text>
+        <path d="M112 32h28M112 44h20M112 56h24" class="s thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Người lớn lên thời khủng hoảng → cực kỳ thận trọng, thích tiền mặt, nghi ngờ chứng khoán. Người trưởng thành thời bùng nổ → dễ mạo hiểm, tin mọi thứ rồi sẽ tăng. <strong>Cả hai đều đúng theo cách nghĩ của họ.</strong></li>
+      <li>Từng bị lừa → cảnh giác quá mức; từng thắng nhờ liều → tin vào may mắn; từng nghèo đói → ám ảnh an toàn. "Tất cả chúng ta bị định hình bởi phần nhỏ của lịch sử mà ta tình cờ sống trong đó."</li>
+      <li>Người khác tiêu tiền kỳ lạ: họ không sai — họ sống trong câu chuyện khác, đang tự bảo vệ theo cách họ biết. Thấy ai phi lý = có thể bạn chưa hiểu trải nghiệm đã tạo nên họ.</li>
+      <li>Không loại bỏ được cảm xúc khỏi tiền, nhưng <strong>nhận ra được khi cảm xúc lấn át</strong>. "Tự nhận thức là siêu năng lực trong thế giới tài chính."</li>
+      <li>Tài chính không có chân lý tuyệt đối, chỉ có chân lý cá nhân: mạo hiểm hay gửi tiết kiệm, mua nhà sớm hay thuê cả đời, ghét nợ hay dùng nợ làm công cụ — đều có lý trong bối cảnh riêng.</li>
+      <li><strong>Đúng ≠ phù hợp</strong>: như quần áo, chiến lược hiệu quả với bạn bè có thể khiến bạn mất ngủ.</li>
+    </ul>
+    <div class="callout"><span class="mono">Quản lý thiên lệch</span>Ghi lại lý do mỗi quyết định lớn để sau soi lại · chấp nhận mình có thiên lệch và lên kế hoạch xoay quanh nó (hay hoảng loạn → chọn danh mục ít biến động) · tự hỏi: "tôi có đang phản ứng với hiện tại bằng nỗi sợ của quá khứ?"</div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="entry" id="s11">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 11</div>
+      <h2>Lịch sử không lặp lại, con người thì có</h2>
+      <p class="one">Từ củ tulip 1637 đến crypto 2021 — khác sản phẩm, giống cảm xúc.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M56 100c0-22 4-40 4-40" />
+        <path d="M60 60c-10 4-18 0-20-10 8-2 14 0 20 10zM60 60c10 4 18 0 20-10-8-2-14 0-20 10z" class="thin"/>
+        <path d="M48 26c2 8 6 12 12 12s10-4 12-12c-4 4-8 4-12-2-4 6-8 6-12 2z" class="s"/>
+        <path d="M96 88l14-26 12 12 14-30" class="b"/>
+        <path d="M136 44v12M136 44h-12" class="b thin"/>
+        <path d="M40 100h84" class="thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Thị trường thay đổi, công nghệ mới — nhưng con người vẫn giữ điểm yếu muôn thuở: <strong>tham lam, sợ hãi, ngắn hạn, kỳ vọng phi lý, bị đám đông cuốn theo</strong>.</li>
+      <li>Cơn sốt tulip Hà Lan 1637: bỏ cả gia tài mua một củ tulip vì tin giá tăng mãi → sụp đổ. 2008: cùng tâm lý đó khiến bất động sản Mỹ sụp. Rồi dot-com, rồi crypto/NFT 2021 tăng vọt rồi lao dốc. Mỗi chu kỳ mang bộ mặt mới nhưng bên trong là cùng bản nhạc: <strong>lòng tham, niềm tin mù quáng, hối hận</strong>.</li>
+      <li>Hiểu lịch sử → bớt hoảng khi nó tái diễn dưới hình thức khác. "Học lịch sử để hiểu bạn không phải người đầu tiên trải qua điều này."</li>
+      <li>Rào cản: ta chỉ nhớ những gì mình trải qua hoặc 5–10 năm gần nhất → lặp lại sai lầm mà tưởng đang khám phá điều mới.</li>
+      <li>Đọc trăm cuốn sách vẫn có thể sập bẫy: khi thấy bạn bè kiếm tiền nhanh, <strong>lý trí không thắng nổi cảm xúc</strong> — ta hành động theo cảm giác hiện tại.</li>
+      <li>Đừng chỉ học từ người thắng — đọc cả chuyện người phá sản, từ đỉnh cao sụp đổ: đó mới là cảnh báo thật về rủi ro.</li>
+    </ul>
+    <div class="callout"><span class="mono">Tránh bẫy lịch sử</span>Xem thị trường như cuốn sách mở — mỗi cú sụp đều có tiền lệ · <strong>"lần này khác" là câu nói nguy hiểm nhất</strong> — ai nói "thời đại chưa từng có", hãy cảnh giác · xây nguyên tắc phòng vệ: biên an toàn, kế hoạch khi đảo chiều, giữ đầu lạnh khi đám đông phát cuồng.</div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="entry" id="s12">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 12</div>
+      <h2>Mỗi người một trò chơi</h2>
+      <p class="one">Bạn chỉ thua khi bắt chước trò chơi của người khác mà quên mục tiêu của mình.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M22 100h116" class="thin"/>
+        <path d="M30 100L74 30l24 34 20-20 14 22" />
+        <path d="M74 30l-4-10M74 30h10" class="thin"/>
+        <circle cx="44" cy="78" r="6" class="b"/>
+        <circle cx="104" cy="58" r="6" class="s"/>
+        <path d="M40 100c8-8 8-16 4-22M108 100c-6-14 0-28 12-34" class="thin" stroke-dasharray="4 5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Ta hay nhìn quyết định tài chính của người khác rồi so sánh hoặc bắt chước — nhưng <strong>mỗi người chơi một trò chơi khác</strong>: mục tiêu, khung thời gian, mức chịu rủi ro khác nhau.</li>
+      <li>Trader trong ngày ≠ nhà đầu tư 30 năm; người đã nghỉ hưu ≠ người 25 tuổi; người có quỹ dự phòng 2 tỷ ≠ người mới để dành 5 triệu.</li>
+      <li>Thấy người ta bán cổ phiếu → "chắc có chuyện, bán theo cho an toàn"? Có thể họ chỉ cần tiền gấp, chốt lời chuyển tài sản, hoặc chịu lỗ 15% như chuyện nhỏ. Bắt chước = <strong>chơi trò mà mình không hiểu luật</strong>.</li>
+      <li>Cuối thập niên 1990, các quỹ lớn vẫn mua cổ phiếu công nghệ giá cao ngất dù có cảnh báo bong bóng — vì họ <strong>phải</strong>: áp lực báo cáo quý, giữ chân khách hàng, nghĩa vụ bám chỉ số. Nhà đầu tư cá nhân không có áp lực đó — hai trò chơi khác nhau.</li>
+      <li>Thị trường là hỗn hợp nhiều trò chơi: đầu tư hưu trí, chơi giải trí, đầu cơ theo trend, ăn xổi. Bạn thấy mọi hành vi mỗi ngày nhưng <strong>không phải cái nào cũng liên quan đến bạn</strong>. Phân biệt tiếng ồn với lời khuyên là kỹ năng sống còn.</li>
+    </ul>
+    <div class="callout"><span class="mono">Xác định trò chơi của mình</span><strong>Mục tiêu là gì?</strong> (tự do tài chính tuổi 50 · quỹ hưu trí · hay chỉ giữ tiền không mất giá) — <strong>chịu rủi ro đến đâu?</strong> (chịu được lỗ 20%? hoảng khi sụt 10%?) — <strong>khung thời gian bao lâu?</strong> (cần tiền trong 2 năm hay đầu tư cho 20 năm sau). Hiểu trò chơi của mình → không hoảng khi thị trường rớt, không ghen khi ai khoe lời, không FOMO theo đám đông.</div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="entry" id="s13">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 13</div>
+      <h2>May mắn ≠ kỹ năng</h2>
+      <p class="one">May mắn không phát ra tiếng — nhưng sự ảo tưởng thì rất ồn ào.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M48 100c0-16 2-30 2-30"/>
+        <path d="M50 70c-8-2-12-10-8-16 6 2 10 8 8 16zM50 70c8-2 12-10 8-16-6 2-10 8-8 16zM50 70c-2-8 2-16 10-16 0 8-4 14-10 16zM50 70c2-8-2-16-10-16 0 8 4 14 10 16z" class="b thin"/>
+        <path d="M100 40h20a8 8 0 010 16l-24 6M108 62l-6 38M120 56l8 42" class="s"/>
+        <circle cx="112" cy="30" r="9" class="s"/>
+        <path d="M34 100h96" class="thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Bẫy nguy hiểm nhất trong tiền bạc: <strong>thành công nhờ may mắn nhưng tưởng do kỹ năng</strong> → nhân đôi hành vi rủi ro cho đến khi vận may hết.</li>
+      <li>Thắng lớn một thương vụ, cổ phiếu tăng gấp 5 — người ngoài khen "quá giỏi", nhưng có thể bạn chỉ đúng chỗ đúng thời điểm: là người thứ 100 đăng video viral, không phải người nghĩ ra ý tưởng.</li>
+      <li>Người giỏi thật thường khiêm tốn: "một phần thành công do hoàn cảnh, tôi không lặp lại được điều này mãi." Người khôn không phủ nhận may mắn — họ <strong>phòng ngừa nó rời đi</strong>.</li>
+      <li><strong>Thiên lệch kẻ sống sót</strong>: ta chỉ nghe về người đã thành công → tin công thức của họ sao chép được. Người all-in một cổ phiếu vì linh cảm, thắng lớn → đi dạy đầu tư, mở lớp, làm YouTube — bạn không thấy hàng trăm người cũng cảm tính như vậy và mất sạch. Học từ họ mà không hiểu nền tảng = <strong>học từ may mắn giả dạng kỹ năng</strong>.</li>
+      <li>Buffett: "Tôi may mắn sinh ra ở Mỹ, đúng thời điểm, có gen phù hợp với ngành đầu tư" — biết mình may mắn thì cẩn thận hơn.</li>
+      <li>Người mới giàu thắng vài năm đầu → tiêu quá đà, vay mượn, mạo hiểm → mất tất cả không vì xui mà vì <strong>tưởng mình là thần tài</strong>.</li>
+    </ul>
+    <div class="callout"><span class="mono">Tránh ngộ nhận</span>Hỏi "kết quả này có lặp lại được không?" · tìm hiểu người thất bại đã làm gì — nếu họ làm y hệt mà thất bại thì yếu tố quyết định nằm ở hoàn cảnh · luôn giữ biên an toàn dù đang thắng lớn — đừng all-in, đừng nghĩ mình bất bại.</div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="entry" id="s14">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 14</div>
+      <h2>Chỉ cần đúng vài lần</h2>
+      <p class="one">Không cần xuất sắc — chỉ cần đừng ngu ngốc, và ở lại đủ lâu.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="80" cy="60" r="38"/>
+        <circle cx="80" cy="60" r="24" class="thin"/>
+        <circle cx="80" cy="60" r="10" class="s"/>
+        <path d="M80 60L118 22M112 22h6v6" class="b"/>
+        <path d="M34 96l10-10M128 98l-8-8" class="thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Bạn không cần đúng mọi lúc — chỉ cần <strong>đúng vài lần và đừng làm gì quá ngu ngốc giữa chừng</strong>.</li>
+      <li>Buffett: hơn 60 năm đầu tư, hầu hết tài sản đến từ vài thương vụ đặc biệt (Coca-Cola, American Express, Apple); nhiều khoản khác lỗ hoặc lời ít. <strong>Một chiến thắng khổng lồ bù cho rất nhiều sai lầm nhỏ.</strong></li>
+      <li>Toán học: đúng 70% nhưng 30% còn lại sai quá lớn → tài khoản vẫn âm; đúng chỉ 30% nhưng cú đúng gấp 10 lần vốn → tổng thể thắng lớn. "Như trồng cây: không cần mọi cây mọc cao, chỉ cần vài cây vươn tới trời."</li>
+      <li><strong>Sai lớn</strong> là gì: vay quá nhiều không trả nổi · all-in một tài sản duy nhất · đầu tư thứ mình không hiểu · hoảng loạn bán tháo · tự mãn sau một lần thắng rồi tăng gấp đôi rủi ro. Những thứ này <strong>loại bạn khỏi cuộc chơi</strong>.</li>
+      <li>Trader crypto: 3 năm tài sản từ 100 triệu lên 20 tỷ → vay đòn bẩy gấp 5 đánh coin mới → một tháng sau mất trắng. Không phải dốt — mà <strong>thắng quá nhiều nên tưởng không thể thua</strong>.</li>
+      <li>Xây <strong>hệ thống</strong> chứ đừng tìm phép màu: hệ thống giữ bạn trong cuộc chơi, cho phép sai mà không sụp đổ, có chỗ cho khiêm tốn và phòng ngừa.</li>
+    </ul>
+    <div class="callout"><span class="mono">Cốt lõi</span>Khôn ngoan = biết sống sót, không phải luôn đúng. Hãy thoải mái khi sai nhỏ, thận trọng khi nghĩ mình giỏi, và ở lại đủ lâu để những điều kỳ diệu xảy ra.</div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="entry" id="s15">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 15</div>
+      <h2>Thứ không đo lường được</h2>
+      <p class="one">Không phải mọi thứ quan trọng đều đo được — và không phải mọi thứ đo được đều quan trọng.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M80 96C56 78 40 62 40 46c0-12 9-20 20-20 9 0 16 5 20 12 4-7 11-12 20-12 11 0 20 8 20 20 0 16-16 32-40 50z" class="s"/>
+        <path d="M26 100h60" class="b"/>
+        <path d="M32 100v-8M44 100v-5M56 100v-8M68 100v-5M80 100v-8" class="b thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Ta bị hấp dẫn bởi cái định lượng được (biểu đồ, ROI, chỉ số) — nhưng chính <strong>những thứ không đo được</strong> mới quyết định giàu có bền vững.</li>
+      <li>Không tính được: niềm tin vào kế hoạch khi thị trường sụp, cảm giác yên tâm khi có 6 tháng dự phòng, quyết tâm bám chiến lược 20 năm. Không có trong Excel nhưng là thứ <strong>giữ bạn đi tiếp khi mọi thứ lung lay</strong>.</li>
+      <li>Kế hoạch hợp lý trên giấy có thể sụp ngoài đời nếu thiếu niềm tin: thị trường rớt 30% là hoảng loạn bán tháo. <strong>Không tính được lòng kiên nhẫn, nhưng nó giá trị hơn mọi chỉ số.</strong></li>
+      <li>Đừng xem thường "cảm giác" — nó là sản phẩm tích lũy của kinh nghiệm, trực giác, bản năng sinh tồn. Nhiều người gửi tiết kiệm dù lạm phát cao hơn lãi suất — vì cảm giác an toàn vượt qua mọi công thức. Không phải lúc nào cũng phải tối ưu; đôi khi <strong>yên tâm là đủ</strong>.</li>
+      <li>Tài chính không phải trò ai thông minh hơn mà <strong>ai ổn định hơn</strong>: Housel có bạn bè rất thông minh nhưng nhảy hết chiến lược này sang chiến lược khác vì không tin lựa chọn của mình — không ai đi được đến cuối.</li>
+    </ul>
+    <div class="callout"><span class="mono">Xây niềm tin thành tài sản</span>Ghi lại lý do chọn kế hoạch — nhìn lại khi lung lay để nhớ mình đã nghĩ kỹ · tập sống với sự không chắc chắn, đừng chờ hoàn hảo mới hành động · đầu tư vào hiểu biết bản thân: biết mình sợ gì, yếu đâu, cần gì.</div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="entry" id="s16">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 16</div>
+      <h2>Hành vi &gt; trí thông minh</h2>
+      <p class="one">Thông minh là tiềm năng — hành vi mới là vận mệnh. Tài chính là trò chơi EQ, không phải IQ.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M24 96h112" class="thin"/>
+        <path d="M46 92c-12 0-18-8-14-16 4-9 16-13 26-9 4-9 18-11 26-4 8-6 20-2 22 6 10 0 16 8 12 15-3 6-10 8-16 8z"/>
+        <path d="M62 74c4-4 10-4 14 0M84 68c4-4 10-4 14 0" class="thin"/>
+        <path d="M118 40l6-18 6 18M121 34h6" class="b"/>
+        <path d="M30 40c6-10 20-10 24 0-4 8-18 8-24 0z" class="s thin"/>
+        <circle cx="42" cy="40" r="2.5" class="fs"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Không phải người thông minh nhất sẽ giàu — mà là <strong>người kiểm soát hành vi tốt nhất</strong>.</li>
+      <li>Giỏi toán, phân tích siêu đẳng — nhưng không kiểm soát được lòng tham, hoảng loạn khi lao dốc, FOMO theo trend → mọi kiến thức vô dụng. Lịch sử đầy thiên tài Ivy League ở quỹ lớn vẫn mất sạch vì quá tự tin. <strong>Cảm xúc không phân biệt bạn học trường nào.</strong></li>
+      <li>Người giàu không phải người giỏi tính mà là người <strong>biết lúc nào nên chậm lại</strong> — kiên nhẫn mới là vua: thị trường tăng không hưng phấn quá mức, giảm không tháo chạy, người khác khoe lời không vội lao vào.</li>
+      <li>Kiến thức nhiều + hành vi thiếu kiểm soát = <strong>nguy hiểm hơn không biết gì</strong>: biết quá nhiều nhưng làm quá thiếu.</li>
+      <li>Nhà đầu tư bình thường nhưng kỷ luật có thể thắng chuyên gia: chỉ biết "đầu tư đều đặn, không chạm vào, để lâu dài" — cuối cùng giàu hơn dân phân tích chuyên nghiệp, vì <strong>không phá kế hoạch mỗi tuần</strong>.</li>
+      <li>Hành vi khó kiểm soát vì: cảm xúc là phản xạ sinh tồn; tiền gắn với nỗi sợ, kỳ vọng, sĩ diện, lòng tham. → Muốn quản lý tiền giỏi, phải <strong>quản lý chính mình trước</strong>.</li>
+    </ul>
+    <div class="callout"><span class="mono">Rèn luyện</span>Viết ra kế hoạch, cam kết không phá khi cảm xúc nổi lên · tự nhận thức khi bốc đồng — muốn hành động ngay thì hỏi "đây có phải phản ứng cảm xúc?" · tạo khoảng nghỉ 24 giờ giữa ý định và quyết định lớn · đừng xem tài khoản đầu tư quá thường xuyên — càng ít nhìn càng ít loạn.</div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="entry" id="s17">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 17</div>
+      <h2>Bản ngã — kẻ thù số một</h2>
+      <p class="one">Cái tôi không muốn bạn nhận sai — nhưng tài khoản ngân hàng không biết nói dối.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M64 26c22-8 42 6 42 26 0 16-12 26-26 28l4 16-18-14c-16-2-28-14-28-28 0-4 1-8 3-12" class="s"/>
+        <path d="M78 42v18M78 70v2" class="s"/>
+        <circle cx="118" cy="88" r="14" class="b"/>
+        <text x="118" y="94" text-anchor="middle" font-size="14" fill="var(--brass)" font-family="IBM Plex Mono">₫</text>
+        <path d="M104 78L92 66" class="b thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Đáng sợ hơn biến động thị trường, khủng hoảng, lạm phát cộng lại là <strong>bản ngã không được kiểm soát</strong>.</li>
+      <li>Bản ngã ≠ kiêu hãnh lành mạnh: nó là tự mãn sau vài thương vụ thắng, so sánh tiền tài địa vị, cố chấp không nhận sai, đặt cái tôi trên mục tiêu dài hạn.</li>
+      <li>Tài khoản bị hủy hoại bởi lòng tự cao nhiều hơn bởi thị trường: không cắt lỗ vì sĩ diện, vay đầu tư rủi ro cao để chứng minh mình giỏi, không thừa nhận sai nên lỗ nặng hơn.</li>
+      <li>Thắng lớn → "tôi hiểu thị trường, tôi khác người khác" → bỏ qua tín hiệu cảnh báo, tăng rủi ro lên mức điên rồ, quên nguyên tắc an toàn.</li>
+      <li>Bản ngã khiến chạy theo sự công nhận thay vì sự bền vững: mua xe để "người khác phải biết tôi thành công", giữ khoản đầu tư sai vì "không thể thừa nhận mình sai". <strong>Bản ngã muốn bạn khoe ra; trí tuệ muốn bạn giữ lại.</strong></li>
+      <li>Dấu hiệu bản ngã đang cầm lái: khó chịu khi người khác khoe thành quả · thấy phải mua gì đó để "ngang hàng" · ngại thừa nhận sai lầm · muốn hành động ngay để chứng minh điều gì đó. → Dừng lại hỏi: <strong>"Tôi làm vì mục tiêu tài chính hay vì bản ngã?"</strong></li>
+    </ul>
+    <div class="callout"><span class="mono">Ba nguyên tắc</span>Thường xuyên hỏi "cần thật hay để chứng tỏ?" · thừa nhận sai lầm nhanh, dứt khoát — mỗi phút níu kéo vì sĩ diện là mỗi phút đốt tiền · không đặt cái tôi trên kế hoạch dài hạn — tài chính là đua đường trường, không phải sàn diễn.</div>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="entry" id="s18">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 18</div>
+      <h2>Biết mình muốn gì</h2>
+      <p class="one">Tiền bạc không dẫn lối cho bạn — bạn phải dẫn lối cho tiền bạc.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="80" cy="60" r="38"/>
+        <circle cx="80" cy="60" r="30" class="thin"/>
+        <path d="M96 40L86 66l-22 14 10-26z" class="s"/>
+        <circle cx="80" cy="60" r="4" class="fs"/>
+        <path d="M80 22v6M80 92v6M42 60h6M112 60h6" class="b thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Người thành công không phải người có chiến lược tốt nhất — mà là người <strong>biết rõ mình muốn gì và không bị cuốn vào cuộc chơi của người khác</strong>.</li>
+      <li>Hầu hết sai lầm tài chính không do thiếu thông tin mà do <strong>không rõ mình theo đuổi điều gì</strong>: đầu tư mà không biết ngắn hay dài hạn, mua nhà vì ai cũng mua, tăng thu nhập vẫn thấy thiếu vì chưa từng định nghĩa "đủ".</li>
+      <li>Người chỉ cần đủ tiền nghỉ hưu tuổi 50: đầu tư an toàn, tiết kiệm đều, không theo xu hướng. Người ngoài thấy "thiếu tham vọng" — nhưng anh ấy đang sống đúng cuộc đời mình chọn. <strong>Rõ mục tiêu thì không cần thắng mọi trận — chỉ cần về đích theo cách riêng.</strong></li>
+      <li>Thiếu định hướng biến bạn thành nạn nhân trò chơi của người khác: đầu tư vì bạn bè hô hào, tiêu vì thấy người khác tiêu, đổi chiến lược vì sợ bị bỏ lại. <strong>Không biết mình muốn gì là rủi ro lớn nhất.</strong></li>
+      <li>Biết mình muốn gì tránh được ~90% sai lầm: không đầu tư thứ không hiểu, không vay cho mục tiêu không quan trọng, không so sánh vì mình chơi trò khác họ.</li>
+      <li>Không cần kế hoạch hoàn hảo — cần <strong>kế hoạch đúng với con người mình</strong>: chiến lược lý tưởng trên lý thuyết có thể là địa ngục nếu trái với giá trị sống và tính cách của bạn.</li>
+    </ul>
+    <div class="callout"><span class="mono">Cách tìm câu trả lời</span>Hỏi "tài chính phục vụ điều gì?" — tiền là phương tiện: tự do thời gian, không lo tiền khi già, gia đình an toàn · viết ra 3 điều quan trọng nhất muốn đạt trong 10–20 năm — về cuộc sống, không phải về tiền · hiểu giá trị cốt lõi: an toàn hay tăng trưởng, tự do hay địa vị, thời gian hay tiền bạc?</div>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="entry" id="s19">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 19</div>
+      <h2>Không ai thành công một mình</h2>
+      <p class="one">Giàu không phải số dư tài khoản — mà là số người bạn có thể gọi tên khi cần giúp đỡ.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <circle cx="50" cy="42" r="10"/>
+        <path d="M50 52c-10 0-16 8-16 16v8h32v-8c0-8-6-16-16-16z"/>
+        <circle cx="110" cy="42" r="10" class="b"/>
+        <path d="M110 52c-10 0-16 8-16 16v8h32v-8c0-8-6-16-16-16z" class="b"/>
+        <path d="M66 88c8 10 20 10 28 0" class="s"/>
+        <path d="M80 30c-3-6 3-10 6-6 3-4 9 0 6 6-3 4-6 5-6 5s-3-1-6-5z" class="fs"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Ta hình dung giàu có như cuộc chơi cá nhân — nhưng <strong>không ai thành công một mình</strong>. Giàu thật là có tiền + có gắn kết với cộng đồng, gia đình, người mình tin.</li>
+      <li>Có thể giàu mà trống rỗng: tài khoản rủng rỉnh nhưng cô đơn trong bữa ăn, không ai chia sẻ niềm vui → giàu tiền, nghèo tình cảm, nghèo kết nối, nghèo ý nghĩa.</li>
+      <li>Tiền mua được ngôi nhà đẹp — không mua được sự ấm áp bên trong; mua kỳ nghỉ đắt tiền — không mua được kỷ niệm gắn kết; thuê được người phục vụ — không mua được tri kỷ. Giàu mà không có người chia sẻ = <strong>bữa tiệc tuyệt vời ăn một mình</strong>.</li>
+      <li>Nghĩ mình tự vươn lên? Nghĩ lại: ai dạy bài học đầu tiên về tiền, ai hỗ trợ lúc khó khăn, ai tạo cơ hội đầu tiên — luôn có ai đó phía sau thành công của bạn.</li>
+      <li>Gia đình vững vàng là tài sản lớn hơn mọi quỹ đầu tư; mối quan hệ tin tưởng yên tâm hơn mọi chiến lược phòng hộ. Người giàu giả cố thể hiện; người giàu thật tạo giá trị, cho đi đúng lúc đúng cách.</li>
+      <li>Có người chết với hàng triệu đô mà không ai đến dự tang lễ; có người sống bình dị mà cả xóm đưa tiễn — <strong>giàu theo cách không cần tiền và không mất đi</strong>.</li>
+    </ul>
+    <div class="callout"><span class="mono">Giàu trong cộng đồng</span>Cho đi không cần được công nhận · dạy người khác dùng tiền thông minh — nâng tầm người xung quanh là giúp chính mình sống an ổn · tử tế trong từng quyết định tài chính: vay mượn, chi tiêu, đầu tư đều để giá trị làm kim chỉ nam.</div>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="entry" id="s20">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Mục 20</div>
+      <h2>Biết đủ</h2>
+      <p class="one">Không cần nhiều hơn — cần sâu hơn. Hài lòng không nằm ở điểm đến mà ở khả năng nói "tôi đủ rồi".</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <path d="M46 44h68l-6 44c-1 8-8 14-16 14H68c-8 0-15-6-16-14z"/>
+        <path d="M52 60c8 6 16 2 24 0s16-6 26 0" class="b"/>
+        <path d="M64 30c0-6 8-6 8-12M84 32c0-6 8-6 8-12" class="s thin"/>
+        <path d="M40 108h80" class="thin"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Câu hỏi nguy hiểm nhất: <strong>"khi nào là đủ?"</strong> — không trả lời được thì không bao giờ ngừng chạy. "Thêm một tỷ nữa", "thêm căn nhà nữa" — đạt được rồi thì mục tiêu lại lùi xa.</li>
+      <li>Vì sao? Người khác luôn có nhiều hơn ở khía cạnh nào đó; xã hội luôn tạo tiêu chuẩn mới; bản ngã thì thầm "mày có thể hơn nữa".</li>
+      <li>Biết đủ ≠ từ bỏ tham vọng — là hiểu <strong>giới hạn lành mạnh</strong>: không đánh đổi thời gian quý báu chỉ để thêm 10% lợi nhuận; ngồi ăn cơm với con thay vì họp đến nửa đêm.</li>
+      <li>Doanh nhân làm 100 giờ/tuần, công ty triệu đô, du thuyền, biệt thự — thú nhận: "Tôi có thể nghỉ nhưng không dám. Tôi có mọi thứ nhưng không thực sự sống." Ngược lại có người ít tiền nhưng sống trọn từng phút — không sở hữu nhiều nhưng <strong>sở hữu chính mình</strong>.</li>
+      <li>Biết đủ là hành động <strong>phản văn hóa</strong> giữa mạng xã hội, truyền thông, quảng cáo luôn hô "chưa đủ đâu". Sự thật: bạn đã đủ nếu không cố chứng minh gì; đã giàu nếu thấy nhẹ lòng với những gì mình có.</li>
+      <li>Tận hưởng hành trình thay vì chỉ chăm chăm đích đến: cứ chờ "khi có đủ" sẽ bỏ lỡ những khoảnh khắc bên người thân, những điều giản dị tạo nên cảm giác sống thật.</li>
+    </ul>
+    <div class="callout"><span class="mono">Định nghĩa lại thành công</span>Không nợ ai — kể cả cảm xúc · ngủ ngon vì không lừa dối ai · cười nhẹ vì không cần chứng tỏ · sống một ngày không vội mà vẫn đủ. Tiền là công cụ; bình yên, hài lòng và ý nghĩa mới là đích đến.</div>
+  </div>
+</section>
+
+<!-- KET -->
+<section class="entry" id="ket">
+  <div class="entry-head">
+    <div>
+      <div class="idx">Khóa sổ</div>
+      <h2>Kết — tấm gương soi lại chính mình</h2>
+      <p class="one">Giàu có không nằm ở bạn có bao nhiêu tiền, mà ở bạn kiểm soát được bao nhiêu phần con người mình.</p>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 160 120" class="il" aria-hidden="true">
+        <ellipse cx="80" cy="52" rx="30" ry="38"/>
+        <ellipse cx="80" cy="52" rx="22" ry="30" class="thin"/>
+        <path d="M72 34c-6 6-8 14-6 22" class="b thin"/>
+        <path d="M66 96h28M60 104h40" />
+        <circle cx="80" cy="52" r="5" class="fs"/>
+      </svg>
+    </div>
+  </div>
+  <div class="body">
+    <ul>
+      <li>Cuốn sách không dạy đầu tư, không có công thức thần kỳ — nó là <strong>tấm gương soi lại chính mình</strong>, giúp làm hòa với tiền, với bản thân, và sống có chủ đích hơn mỗi ngày.</li>
+      <li>Housel dạy về tiền không bằng lý thuyết hay giáo điều mà bằng <strong>câu chuyện, trải nghiệm và sự thấu cảm</strong>.</li>
+      <li>Người đọc xong không chỉ hiểu tài chính mà hiểu chính mình: vì sao luôn thấy thiếu, điều gì thật sự làm mình yên tâm.</li>
+      <li>Đôi khi <strong>biết đủ, biết chậm lại, giữ vững giá trị cá nhân</strong> lại là sự giàu có lớn nhất.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Ghi chú từ video "Tâm Lý Học Về Tiền — Morgan Housel" · kênh Mỗi ngày một quyển · youtube.com/watch?v=nXs4UABX4Kc
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var toc = document.getElementById('toc');
+  var btn = document.getElementById('tocToggle');
+  var bg  = document.getElementById('backdrop');
+  function setMenu(open){
+    toc.classList.toggle('open', open);
+    bg.classList.toggle('show', open);
+    btn.setAttribute('aria-expanded', open);
+  }
+  btn.addEventListener('click', function(){ setMenu(!toc.classList.contains('open')); });
+  bg.addEventListener('click', function(){ setMenu(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') setMenu(false); });
+  toc.addEventListener('click', function(e){
+    if(e.target.closest('a')) setMenu(false);
+  });
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('active'); });
+        var a = map[en.target.id];
+        if(a){
+          a.classList.add('active');
+          if(window.matchMedia('(min-width: 901px)').matches){
+            a.scrollIntoView({block:'nearest'});
+          }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+
+  document.querySelectorAll('section.entry').forEach(function(s){ obs.observe(s); });
+})();
+</script>
+</body>
+</html>
