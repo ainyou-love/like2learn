@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép · No.03 — Deep Work: Làm ra làm, chơi ra chơi (bản giữ ngữ cảnh)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Be Vietnam Pro',sans-serif;
+  font-size:16px;line-height:1.75;color:var(--ink);
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit}
+
+/* ============ LAYOUT GRID ============ */
+.wrap{
+  max-width:1240px;margin:0 auto;
+  display:grid;grid-template-columns:288px 1fr;gap:48px;
+  padding:0 24px;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar{
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:32px 4px 32px 0;
+  scrollbar-width:thin;scrollbar-color:var(--green-line) transparent;
+}
+.cover{
+  border:2px solid var(--green);border-radius:var(--radius);
+  background:var(--card);
+  box-shadow:inset 0 0 0 4px var(--card), inset 0 0 0 5px var(--green-line);
+  padding:22px 18px;position:relative;
+}
+.cover::after{
+  content:"";position:absolute;inset:6px;border:1px dashed var(--green-line);
+  border-radius:6px;pointer-events:none;
+}
+.cover .no{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--seal);
+  display:block;margin-bottom:8px;
+}
+.cover h2{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:21px;line-height:1.3;color:var(--green);
+}
+.toc{list-style:none;margin-top:24px}
+.toc li+li{margin-top:2px}
+.toc a{
+  display:flex;align-items:baseline;gap:10px;
+  text-decoration:none;padding:8px 10px;border-radius:6px;
+  border-left:3px solid transparent;
+  color:var(--ink-soft);font-size:14px;line-height:1.45;
+  transition:background .15s,color .15s;
+}
+.toc a .idx{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+  color:var(--brass);min-width:24px;text-align:right;flex-shrink:0;
+}
+.toc a:hover{background:var(--paper-deep)}
+.toc a.active{
+  background:var(--card);color:var(--green);font-weight:600;
+  border-left:3px solid var(--seal);
+}
+.toc a:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+/* ============ MAIN / HERO ============ */
+main{padding:48px 0 40px;min-width:0}
+.hero{position:relative;margin-bottom:44px}
+.kicker{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--seal);
+  display:block;margin-bottom:12px;
+}
+.hero h1{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:clamp(34px,4.5vw,56px);line-height:1.12;color:var(--green);
+  max-width:14ch;
+}
+.hero .sub{
+  margin-top:14px;max-width:56ch;color:var(--ink-soft);font-size:17px;
+}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.pill{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+  color:var(--green);background:var(--card);
+  border:1px solid var(--green-line);border-radius:999px;
+  padding:5px 14px;letter-spacing:.04em;
+}
+.stamp{
+  position:absolute;top:-6px;right:0;width:130px;height:130px;
+  transform:rotate(7deg);opacity:.92;
+}
+@media (max-width:900px){.stamp{display:none}}
+
+/* ============ SECTION CARDS ============ */
+.entry{
+  background:var(--card);border:1px solid var(--green-line);
+  border-radius:var(--radius);
+  margin-bottom:36px;scroll-margin-top:24px;overflow:hidden;
+}
+.entry-head{
+  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;
+  padding:26px 28px 22px;border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--brass);
+  display:block;margin-bottom:6px;
+}
+.entry-head h2{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:26px;line-height:1.25;color:var(--green);
+}
+.entry-head .oneliner{
+  font-style:italic;color:var(--ink-soft);font-size:15px;margin-top:8px;
+}
+.illus{
+  width:168px;height:138px;flex-shrink:0;
+  border:2px solid var(--green);border-radius:6px;
+  background:var(--paper);
+  box-shadow:inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--green-line);
+  transform:rotate(-1.4deg);
+  display:flex;align-items:center;justify-content:center;
+  padding:8px;
+}
+.illus svg{width:100%;height:100%}
+.entry-body{padding:24px 28px 28px}
+.entry-body ul{list-style:none}
+.entry-body li{padding-left:26px;position:relative}
+.entry-body li+li{margin-top:10px}
+.entry-body li::before{
+  content:"—";position:absolute;left:0;color:var(--brass);font-weight:600;
+}
+.entry-body strong{color:var(--green);font-weight:600}
+.entry-body em{font-style:italic;color:var(--ink-soft)}
+.callout{
+  margin-top:24px;border-left:3px solid var(--seal);
+  background:var(--paper);border-radius:0 6px 6px 0;
+  padding:16px 20px;
+}
+.callout .label{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--seal);
+  display:block;margin-bottom:6px;
+}
+.callout p{color:var(--ink)}
+.callout em{font-style:italic;color:var(--ink-soft)}
+
+/* ============ FOOTER ============ */
+footer{
+  border-top:1px dashed var(--green-line);
+  padding:24px 0 40px;margin-top:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);
+}
+
+/* ============ SVG line-art defaults ============ */
+.la{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.la .b{stroke:var(--brass)}
+.la .s{stroke:var(--seal)}
+.la .thin{stroke-width:2}
+
+/* ============ MOBILE DRAWER ============ */
+.menu-btn{display:none}
+.backdrop{display:none}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .sidebar{
+    position:fixed;top:0;left:0;z-index:60;
+    width:min(82vw,320px);height:100vh;height:100dvh;
+    background:var(--paper-deep);
+    padding:24px 18px;
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    box-shadow:4px 0 24px rgba(28,43,34,.18);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .backdrop{
+    display:block;position:fixed;inset:0;z-index:50;
+    background:rgba(28,43,34,.45);
+    opacity:0;pointer-events:none;transition:opacity .28s ease;
+  }
+  .backdrop.show{opacity:1;pointer-events:auto}
+  .menu-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    position:fixed;left:16px;bottom:18px;z-index:70;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;
+    letter-spacing:.08em;color:var(--card);background:var(--green);
+    border:none;border-radius:999px;padding:12px 20px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.3);
+  }
+  .menu-btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+  main{padding-top:32px}
+  .entry-head{grid-template-columns:1fr;gap:18px}
+  .illus{width:100%;max-width:220px;height:auto;aspect-ratio:168/138}
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="no">Sổ ghi chép · No.03</span>
+      <h2>Deep Work — Làm ra làm, chơi ra chơi</h2>
+    </div>
+    <nav aria-label="Mục lục sổ ghi chép">
+      <ol class="toc" id="toc">
+        <li><a href="#muc-1"><span class="idx">01</span>Kỷ nguyên phân tâm</a></li>
+        <li><a href="#muc-2"><span class="idx">02</span>Deep Work là gì</a></li>
+        <li><a href="#muc-3"><span class="idx">03</span>Hai năng lực cốt lõi</a></li>
+        <li><a href="#muc-4"><span class="idx">04</span>Ý nghĩa 1 · Giá trị thật</a></li>
+        <li><a href="#muc-5"><span class="idx">05</span>Ý nghĩa 2 · Rèn trí óc</a></li>
+        <li><a href="#muc-6"><span class="idx">06</span>Ý nghĩa 3 · Flow</a></li>
+        <li><a href="#muc-7"><span class="idx">07</span>Ý nghĩa 4 · Ý nghĩa sống</a></li>
+        <li><a href="#muc-8"><span class="idx">08</span>Ý nghĩa 5 · Deep Life</a></li>
+        <li><a href="#muc-9"><span class="idx">09</span>Quy tắc 1 · Bốn triết lý</a></li>
+        <li><a href="#muc-10"><span class="idx">10</span>Quy tắc 2 · Tận dụng buồn chán</a></li>
+        <li><a href="#muc-11"><span class="idx">11</span>Quy tắc 3 · Thoát mạng xã hội</a></li>
+        <li><a href="#muc-12"><span class="idx">12</span>Quy tắc 4 · Bỏ việc hời hợt</a></li>
+        <li><a href="#muc-13"><span class="idx">13</span>Kết · Cuộc sống sâu</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 130 130" aria-hidden="true">
+        <circle cx="65" cy="65" r="60" fill="none" stroke="var(--seal)" stroke-width="4"/>
+        <circle cx="65" cy="65" r="46" fill="none" stroke="var(--seal)" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="65" y="58" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" font-weight="700" fill="var(--seal)" letter-spacing="2">ĐÃ GHI</text>
+        <text x="65" y="82" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="500" fill="var(--seal)" letter-spacing="2">SỔ · 2026</text>
+      </svg>
+      <span class="kicker mono">Ghi chép đọc sách · Cal Newport · Bản giữ ngữ cảnh</span>
+      <h1>Deep Work: Làm ra làm, chơi ra chơi</h1>
+      <p class="sub"><em>"Thời đại này không thiếu thông tin, chỉ thiếu sự chú tâm."</em> — Tập trung sâu là siêu năng lực của thế kỷ 21.</p>
+      <div class="meta">
+        <span class="pill">CAL NEWPORT</span>
+        <span class="pill">TẬP TRUNG SÂU</span>
+        <span class="pill">GHI · 08.2026</span>
+      </div>
+    </header>
+
+    <!-- ========== MỤC 01 ========== -->
+    <section class="entry" id="muc-1">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 01</span>
+          <h2>Kỷ nguyên phân tâm</h2>
+          <p class="oneliner">Ta không lười — ta liên tục bị kéo khỏi điều quan trọng nhất.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <circle cx="62" cy="66" r="26"/>
+            <path d="M62 92 L62 108 M48 104 L76 104" class="thin"/>
+            <circle cx="118" cy="30" r="12" class="s"/>
+            <path d="M114 30 h8 M118 26 v8" class="s thin"/>
+            <circle cx="132" cy="66" r="9" class="b"/>
+            <path d="M84 56 L106 38" class="s thin" stroke-dasharray="5 5"/>
+            <path d="M88 68 L122 66" class="b thin" stroke-dasharray="5 5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Kịch bản quen thuộc: mở laptop, viết danh sách việc, tự nhủ <em>"hôm nay mình sẽ hoàn thành tất cả"</em> → vài phút sau một tin nhắn bật lên, mở YouTube <em>"chỉ để xem vài phút thôi"</em> → <strong>một tiếng, hai tiếng trôi qua</strong>: việc dở dang, đầu óc mệt, cảm giác tội lỗi lởn vởn.</li>
+          <li>Câu đùa của thời đại: <em>"Thời đại này không thiếu thông tin, chỉ thiếu sự chú tâm."</em></li>
+          <li>Ta <strong>không hề lười biếng</strong> — chỉ liên tục bị kéo khỏi điều quan trọng nhất, cuốn vào vô số thứ nhỏ nhặt khiến tâm trí không bao giờ được yên.</li>
+          <li><strong>Cal Newport</strong> (GS ĐH Georgetown) quan sát nhiều năm: con người hiện đại đã <strong>đánh mất khả năng tập trung sâu</strong> — nền tảng của những kiệt tác, phát minh vĩ đại nhất của nhân loại.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Luận điểm gốc</span>
+          <p>Trong thế giới đầy phân tâm, khả năng tập trung sâu chính là <em>"siêu năng lực của thế kỷ 21"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 02 ========== -->
+    <section class="entry" id="muc-2">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 02</span>
+          <h2>Deep Work là gì — và kẻ thù Shallow Work</h2>
+          <p class="oneliner">Bận rộn cả ngày không đồng nghĩa với tiến xa hơn.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M12 44 q12 -7 24 0 t24 0 t24 0 t24 0 t24 0" class="thin b"/>
+            <path d="M62 44 L76 20 L96 44"/>
+            <path d="M62 44 L52 78 L86 104 L106 66 L96 44"/>
+            <path d="M76 20 L80 44" class="thin"/>
+            <circle cx="130" cy="24" r="7" class="s thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Định nghĩa của tác giả: <em>"Làm việc sâu là những hoạt động chuyên môn được thực hiện trong trạng thái tập trung cao độ, không bị xao lãng, nhằm thúc đẩy khả năng nhận thức đến giới hạn. Những nỗ lực như vậy tạo ra giá trị mới, nâng cao kỹ năng và rất khó sao chép."</em></li>
+          <li>Ngắn gọn: ở trong <strong>dòng chảy</strong>, đắm chìm vào <strong>một việc duy nhất</strong>, không nghĩ đến thông báo, email, tin nhắn.</li>
+          <li><strong>Shallow Work</strong> (làm việc hời hợt): việc không đòi hỏi nhiều nỗ lực nhận thức — lướt web, phản hồi email, sắp xếp tài liệu, họp hành liên miên → <strong>bận rộn cả ngày nhưng không tạo giá trị thực</strong>, làm nhiều mà chẳng tiến xa.</li>
+          <li>Não như <strong>cỗ máy học</strong>: luyện gì mạnh nấy, bỏ bê thì teo đi. Mỗi ngày chỉ luyện thói quen phản ứng thay vì tư duy → não chỉ còn quen với sao nhãng.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Cảnh báo</span>
+          <p>Dành quá nhiều thời gian cho việc hời hợt → có thể <strong>mất vĩnh viễn</strong> khả năng làm việc sâu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 03 ========== -->
+    <section class="entry" id="muc-3">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 03</span>
+          <h2>Hai năng lực để nổi bật</h2>
+          <p class="oneliner">Cả hai chỉ xuất hiện khi bạn biết cách làm việc sâu.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M20 80 Q42 68 62 80 L62 32 Q42 20 20 32 Z"/>
+            <path d="M62 80 Q82 68 104 80 L104 32 Q82 20 62 32 Z"/>
+            <path d="M118 46 L134 46 L142 60 L126 78 L110 60 Z" class="b"/>
+            <path d="M110 60 L142 60 M126 46 L126 78" class="b thin"/>
+            <path d="M30 96 L44 96" class="s thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><strong>1 · Học nhanh những điều khó.</strong> Thế giới thay đổi từng ngày; không học nhanh sẽ bị bỏ lại phía sau. Không thể hấp thụ kiến thức khó khi tâm trí <em>"bị chia năm sẻ bảy"</em> với tin nhắn, thông báo, những công việc vụn vặt.</li>
+          <li><strong>2 · Tạo ra giá trị ở cấp độ cao</strong> — cả chất lượng lẫn tốc độ. Khi ai cũng bận rộn, người làm ra sản phẩm tinh tế, ý tưởng đột phá, giải pháp khác biệt mới được ghi nhận — cần <strong>thời gian và không gian tư duy đủ lâu</strong> để phát triển một ý tưởng đến tận cùng.</li>
+          <li>Không ai học nhanh, sáng tạo hay đổi mới nổi nếu tâm trí luôn bị gián đoạn — <strong>sự tập trung là môi trường nuôi dưỡng tài năng</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Bài học</span>
+          <p>Deep work là làm ra <em>"thứ không thể thay thế — điều mà máy móc hay ai khác cũng không thể làm tốt hơn bạn"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 04 ========== -->
+    <section class="entry" id="muc-4">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 04</span>
+          <h2>Ý nghĩa 1 · Tạo ra giá trị thật</h2>
+          <p class="oneliner">Biến nỗ lực thành sáng tạo, biến thời gian thành kết quả.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M56 26 L104 26 L112 42 L48 42 Z"/>
+            <path d="M64 42 L64 92 L96 92 L96 42" class="thin"/>
+            <circle cx="80" cy="66" r="10" class="s"/>
+            <path d="M80 60 L80 72 M74 66 L86 66" class="s thin"/>
+            <path d="M120 80 L132 80 M124 92 L136 92" class="b thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Việc hời hợt khiến bạn <em>"trông như đang làm việc"</em> nhưng không đưa bạn đến gần giá trị thực.</li>
+          <li>Deep work <strong>biến nỗ lực thành sáng tạo, biến thời gian thành kết quả</strong>: ý tưởng đột phá, giải pháp khác biệt, sản phẩm mang dấu ấn riêng — <strong>không thể sao chép, không thể tự động hóa, không thể thay thế bằng công nghệ</strong>.</li>
+          <li>Tạo cả <strong>giá trị nội tại</strong>: hiểu sâu hơn, nhớ lâu hơn, kỹ năng đạt cấp độ mà người <em>"làm cho xong"</em> không bao giờ chạm tới.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Bài học</span>
+          <p>Quá trình làm việc sâu biến bạn thành chuyên gia thực thụ — <em>"người tạo ra chuẩn mực thay vì chạy theo nó"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 05 ========== -->
+    <section class="entry" id="muc-5">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 05</span>
+          <h2>Ý nghĩa 2 · Rèn luyện trí óc</h2>
+          <p class="oneliner">Não bộ là cơ bắp tinh thần — luyện gì mạnh nấy.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M50 60 L110 60"/>
+            <rect x="26" y="42" width="16" height="36" rx="4"/>
+            <rect x="118" y="42" width="16" height="36" rx="4"/>
+            <rect x="14" y="50" width="10" height="20" rx="3" class="b"/>
+            <rect x="136" y="50" width="10" height="20" rx="3" class="b"/>
+            <path d="M72 24 q8 -10 16 0 M68 32 q12 -14 24 0" class="s thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Não là <strong>"cơ bắp tinh thần"</strong>: mỗi lần chọn ngồi yên, loại bỏ phiền nhiễu, dồn hết năng lượng vào một việc = một buổi huấn luyện cho não <strong>sắc bén hơn, sâu sắc hơn</strong>.</li>
+          <li>Ngược lại, để bản thân bị kéo bởi tin tức mạng xã hội mỗi ngày = luyện thói quen nông cạn: <em>"khó mà đọc nổi 10 trang sách"</em>, không suy nghĩ lâu về một ý tưởng, dần mất khả năng tư duy độc lập.</li>
+          <li>Newport gọi đó là <em>"trạng thái suy thoái tinh thần hiện đại"</em>: quen phản ứng tức thì, không còn đủ sức suy nghĩ sâu.</li>
+          <li>Deep work chống lại suy thoái ấy: buộc ta đối diện thách thức, vượt qua sự nhàm chán, bền bỉ theo đuổi điều khó — như rèn cơ bắp: <strong>tập chịu đựng, kiên định, sáng suốt hơn</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Nguyên tắc</span>
+          <p>Thứ gì ta luyện tập sẽ mạnh lên; thứ gì ta bỏ bê sẽ <strong>teo đi</strong>. Não bạn đang được luyện mỗi ngày — câu hỏi là luyện tập trung hay luyện sao nhãng.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 06 ========== -->
+    <section class="entry" id="muc-6">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 06</span>
+          <h2>Ý nghĩa 3 · Niềm vui và bình an — Flow</h2>
+          <p class="oneliner">Hạnh phúc sâu nhất không đến từ tiêu khiển.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M14 70 q16 -12 32 0 t32 0 t32 0 t32 0"/>
+            <path d="M14 88 q16 -12 32 0 t32 0 t32 0 t32 0" class="thin"/>
+            <path d="M66 52 L80 34 L94 52 Z" class="s"/>
+            <path d="M80 52 L80 62" class="s thin"/>
+            <circle cx="126" cy="26" r="9" class="b"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Nhà tâm lý học <strong>Mihaly Csikszentmihalyi</strong> dành cả đời khám phá câu hỏi <em>"điều gì khiến con người ta cảm thấy hạnh phúc thực sự?"</em></li>
+          <li>Phát hiện: hạnh phúc sâu nhất <strong>không đến từ nghỉ ngơi hay tiêu khiển</strong>, mà từ những khoảnh khắc <strong>tập trung trọn vẹn vào một việc khó nhưng đầy ý nghĩa</strong>.</li>
+          <li>Hình ảnh trong sách: <em>"người họa sĩ quên thời gian trong từng nét cọ"</em>, <em>"người lập trình viên đắm chìm trong từng dòng mã"</em>, <em>"người viết cảm thấy ngón tay mình chạy theo dòng ý tưởng tuôn trào bất tận"</em>.</li>
+          <li>Trong flow: <strong>hiệu suất – sáng tạo – niềm vui hòa làm một</strong>; thời gian trôi nhanh, tâm trí sáng rõ, bình yên kỳ lạ.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Trạng thái flow</span>
+          <p><em>"Không còn lo nghĩ về quá khứ, không còn bất an về tương lai — ta sống trọn trong hiện tại."</em> Khi làm việc sâu, bạn trở về với phần sâu thẳm nhất của chính mình.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 07 ========== -->
+    <section class="entry" id="muc-7">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 07</span>
+          <h2>Ý nghĩa 4 · Tìm lại ý nghĩa cuộc sống</h2>
+          <p class="oneliner">Từ người làm thuê cho công việc thành người kiến tạo giá trị.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M24 100 Q60 90 76 60 Q92 30 128 22"/>
+            <path d="M128 22 L128 44 M128 22 L148 30 L128 38" class="s"/>
+            <circle cx="24" cy="100" r="6" class="b"/>
+            <path d="M52 86 L58 80 M84 52 L90 46" class="b thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Con người hạnh phúc nhất khi đắm chìm hoàn toàn vào việc có <strong>độ thử thách vừa đủ</strong> — <em>"không quá dễ cũng không quá khó"</em>.</li>
+          <li>Khi dùng toàn bộ tâm trí vào một việc — <em>"dù là một dòng mã, một bức tranh hay một bài viết"</em> — ta thấy mình sống có mục đích: <em>"không còn cảm giác làm thuê cho công việc mà trở thành người kiến tạo và dẫn dắt giá trị"</em>.</li>
+          <li>Ngược lại, khi liên tục nhảy từ thông báo này sang tin nhắn khác → <strong>đánh mất cảm giác về chiều sâu</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Tầng sâu nhất</span>
+          <p>Deep work không chỉ là phương pháp làm việc mà là <em>"hành trình quay trở lại với chính mình"</em> — tĩnh lặng giữa cơn hỗn loạn của thông tin.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 08 ========== -->
+    <section class="entry" id="muc-8">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 08</span>
+          <h2>Ý nghĩa 5 · Deep Life — triết lý sống</h2>
+          <p class="oneliner">Làm ra làm, chơi ra chơi — không nửa vời, không lưng chừng.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M80 16 L80 104" class="thin" stroke-dasharray="6 6"/>
+            <circle cx="44" cy="52" r="18" class="b"/>
+            <path d="M44 24 L44 32 M44 72 L44 80 M20 52 L28 52 M60 52 L68 52" class="b thin"/>
+            <path d="M126 42 a16 16 0 1 0 6 30 a20 20 0 0 1 -6 -30" class="s"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Cuộc sống sâu: <em>"Làm việc thì thật sự làm việc, nghỉ ngơi thì thật sự nghỉ ngơi — không nửa vời, không lưng chừng, không để tâm trí bị kéo đi giữa hai thế giới."</em></li>
+          <li>Thực trạng: phần lớn chúng ta <em>"làm việc trong lúc chơi và chơi trong lúc làm việc"</em> — vừa check email khi đang ăn, vừa lướt mạng khi đang làm việc, vừa lo nghĩ công việc khi nghỉ ngơi → <strong>mọi thứ đều dang dở</strong>, tâm trí luôn mỏi mệt dù công việc chẳng hề quá sức.</li>
+          <li>Chính sự thiếu vắng deep work khiến người hiện đại <strong>kiệt quệ về tinh thần</strong>.</li>
+          <li>Một ngày làm việc sâu <strong>dù chỉ vài giờ</strong> → cảm giác thỏa mãn, trọn vẹn hơn <strong>cả tuần bận rộn hời hợt</strong>.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Chuyển tiếp</span>
+          <p><em>"Bạn không thể chỉ mong mình sẽ làm việc sâu hơn. Bạn phải tạo ra hệ thống để sống sâu hơn."</em> — Nếu phần đầu là <strong>vì sao</strong>, bốn quy tắc sau là <strong>làm sao</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 09 ========== -->
+    <section class="entry" id="muc-9">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 09</span>
+          <h2>Quy tắc 1 · Chọn triết lý làm việc sâu</h2>
+          <p class="oneliner">Xây môi trường, thói quen, nghi thức để tâm trí dễ rơi vào vùng sâu.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <circle cx="80" cy="60" r="38"/>
+            <path d="M80 34 L88 60 L80 86 L72 60 Z" class="s"/>
+            <path d="M80 12 L80 20 M80 100 L80 108 M32 60 L40 60 M120 60 L128 60" class="b thin"/>
+            <circle cx="80" cy="60" r="5" class="thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><strong>① Triết lý tu viện</strong>: sẵn sàng cắt đứt hoàn toàn với phiền nhiễu, dành toàn bộ thời gian và năng lượng cho công việc đòi hỏi chiều sâu trí tuệ — <em>"như những tu sĩ trong thế giới hiện đại"</em>. Cực đoan nhưng là con đường tạo nên kiệt tác.</li>
+          <li><strong>② Triết lý hai pha</strong>: xen kẽ giai đoạn làm việc sâu và giai đoạn bình thường. Ví dụ điển hình: <strong>Carl Jung</strong> — có những tuần ông <em>"rút vào căn nhà bên hồ Zurich để tập trung nghiên cứu, rồi quay về thành phố để giảng dạy và giao tiếp"</em>. Hợp người cần cân bằng sáng tạo – tương tác xã hội.</li>
+          <li><strong>③ Triết lý nhịp điệu</strong>: phổ biến nhất với người hiện đại — nhịp làm việc sâu đều đặn mỗi ngày, ví dụ <strong>2 tiếng buổi sáng, 2 tiếng buổi chiều</strong>. Lặp đủ lâu, <em>"sự tập trung sẽ trở thành phản xạ"</em> — không cần cố gắng nữa.</li>
+          <li><strong>④ Triết lý báo chí</strong>: cấp độ cao nhất — bật trạng thái tập trung sâu ngay khi có cơ hội, dù chỉ vài phút ngắn ngủi, <em>"giống nhà báo có thể viết một bài phỏng vấn sâu sắc giữa những lịch trình dày đặc"</em>. Chỉ hợp người đã luyện lâu năm, tâm trí cực kỳ kỷ luật.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Nguyên tắc</span>
+          <p>Không có triết lý "đúng nhất" — chỉ có triết lý <strong>phù hợp với hoàn cảnh sống của bạn</strong>. Chọn một và tổ chức cuộc sống quanh mục tiêu tập trung.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 10 ========== -->
+    <section class="entry" id="muc-10">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 10</span>
+          <h2>Quy tắc 2 · Tận dụng sự buồn chán</h2>
+          <p class="oneliner">Buồn chán là bài tập thể lực của não bộ.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M52 18 L108 18 M52 102 L108 102"/>
+            <path d="M58 18 Q58 48 80 60 Q102 48 102 18 M58 102 Q58 72 80 60 Q102 72 102 102"/>
+            <circle cx="80" cy="82" r="2" class="b"/>
+            <circle cx="74" cy="92" r="2" class="b"/>
+            <circle cx="86" cy="92" r="2" class="b"/>
+            <path d="M72 96 L88 96" class="b thin"/>
+            <path d="M124 40 L132 40 M124 52 L136 52" class="s thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Chỉ cần vài giây trống là ta mở điện thoại, kéo bản tin, xem vài clip → não <strong>nghiện kích thích tức thì</strong>, <em>"giống một đứa trẻ không thể ngồi yên 5 phút mà không có đồ chơi"</em>.</li>
+          <li>Bộ não được nuông chiều liên tục sẽ <strong>không bao giờ đủ mạnh để làm việc sâu</strong> — vì deep work đòi hỏi ở yên, suy nghĩ, kiên trì vượt qua sự khó chịu khi chưa tìm ra lời giải.</li>
+          <li>Chịu đựng buồn chán = tập thể dục cho <strong>"cơ bắp ý chí"</strong>: mỗi lần cưỡng lại ham muốn là thêm một chút sức mạnh tinh thần; não dẻo dai hơn, tập trung lâu hơn, ít dao động hơn.</li>
+          <li><strong>Bài tập 1 — cho phép mình chán mà không làm gì</strong>: khi chờ xe buýt hay xếp hàng, <strong>đừng vội lôi điện thoại ra</strong>; để tâm trí trôi tự do hoặc tập trung nhẹ vào hơi thở. <em>"Lúc đầu bạn sẽ thấy khó chịu — nhưng đó chính là dấu hiệu của sự rèn luyện."</em></li>
+          <li><strong>Bài tập 2 — "bài tập cắt phản xạ"</strong>: đặt khoảng tập trung có giới hạn, ví dụ <strong>30 phút chỉ làm một việc</strong>; dù đầu óc muốn chuyển sang thứ khác cũng không cho phép. Mỗi lần cắt được phản xạ = tăng sức mạnh cho làm việc sâu sau này.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Bài học</span>
+          <p>Không phải chống lại bản thân, mà <em>"dạy cho não biết nghỉ ngơi đúng cách"</em>. Khi không còn sợ cảm giác rảnh rỗi, tâm trí sẽ tĩnh lặng hơn, tập trung hơn, sáng tạo hơn.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 11 ========== -->
+    <section class="entry" id="muc-11">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 11</span>
+          <h2>Quy tắc 3 · Thoát khỏi mạng xã hội</h2>
+          <p class="oneliner">Dùng chủ động, có chọn lọc — thay vì bị dẫn dắt.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M36 30 L36 96 M84 30 L84 96 M28 96 L92 96"/>
+            <path d="M36 30 Q60 10 84 30"/>
+            <path d="M48 40 L48 96 M60 40 L60 96 M72 40 L72 74" class="thin"/>
+            <path d="M108 44 q8 -10 16 0 q8 -10 16 0" class="s"/>
+            <path d="M112 62 L124 56 L136 62" class="s thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Câu hỏi tự vấn trước khi dùng: <em>"Việc sử dụng mạng xã hội có giúp tôi đạt được điều mà tôi coi là quan trọng nhất không?"</em> — nếu câu trả lời không rõ ràng, có lẽ đã đến lúc buông.</li>
+          <li>Cái bẫy giữ hàng chục ứng dụng: <em>"biết đâu sẽ cần"</em>, <em>"mọi người đều dùng mà mình không có thì sao?"</em> → tác giả gọi là <strong>"tư duy tối đa hóa tiện ích"</strong>: chỉ cần công cụ có chút lợi ích là giữ lại. Nguy hiểm ở chỗ đánh giá quá cao lợi ích nhỏ, quên cái giá khổng lồ: <strong>thời gian, sự tập trung, sự bình yên trong tâm trí</strong>.</li>
+          <li>Nguyên tắc: <em>"Công cụ tốt không phải là công cụ có ích, mà là công cụ phục vụ đúng mục tiêu của bạn."</em> Nhà sáng tạo → Instagram giúp lan tỏa sản phẩm; người nghiên cứu, lao động trí tuệ → mạng xã hội có thể <strong>phá nát khả năng tư duy sâu</strong>.</li>
+          <li>Minh chứng sống: <strong>Newport không dùng Facebook, Twitter hay Instagram</strong> — vẫn là giáo sư thành công, tác giả bestseller quốc tế, hàng triệu độc giả trung thành qua sách và blog cá nhân.</li>
+          <li><em>"Bạn không cần xuất hiện ở khắp nơi, bạn chỉ cần xuất hiện thật sâu ở nơi quan trọng."</em> — <em>"Thế giới không cần thêm một người online 24/7 mà cần những người biết im lặng để tạo ra điều có ý nghĩa."</em></li>
+        </ul>
+        <div class="callout">
+          <span class="label">Nguyên tắc</span>
+          <p><em>"Mạng xã hội không xấu — chỉ khi ta đánh mất quyền lựa chọn, nó mới trở thành kẻ điều khiển."</em> Thoát khỏi nó không phải rời bỏ thế giới, mà là <em>"quay trở về làm chủ tâm trí mình"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 12 ========== -->
+    <section class="entry" id="muc-12">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 12</span>
+          <h2>Quy tắc 4 · Loại bỏ những thứ hời hợt</h2>
+          <p class="oneliner">Kẻ thù thầm lặng khiến ta kiệt sức mà không đạt được gì đáng kể.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <rect x="24" y="22" width="76" height="80" rx="4"/>
+            <path d="M24 40 L100 40" class="thin"/>
+            <path d="M34 54 L66 54 M34 68 L78 68 M34 82 L58 82" class="b thin"/>
+            <circle cx="122" cy="76" r="22" class="s"/>
+            <path d="M122 64 L122 76 L132 82" class="s thin"/>
+            <path d="M40 12 L40 22 M84 12 L84 22" class="thin"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><strong>Lên lịch cho từng phút trong ngày</strong>: mỗi buổi sáng dành vài phút <em>"vẽ bản đồ thời gian trong ngày"</em>, chia nhỏ thành từng khung cụ thể. Ví dụ trong sách: <strong>8:00–10:00</strong> học bài hoặc làm việc; <strong>10:00–12:00</strong> nghỉ ngơi, nấu nướng, ăn trưa; <strong>13:30–16:00</strong> nghiên cứu, học kỹ năng mới; <strong>17:00</strong> đi tập thể dục.</li>
+          <li>Không phải ép mình <em>"làm việc như máy"</em>, mà là <strong>chủ động kiểm soát thời gian của chính mình</strong>. Có sự cố bất ngờ thì điều chỉnh — <em>"nhưng đừng bao giờ để thời gian trôi đi vô định"</em> → não hình thành thói quen tập trung theo khung thay vì tùy hứng.</li>
+          <li>Nghịch lý: biết mình chỉ có <strong>4 tiếng làm việc sâu mỗi ngày</strong> → tập trung hơn, sáng tạo hơn, quyết định nhanh hơn. Nghĩ mình "có cả ngày để làm" → rơi vào <strong>ảo giác bận rộn</strong>, kéo dài công việc, trì hoãn.</li>
+          <li><strong>Học cách nói không</strong> với yêu cầu của người khác: <em>"Mỗi lần bạn nói có với một yêu cầu nhỏ, bạn đang nói không với điều thực sự quan trọng với bạn."</em></li>
+        </ul>
+        <div class="callout">
+          <span class="label">Bài học</span>
+          <p>Một lời từ chối tử tế không phải là khước từ — mà là cách <strong>bảo vệ thời gian của bạn cho những thứ xứng đáng khác</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MỤC 13 ========== -->
+    <section class="entry" id="muc-13">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 13</span>
+          <h2>Kết · Cuộc sống sâu</h2>
+          <p class="oneliner">Không phải ai làm nhiều hơn sẽ thắng, mà ai tập trung sâu hơn.</p>
+        </div>
+        <div class="illus" aria-hidden="true">
+          <svg class="la" viewBox="0 0 160 120">
+            <path d="M80 66 L80 30"/>
+            <path d="M80 42 Q64 34 56 20 M80 36 Q96 30 106 18" class="thin"/>
+            <circle cx="80" cy="22" r="14" class="b"/>
+            <path d="M20 66 L140 66" class="thin"/>
+            <path d="M80 66 L80 92 M80 76 Q64 84 54 100 M80 82 Q96 90 104 104" class="s"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Deep work không chỉ là phương pháp làm việc mà là <strong>triết lý sống</strong> trong thế giới ồn ào, gấp gáp, đầy cám dỗ. <em>"Không phải ai làm nhiều hơn sẽ thắng, mà là ai tập trung sâu hơn, sống có ý nghĩa hơn."</em></li>
+          <li>Sự chú ý là thứ <strong>quý nhất và dễ bị đánh cắp nhất</strong>: mỗi lần mở mạng xã hội, trả lời một thông báo — <em>"ta đánh đổi vài phút, thậm chí vài năm cuộc đời cho những thứ chẳng mấy quan trọng"</em>.</li>
+          <li>Deep work là lời phản kháng với sự hỗn loạn ấy: <em>"không bảo ta làm nhiều hơn, mà dạy ta làm ít hơn nhưng sâu hơn và thật hơn"</em>.</li>
+          <li><em>"Khi bạn học cách tách mình khỏi tiếng ồn, bạn bắt đầu nghe được tiếng nói bên trong. Khi bạn học cách tập trung, bạn bắt đầu chạm được đến điều có ý nghĩa nhất."</em></li>
+          <li>Nó dạy ta <strong>kiên nhẫn hơn</strong> trong thế giới hấp tấp, <strong>tĩnh lặng hơn</strong> giữa ồn ào, <strong>kỷ luật hơn</strong> khi tất cả bị cuốn theo sự dễ dãi.</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Tinh thần cuốn sách</span>
+          <p><em>"Cuộc sống sâu sắc không tự nhiên mà có — nó là kết quả của việc bạn dùng tâm trí vào điều đáng giá nhất."</em> Hãy sống tập trung, làm sâu, yêu đời và trân trọng từng khoảnh khắc — <em>"sống và làm việc theo cách khiến bạn tự hào về chính mình"</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span class="mono">Nguồn: tóm tắt sách "Deep Work" (Cal Newport) — kênh Mỗi ngày một quyển · Ghi chép cá nhân, sổ No.03 · 2026</span>
+    </footer>
+  </main>
+</div>
+
+<!-- Mobile drawer controls -->
+<div class="backdrop" id="backdrop"></div>
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var sections = tocLinks.map(function(a){
+    return document.querySelector(a.getAttribute('href'));
+  });
+  var isMobile = function(){ return window.matchMedia('(max-width:900px)').matches; };
+
+  /* ---- Drawer state: single source of truth ---- */
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setDrawer(false);
+  });
+  tocLinks.forEach(function(a){
+    a.addEventListener('click', function(){
+      if(isMobile()) setDrawer(false);
+    });
+  });
+
+  /* ---- Scrollspy ---- */
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var id = entry.target.id;
+        tocLinks.forEach(function(a){
+          var active = a.getAttribute('href') === '#' + id;
+          a.classList.toggle('active', active);
+          if(active && !isMobile()){
+            a.scrollIntoView({block:'nearest'});
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(function(sec){ if(sec) observer.observe(sec); });
+})();
+</script>
+</body>
+</html>
