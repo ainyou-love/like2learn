@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép No.06 · Cách đặt mục tiêu hiệu quả</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Be Vietnam Pro",sans-serif;
+  font-size:16px;line-height:1.75;color:var(--ink);
+  background:var(--paper) repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.mono{font-family:"IBM Plex Mono",monospace}
+
+/* ===== LAYOUT ===== */
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:288px 1fr;gap:48px}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:32px 4px 32px 0;scrollbar-width:thin}
+.cover{
+  border:2px solid var(--green);border-radius:var(--radius);
+  background:var(--card);padding:22px 18px;margin-bottom:26px;position:relative;
+  box-shadow:inset 0 0 0 4px var(--card), inset 0 0 0 5px var(--green-line);
+}
+.cover::after{content:"";position:absolute;inset:6px;border:1px dashed var(--green-line);border-radius:6px;pointer-events:none}
+.cover-label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--seal);font-weight:500;margin-bottom:8px}
+.cover-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:21px;line-height:1.3;color:var(--green)}
+.toc{list-style:none;counter-reset:toc}
+.toc li{margin-bottom:2px}
+.toc a{
+  display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-radius:6px;
+  border-left:3px solid transparent;font-size:13.5px;font-weight:500;color:var(--ink-soft);
+  transition:background .15s,color .15s;
+}
+.toc a .num{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--brass);min-width:22px;text-align:right;flex-shrink:0}
+.toc a:hover{background:var(--paper-deep)}
+.toc a.active{background:var(--card);color:var(--green);font-weight:600;border-left-color:var(--seal)}
+
+/* ===== MAIN / HERO ===== */
+main{padding:56px 0 40px;min-width:0}
+.hero{position:relative;margin-bottom:52px}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--seal);font-weight:500;margin-bottom:12px}
+h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:clamp(34px,4.4vw,56px);line-height:1.12;color:var(--green);margin-bottom:16px;max-width:14em}
+.subtitle{color:var(--ink-soft);max-width:56ch;margin-bottom:20px}
+.meta{display:flex;flex-wrap:wrap;gap:10px}
+.pill{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--green-line);background:var(--card);border-radius:999px;padding:5px 14px;color:var(--ink-soft)}
+.stamp{position:absolute;top:-6px;right:0;transform:rotate(7deg);opacity:.92}
+
+/* ===== SECTION CARDS ===== */
+.entry{
+  background:var(--card);border:1px solid var(--green-line);border-radius:var(--radius);
+  margin-bottom:36px;scroll-margin-top:24px;overflow:hidden;
+}
+.entry-head{
+  display:grid;grid-template-columns:1fr auto;gap:28px;align-items:start;
+  padding:28px 30px 22px;border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);font-weight:500;margin-bottom:6px}
+.entry h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:26px;line-height:1.25;color:var(--green);margin-bottom:8px}
+.summary{font-style:italic;color:var(--ink-soft);font-size:15px}
+.illo{
+  width:168px;height:138px;flex-shrink:0;border:2px solid var(--green);border-radius:6px;
+  background:var(--paper);transform:rotate(-1.4deg);position:relative;
+  display:flex;align-items:center;justify-content:center;padding:8px;
+  box-shadow:inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--green-line);
+}
+.illo::after{content:"";position:absolute;inset:4px;border:1px dashed var(--green-line);border-radius:3px;pointer-events:none}
+.illo svg{width:100%;height:100%;fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.illo .b{stroke:var(--brass)} .illo .s{stroke:var(--seal)} .illo .thin{stroke-width:2}
+
+.entry-body{padding:24px 30px 28px}
+.entry-body ul{list-style:none;margin-bottom:8px}
+.entry-body li{position:relative;padding-left:26px;margin-bottom:12px}
+.entry-body li::before{content:"—";position:absolute;left:0;color:var(--brass);font-weight:600}
+.entry-body strong{color:var(--green);font-weight:600}
+.entry-body em{color:var(--ink)}
+
+.callout{
+  border-left:3px solid var(--seal);background:var(--paper);border-radius:0 6px 6px 0;
+  padding:16px 20px;margin-top:20px;
+}
+.callout-label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--seal);font-weight:500;margin-bottom:6px}
+.callout p{font-size:15px}
+
+footer{border-top:1px dashed var(--green-line);margin-top:40px;padding:22px 0 48px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft)}
+
+/* ===== MOBILE ===== */
+.toc-toggle{display:none}
+.backdrop{display:none}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .stamp{display:none}
+  main{padding-top:36px}
+  .sidebar{
+    position:fixed;top:0;left:0;z-index:60;height:100vh;height:100dvh;
+    width:min(82vw,320px);background:var(--paper);border-right:2px solid var(--green);
+    padding:24px 18px;transform:translateX(-105%);transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .backdrop{
+    display:block;position:fixed;inset:0;z-index:50;background:rgba(28,43,34,.45);
+    opacity:0;pointer-events:none;transition:opacity .28s ease;
+  }
+  .backdrop.show{opacity:1;pointer-events:auto}
+  .toc-toggle{
+    display:inline-flex;align-items:center;gap:8px;position:fixed;bottom:20px;left:20px;z-index:70;
+    background:var(--green);color:var(--card);border:none;border-radius:999px;
+    padding:12px 20px;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;
+    font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(28,43,34,.3);
+  }
+  .entry-head{grid-template-columns:1fr;gap:18px;padding:24px 22px 20px}
+  .illo{width:100%;max-width:220px;height:auto;aspect-ratio:168/138}
+  .entry-body{padding:20px 22px 24px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+<div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<aside class="sidebar" id="sidebar">
+  <div class="cover">
+    <p class="cover-label">Sổ ghi chép · No.06</p>
+    <p class="cover-title">Cách đặt mục tiêu hiệu quả</p>
+  </div>
+  <nav aria-label="Mục lục">
+    <ol class="toc">
+      <li><a href="#muc-1"><span class="num">01</span>Bắt đầu với một lý do mạnh mẽ</a></li>
+      <li><a href="#muc-2"><span class="num">02</span>Định nghĩa mục tiêu rõ ràng, cụ thể</a></li>
+      <li><a href="#muc-3"><span class="num">03</span>Viết mục tiêu ra giấy</a></li>
+      <li><a href="#muc-4"><span class="num">04</span>Phân nhỏ mục tiêu, kế hoạch từng bước</a></li>
+      <li><a href="#muc-5"><span class="num">05</span>Xây dựng thói quen hỗ trợ mục tiêu</a></li>
+      <li><a href="#muc-6"><span class="num">06</span>Hình dung thành công</a></li>
+      <li><a href="#muc-7"><span class="num">07</span>Theo dõi tiến độ &amp; điều chỉnh</a></li>
+      <li><a href="#muc-8"><span class="num">08</span>Chia sẻ để tạo cam kết</a></li>
+      <li><a href="#muc-9"><span class="num">09</span>Tư duy người thành công</a></li>
+    </ol>
+  </nav>
+</aside>
+
+<main>
+  <header class="hero">
+    <svg class="stamp" width="128" height="128" viewBox="0 0 128 128" aria-hidden="true">
+      <circle cx="64" cy="64" r="58" fill="none" stroke="#B0492F" stroke-width="4"/>
+      <circle cx="64" cy="64" r="44" fill="none" stroke="#B0492F" stroke-width="2" stroke-dasharray="6 5"/>
+      <text x="64" y="58" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="16" font-weight="600" fill="#B0492F" letter-spacing="2">ĐÃ GHI</text>
+      <text x="64" y="80" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" font-weight="500" fill="#B0492F" letter-spacing="1">SỔ · 2026</text>
+    </svg>
+    <p class="kicker mono">Sổ ghi chép · Bài học từ Jim Rohn</p>
+    <h1>Cách đặt mục tiêu hiệu quả</h1>
+    <p class="subtitle">Mục tiêu không thành hiện thực nhờ hy vọng, mà nhờ lý do đủ sâu, kế hoạch đủ rõ và thói quen lặp lại mỗi ngày. Chín mục ghi lại trọn hệ thống đó.</p>
+    <div class="meta">
+      <span class="pill">Jim Rohn</span>
+      <span class="pill">09 mục</span>
+      <span class="pill">Phát triển bản thân</span>
+    </div>
+  </header>
+
+  <!-- MỤC 01 -->
+  <section class="entry" id="muc-1">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 01</p>
+        <h2>Bắt đầu với một lý do mạnh mẽ</h2>
+        <p class="summary">Động lực sẽ tắt — chỉ lý do đủ sâu mới kéo bạn qua những ngày mệt mỏi nhất.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <path d="M80 100 C55 82 42 66 42 50 C42 38 51 30 61 30 C69 30 76 35 80 42 C84 35 91 30 99 30 C109 30 118 38 118 50 C118 66 105 82 80 100 Z"/>
+          <path class="s" d="M80 66 C74 58 76 50 80 44 C84 50 90 54 88 62 C86 68 82 68 80 66 Z"/>
+          <path class="b thin" d="M80 100 L80 112"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Lý do luôn vượt qua động lực, động lực sẽ tắt nhưng lý do thì không bao giờ."</em> Đặt mục tiêu trên cảm xúc thoáng qua hay lý do nông cạn → <strong>dễ bỏ cuộc khi gặp khó khăn</strong>.</li>
+        <li><em>"Mục tiêu không phải là những con số mà là những câu chuyện bạn kể về chính mình"</em> — khi hiểu rõ lý do, mục tiêu trở thành lý do bạn thức dậy mỗi sáng và bước ra khỏi vùng an toàn.</li>
+        <li>Ví dụ chuyển đổi: thay vì <em>"tôi muốn giảm cân để trông đẹp hơn"</em>, hãy nói <em>"tôi muốn giảm cân vì tôi muốn sống lâu để được chứng kiến con cháu trưởng thành."</em></li>
+        <li>Đào sâu bằng câu tự vấn: <em>"Tại sao tôi muốn điều này? Điều gì thực sự quan trọng với tôi?"</em> — đừng trả lời kiểu bề mặt, hãy chạm đến giá trị tinh thần bạn theo đuổi.</li>
+        <li>Jim Rohn: <em>"Bạn không bị cháy hết năng lượng vì làm việc chăm chỉ. Bạn bị cháy hết năng lượng vì làm việc cho những thứ không quan trọng với bạn."</em></li>
+        <li>Nghi thức duy trì: <strong>viết ra 5 lý do</strong> vì sao mục tiêu quan trọng, rồi <strong>đọc to mỗi sáng</strong> để nhắc bản thân về mục đích thực sự.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Bài học</p>
+        <p><em>"Đừng mong muốn mọi thứ dễ dàng. Hãy mong muốn bạn mạnh mẽ hơn."</em> Khi lý do đủ lớn, không gì ngăn được bạn.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 02 -->
+  <section class="entry" id="muc-2">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 02</p>
+        <h2>Định nghĩa mục tiêu rõ ràng và cụ thể</h2>
+        <p class="summary">Mục tiêu mơ hồ là kẻ thù của hành động — cụ thể hóa thành con số, thời hạn, việc cần làm.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <circle cx="72" cy="62" r="38"/>
+          <circle class="thin" cx="72" cy="62" r="24"/>
+          <circle class="s" cx="72" cy="62" r="9"/>
+          <path class="b" d="M72 62 L126 20"/>
+          <path class="b" d="M126 20 L112 22 M126 20 L124 34"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Nếu bạn không biết mình đang đi đâu, bạn sẽ chẳng bao giờ đến được nơi mình muốn."</em></li>
+        <li>Mục tiêu chung chung kiểu <em>"tôi muốn thành công, tôi muốn giàu có, tôi muốn khỏe mạnh hơn"</em> không thể chuyển thành hành động. <em>"Mục tiêu mơ hồ là kẻ thù của hành động."</em></li>
+        <li>Ví dụ cụ thể hóa: thay <em>"tôi muốn tăng thu nhập"</em> → <em>"tôi muốn kiếm 10 triệu đồng mỗi tháng từ công việc kinh doanh online trong vòng 6 tháng tới."</em></li>
+        <li>Tiêu chí: <strong>cụ thể — đo lường được — có thời hạn — hành động được</strong>. Khi đó bạn biết chính xác mình cần làm gì và làm khi nào.</li>
+        <li>Luôn <strong>gắn mục tiêu với lý do sâu sắc</strong> ở Mục 01 — con số khô khan không có cảm xúc thì khó duy trì cam kết dài hạn.</li>
+        <li>Mục tiêu rõ ràng mở đường cho các bước sau: phân nhỏ thành bước, đặt deadline tạo sự cấp bách, theo dõi tiến độ hàng ngày.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Nguyên tắc</p>
+        <p>Jim Rohn: <em>"Mục tiêu không được định nghĩa rõ ràng thì chỉ là ước mơ."</em> Mục tiêu càng rõ, hành động càng có trọng tâm.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 03 -->
+  <section class="entry" id="muc-3">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 03</p>
+        <h2>Viết mục tiêu ra giấy để tăng cam kết</h2>
+        <p class="summary">Mục tiêu trong đầu dễ bị lãng quên; mục tiêu trên giấy là một cam kết không thể chối bỏ.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <rect x="30" y="18" width="72" height="88" rx="4"/>
+          <path class="thin" d="M42 38 H90 M42 52 H90 M42 66 H78"/>
+          <path class="b" d="M104 92 L134 40"/>
+          <path class="b" d="M134 40 L140 30 L130 34 Z"/>
+          <path class="s thin" d="M100 100 L104 92 L110 96 Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Viết mục tiêu xuống giấy là bước đầu tiên để biến ước mơ thành hiện thực."</em> Giữ trong đầu → dễ lãng quên, thay đổi theo cảm xúc, bị chôn vùi trong lo toan hàng ngày.</li>
+        <li>Viết tay cụ thể, rõ ràng sẽ <strong>kích hoạt tâm trí và tiềm thức</strong> cùng làm việc hướng về mục tiêu mỗi ngày — mục tiêu thành kế hoạch sống động, có trọng lượng.</li>
+        <li>Nghi thức: <strong>đọc lại mỗi sáng thức dậy hoặc mỗi tối trước khi ngủ</strong>, tự nhắc lý do theo đuổi.</li>
+        <li>Mang theo <strong>một tờ giấy nhỏ hoặc cuốn sổ ghi mục tiêu</strong> — khi chùng xuống hay mất phương hướng, mở ra đọc lại để không lạc đường.</li>
+        <li>Viết ra còn giúp: đặt deadline, phân nhỏ mục tiêu, theo dõi tiến độ, và <strong>dễ chia sẻ với người khác</strong> để tạo trách nhiệm.</li>
+        <li>Jim Rohn: <em>"Bạn trở thành những gì bạn suy nghĩ về nhiều nhất"</em> — viết ra giúp bạn tập trung suy nghĩ vào mục tiêu mỗi ngày.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Bài học</p>
+        <p><em>"Một mục tiêu được viết ra giấy không chỉ là ước mơ, nó là một cam kết."</em> Hãy lấy giấy bút ra ngay hôm nay.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 04 -->
+  <section class="entry" id="muc-4">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 04</p>
+        <h2>Phân nhỏ mục tiêu &amp; kế hoạch từng bước</h2>
+        <p class="summary">Không ai nhảy một lần lên đỉnh núi — chia nhỏ để không choáng ngợp và không trì hoãn.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <path d="M22 104 H50 V84 H78 V64 H106 V44 H134 V24"/>
+          <path class="b" d="M134 24 L134 8"/>
+          <path class="s" d="M134 8 L154 14 L134 20 Z"/>
+          <circle class="b thin" cx="36" cy="96" r="4"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Không ai leo núi bằng cách nhảy một lần lên đỉnh mà tất cả đều phải từng bước từng bước đi lên."</em></li>
+        <li>Ví dụ: mục tiêu tiết kiệm một khoản tiền lớn trong <strong>1 năm</strong> → chia thành các khoản <strong>hàng tháng, hàng tuần, thậm chí hàng ngày</strong> để dễ theo dõi, không bị áp lực quá mức.</li>
+        <li>Chuyển tâm thế từ <em>"tôi phải làm điều đó"</em> thành <em>"tôi có thể làm được từng bước một"</em> — khác biệt rất lớn về kỷ luật và sự nhất quán.</li>
+        <li>Lên kế hoạch chi tiết <strong>theo tuần, theo tháng hoặc theo quý</strong>, chia mốc nhỏ để quản lý và tạo cảm giác thành tựu khi hoàn thành từng bước.</li>
+        <li>Kế hoạch rõ → biết mỗi ngày cần làm gì, không còn hỏi <em>"hôm nay mình phải bắt đầu từ đâu?"</em>, tránh trạng thái trôi dạt.</li>
+        <li>Phân nhỏ còn hỗ trợ hình dung thành công: dễ tưởng tượng mình hoàn thành từng bước, mục tiêu <strong>không còn xa vời mà thật gần và khả thi</strong>.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Nguyên tắc</p>
+        <p>Jim Rohn: <em>"Không phải việc lớn mà việc nhỏ được làm đều đặn sẽ tạo nên sự khác biệt lớn."</em> Thành công là hành động nhỏ lặp lại mỗi ngày.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 05 -->
+  <section class="entry" id="muc-5">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 05</p>
+        <h2>Xây dựng thói quen phù hợp hỗ trợ mục tiêu</h2>
+        <p class="summary">Thói quen là phương tiện vận chuyển bạn trên con đường chinh phục mục tiêu.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <rect x="28" y="26" width="84" height="72" rx="4"/>
+          <path class="thin" d="M28 44 H112 M48 26 V18 M92 26 V18"/>
+          <path class="s" d="M42 62 L50 70 L64 54"/>
+          <path class="s" d="M78 62 L86 70 L100 54"/>
+          <path class="b" d="M124 46 A26 26 0 1 1 118 88"/>
+          <path class="b" d="M118 88 L110 82 M118 88 L120 78"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Bạn không thể sống như một người mà vẫn mong trở thành người khác"</em> và <em>"Thói quen không thể thay thế được. Chúng sẽ quyết định bạn trở thành ai."</em></li>
+        <li>Rà soát thói quen hiện tại: <strong>đâu là thói quen đang kéo bạn lại, đâu là thói quen cần duy trì</strong> để tiến gần mục tiêu.</li>
+        <li>Ví dụ: mục tiêu tăng thu nhập → thói quen <strong>học hỏi liên tục, quản lý thời gian, kiên trì làm việc mỗi ngày</strong>; mục tiêu sức khỏe → <strong>thức dậy sớm, tập thể dục đều đặn, ăn uống lành mạnh</strong>.</li>
+        <li>Bắt đầu <strong>từng bước một với vài thói quen tích cực nhỏ nhưng đều đặn</strong>; tránh thay đổi quá nhiều cùng lúc khiến quá tải và nản trí. <em>"Bạn trở thành những gì bạn làm liên tục."</em></li>
+        <li>Cách duy trì: <strong>ghi lại thói quen mỗi ngày, tạo nhắc nhở, tìm người đồng hành hoặc nhóm hỗ trợ</strong> để tránh lười biếng, trì hoãn.</li>
+        <li>Khi thói quen đã hình thành, bạn không còn phụ thuộc vào động lực — <strong>kỷ luật tự giác</strong> làm việc thay bạn.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Bài học</p>
+        <p>Jim Rohn: <em>"Không phải điều kiện hoàn hảo sẽ tạo ra thói quen tốt mà thói quen tốt sẽ tạo ra điều kiện hoàn hảo."</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 06 -->
+  <section class="entry" id="muc-6">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 06</p>
+        <h2>Hình dung thành công (Visualizing success)</h2>
+        <p class="summary">Trí não không phân biệt tưởng tượng và trải nghiệm — hãy thấy thành công trước khi đạt nó.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <path d="M60 100 C40 96 30 78 32 60 C34 40 50 26 70 26 C90 26 104 40 104 58 C104 68 100 74 96 80 L100 100 Z"/>
+          <circle class="b" cx="68" cy="56" r="12"/>
+          <path class="b thin" d="M68 38 V32 M68 74 V80 M50 56 H44 M86 56 H92"/>
+          <path class="s thin" d="M118 34 L128 24 M124 52 H138 M118 70 L128 80"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Bạn không thể sống cuộc đời mà bạn chưa từng tưởng tượng."</em></li>
+        <li>Đây <strong>không phải mơ mộng hão huyền</strong> mà là luyện tập tinh thần: tạo bản đồ tư duy rõ nét, kích thích tiềm thức, sinh cảm xúc tích cực và sự tự tin.</li>
+        <li>Jim Rohn: <em>"Hãy hình dung thành công trước khi bạn đạt được nó. Bởi trí não không phân biệt được sự khác biệt giữa những gì bạn tưởng tượng và những gì bạn trải nghiệm."</em></li>
+        <li>Thực hành: <strong>dành vài phút mỗi ngày</strong> trong không gian yên tĩnh, nhắm mắt, tưởng tượng thật rõ mục tiêu đã đạt được — <em>"mình đang ở đâu, đang làm gì, cảm xúc ra sao, ai đang bên cạnh và điều đó mang lại ý nghĩa thế nào cho cuộc sống."</em></li>
+        <li>Nhiều người bỏ cuộc vì <strong>không thấy được thành công rõ ràng trong tâm trí</strong> — mục tiêu thành mơ hồ, xa vời; hình dung sống động tạo cảm giác hoàn thành như trải nghiệm thật.</li>
+        <li>Hình dung liên tục khiến tâm trí <strong>tự động tạo thói quen và hành động phù hợp</strong>, vì não luôn tìm cách biến hình ảnh trong đầu thành hiện thực.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Nghi thức</p>
+        <p>Vài phút mỗi ngày, nhắm mắt và "xem" mình vượt qua thử thách rồi ăn mừng thành công — liều thuốc tinh thần cho những ngày chán nản, mệt mỏi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 07 -->
+  <section class="entry" id="muc-7">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 07</p>
+        <h2>Theo dõi tiến độ &amp; điều chỉnh kế hoạch</h2>
+        <p class="summary">Không đo lường được thì không quản lý được — kiểm tra đều đặn, linh hoạt sửa đường đi.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <path d="M28 16 V100 H140"/>
+          <path class="b" d="M38 88 L64 68 L88 76 L118 40"/>
+          <circle class="s" cx="64" cy="68" r="4"/>
+          <circle class="s" cx="88" cy="76" r="4"/>
+          <path class="s" d="M118 40 L134 24 M134 24 L124 26 M134 24 L132 34"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Nếu bạn không thể đo lường được điều gì đó, bạn không thể quản lý nó."</em></li>
+        <li>Theo dõi cho biết bạn đã đi bao xa, nhận diện <strong>điểm mạnh — điểm yếu</strong>, biết thói quen nào đang giúp và thói quen nào cần thay đổi.</li>
+        <li>Công cụ: <strong>nhật ký, bảng tính, ứng dụng quản lý mục tiêu, hoặc checklist hàng ngày</strong> — không cần phức tạp, quan trọng là kiểm tra và ghi nhận đều đặn.</li>
+        <li>Nghi thức: <strong>mỗi tuần hay mỗi tháng</strong> dành thời gian đánh giá lại tiến độ — thành công đã đạt, khó khăn cần giải quyết.</li>
+        <li>Jim Rohn: <em>"Sự khác biệt giữa người thành công và người thất bại là khả năng điều chỉnh khi cần thiết."</em> Cách làm không hiệu quả → đừng ngần ngại thay đổi, thử phương pháp mới.</li>
+        <li><strong>Điều chỉnh kế hoạch không phải là đổi mục tiêu hay từ bỏ</strong> — mà là tối ưu hóa con đường đi tới thành công; thấy thành tựu nhỏ được ghi nhận sẽ tạo động lực đi tiếp.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Nguyên tắc</p>
+        <p>Jim Rohn: <em>"Chìa khóa của thành công là hành động có kế hoạch và liên tục điều chỉnh."</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 08 -->
+  <section class="entry" id="muc-8">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 08</p>
+        <h2>Chia sẻ với người khác để tạo cam kết</h2>
+        <p class="summary">Công khai mục tiêu tạo áp lực tích cực — bạn không thể từ bỏ một cách dễ dàng.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <circle cx="50" cy="42" r="14"/>
+          <path d="M28 100 C28 78 40 66 50 66 C60 66 72 78 72 100"/>
+          <circle class="b" cx="110" cy="42" r="14"/>
+          <path class="b" d="M88 100 C88 78 100 66 110 66 C120 66 132 78 132 100"/>
+          <path class="s thin" d="M66 24 C72 12 88 12 94 24"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Bạn sẽ làm được nhiều hơn khi có người đồng hành và giám sát bạn."</em> Giữ mục tiêu trong lòng → dễ trì hoãn, lơ là, quên lý do ban đầu.</li>
+        <li>Chia sẻ với bạn bè, người thân, mentor hoặc nhóm hỗ trợ tạo ra <strong>cam kết có tính xã hội</strong> — bạn không muốn làm người khác thất vọng, cũng không muốn thất hứa với chính mình.</li>
+        <li>Jim Rohn: <em>"Bạn trở nên giống trung bình của năm người bạn dành nhiều thời gian nhất."</em> Cộng đồng cùng chí hướng còn là nguồn cảm hứng, lời khuyên quý giá.</li>
+        <li>Hành động cụ thể: <strong>tìm một người bạn tin tưởng hoặc mentor</strong> để cùng đặt mục tiêu và <strong>kiểm tra tiến độ thường xuyên</strong>; tham gia nhóm hỗ trợ mục tiêu, cộng đồng phát triển bản thân.</li>
+        <li>Chia sẻ <strong>cả bước tiến, khó khăn lẫn chiến thắng nhỏ</strong> — không chỉ nói về mục tiêu; có người đồng hành, bạn không cô đơn khi muốn bỏ cuộc.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Bài học</p>
+        <p>Jim Rohn: <em>"Cam kết là một thỏa thuận với chính bạn về việc làm những gì cần làm, bất kể bạn cảm thấy thế nào"</em> — và nó mạnh hơn gấp nhiều lần khi được chia sẻ với người khác.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỤC 09 -->
+  <section class="entry" id="muc-9">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 09</p>
+        <h2>Thái độ &amp; tư duy của người thành công</h2>
+        <p class="summary">Thành công không phải đích đến, mà là con người bạn trở thành trên hành trình.</p>
+      </div>
+      <div class="illo" aria-hidden="true">
+        <svg viewBox="0 0 160 120">
+          <path d="M30 104 L80 34 L130 104 Z"/>
+          <circle class="b" cx="80" cy="76" r="8"/>
+          <path class="b thin" d="M80 84 V98 M72 92 H88"/>
+          <path class="s" d="M80 34 L80 18 L98 24 L80 30"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Jim Rohn: <em>"Thành công không đến từ việc bạn có những gì bạn muốn mà đến từ việc bạn trở thành người như thế nào."</em></li>
+        <li><strong>Chịu trách nhiệm với chính mình</strong>: không đổ lỗi cho hoàn cảnh, người khác hay yếu tố bên ngoài — tự kiểm soát hành động và kết quả.</li>
+        <li><strong>Tập trung vào giải pháp, không phải vấn đề</strong>: gặp khó khăn thì điều chỉnh kế hoạch, phân nhỏ mục tiêu — không ngồi than vãn hay bỏ cuộc.</li>
+        <li>Xem <strong>thất bại là bài học quý giá</strong>, là cơ hội trưởng thành; biết đứng dậy sau mỗi lần vấp ngã, điều chỉnh và tiếp tục bước đi.</li>
+        <li>Kiên trì chịu áp lực: dùng <strong>deadline để duy trì sự cấp bách</strong>, thúc đẩy hành động; không ngại thử thách vì đó là điều kiện để tiến bộ.</li>
+        <li>Jim Rohn: <em>"Bạn không thể đi đến nơi bạn muốn nếu bạn còn giữ những thói quen cũ"</em> — sẵn sàng thay đổi tư duy và thói quen để phù hợp với mục tiêu mới.</li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">Bài học</p>
+        <p><em>"Thành công không phải là đích đến mà là con người bạn trở thành trong quá trình đạt được mục tiêu."</em> Khi tư duy đúng, bạn trở thành phiên bản tốt nhất của chính mình.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Nguồn: video "Cách đặt mục tiêu hiệu quả" · Kênh Thành Công · Bài học Jim Rohn · Sổ ghi chép No.06
+  </footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var toggle = document.getElementById('tocToggle');
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var isDesktop = function(){ return window.matchMedia('(min-width: 901px)').matches; };
+
+  /* --- Drawer state: one function syncs everything --- */
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setDrawer(false);
+  });
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ if(!isDesktop()) setDrawer(false); });
+  });
+
+  /* --- Scrollspy --- */
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('active'); });
+        var link = map[entry.target.id];
+        if(link){
+          link.classList.add('active');
+          if(isDesktop()){
+            link.scrollIntoView({ block:'nearest' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('.entry').forEach(function(sec){ observer.observe(sec); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép No.07 — Xây dựng hệ thống thay vì đặt mục tiêu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Be Vietnam Pro",sans-serif;
+  font-size:16px; line-height:1.75;
+  color:var(--ink);
+  background:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--seal); outline-offset:2px; border-radius:4px}
+
+.wrap{max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px}
+
+/* ============ SIDEBAR ============ */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto;
+  padding:32px 8px 32px 0; scrollbar-width:thin}
+.cover{
+  border:2px solid var(--green); border-radius:var(--radius);
+  outline:1px dashed var(--green-line); outline-offset:-7px;
+  background:var(--card); padding:22px 18px; margin-bottom:24px;
+}
+.cover-label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--seal);
+  margin:0 0 8px;
+}
+.cover-title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700;
+  font-size:21px; line-height:1.3; color:var(--green); margin:0;
+}
+.toc{list-style:none; margin:0; padding:0}
+.toc li{margin:2px 0}
+.toc a{
+  display:flex; gap:12px; align-items:baseline;
+  padding:7px 10px 7px 8px; text-decoration:none;
+  border-left:3px solid transparent; border-radius:0 6px 6px 0;
+  color:var(--ink-soft); font-size:14px; line-height:1.45;
+  transition:background .15s,color .15s;
+}
+.toc a .idx{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+  color:var(--brass); min-width:24px; text-align:right; flex-shrink:0;
+}
+.toc a:hover{background:var(--paper-deep)}
+.toc a.active{
+  background:var(--card); color:var(--green); font-weight:600;
+  border-left-color:var(--seal);
+}
+
+/* ============ HERO ============ */
+main{padding:56px 0 40px; min-width:0}
+.hero{position:relative; margin-bottom:56px; padding-right:150px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--seal); margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700;
+  font-size:clamp(34px,4.6vw,56px); line-height:1.12; color:var(--green);
+  margin:0 0 16px;
+}
+.hero .sub{font-size:17px; color:var(--ink-soft); max-width:640px; margin:0 0 20px}
+.meta{display:flex; flex-wrap:wrap; gap:10px; padding:0; margin:0; list-style:none}
+.meta li{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  border-radius:999px; padding:4px 14px;
+}
+.stamp{position:absolute; right:0; top:14px; width:132px; transform:rotate(7deg); opacity:.92}
+
+/* ============ SECTIONS ============ */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line);
+  border-radius:var(--radius); margin:0 0 40px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:28px; align-items:start;
+  padding:26px 28px 22px; border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--brass); margin:0 0 6px;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700;
+  font-size:26px; line-height:1.25; color:var(--green); margin:0 0 8px;
+}
+.oneline{font-style:italic; color:var(--ink-soft); margin:0; font-size:15px}
+.frame{
+  width:168px; height:138px; flex-shrink:0;
+  border:2px solid var(--green); border-radius:6px;
+  outline:1px dashed var(--green-line); outline-offset:-6px;
+  background:var(--paper); transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center;
+}
+.frame svg{width:142px; height:106px}
+.frame svg *{stroke:var(--green)}
+.frame svg .b{stroke:var(--brass)}
+.frame svg .s{stroke:var(--seal)}
+.frame svg .thin{stroke-width:2}
+
+.entry-body{padding:22px 28px 26px}
+.entry-body ul{list-style:none; margin:0; padding:0}
+.entry-body li{position:relative; padding-left:24px; margin:11px 0}
+.entry-body li::before{content:"—"; position:absolute; left:0; color:var(--brass); font-weight:600}
+.entry-body strong{color:var(--green); font-weight:600}
+.callout{
+  margin-top:22px; border-left:3px solid var(--seal);
+  background:var(--paper); padding:14px 18px; border-radius:0 8px 8px 0;
+}
+.callout .co-label{
+  display:block; font-family:"IBM Plex Mono",monospace; font-size:11px;
+  font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--seal); margin-bottom:6px;
+}
+.callout p{margin:0}
+
+footer{
+  border-top:1px dashed var(--green-line); margin-top:24px; padding:20px 0 40px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* ============ MOBILE ============ */
+.toc-toggle{display:none}
+.backdrop{display:none}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .stamp{display:none}
+  .hero{padding-right:0}
+
+  .sidebar{
+    position:fixed; z-index:40; top:0; left:0;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:24px 16px; transform:translateX(-105%);
+    transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:30;
+    background:rgba(28,43,34,.45); opacity:0; pointer-events:none;
+    transition:opacity .28s ease;
+  }
+  .backdrop.show{opacity:1; pointer-events:auto}
+
+  .toc-toggle{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; z-index:50; left:16px; bottom:18px;
+    background:var(--green); color:var(--card); border:none; cursor:pointer;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500;
+    letter-spacing:.08em; padding:11px 20px; border-radius:999px;
+    box-shadow:0 4px 14px rgba(28,43,34,.28);
+  }
+
+  main{padding:40px 0 90px}
+  .entry-head{grid-template-columns:1fr; gap:20px}
+  .frame{width:100%; max-width:220px; height:auto; aspect-ratio:168/138}
+  .frame svg{width:82%; height:auto}
+  .entry-head h2{font-size:23px}
+  .entry-head,.entry-body{padding-left:20px; padding-right:20px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="cover">
+    <p class="cover-label">Sổ ghi chép · No.07</p>
+    <p class="cover-title">Xây dựng hệ thống thay vì đặt mục tiêu</p>
+  </div>
+  <nav aria-label="Mục lục ghi chú">
+    <ol class="toc">
+      <li><a href="#muc-01"><span class="idx">01</span>Thói quen vận hành trong ngày tệ nhất</a></li>
+      <li><a href="#muc-02"><span class="idx">02</span>Biến việc nhàm chán thành mặc định</a></li>
+      <li><a href="#muc-03"><span class="idx">03</span>Khuôn mẫu, không phải áp lực</a></li>
+      <li><a href="#muc-04"><span class="idx">04</span>Thay đổi lớn từ điều nhỏ lặp lại</a></li>
+      <li><a href="#muc-05"><span class="idx">05</span>Cấu trúc nâng đỡ khi sụp đổ</a></li>
+      <li><a href="#muc-06"><span class="idx">06</span>Hành động thay cho ước mơ</a></li>
+      <li><a href="#muc-07"><span class="idx">07</span>Kiểm soát ngày, tâm trí sáng rõ</a></li>
+      <li><a href="#muc-08"><span class="idx">08</span>Dựa vào cấu trúc, không năng lượng</a></li>
+      <li><a href="#muc-09"><span class="idx">09</span>Bước nhỏ không cần cảm xúc</a></li>
+      <li><a href="#muc-10"><span class="idx">10</span>Hệ thống vẫn chạy khi thất bại</a></li>
+    </ol>
+  </nav>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main>
+  <header class="hero">
+    <p class="kicker">Ghi chép từ bài nói · Thức tỉnh 24 giờ</p>
+    <h1>Xây dựng hệ thống thay vì đặt mục tiêu</h1>
+    <p class="sub">Nếu cuộc đời chỉ vận hành trên cảm xúc và động lực nhất thời, bạn sẽ mãi phải bắt đầu lại. Phần lớn con người không gặp vấn đề với kỷ luật — họ gặp vấn đề với hệ thống phía sau mục tiêu.</p>
+    <ul class="meta">
+      <li>Cảm hứng: Jim Rohn</li>
+      <li>10 nguyên tắc</li>
+      <li>Kỷ luật · Hệ thống</li>
+    </ul>
+    <svg class="stamp" width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+      <circle cx="66" cy="66" r="62" fill="none" stroke="#B0492F" stroke-width="3"/>
+      <circle cx="66" cy="66" r="49" fill="none" stroke="#B0492F" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="66" y="60" text-anchor="middle" fill="#B0492F" font-family="'IBM Plex Mono',monospace" font-size="19" font-weight="500" letter-spacing="2">ĐÃ GHI</text>
+      <text x="66" y="84" text-anchor="middle" fill="#B0492F" font-family="'IBM Plex Mono',monospace" font-size="14" letter-spacing="1">SỔ · 2026</text>
+    </svg>
+  </header>
+
+  <!-- ============ MỤC 01 ============ -->
+  <section class="entry" id="muc-01">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 01</p>
+        <h2>Thói quen vận hành trong ngày tệ nhất</h2>
+        <p class="oneline">Hệ thống được thiết kế cho ngày tệ, không phải cho ngày thuận lợi.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M30 96 L52 78 L108 78 L130 96 Z"/>
+          <rect x="60" y="52" width="40" height="26"/>
+          <path d="M54 52 L80 33 L106 52"/>
+          <path class="b thin" d="M74 66 h12"/>
+          <path class="s thin" d="M26 20 l-7 13 M50 14 l-7 13 M112 16 l-7 13 M137 24 l-7 13"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Bao nhiêu lần tự nhủ <em>"lần này mình sẽ tập trung thật sự"</em>, <em>"lần này mình sẽ kiên trì đến cùng"</em> — rồi tan biến khi cảm hứng qua đi. Ai cũng xuất hiện được khi tràn năng lượng; phần lớn dừng lại ở buổi sáng chẳng muốn rời giường, đầu óc rối bời, cơ thể rã rời — vì <strong>mục tiêu chỉ được dựng cho ngày thuận lợi</strong>.</li>
+        <li><em>"Bạn không thể vươn lên theo tầm của mục tiêu. Bạn chỉ có thể rơi xuống theo tầm của thói quen."</em></li>
+        <li>Hệ thống giúp <strong>bỏ qua cuộc thương lượng với cảm xúc</strong>: không còn hỏi <em>"hôm nay mình có muốn làm không?"</em> — việc đã nằm trong lịch trình, như đánh răng hay ăn sáng.</li>
+        <li>Đọc sách: đừng đặt mục tiêu 50 trang/ngày. Đặt hệ thống <em>"mỗi tối trước khi ngủ mình đọc hai trang, dù thế nào đi nữa"</em> — 2 trang khả thi cả trong ngày mệt nhất, và khi đã bắt đầu bạn thường đọc nhiều hơn.</li>
+        <li>Tập luyện: <em>"tôi sẽ tập hai tiếng mỗi ngày"</em> là mục tiêu, không phải hệ thống. Hệ thống thực tế: <em>"7:00 sáng, mỗi ngày tôi đến phòng gym và vận động 20 phút"</em> — ngắn, đơn giản, dễ lặp lại.</li>
+        <li>Nhìn thẳng điểm yếu và <strong>xây hệ thống bảo vệ</strong>: nếu luôn bị cuốn vào mạng xã hội buổi chiều → quy tắc <em>"2:00 chiều, điện thoại được cất sang phòng khác trong một tiếng"</em>.</li>
+        <li>Vòng lặp thất bại: <em>"Tôi mệt, hôm nay nghỉ, ngày mai làm bù"</em> — lặp lại suốt nhiều năm mà chẳng có gì thay đổi. Mỗi lần thất hứa với bản thân là mất một phần lòng tin; <strong>giữ lời đúng lúc không muốn</strong> là cách tái thiết niềm tin ấy.</li>
+        <li>Điểm khởi đầu của hệ thống mới: tự hỏi <em>"Mỗi ngày, điều gì thật sự đang giúp bạn tiến lên, và điều gì bạn thường xuyên bỏ qua mỗi khi gặp khó khăn?"</em> — rồi viết nó ra, giữ nó đơn giản.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học</span>
+        <p><em>"Kỷ luật không phải là sự khắt khe với chính mình mà là sự tử tế với tương lai của bạn."</em> Bạn không duy trì động lực — bạn duy trì <strong>sự nhất quán</strong>; nhất quán tạo đà tiến, và đà tiến mới sinh ra động lực.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 02 ============ -->
+  <section class="entry" id="muc-02">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 02</p>
+        <h2>Biến việc nhàm chán thành mặc định hàng ngày</h2>
+        <p class="oneline">Mục tiêu chết vì buồn chán, không phải vì thất bại.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M28 94 L82 52"/>
+          <rect x="80" y="30" width="30" height="13" rx="5" transform="rotate(-38 95 37)"/>
+          <path class="b thin" d="M92 26 l5 -8 M100 32 l5 -8 M108 38 l5 -8"/>
+          <path class="s" d="M124 92 a17 17 0 1 1 8 -24"/>
+          <path class="s" d="M132 60 l1 10 l-10 0"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Những việc thật sự đưa cuộc sống đi lên đều tẻ nhạt: <strong>tập thể dục, ăn uống lành mạnh, tiết kiệm tiền, đọc sách, lên kế hoạch ngày mới, xem lại thói quen</strong>. Không hào nhoáng, không kích thích — nhưng cần thiết.</li>
+        <li>Coi chúng là "việc thêm" → dễ bỏ qua. Đưa vào nhịp sống như <strong>dọn giường, đánh răng, buộc dây giày</strong> → chúng mất đi sự kháng cự, không còn cần ý chí, chạy tự động.</li>
+        <li>Đừng nhầm <strong>kỷ luật với cường độ</strong>: cường độ là cố hết sức trong một–hai ngày; kỷ luật là lặp lại cùng một hành động đơn giản trong <strong>nhiều tuần, nhiều tháng, nhiều năm</strong> — kể cả khi không ai nhìn thấy, không ai khen ngợi.</li>
+        <li>Phần lớn mục tiêu chết đi <strong>không phải vì thất bại mà vì buồn chán</strong>: bắt đầu phấn khích, thấy chút kết quả, rồi khi tiến độ chậm lại liền nghĩ "cách này không hiệu quả" và chuyển sang thứ khác.</li>
+        <li>Nền móng âm thầm của kết quả thật: <strong>viết vài dòng nhật ký, ghi lại bài tập, uống đủ nước, luyện một kỹ năng, lên kế hoạch cho ngày mai</strong>.</li>
+        <li>Câu nói với chính mình: <em>"Điều này quan trọng và nó sẽ được thực hiện dù hôm nay tôi cảm thấy thế nào."</em></li>
+        <li>Câu tự vấn để tìm điểm khởi đầu: <em>"Đâu là công việc tẻ nhạt mà bạn vẫn đang né tránh?"</em> — chính nó, không phải những ý tưởng hoành tráng.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Nguyên tắc</span>
+        <p>Không cần yêu những việc tẻ nhạt — chỉ cần <strong>tôn trọng và tiếp tục làm chúng</strong>. Lặp đủ lâu, nghĩa vụ trở thành bản năng; mục tiêu thật của kỷ luật là khiến việc khó trở nên dễ dàng vì nó đã trở thành chính bạn.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 03 ============ -->
+  <section class="entry" id="muc-03">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 03</p>
+        <h2>Rèn tâm trí theo khuôn mẫu, không phải áp lực</h2>
+        <p class="oneline">Khuôn mẫu mang lại định hướng; áp lực chỉ tạo ra hoảng loạn.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M60 98 L73 30 L87 30 L100 98 Z"/>
+          <path class="b thin" d="M69 56 h22 M66 74 h28"/>
+          <path class="s" d="M80 90 L99 46"/>
+          <circle class="s" cx="99" cy="42" r="6"/>
+          <path class="thin" d="M52 98 h56"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Phần lớn áp lực <strong>không đến từ thực tế mà từ suy nghĩ</strong>: tiếng nói trong đầu thúc giục "phải làm ngay, phải hoàn hảo, phải đạt kết quả ngay bây giờ" — nó lớn dần khi mọi thứ bạn làm chỉ là phản ứng chắp vá, thiếu hệ thống.</li>
+        <li>Mỗi lần hỏi <em>"mình có nên làm bây giờ không?"</em> là <strong>gieo một hạt áp lực</strong>. Khi công việc đã có chỗ trong ngày, có thời gian cố định — câu hỏi ấy biến mất, bạn chỉ hành động.</li>
+        <li>Áp lực khiến bạn luôn cảm thấy trễ và <strong>phụ thuộc adrenaline</strong>; khuôn mẫu giúp bạn đi trước và dựa vào kỷ luật — <em>"kỷ luật không cạn kiệt, nó tích lũy"</em>.</li>
+        <li>Cho mỗi việc quan trọng <em>"một ngôi nhà, một thời gian, một chỗ đứng trong ngày"</em> — không để nó trôi nổi trong đầu chờ biến thành căng thẳng.</li>
+        <li>Bộ não con người <strong>phát triển trong trật tự và nhịp điệu</strong>, không phải trong hỗn loạn. Cái khiến bạn kiệt sức chính là sự <em>thiếu</em> khuôn mẫu: thức dậy không biết bắt đầu từ đâu, mọi thứ đều khẩn cấp.</li>
+        <li>Cách bắt đầu: <strong>chọn một khuôn mẫu, một thói quen, một khung giờ</strong> — cam kết làm nó cùng giờ mỗi ngày. Ban đầu tâm trí sẽ kháng cự, viện lý do; lặp đủ lâu, kháng cự biến mất và khuôn mẫu trở thành con người bạn.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học</span>
+        <p>Đừng đợi áp lực đẩy bạn vào hành động — hãy tạo hệ thống kéo bạn vào sự tập trung. Khi rèn não tuân theo hệ thống, bạn <strong>sống có thiết kế</strong> thay vì sống trong phản ứng.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 04 ============ -->
+  <section class="entry" id="muc-04">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 04</p>
+        <h2>Mọi thay đổi lớn bắt đầu từ điều nhỏ có thể lặp lại</h2>
+        <p class="oneline">Đừng làm mục tiêu to hơn — hãy làm nó kiên định hơn.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="28" y="84" width="30" height="14"/>
+          <rect x="62" y="84" width="30" height="14"/>
+          <rect x="96" y="84" width="30" height="14"/>
+          <rect x="45" y="68" width="30" height="14"/>
+          <rect x="79" y="68" width="30" height="14"/>
+          <rect class="b" x="62" y="38" width="30" height="14"/>
+          <path class="s thin" d="M77 56 v6 M74 59 l3 4 3 -4"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Khi một điều gì đó quá lớn, <strong>tâm trí bị tê liệt</strong> — não nói "quá nhiều rồi" và bạn dừng lại. Không phải vì lười, không phải vì thiếu đam mê, mà vì bạn <em>chưa bao giờ thu nhỏ ý tưởng lại để bắt đầu</em>.</li>
+        <li>Muốn viết sách: nghĩ đến <strong>50.000 từ</strong> sẽ choáng ngợp, nhưng <strong>viết 500 từ mỗi ngày</strong> hoàn toàn khả thi. Muốn giảm <strong>15 kg</strong>: con số đó xa vời, nhưng <strong>đi bộ 30 phút mỗi ngày và chọn một bữa ăn sạch</strong> là điều làm được ngay hôm nay.</li>
+        <li><em>"Tôi muốn bắt đầu kinh doanh"</em> không có nghĩa gì cho đến khi chia nhỏ thành: <em>"Tôi sẽ làm gì hôm nay, ngày mai và tuần tới?"</em></li>
+        <li>Nếu một việc quá khó để lặp lại — <strong>đơn giản hóa nó</strong>: bắt đầu chỉ với <strong>5 phút</strong> nếu cần rồi mở rộng dần. <em>"Hãy xây nó vững trước khi xây nó lớn"</em> — đó là ranh giới giữa người cháy hết và người bứt phá.</li>
+        <li><em>"Nếu nó không vừa với một ngày, nó sẽ không bao giờ vừa với cuộc đời."</em> Hành động không thể lặp lại sẽ không tồn tại lâu dài.</li>
+        <li>Đà tiến quý hơn động lực: <em>"động lực là cảm xúc, còn đà tiến là bằng chứng"</em>. Một viên gạch mỗi ngày xây nên bức tường; một lần rèn luyện mỗi ngày tạo nên sức mạnh; một cuộc trò chuyện mỗi ngày mở ra cơ hội.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Nguyên tắc</span>
+        <p>Xây kế hoạch quanh <strong>hành vi</strong>, không quanh cảm xúc. Đừng đặt mục tiêu hoàn thành mọi thứ trong một tuần — hãy đặt mục tiêu <strong>làm một điều mỗi ngày</strong> đưa bạn tiến lên phía trước.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 05 ============ -->
+  <section class="entry" id="muc-05">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 05</p>
+        <h2>Cấu trúc vững chắc nâng đỡ bạn khi mọi thứ sụp đổ</h2>
+        <p class="oneline">Chiếc lưới an toàn giữ tiến trình không sụp đổ trong ngày tăm tối.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="32" y1="46" x2="32" y2="98"/>
+          <line x1="128" y1="46" x2="128" y2="98"/>
+          <path d="M32 46 Q80 92 128 46"/>
+          <path class="thin" d="M52 60 Q80 78 108 60 M66 68 L74 52 M94 68 L86 52" stroke-dasharray="4 4"/>
+          <circle class="s" cx="80" cy="58" r="7"/>
+          <path class="b thin" d="M74 34 l-4 -8 M86 34 l4 -8"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Không có nền tảng để dựa: mất ngủ, một chuyện sai đi, kiệt sức — <strong>một ngày tồi tệ biến thành một tuần tồi tệ, một tuần kéo dài thành một tháng</strong>, rồi nhận ra mình đã quay lại vạch xuất phát.</li>
+        <li>Cấu trúc không cần phức tạp, chỉ cần đơn giản, rõ ràng, lặp lại được: <strong>thức dậy cùng một giờ dù tâm trạng ra sao</strong>; một <strong>danh sách ngắn</strong> việc phải làm dù hôm đó có hứng hay không; <strong>chuẩn bị sẵn bữa ăn</strong> để không bị cám dỗ lúc mệt; giữ <strong>không gian làm việc gọn gàng</strong>.</li>
+        <li>Nếu biết trước <strong>ba hành động đầu tiên mỗi sáng</strong>, bạn không cần suy nghĩ — chỉ việc làm; đôi khi chỉ cần bắt đầu cũng đủ xoay chuyển cả một ngày.</li>
+        <li>Sai lầm phổ biến: <em>"Tôi sẽ quay lại thói quen khi mọi thứ ổn định hơn."</em> Ngược lại — <strong>thói quen chính là thứ giữ mọi thứ không sụp đổ</strong> khi cuộc sống hỗn loạn.</li>
+        <li>Không cần cấu trúc cho từng giây phút, chỉ cần <strong>những trụ cột cố định</strong>: một buổi sáng có kỷ luật để khởi đầu tỉnh táo, một khung làm việc rõ ràng để duy trì năng suất, một buổi tối yên tĩnh để kết thúc trong bình an.</li>
+        <li>Cấu trúc tạo tự do — không phải kiểu "muốn làm gì thì làm" mà là <strong>tự do trong trật tự</strong>: làm chủ thời gian, không phải vật lộn trở lại quỹ đạo vì chưa bao giờ rời khỏi nó.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học</span>
+        <p><em>"Sức mạnh thật sự không phải là không bao giờ gục ngã mà là không bao giờ ở lại dưới đất quá lâu."</em> Thứ giúp bạn đứng dậy không phải ý chí mà là cấu trúc — hãy xây nó <strong>ngay khi còn tỉnh táo</strong>, đừng đợi chạm đáy mới bắt đầu xây nền.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 06 ============ -->
+  <section class="entry" id="muc-06">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 06</p>
+        <h2>Thay ước mơ viển vông bằng hành động cụ thể mỗi ngày</h2>
+        <p class="oneline">Hy vọng không tạo ra kết quả — hành động mới thay đổi cuộc đời.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path class="thin" d="M26 36 q-8 -12 6 -14 q4 -12 18 -8 q13 -5 13 8 q11 2 3 12 q-20 4 -40 2 z"/>
+          <path d="M28 98 h22 v-14 h22 v-14 h22 v-14 h18"/>
+          <line x1="118" y1="56" x2="118" y2="24"/>
+          <path class="s" d="M118 26 l22 7 -22 7 z"/>
+          <path class="b thin" d="M38 92 h6 M62 78 h6 M86 64 h6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Cái bẫy của mơ mộng: càng mơ, <strong>càng cảm thấy như đã tiến gần đến ước mơ mà thật ra chưa hề bước đi</strong>. Cảm giác phấn khích ngắn ngủi tan biến, bạn quay lại thói quen cũ, lối mòn cũ.</li>
+        <li>Người thật sự tiến xa tự hỏi mỗi ngày: <em>"Hôm nay tôi có thể làm gì để tiến gần hơn một bước?"</em> — rồi làm điều đó <strong>dù có muốn hay không</strong>.</li>
+        <li>Thay mục tiêu mơ hồ bằng hành động rõ ràng: đừng nói <em>"tôi muốn khỏe mạnh hơn"</em> mà nói <em>"mỗi sáng tôi uống nước, đi bộ và ăn sáng lành mạnh"</em>; đừng nói <em>"tôi muốn giàu có"</em> mà nói <em>"mỗi ngày tôi học một điều về tài chính, theo dõi chi tiêu và tránh lãng phí"</em>.</li>
+        <li>Đừng đánh đồng <strong>bận rộn với tiến bộ</strong> — hành động thật sự là làm điều quan trọng, có mục đích, có chọn lựa, có kỷ luật.</li>
+        <li>Kết quả không đến ngay — <strong>tiến bộ lúc đầu luôn im lặng</strong>, kỷ luật diễn ra trong thầm lặng. Muốn lớn lên thật sự, bạn phải đi qua giai đoạn im lặng đó, nơi rèn bản lĩnh mà người khác không có.</li>
+        <li>Mơ ước không đi cùng hành động <em>"chỉ là một lời nói dối bạn kể với chính mình để cảm thấy dễ chịu khi đứng yên."</em></li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Câu hỏi tự vấn</span>
+        <p>Mỗi sáng thức dậy bạn có hai lựa chọn: lặp lại chu kỳ cũ hay phá vỡ nó. <em>"Ước mơ hay hành động, bạn chọn điều nào?"</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 07 ============ -->
+  <section class="entry" id="muc-07">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 07</p>
+        <h2>Kiểm soát ngày của bạn để tâm trí được sáng rõ</h2>
+        <p class="oneline">Nếu bạn không làm chủ được ngày của mình, ngày ấy sẽ làm chủ bạn.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="66" cy="58" r="24"/>
+          <path class="s" d="M66 58 L66 42 M66 58 L78 64"/>
+          <path class="b thin" d="M66 22 v-8 M92 32 l6 -6 M102 58 h8 M40 32 l-6 -6 M30 58 h-8"/>
+          <path class="thin" d="M118 84 h20 M118 94 h20 M112 84 l3 3 5 -6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Kịch bản bị động: thức dậy muộn, <strong>chạm vào điện thoại đầu tiên</strong>, bị cuốn vào thông báo – tin tức – tin nhắn trước khi có một phút yên lặng cho chính mình → cả ngày chỉ là phản ứng dây chuyền, <em>"chữa cháy cho những ngọn lửa không đáng có"</em>.</li>
+        <li>Kiểm soát <strong>giờ đầu tiên</strong>: đừng vội vã, đừng chạm điện thoại, đừng nhảy ngay vào công việc — cho mình vài phút tĩnh lặng, xác định điều quan trọng nhất xứng đáng nhận năng lượng và sự tập trung.</li>
+        <li><strong>Viết mọi thứ ra</strong> — khi danh sách công việc nằm trong đầu, tâm trí căng thẳng vì phải ghi nhớ, tiêu tốn năng lượng để nhớ việc thay vì làm việc.</li>
+        <li>Chia thời gian thành <strong>từng khối</strong>: một khối cho công việc sâu, một khối cho việc cá nhân, một khối cho học tập, một khối cho nghỉ ngơi — chỉ làm một việc và làm trọn vẹn.</li>
+        <li>Bảo vệ sự tập trung như nguồn năng lượng sống: <strong>tắt thông báo, đặt điện thoại ở phòng khác khi làm việc, nói không</strong> với điều không thật sự cần; hành động nhỏ: tắt bớt tab trên màn hình, rời khỏi chỗ ngồi khi đầu óc mơ hồ, vài phút nghỉ giữa ngày.</li>
+        <li>Trung thực với chính mình: <em>"Điều gì đang khiến bạn phân tâm? Điều gì thật sự quan trọng hôm nay? Thời gian của bạn đang chảy về đâu?"</em></li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học</span>
+        <p><em>"Mục tiêu không phải là làm được nhiều hơn, mục tiêu là rõ ràng hơn."</em> Hoặc bạn kiểm soát lịch trình của mình, hoặc nó sẽ kiểm soát bạn; hoặc bạn bảo vệ năng lượng của mình, hoặc nó bị rút cạn bởi những thứ không đáng.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 08 ============ -->
+  <section class="entry" id="muc-08">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 08</p>
+        <h2>Đừng phụ thuộc vào năng lượng, hãy phụ thuộc vào cấu trúc</h2>
+        <p class="oneline">Năng lượng đến rồi đi; cấu trúc đứng vững hơn cảm xúc.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="20" y="44" width="36" height="20" rx="3"/>
+          <path d="M56 50 h5 v8 h-5"/>
+          <rect class="s thin" x="25" y="49" width="7" height="10"/>
+          <rect x="98" y="30" width="26" height="10"/>
+          <path d="M104 40 v50 M118 40 v50"/>
+          <rect x="94" y="90" width="34" height="10"/>
+          <path class="b thin" d="M100 96 l5 5 9 -12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Năng lượng <strong>không đáng tin cậy</strong>: có ngày tràn đầy sức sống, có ngày chẳng muốn làm gì dù không rõ lý do — chỉ hành động khi "cảm thấy sẵn sàng" thì cuộc sống mãi lên xuống thất thường: <strong>một ngày tốt rồi ba ngày ì trệ</strong>.</li>
+        <li>Kịch bản do dự quen thuộc: <em>"Bạn nói mình nên tập thể dục rồi mở điện thoại. Bạn nói mình phải viết hôm nay rồi lại pha cà phê, mở vài tab, lướt vài dòng tin tức."</em> — sự do dự làm kiệt sức trước cả khi bắt đầu.</li>
+        <li>Cấu trúc <strong>không để lại khoảng trống cho thương lượng nội tâm</strong>: làm điều đã cam kết từ hôm qua, <em>"hành động mà không xin phép cảm xúc"</em>.</li>
+        <li>Cấu trúc còn <strong>bảo vệ khỏi kiệt sức</strong>: không chỉ cho biết khi nào bắt đầu mà còn nhắc khi nào cần dừng lại.</li>
+        <li>Những ngày mọi thứ "trôi chảy" không phải nhờ năng lượng mà nhờ <strong>chuẩn bị</strong>: bắt đầu đúng giờ, theo một kế hoạch đơn giản, loại bỏ phiền nhiễu sớm — bạn đã cho tâm trí một tấm bản đồ.</li>
+        <li>Bắt đầu nhỏ: <strong>chọn một phần trong ngày và cố định nó</strong> — giờ đầu buổi sáng, khoảng nghỉ trưa hoặc thời gian kết thúc ngày; làm cho nó vững, không thương lượng, không trì hoãn; khi phần đó ổn định, tiếp tục xây thêm.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học</span>
+        <p>Thứ giam hãm bạn không phải cấu trúc mà là <strong>hỗn loạn</strong>: không biết phải làm gì, quá tải, trôi dạt trong mớ suy nghĩ không hồi kết. Tự do thật sự là khi bạn biết rõ thời gian của mình đang đi đâu.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 09 ============ -->
+  <section class="entry" id="muc-09">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 09</p>
+        <h2>Đặt bước nhỏ hoàn thành được mà không cần cảm xúc dẫn đường</h2>
+        <p class="oneline">Mọi lý do mất sức mạnh khi công việc đủ nhỏ để không thể từ chối.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M24 98 h24 v-16 h24 v-16 h24 v-16 h24 v-16 h16"/>
+          <path class="b thin" d="M34 92 h6 M58 76 h6 M82 60 h6 M106 44 h6"/>
+          <path class="s" d="M138 26 l3 6 6 1 -4 5 1 6 -6 -3 -6 3 1 -6 -4 -5 6 -1 z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Hầu hết việc bạn cần làm <strong>không hề khó</strong> — điều khiến chúng nặng nề là cảm xúc bạn gán lên nó. Bộ não "tắt máy" khi đối diện thứ quá lớn: nó trì hoãn <strong>không phải vì lười mà vì sợ</strong>.</li>
+        <li>Thu nhỏ đến mức làm được: đừng nói <em>"tôi sẽ rèn luyện sức khỏe"</em> — hãy nói <em>"tôi sẽ tập 10 cái hít đất"</em>; đừng nói <em>"tôi sẽ khởi nghiệp"</em> — hãy nói <em>"tôi sẽ viết một đoạn mô tả sản phẩm"</em>.</li>
+        <li>Khi nhiệm vụ đủ nhỏ, não không còn chống cự, không viện lý do <em>"hôm nay chưa sẵn sàng"</em> — nó chỉ bắt tay vào làm, và <strong>khi bạn bắt đầu, động lực sẽ tự đến</strong>.</li>
+        <li>Mục tiêu không phải hoàn thành tất cả trong một ngày mà là <strong>hoàn thành một điều gì đó mỗi ngày</strong> — những chiến thắng lặp lại, một việc nhỏ bạn có thể nhìn vào và nói <em>"tôi đã làm được"</em>, xây niềm tin nội tâm từng chút một.</li>
+        <li><em>"Một việc được hoàn thành vẫn hơn một kế hoạch lớn bị trì hoãn."</em></li>
+        <li><em>"Kết quả không quan tâm bạn cảm thấy thế nào. Nó chỉ quan tâm bạn có hành động hay không."</em></li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Nguyên tắc</span>
+        <p>Đây không phải là hạ thấp tiêu chuẩn — mà là <strong>loại bỏ ma sát</strong>. Nhận thức chuyển từ <em>"tôi cần động lực"</em> sang <em>"tôi hành động dù thế nào đi nữa"</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MỤC 10 ============ -->
+  <section class="entry" id="muc-10">
+    <div class="entry-head">
+      <div>
+        <p class="eyebrow">Mục 10</p>
+        <h2>Xây hệ thống vẫn hoạt động ngay cả khi bạn thất bại</h2>
+        <p class="oneline">Hệ thống thực thụ dự tính trước sai sót và cho bạn con đường trở lại.</p>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 160 120" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="80" cy="22" r="7"/>
+          <line x1="80" y1="29" x2="80" y2="84"/>
+          <line x1="60" y1="44" x2="100" y2="44"/>
+          <path d="M48 66 q0 30 32 30 q32 0 32 -30"/>
+          <path class="s thin" d="M48 66 l-7 8 M48 66 l9 6 M112 66 l7 8 M112 66 l-9 6"/>
+          <path class="b thin" d="M26 106 q10 -8 20 0 q10 8 20 0 q10 -8 20 0 q10 8 20 0 q10 -8 20 0"/>
+        </svg>
+      </div>
+    </div>
+    <div class="entry-body">
+      <ul>
+        <li>Phần lớn mọi người không xây hệ thống — họ xây <strong>một chuỗi streak</strong>: quãng thời gian làm tốt cho đến khi cuộc sống can thiệp; bỏ lỡ một ngày, rồi một tuần, rồi trượt dốc trong cảm giác tội lỗi — vì cấu trúc của họ <strong>phụ thuộc vào động lực chứ không phải nguyên tắc</strong>.</li>
+        <li>Hệ thống thực thụ <strong>dự tính trước cho sai sót</strong>: ăn uống không lành mạnh một ngày → kế hoạch nhắc quay lại chế độ cũ vào hôm sau; bỏ lỡ buổi tập → hệ thống không trừng phạt, chỉ tiếp tục từ nơi bạn dừng lại; mất tập trung vài giờ → lịch trình khởi động lại bằng công việc kế tiếp.</li>
+        <li>Những chiếc neo kéo bạn trở lại: <strong>duy trì giờ thức dậy cố định</strong> ngay cả khi cả ngày hỗn loạn; bắt đầu buổi sáng bằng <strong>một cốc nước, vài động tác giãn người và 5 phút viết lách</strong> dù tối hôm trước chưa làm được gì.</li>
+        <li>Sai lầm không khiến bạn thua — <strong>cuộc độc thoại sau sai lầm</strong> mới khiến bạn gục ngã: <em>"Tôi luôn làm hỏng mọi thứ."</em> Khi hệ thống được xây để chấp nhận cả lỗi lầm, câu nói ấy mất trọng lượng — <em>"tái thiết bằng hành động, không phải bằng suy nghĩ"</em>.</li>
+        <li>Giữ <strong>phiên bản tối thiểu</strong> của thói quen: ngày tốt tập một tiếng, ngày tệ chỉ đi bộ 10 phút — nhỏ nhưng giữ thói quen còn sống; còn sống là còn đà, còn bản sắc, không <em>"từ tôi trượt thành tôi bỏ cuộc"</em>.</li>
+        <li>Xác định <strong>những điều bất khả thương lượng</strong> — xương sống của hệ thống. Tự vấn: <em>"Thói quen nào của bạn biến mất khi cuộc sống trở nên khó khăn? Thói quen nào vẫn tồn tại dù bạn mệt mỏi, mất động lực hay thất vọng?"</em> — câu trả lời cho thấy hệ thống của bạn mạnh đến đâu.</li>
+      </ul>
+      <div class="callout">
+        <span class="co-label">Bài học kết</span>
+        <p><em>"Mục tiêu cho bạn hướng đi nhưng hệ thống mới cho bạn kết quả."</em> Người không lạc lối không phải vì không bao giờ ngã, mà vì <strong>không bao giờ ngã đến tận cùng</strong> — hệ thống giữ họ gần trung tâm, và họ không bao giờ phải bắt đầu lại từ đầu.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Nguồn: bài nói "Cách xây dựng hệ thống thay vì đặt mục tiêu" · Kênh Thức tỉnh 24 giờ · Cảm hứng từ Jim Rohn — Sổ ghi chép No.07
+  </footer>
+</main>
+</div>
+
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var toggle = document.getElementById('tocToggle');
+  var drawer = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+
+  function setDrawer(open){
+    drawer.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  }
+
+  toggle.addEventListener('click', function(){
+    setDrawer(!drawer.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setDrawer(false);
+  });
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  var linkById = {};
+  links.forEach(function(a){ linkById[a.getAttribute('href').slice(1)] = a; });
+
+  var desktop = window.matchMedia('(min-width:901px)');
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      var link = linkById[en.target.id];
+      if (!link) return;
+      links.forEach(function(l){ l.classList.remove('active'); });
+      link.classList.add('active');
+      if (desktop.matches) link.scrollIntoView({ block: 'nearest' });
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('main section[id]').forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>
