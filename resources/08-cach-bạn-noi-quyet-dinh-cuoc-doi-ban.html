@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ ghi chép · No.08 — Cách bạn nói quyết định cuộc đời bạn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Be Vietnam Pro",sans-serif;
+  font-size:16px;line-height:1.75;color:var(--ink);
+  background:var(--paper) repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+.mono{font-family:"IBM Plex Mono",monospace}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px;border-radius:4px}
+
+/* ===== LAYOUT ===== */
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:288px 1fr;gap:48px;padding:0 24px}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:32px 4px 32px 0;scrollbar-width:thin;scrollbar-color:var(--green-line) transparent}
+.cover{
+  position:relative;border:2px solid var(--green);border-radius:var(--radius);
+  background:var(--card);padding:22px 18px;margin-bottom:24px;
+}
+.cover::before{
+  content:"";position:absolute;inset:5px;border:1px dashed var(--green-line);
+  border-radius:6px;pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--seal);margin-bottom:8px;
+}
+.cover h2{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:20px;
+  line-height:1.3;color:var(--green);
+}
+.toc{list-style:none;counter-reset:toc}
+.toc li{margin-bottom:2px}
+.toc a{
+  display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:baseline;
+  padding:9px 12px 9px 9px;text-decoration:none;border-left:3px solid transparent;
+  border-radius:0 6px 6px 0;font-size:14px;color:var(--ink-soft);
+  transition:background .15s,color .15s;
+}
+.toc a .idx{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  color:var(--brass);text-align:right;
+}
+.toc a:hover{background:var(--paper-deep)}
+.toc a.active{background:var(--card);color:var(--green);font-weight:600;border-left-color:var(--seal)}
+
+/* ===== MAIN / HERO ===== */
+.main{padding:56px 0 40px;min-width:0}
+.hero{position:relative;margin-bottom:48px;padding-right:190px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--seal);margin-bottom:12px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  font-size:clamp(34px,4.5vw,56px);line-height:1.12;color:var(--green);margin-bottom:16px;
+}
+.hero .sub{max-width:640px;color:var(--ink-soft);font-size:17px;margin-bottom:18px}
+.meta{display:flex;flex-wrap:wrap;gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--green);border:1px solid var(--green-line);
+  background:var(--card);border-radius:999px;padding:5px 14px;
+}
+.stamp{position:absolute;top:-6px;right:0;transform:rotate(7deg);opacity:.92}
+
+/* ===== SECTION CARDS ===== */
+.entry{
+  background:var(--card);border:1px solid var(--green-line);border-radius:var(--radius);
+  margin-bottom:36px;scroll-margin-top:24px;overflow:hidden;
+}
+.entry-head{
+  display:grid;grid-template-columns:1fr auto;gap:28px;align-items:start;
+  padding:28px 30px 22px;border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:26px;
+  line-height:1.25;color:var(--green);margin-bottom:8px;
+}
+.entry-head .oneline{font-style:italic;color:var(--ink-soft);font-size:15px}
+.illus{
+  width:168px;height:138px;flex:none;position:relative;
+  border:2px solid var(--green);border-radius:6px;background:var(--paper);
+  transform:rotate(-1.4deg);display:flex;align-items:center;justify-content:center;
+}
+.illus::before{content:"";position:absolute;inset:4px;border:1px dashed var(--green-line);border-radius:3px;pointer-events:none}
+.illus svg{width:82%;height:auto}
+.entry-body{padding:24px 30px 28px}
+.entry-body ul{list-style:none}
+.entry-body li{position:relative;padding-left:26px;margin-bottom:14px}
+.entry-body li::before{content:"—";position:absolute;left:0;color:var(--brass);font-weight:600}
+.entry-body strong{color:var(--green);font-weight:600}
+.entry-body em{color:var(--ink)}
+
+/* ===== CALLOUT ===== */
+.callout{
+  border-left:3px solid var(--seal);background:var(--paper);
+  border-radius:0 6px 6px 0;padding:16px 20px;margin-top:22px;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--seal);margin-bottom:6px;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  border-top:1px dashed var(--green-line);margin-top:48px;padding:22px 0 40px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);
+}
+
+/* ===== ILLUSTRATION STROKES ===== */
+.spot{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.spot .b{stroke:var(--brass)}
+.spot .s{stroke:var(--seal)}
+.spot .thin{stroke-width:2}
+
+/* ===== MOBILE TOGGLE + BACKDROP ===== */
+.toc-toggle{
+  display:none;position:fixed;left:16px;bottom:16px;z-index:60;
+  font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:500;letter-spacing:.08em;
+  color:#fff;background:var(--green);border:none;border-radius:999px;
+  padding:12px 20px;cursor:pointer;box-shadow:0 4px 14px rgba(28,43,34,.28);
+}
+.backdrop{
+  display:none;position:fixed;inset:0;background:rgba(28,43,34,.45);z-index:40;
+  opacity:0;transition:opacity .25s;
+}
+.backdrop.show{opacity:1}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:900px){
+  .wrap{display:block;padding:0 18px}
+  .stamp{display:none}
+  .hero{padding-right:0}
+  .toc-toggle{display:block}
+  .backdrop{display:block;pointer-events:none}
+  .backdrop.show{pointer-events:auto}
+  .sidebar{
+    position:fixed;top:0;left:0;z-index:50;width:min(82vw,320px);
+    height:100vh;height:100dvh;background:var(--paper);
+    padding:24px 18px;transform:translateX(-105%);transition:transform .28s ease;
+    box-shadow:6px 0 24px rgba(28,43,34,.18);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .entry-head{grid-template-columns:1fr}
+  .illus{width:100%;max-width:220px;height:auto;aspect-ratio:168/138}
+  .main{padding-top:36px}
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <div class="label">Sổ ghi chép · No.08</div>
+      <h2>Cách bạn nói quyết định cuộc đời bạn</h2>
+    </div>
+    <nav aria-label="Mục lục ghi chú">
+      <ol class="toc" id="toc">
+        <li><a href="#muc-1"><span class="idx">01</span><span>Lời nói quyết định cuộc đời</span></a></li>
+        <li><a href="#muc-2"><span class="idx">02</span><span>Bản thiết kế vô hình</span></a></li>
+        <li><a href="#muc-3"><span class="idx">03</span><span>Lời tiên tri tự hoàn thành</span></a></li>
+        <li><a href="#muc-4"><span class="idx">04</span><span>Con mương dẫn tư duy</span></a></li>
+        <li><a href="#muc-5"><span class="idx">05</span><span>Ngôn ngữ người tiến lên</span></a></li>
+        <li><a href="#muc-6"><span class="idx">06</span><span>Kỷ luật lời nói về người khác</span></a></li>
+        <li><a href="#muc-7"><span class="idx">07</span><span>Lời biết ơn</span></a></li>
+        <li><a href="#muc-8"><span class="idx">08</span><span>Viết lại ngôn từ nội tâm</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <header class="hero">
+      <svg class="stamp" width="150" height="150" viewBox="0 0 150 150" aria-hidden="true">
+        <circle cx="75" cy="75" r="70" fill="none" stroke="var(--seal)" stroke-width="4"/>
+        <circle cx="75" cy="75" r="56" fill="none" stroke="var(--seal)" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="75" y="70" text-anchor="middle" fill="var(--seal)" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="500" letter-spacing="2">ĐÃ GHI</text>
+        <text x="75" y="94" text-anchor="middle" fill="var(--seal)" font-family="'IBM Plex Mono',monospace" font-size="15" letter-spacing="1">SỔ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ ghi chép · No.08 · Tư duy Jim Rohn</p>
+      <h1>Cách bạn nói quyết định cuộc đời bạn</h1>
+      <p class="sub">Ngôn từ không chỉ để giao tiếp — mỗi câu bạn nói, thành tiếng hay trong đầu, là một mệnh lệnh gửi vào hệ điều hành bên trong, định hình tư duy, hành động và quỹ đạo cuộc đời.</p>
+      <div class="meta">
+        <span class="pill">Jim Rohn</span>
+        <span class="pill">Ngôn từ &amp; Tư duy</span>
+        <span class="pill">8 mục ghi</span>
+      </div>
+    </header>
+
+    <!-- ===== MỤC 01 ===== -->
+    <section class="entry" id="muc-1">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 01</p>
+          <h2>Lời nói quyết định cuộc đời</h2>
+          <p class="oneline">Giới hạn thật sự không nằm ở điều bạn thiếu, mà ở cách bạn nói về chính mình mỗi ngày.</p>
+        </div>
+        <div class="illus">
+          <!-- speech bubble emitting an arrow / path -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M20 22 h70 a8 8 0 0 1 8 8 v26 a8 8 0 0 1 -8 8 h-40 l-14 14 v-14 h-16 a8 8 0 0 1 -8 -8 v-26 a8 8 0 0 1 8 -8 z"/>
+            <path class="thin b" d="M32 38 h44"/>
+            <path class="thin b" d="M32 50 h30"/>
+            <path class="s" d="M104 60 c 20 6, 30 22, 34 42"/>
+            <path class="s" d="M130 92 l 8 10 l 4 -13"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Khi <strong>chạm trần</strong> — nỗ lực nhiều hơn nhưng kết quả vẫn lặp lại — đa số tìm nguyên nhân ở hoàn cảnh, tiền bạc, xuất phát điểm. Theo Jim Rohn, đó mới chỉ là <strong>lớp bề mặt</strong>.</li>
+          <li>Con người không sống trong thực tại khách quan, họ sống trong <em>"thực tại được diễn giải bằng ngôn từ"</em>. Cuộc đời không bị giới hạn bởi hoàn cảnh mà <strong>bị định hình bởi cách bạn nói</strong>.</li>
+          <li>Mỗi câu nói ra — thành tiếng hay chỉ lặp lại trong đầu — đều là <em>"mệnh lệnh âm thầm gửi vào hệ điều hành bên trong não bộ"</em>. Nguy hiểm ở chỗ ta nói theo thói quen, cảm xúc, theo những gì đã được lập trình từ quá khứ mà không ý thức.</li>
+          <li>Các câu tưởng vô hại: <em>"Tôi không giỏi việc này"</em>, <em>"Tôi vốn dĩ không may mắn"</em>, <em>"Chắc tôi lại thất bại thôi"</em> — chính là <strong>những viên gạch xây bức tường giới hạn</strong> mà ta tự nhốt mình bên trong.</li>
+          <li>Ngược lại: chỉ một <strong>chuyển dịch nhỏ trong ngôn từ</strong>, não bắt đầu tìm khả năng mới, giải pháp mới. Đây không phải tô hồng thực tại mà là <strong>định hướng tư duy bằng ngôn từ có ý thức</strong>.</li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Cảnh báo</p>
+          <p><em>"Chỉ một câu bạn đang nói sai mỗi ngày cũng đủ để giữ bạn mắc kẹt nhiều năm."</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 02 ===== -->
+    <section class="entry" id="muc-2">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 02</p>
+          <h2>Ngôn từ là bản thiết kế vô hình</h2>
+          <p class="oneline">Bạn đang sống trong thế giới được tạo nên từ những câu bạn lặp lại mỗi ngày.</p>
+        </div>
+        <div class="illus">
+          <!-- blueprint sheet + pencil -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <rect x="24" y="16" width="86" height="88" rx="4"/>
+            <path class="thin b" d="M36 34 h60"/>
+            <path class="thin b" d="M36 50 h44"/>
+            <path class="thin b" d="M36 66 h52"/>
+            <path class="s" d="M118 96 L142 46"/>
+            <path class="s" d="M118 96 l -3 10 l 9 -5"/>
+            <path class="thin s" d="M136 42 l 8 4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Điểm phân tách giữa các cuộc đời <strong>không phải</strong> thông minh hơn, xuất phát tốt hơn hay may mắn hơn — mà nằm ở <strong>cách họ nói về cuộc đời mình mỗi ngày</strong>.</li>
+          <li>Lời nói là <strong>bản thiết kế vô hình</strong>: nếu bạn không chủ động cầm bút, bạn vô thức sống trong bản vẽ do thói quen, môi trường và quá khứ áp đặt.</li>
+          <li>Não không hoạt động trên sự thật tuyệt đối mà trên <strong>những gì được lặp lại đủ lâu với đủ cảm xúc</strong>. Bạn nói <em>"tôi không hợp việc này, tôi vốn kém, tôi chẳng bao giờ làm được đâu"</em> — não không tranh luận, nó <strong>ghi nhận làm dữ liệu đầu vào</strong> rồi xây cách suy nghĩ, phản ứng, hành động từ đó.</li>
+          <li>Jim Rohn: <em>"Con người hiếm khi thất bại vì thiếu khả năng. Họ thất bại vì sống quá lâu trong một câu chuyện sai về chính mình."</em> Câu chuyện đó nằm trong từng câu bạn tự nói khi không ai nghe thấy.</li>
+          <li>Không cần tin hoàn toàn: chỉ cần <strong>lặp lại mỗi lúc mệt mỏi, mỗi khi yếu lòng</strong> — bản vẽ dần thành hiện thực: không dám thử, không dám bước thêm, không dám mơ xa.</li>
+          <li>Nếu lời nói là bản thiết kế thì <strong>bạn có quyền vẽ lại</strong> — chỉ cần đổi câu lặp lại: <em>"tôi không thể"</em> → <em>"tôi sẽ học"</em>; <em>"tôi luôn thất bại"</em> → <em>"tôi đang tiến bộ"</em>. Không phủ nhận khó khăn, chỉ <strong>không đóng đinh mình vào khó khăn</strong>.</li>
+          <li>Câu tự vấn: <em>"Câu nói nào bạn đang lặp lại nhiều nhất trong đầu dạo gần đây?"</em> — Câu viết xuống: <em>"Tôi chọn thiết kế lại cuộc đời."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Nguyên tắc</p>
+          <p><strong>Ngôn từ là bản vẽ mà tư duy và hành động buộc phải tuân theo.</strong> Khi bản vẽ thay đổi, hành động thay đổi; khi hành động đổi khác đủ lâu, cuộc đời buộc phải rẽ hướng.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 03 ===== -->
+    <section class="entry" id="muc-3">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 03</p>
+          <h2>Lời tiên tri tự hoàn thành</h2>
+          <p class="oneline">Ngôn từ tiêu cực đến rất nhẹ, rất quen — nhưng lặp đủ nhiều sẽ tự biến thành sự thật.</p>
+        </div>
+        <div class="illus">
+          <!-- closed loop arrows + padlock -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M80 24 a 38 38 0 1 1 -33 19"/>
+            <path d="M47 43 l -8 -12 l 14 2"/>
+            <rect class="s" x="64" y="56" width="32" height="26" rx="4"/>
+            <path class="s thin" d="M70 56 v-8 a10 10 0 0 1 20 0 v8"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Nói <em>"tôi không thể, tôi kém lắm, kiểu gì cũng thất bại thôi"</em> = gửi não một mệnh lệnh cụ thể: <strong>dừng tìm giải pháp, dừng sáng tạo, dừng thử thêm</strong>. Não là cỗ máy tiết kiệm năng lượng — nó làm đúng lệnh, ngừng tìm đường, chấp nhận giới hạn như sự thật hiển nhiên.</li>
+          <li>Jim Rohn: <em>"Não bộ không được sinh ra để phán xét xem bạn nói đúng hay sai. Nó được sinh ra để tuân lệnh."</em> Bạn nói mình bất lực, nó học cách bất lực; nói mình không đủ giỏi, nó điều chỉnh hành vi để chứng minh điều đó.</li>
+          <li><strong>Vòng lặp khép kín</strong>: nói ra kết luận → hành động dè dặt, thiếu dấn thân, thiếu kiên trì → kết quả kém → <em>"Thấy chưa? Tôi đã nói mà."</em> → kết quả kém quay lại củng cố niềm tin ban đầu. <strong>Bạn tự khóa mình từ bên trong</strong>, không cần ai cản.</li>
+          <li>Nhiều người gọi đó là "thực tế" — <em>"tôi chỉ nói sự thật thôi"</em>. Jim Rohn phân biệt rõ: <strong>mô tả hoàn cảnh ≠ đóng đinh bản thân</strong>. Nói theo cách biến khó khăn thành định mệnh là tự tay biến nó thành nhà tù.</li>
+          <li><em>"Không ai thất bại trong một buổi tối, nhưng hàng ngàn buổi tối tự nói với mình rằng mình không đủ tốt sẽ tạo ra một cuộc đời không bao giờ bứt phá."</em> — cuộc đời không sụp đổ trong một ngày, nó <strong>co rút dần từng chút một</strong>.</li>
+          <li>Đảo chiều mệnh lệnh — không phải nghĩ tích cực mù quáng mà <strong>ngừng ra lệnh thất bại</strong>: <em>"tôi không thể"</em> → <em>"tôi đang tìm cách"</em>; <em>"kiểu gì cũng hỏng"</em> → <em>"tôi chưa biết kết quả nhưng tôi sẽ đi thêm bước nữa."</em></li>
+          <li>Câu tự vấn: <em>"Câu phủ định nào bạn hay nói nhất trong tuần vừa rồi?"</em> — Câu viết xuống: <em>"Tôi dừng ra lệnh thất bại."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Bài học</p>
+          <p>Đổi một câu <strong>không phải để tin ngay mà để mở ra khả năng</strong> — não nhận một mệnh lệnh khác, nó không đóng cửa, nó mở ra một khe rất nhỏ, và từ khe đó tư duy bắt đầu chuyển động.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 04 ===== -->
+    <section class="entry" id="muc-4">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 04</p>
+          <h2>Ngôn từ là con mương dẫn tư duy</h2>
+          <p class="oneline">"Mương chảy về đâu, nước chảy về đó" — bạn nói gì, não sẽ nghĩ theo hướng đó.</p>
+        </div>
+        <div class="illus">
+          <!-- water channel with flow arrow -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M18 30 C 50 40, 70 70, 130 78"/>
+            <path d="M18 54 C 48 62, 66 90, 126 98"/>
+            <path class="b thin" d="M40 48 C 58 54, 72 72, 100 80"/>
+            <path class="b thin" d="M56 44 C 70 52, 84 66, 112 76"/>
+            <path class="s" d="M128 88 l 14 0"/>
+            <path class="s" d="M136 81 l 8 7 l -8 7"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Tư duy <strong>không tự do như bạn tưởng</strong>: nó không tự sinh ý tưởng lớn, không tự tìm giải pháp đúng — nó luôn cần hướng dẫn, và <strong>thứ dẫn đường mỗi ngày chính là lời nói</strong>. Trước khi tư duy kịp phân tích, lời nói đã đi trước một bước.</li>
+          <li>Hình ảnh của Jim Rohn: <em>"tư duy giống như dòng nước... và ngôn từ chính là con mương. Mương chảy về đâu, nước chảy về đó."</em></li>
+          <li>Cùng một vấn đề khó: người nói <em>"Chuyện gì đang xảy ra thế này?"</em> → tư duy rơi vào rối loạn, hoang mang; người nói <em>"Điều gì ở đây cần được giải quyết?"</em> → tư duy đi vào hành động. <strong>Khác vài chữ, khác hoàn toàn hướng chảy.</strong></li>
+          <li>Não rất trung thành với chỉ dẫn bằng lời: nói <em>"Tôi không nghĩ nổi nữa"</em> = yêu cầu não <strong>ngừng suy nghĩ</strong>; nói <em>"Làm sao để vượt qua việc này?"</em> = yêu cầu não <strong>tìm đường</strong> — và nó sẽ bắt đầu tìm.</li>
+          <li><em>"Câu hỏi quan trọng không phải là bạn có đang suy nghĩ hay không mà là bạn đang dẫn suy nghĩ của mình đi đâu."</em> Mỗi câu là một biển chỉ đường — <strong>không có vùng trung lập</strong>.</li>
+          <li><strong>Thì thầm nội tâm mạnh y như nói thành tiếng</strong>: lặp trong đầu <em>"việc này quá khó, tôi không hợp, chắc không xong đâu"</em> là đang đào sâu thêm con mương cũ — càng đào sâu, dòng chảy càng khó đổi hướng.</li>
+          <li>Đổi cách nói — không phải cho hay mà <strong>cho đúng hướng</strong>: <em>"tôi không biết phải làm gì"</em> → <em>"bước tiếp theo là gì?"</em>; <em>"chuyện này làm tôi bế tắc"</em> → <em>"mình có thể làm rõ phần nào trước?"</em></li>
+          <li>Câu tự vấn: <em>"Khi gặp vấn đề gần đây, câu đầu tiên bạn nói với mình là gì?"</em> — Câu viết xuống: <em>"Tôi dẫn tư duy đúng hướng."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Nguyên tắc</p>
+          <p>Tư duy <strong>không thích bị ép buộc nhưng rất ngoan ngoãn khi được dẫn đường đúng</strong> — dẫn dắt bằng ngôn từ có ý thức, không bằng sức ép.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 05 ===== -->
+    <section class="entry" id="muc-5">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 05</p>
+          <h2>Ngôn ngữ của người đang tiến lên</h2>
+          <p class="oneline">Người thất bại nói như cuộc đời xảy ra với họ; người thành công nói như đang dẫn dắt cuộc đời mình.</p>
+        </div>
+        <div class="illus">
+          <!-- ascending steps + upward arrow -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M18 100 h28 v-20 h28 v-20 h28 v-20 h28"/>
+            <path class="s" d="M52 88 C 70 70, 92 52, 118 34"/>
+            <path class="s" d="M118 34 l 4 12"/>
+            <path class="s" d="M118 34 l -12 -2"/>
+            <circle class="b thin" cx="34" cy="88" r="7"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li><em>"Tôi không giỏi việc này. Tôi không hợp chuyện đó. Tôi sinh ra đã như vậy rồi"</em> — nghe như trung thực nhưng là <strong>"bản án treo"</strong>: bạn không chỉ mô tả hiện tại, bạn đang <strong>ra quyết định về tương lai</strong>.</li>
+          <li>Người tiến lên đổi định vị: <em>"tôi không giỏi"</em> → <em>"tôi đang rèn luyện"</em>; <em>"tôi chưa đủ"</em> → <em>"tôi đang xây dựng năng lực"</em> — chỉ đổi vài chữ nhưng hệ thống bên trong chuyển từ <strong>tự vệ sang phát triển</strong>.</li>
+          <li>Dùng lời để <strong>kích hoạt hành động</strong>, không để bảo vệ cái tôi: gặp trở ngại không nói <em>"tôi xui quá"</em> mà hỏi <em>"tôi cần điều chỉnh chỗ nào?"</em>; thất bại không nói <em>"tôi đúng là không hợp"</em> mà hỏi <em>"bài học ở đây là gì?"</em></li>
+          <li><strong>Không dừng câu quá sớm</strong>: có thể nói <em>"tôi chưa biết cách làm việc này"</em> nhưng thêm ngay vế sau — <em>"nhưng tôi sẽ học"</em>, <em>"nhưng tôi sẽ tìm ra"</em>, <em>"nhưng tôi sẽ thử thêm một cách khác"</em>. Vế sau mới định hướng tư duy; dừng ở <em>"tôi không biết"</em> tưởng là khiêm tốn nhưng thực ra là <strong>tự rút quyền phát triển</strong>.</li>
+          <li><strong>Không đổ lỗi trong ngôn từ</strong>: nói <em>"tại hoàn cảnh"</em> → não hiểu mình không cần làm gì thêm; nói <em>"tại người khác"</em> → não hiểu quyền kiểm soát không nằm ở mình. Kéo quyền về phía mình: <em>"Tôi có thể làm gì khác? Tôi cần thay đổi điều gì? Tôi chịu trách nhiệm cho bước tiếp theo."</em></li>
+          <li>Jim Rohn: <em>"Thành công không đến từ một khoảnh khắc bùng nổ, nó đến từ cách bạn tự nói chuyện với mình mỗi ngày khi không ai nhìn thấy."</em> Người thành công <strong>nói trước rồi buộc mình đi theo lời nói</strong> — ngôn từ là cam kết kéo theo trách nhiệm và kỷ luật, không phải khoe khoang.</li>
+          <li>Câu tự vấn: gần đây bạn nói với mình theo <strong>kiểu người tiến lên hay người tự rút lui</strong>? — Câu viết xuống: <em>"Tôi nói như người tiến lên."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Khác biệt cốt lõi</p>
+          <p>Người không tiến lên dùng lời nói để <strong>xoa dịu cảm xúc</strong>; người tiến lên dùng lời nói để <strong>dẫn dắt hành vi</strong> — một bên tìm cảm giác dễ chịu, một bên chấp nhận sự không thoải mái cần thiết cho trưởng thành.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 06 ===== -->
+    <section class="entry" id="muc-6">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 06</p>
+          <h2>Kỷ luật lời nói khi nói về người khác</h2>
+          <p class="oneline">Bạn thực sự là ai lộ rõ nhất khi bạn nói về người vắng mặt.</p>
+        </div>
+        <div class="illus">
+          <!-- bank / vault of reputation with coin -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M30 52 h100 v46 h-100 z"/>
+            <path d="M24 52 L80 22 L136 52"/>
+            <path class="thin" d="M48 62 v28 M80 62 v28 M112 62 v28"/>
+            <circle class="b" cx="80" cy="14" r="8"/>
+            <path class="s thin" d="M30 106 h100"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Jim Rohn: <em>"Nhân cách không được thể hiện trên sân khấu, nơi bạn đang cố gắng gây ấn tượng. Nhân cách lộ diện rõ nhất ở những khoảnh khắc không ai buộc bạn phải giữ hình ảnh."</em></li>
+          <li>Mỗi lần buông lời nhận xét về người vắng mặt, bạn đang <strong>tự viết hồ sơ nhân cách của chính mình</strong>: người nghe âm thầm hỏi <em>"Khi tôi không ở đây, liệu tôi có trở thành người tiếp theo không?"</em> → sự đề phòng nảy sinh → niềm tin rạn nứt.</li>
+          <li>Nói xấu, than phiền, chỉ trích không phải lỗi giao tiếp nhỏ mà là <strong>thiếu kỷ luật nội tâm</strong>: suy nghĩ cay nghiệt, đố kỵ được nuôi trong đầu sớm muộn sẽ bước ra bằng lời nói — và cái giá là <strong>uy tín</strong>, thứ rất khó xây nhưng cực kỳ dễ mất.</li>
+          <li><em>"Uy tín giống như tài khoản ngân hàng. Bạn gửi vào đó bằng sự nhất quán, tử tế và chính trực qua thời gian. Nhưng chỉ cần một vài lần rút ra bằng những lời nói thiếu kiểm soát, tài khoản đó có thể cạn rất nhanh."</em> — và <em>"thế giới không ghi nhận động cơ, thế giới ghi nhận hành vi."</em></li>
+          <li>Nhiều người tài năng không được trọng dụng — không vì kém năng lực mà vì <strong>người khác không dám tin</strong>, không dám giao việc lớn, không dám đồng hành lâu dài; gốc rễ nhiều khi chỉ từ cách họ nói về người thứ ba.</li>
+          <li>Lời phán xét <strong>quay ngược vào trong</strong>: quen nhìn người khác qua lăng kính phán xét → nội tâm đầy bất mãn, dễ thấy lỗi hơn thấy nỗ lực → rồi nhìn chính mình bằng lăng kính đó. Không thể nói xấu người khác mà vẫn giữ nội tâm trong lành.</li>
+          <li><strong>Chọn lọc mục đích trước khi nói</strong>: <em>"Câu nói này để làm gì? Để xây dựng hay để xả cảm xúc? Để giúp đỡ hay để thỏa mãn cái tôi?"</em> — phê bình xây dựng khác chỉ trích phá hoại ở <strong>ý định</strong>: góp ý thẳng nhưng đúng người, đúng lúc, đúng không gian.</li>
+          <li>Dấu hiệu người trưởng thành nội tâm: <strong>biết khi nào nên im lặng</strong> — không vì sợ mà vì hiểu không phải mọi suy nghĩ đều cần nói ra. <em>"Danh tiếng của bạn không được quyết định bởi những gì bạn nói về mình mà bởi những gì người khác cảm nhận sau khi nói chuyện với bạn."</em></li>
+          <li>Câu tự vấn: <em>"Nếu người vắng mặt đó nghe được, bạn có sẵn sàng chịu trách nhiệm cho câu nói đó không?"</em> — Câu viết xuống: <em>"Tôi giữ kỷ luật lời nói."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Nguyên tắc</p>
+          <p>Người thiếu kỷ luật nội tâm <strong>nói để xả</strong>; người có kỷ luật nội tâm <strong>nói để tạo giá trị</strong>. Khi mọi người cảm thấy an toàn bên bạn, uy tín tự sinh ra từ sự nhất quán trong lời nói.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 07 ===== -->
+    <section class="entry" id="muc-7">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 07</p>
+          <h2>Lời biết ơn — tái lập trình điểm tập trung</h2>
+          <p class="oneline">Biết ơn không phải phép lịch sự xã hội — nó là công cụ chuyển tâm trí từ thiếu thốn sang đủ đầy.</p>
+        </div>
+        <div class="illus">
+          <!-- open hands holding rising sun -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M34 96 c 10 -14, 30 -20, 46 -18"/>
+            <path d="M126 96 c -10 -14, -30 -20, -46 -18"/>
+            <circle class="b" cx="80" cy="52" r="16"/>
+            <path class="b thin" d="M80 24 v-8 M56 34 l-6 -6 M104 34 l6 -6"/>
+            <path class="s thin" d="M60 70 h40"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Jim Rohn: <em>"Phần lớn con người không khổ vì thiếu điều gì đó mà khổ vì tâm trí họ luôn tập trung vào điều đang thiếu."</em> Tâm trí tập trung vào thiếu thốn → ngôn từ phản ánh thiếu thốn → tư duy vận hành trong thiếu thốn → hành động co rút, phòng thủ, mệt mỏi.</li>
+          <li><strong>Vòng lặp thế yếu</strong>: nói <em>"tôi chưa đủ, tôi chưa có, tôi chưa đạt được"</em> mỗi ngày → não mặc định bạn ở thế yếu → ưu tiên <strong>bảo toàn thay vì bứt phá</strong> → dè dặt, ngại rủi ro, trì hoãn → kết quả không khá lên.</li>
+          <li>Lời biết ơn <strong>buộc não nhìn sang hướng khác</strong>: từ những gì chưa có sang những gì đang có, từ thiếu thốn sang đủ đầy — sự chuyển hướng rất nhỏ nhưng tác động sâu.</li>
+          <li><em>"Biết ơn không làm bạn dừng lại. Biết ơn giúp bạn có đủ nội lực để tiếp tục đi."</em> Người biết ơn không ít thử thách hơn nhưng <strong>nhiều năng lượng hành động hơn</strong> vì tâm trí không bị hút cạn bởi than vãn, so sánh.</li>
+          <li>Chuyển câu hỏi: từ <em>"Tại sao tôi lại như thế này?"</em> sang <em>"Tôi có thể làm gì với những gì mình đang có?"</em> — phá vỡ vòng lặp tiêu cực <strong>không cần đối đầu trực diện</strong>: đổi trọng tâm ngôn từ → tư duy đổi → cảm xúc đổi → hành động có lực trở lại.</li>
+          <li>Biết ơn là cách nói khác với chính mình: <strong>thay tự trách bằng tự ghi nhận</strong> — thay <em>"mình chưa đủ giỏi"</em> bằng <em>"mình đã không bỏ cuộc"</em>. Không thể xây cuộc đời mạnh mẽ trên nền tự khinh thường, nhưng xây được trên nền <strong>tự trân trọng</strong>.</li>
+          <li>Câu tự vấn: <em>"Gần đây nhất bạn đã nói lời biết ơn với chính mình hay với người khác chưa?"</em> — nếu chưa, có thể đó là lý do bạn cạn năng lượng. Câu viết xuống: <em>"Tôi chọn sống với biết ơn."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Bài học</p>
+          <p>Khi biết ơn thành thói quen ngôn từ, bạn bớt cay nghiệt, bớt phán xét, bớt so sánh — <strong>không vì kiềm chế mà vì không còn nhu cầu xả sự thiếu thốn ra ngoài</strong>. Đó là năng lượng của người trưởng thành: không cần gồng, không cần chứng minh, nhưng đủ mạnh để đi đường dài.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 08 ===== -->
+    <section class="entry" id="muc-8">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 08</p>
+          <h2>Viết lại ngôn từ nội tâm</h2>
+          <p class="oneline">Kết quả là bản in ra của ngôn từ nội tâm — không thể chạy chương trình cũ mà mong kết quả mới.</p>
+        </div>
+        <div class="illus">
+          <!-- code document being rewritten by pencil -->
+          <svg class="spot" viewBox="0 0 160 120" aria-hidden="true">
+            <rect x="28" y="14" width="80" height="92" rx="5"/>
+            <path class="thin" d="M44 34 l-8 8 l8 8"/>
+            <path class="thin" d="M64 34 l8 8 l-8 8"/>
+            <path class="thin b" d="M40 66 h44"/>
+            <path class="thin b" d="M40 80 h32"/>
+            <path class="s" d="M112 94 L140 50"/>
+            <path class="s" d="M112 94 l -4 11 l 10 -5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="entry-body">
+        <ul>
+          <li>Từ lúc thức dậy đến khi đi ngủ, bạn liên tục <strong>đối thoại nội tâm</strong>; mỗi câu tự nói là <strong>một dòng mã</strong> mang chỉ thị, cách nhìn, phản ứng quen thuộc — lặp đủ lâu, chúng thành <strong>hệ điều hành mặc định</strong> của cuộc đời.</li>
+          <li>Chuỗi lập trình: ngôn từ → tư duy → hành vi → kết quả. Jim Rohn nói thẳng: <em>"Kết quả là bản in ra của ngôn từ nội tâm. Bạn không thể chạy một chương trình cũ và mong một kết quả mới."</em></li>
+          <li>Nguy hiểm ở <strong>sự lặp lại, không ở câu đơn lẻ</strong>: <em>"Tôi không hợp việc này. Tôi luôn đến sau. Tôi không có tố chất."</em> — không đau ngay nhưng làm bạn <strong>thu nhỏ lại từng chút một</strong>, đến ngày không dám mơ lớn nữa vì hệ điều hành không cho phép.</li>
+          <li>Rất nhiều người chạy theo <strong>mã cũ cài sẵn từ gia đình, xã hội, những lần thất bại trước</strong> và gọi đó là "tính cách" — thực chất chỉ là <em>"một đoạn mã chưa bao giờ được cập nhật."</em></li>
+          <li>Viết lại mã bằng câu <em>"đủ thật để tin nhưng đủ mới để mở đường"</em> — não sẽ phản kháng nếu nói quá xa thực tế (không nói <em>"tôi sẽ thành công vang dội ngay ngày mai"</em>). Ví dụ: <em>"tôi không thể thay đổi"</em> → <em>"tôi đang học cách thay đổi"</em>; <em>"tôi luôn thất bại"</em> → <em>"tôi chưa có kết quả mình muốn."</em></li>
+          <li><strong>Lặp lại có ý thức mỗi ngày</strong>: mỗi khi ngôn từ cũ xuất hiện, thay bằng câu mới — đào một con mương mới cho tư duy. Ban đầu nước chảy yếu, bạn sẽ quên, sẽ hoài nghi — bình thường: <strong>không hệ điều hành nào bị thay thế trong một đêm</strong>. Kiên trì thì mương mới sâu dần, tư duy tự chảy theo hướng mới.</li>
+          <li>Hành vi luôn <strong>trung thành với ngôn từ nội tâm</strong>: nói <em>"tôi là người không bỏ cuộc"</em> → thấy mình đứng dậy thêm một lần nữa; nói <em>"tôi chịu trách nhiệm cho bước tiếp theo"</em> → hành động thay vì than thở. Đây là thay đổi bền vững — không ồn ào, không kịch tính, nhưng không thể đảo ngược.</li>
+          <li><em>"Thành công không phải là thứ bạn theo đuổi. Thành công là thứ bạn thu hút bằng cách trở thành một con người khác."</em> — và bạn trở thành ai bắt đầu từ câu bạn nói với chính mình mỗi ngày.</li>
+          <li>Câu tự vấn: <em>"Nếu tôi nghe được toàn bộ những gì mình đã nói với chính mình trong một tuần qua, tôi có sẵn sàng để người đó dẫn dắt cuộc đời mình không?"</em> và <em>"Nếu tôi tiếp tục lặp lại câu đó trong 5 năm tới, cuộc đời tôi sẽ đi về đâu?"</em> — Câu viết xuống: <em>"Tôi viết lại ngôn từ nội tâm."</em></li>
+        </ul>
+        <div class="callout">
+          <p class="clabel">Lời thức tỉnh</p>
+          <p><em>"Cuộc đời bạn luôn vận hành đúng theo những mệnh lệnh bạn lặp lại nhiều nhất... Bạn không thay đổi cuộc đời bằng một quyết định lớn. Bạn thay đổi cuộc đời bằng một câu nói đúng được lặp lại đủ lâu."</em></p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Nguồn: ghi chú từ video YouTube — tư duy Jim Rohn về sức mạnh của lời nói · Sổ ghi chép No.08 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- Mobile drawer controls -->
+<div class="backdrop" id="backdrop" aria-hidden="true"></div>
+<button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===== Scrollspy ===== */
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+
+  var isDesktop = function(){ return window.matchMedia('(min-width: 901px)').matches; };
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('active'); });
+        var link = map[entry.target.id];
+        if(link){
+          link.classList.add('active');
+          if(isDesktop()){
+            link.scrollIntoView({block:'nearest'});
+          }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+
+  document.querySelectorAll('.entry').forEach(function(sec){ observer.observe(sec); });
+
+  /* ===== Off-canvas drawer (single state function) ===== */
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var toggle = document.getElementById('tocToggle');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  toggle.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  links.forEach(function(a){
+    a.addEventListener('click', function(){
+      if(!isDesktop()){ setDrawer(false); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

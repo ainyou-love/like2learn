@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.09 — Giàu có bắt đầu từ khí chất</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=vietnamese,latin" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+  --display:"Bricolage Grotesque", serif;
+  --body:"Be Vietnam Pro", sans-serif;
+  --mono:"IBM Plex Mono", monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.75;
+  color:var(--ink);
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none;}
+
+/* focus visibility */
+a:focus-visible,button:focus-visible{
+  outline:2px solid var(--seal);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+/* ---------- layout shell ---------- */
+.shell{
+  max-width:1240px;
+  margin:0 auto;
+  padding:0 24px;
+  display:grid;
+  grid-template-columns:288px 1fr;
+  gap:48px;
+  align-items:start;
+}
+
+/* ---------- sidebar ---------- */
+.sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  padding:28px 0 40px;
+}
+.cover{
+  position:relative;
+  background:var(--card);
+  border:2px solid var(--green);
+  border-radius:var(--radius);
+  padding:22px 20px;
+  margin-bottom:22px;
+}
+.cover::after{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border:1px dashed var(--green-line);
+  border-radius:6px;
+  pointer-events:none;
+}
+.cover-label{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--seal);
+  margin:0 0 10px;
+}
+.cover-title{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:23px;
+  line-height:1.2;
+  color:var(--green);
+  margin:0;
+}
+.cover-sub{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-soft);
+  margin:10px 0 0;
+  letter-spacing:.04em;
+}
+
+/* table of contents */
+.toc{list-style:none;counter-reset:toc;margin:0;padding:0;}
+.toc li{margin:0;}
+.toc a{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  align-items:baseline;
+  gap:10px;
+  padding:9px 12px 9px 9px;
+  border-left:3px solid transparent;
+  border-radius:6px;
+  color:var(--ink-soft);
+  font-size:14px;
+  line-height:1.4;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.toc a .num{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:500;
+  color:var(--brass);
+  text-align:right;
+}
+.toc a:hover{color:var(--green);}
+.toc a.active{
+  background:var(--card);
+  color:var(--green);
+  font-weight:600;
+  border-left-color:var(--seal);
+}
+
+/* ---------- main column ---------- */
+.main{padding:28px 0 60px;min-width:0;}
+
+/* hero */
+.hero{position:relative;margin-bottom:34px;}
+.kicker{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--seal);
+  margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(34px,5vw,56px);
+  line-height:1.05;
+  color:var(--green);
+  margin:0 0 16px;
+  max-width:14ch;
+}
+.subtitle{
+  font-size:17px;
+  color:var(--ink-soft);
+  max-width:52ch;
+  margin:0 0 20px;
+}
+.meta{display:flex;flex-wrap:wrap;gap:10px;}
+.pill{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.04em;
+  color:var(--green);
+  background:var(--card);
+  border:1px solid var(--green-line);
+  border-radius:999px;
+  padding:6px 14px;
+}
+.stamp{
+  position:absolute;
+  top:-6px;
+  right:0;
+  width:118px;
+  height:118px;
+  transform:rotate(7deg);
+  opacity:.92;
+}
+.stamp circle{fill:none;stroke:var(--seal);}
+.stamp text{
+  fill:var(--seal);
+  font-family:var(--mono);
+  font-weight:500;
+  letter-spacing:.1em;
+  text-anchor:middle;
+}
+
+/* ---------- section cards ---------- */
+.entry{
+  background:var(--card);
+  border:1px solid var(--green-line);
+  border-radius:var(--radius);
+  padding:26px 28px 24px;
+  margin-bottom:26px;
+  scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid;
+  grid-template-columns:1fr 168px;
+  gap:24px;
+  align-items:start;
+  padding-bottom:20px;
+  margin-bottom:20px;
+  border-bottom:1px dashed var(--green-line);
+}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--brass);
+  margin:0 0 6px;
+}
+.entry-head h2{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:26px;
+  line-height:1.15;
+  color:var(--green);
+  margin:0 0 8px;
+}
+.entry-summary{
+  font-style:italic;
+  color:var(--ink-soft);
+  font-size:15px;
+  margin:0;
+}
+
+/* illustration frame */
+.frame{
+  width:168px;
+  height:138px;
+  border:2px solid var(--green);
+  background:var(--paper);
+  border-radius:4px;
+  position:relative;
+  transform:rotate(-1.4deg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.frame::after{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border:1px dashed var(--green-line);
+  pointer-events:none;
+}
+.frame svg{width:82%;height:82%;}
+.ill{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.ill .b{stroke:var(--brass);}
+.ill .s{stroke:var(--seal);}
+.ill .thin{stroke-width:2;}
+
+/* bullets */
+.entry ul{list-style:none;margin:0 0 4px;padding:0;}
+.entry li{
+  position:relative;
+  padding-left:26px;
+  margin-bottom:12px;
+}
+.entry li::before{
+  content:"—";
+  position:absolute;
+  left:0;
+  top:0;
+  color:var(--brass);
+  font-family:var(--mono);
+  font-weight:500;
+}
+.entry li strong{color:var(--green);font-weight:600;}
+.entry li em{color:var(--ink);font-style:italic;}
+
+/* callout */
+.callout{
+  border-left:3px solid var(--seal);
+  background:var(--paper);
+  padding:14px 18px;
+  border-radius:0 6px 6px 0;
+  margin-top:18px;
+}
+.callout .clabel{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--seal);
+  margin:0 0 6px;
+}
+.callout p{margin:0;color:var(--ink);}
+.callout strong{color:var(--green);font-weight:600;}
+
+/* four pillars mini-grid */
+.pillars{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin:6px 0 4px;
+}
+.pillar{
+  border:1px solid var(--green-line);
+  border-radius:6px;
+  padding:12px 14px;
+  background:var(--paper);
+}
+.pillar b{color:var(--green);font-family:var(--display);font-weight:600;font-size:16px;display:block;margin-bottom:2px;}
+.pillar span{font-size:14px;color:var(--ink-soft);}
+
+/* footer */
+.foot{
+  border-top:1px dashed var(--green-line);
+  padding-top:18px;
+  margin-top:34px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink-soft);
+  letter-spacing:.03em;
+}
+
+/* ---------- mobile drawer bits (hidden on desktop) ---------- */
+.drawer-toggle,.backdrop{display:none;}
+
+/* ============ MOBILE ============ */
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0;padding:0 18px;}
+  .stamp{display:none;}
+
+  .sidebar{
+    position:fixed;
+    top:0;left:0;
+    z-index:60;
+    width:min(82vw,320px);
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    box-shadow:2px 0 24px rgba(28,43,34,.18);
+    padding:24px 18px 40px;
+    transform:translateX(-102%);
+    transition:transform .28s ease;
+    overflow-y:auto;
+  }
+  .sidebar.open{transform:translateX(0);}
+
+  .backdrop{
+    display:block;
+    position:fixed;
+    inset:0;
+    z-index:55;
+    background:rgba(28,43,34,.42);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .28s ease,visibility .28s ease;
+  }
+  .backdrop.show{opacity:1;visibility:visible;}
+
+  .drawer-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    position:fixed;
+    left:18px;bottom:18px;
+    z-index:50;
+    background:var(--green);
+    color:var(--paper);
+    border:none;
+    border-radius:999px;
+    padding:12px 20px;
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:.08em;
+    box-shadow:0 6px 18px rgba(28,43,34,.28);
+    cursor:pointer;
+  }
+
+  .main{padding:24px 0 90px;}
+  .hero h1{max-width:100%;}
+
+  .entry{padding:22px 18px;}
+  .entry-head{
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+  .frame{
+    width:100%;
+    max-width:220px;
+    height:150px;
+    margin:0 auto;
+  }
+  .pillars{grid-template-columns:1fr;}
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{
+    transition:none !important;
+    animation:none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <p class="cover-label">Sổ ghi chép · No.09</p>
+      <h2 class="cover-title">Giàu Có Bắt Đầu Từ Khí Chất</h2>
+      <p class="cover-sub">Aura · Trạng thái bên trong</p>
+    </div>
+    <nav aria-label="Mục lục ghi chú">
+      <ol class="toc" id="toc">
+        <li><a href="#muc-01"><span class="num">01</span><span>Gốc rễ bế tắc — tín hiệu yếu</span></a></li>
+        <li><a href="#muc-02"><span class="num">02</span><span>Giàu có bắt đầu từ bên trong</span></a></li>
+        <li><a href="#muc-03"><span class="num">03</span><span>Aura — đi trước lời nói</span></a></li>
+        <li><a href="#muc-04"><span class="num">04</span><span>Thu hút điều mình đang là</span></a></li>
+        <li><a href="#muc-05"><span class="num">05</span><span>Ba gốc tạo nên Aura</span></a></li>
+        <li><a href="#muc-06"><span class="num">06</span><span>Đồng bộ trong – ngoài</span></a></li>
+        <li><a href="#muc-07"><span class="num">07</span><span>Rèn Aura mỗi ngày</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54"/>
+        <circle cx="60" cy="60" r="43" stroke-dasharray="3 4"/>
+        <text x="60" y="54" font-size="14">ĐÃ GHI</text>
+        <text x="60" y="74" font-size="11">SỔ · 2026</text>
+      </svg>
+      <p class="kicker">Ghi chép · Khí chất &amp; sự hiện diện</p>
+      <h1>Khí Chất Đi Trước Cơ Hội</h1>
+      <p class="subtitle">Cuộc đời không chỉ nghe điều bạn nói mà phản ứng với con người bạn đang là. Trước tiền bạc và cơ hội là thứ tín hiệu vô hình bạn phát ra mỗi ngày.</p>
+      <div class="meta">
+        <span class="pill">Chủ đề · Aura</span>
+        <span class="pill">7 mục</span>
+        <span class="pill">Nguồn · YouTube</span>
+      </div>
+    </header>
+
+    <!-- ===== MỤC 01 ===== -->
+    <section class="entry" id="muc-01">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 01</p>
+          <h2>Gốc rễ bế tắc — tín hiệu yếu</h2>
+          <p class="entry-summary">Không nghèo vì thiếu tiền, mà vì bên trong luôn sống trong cảm giác “không đủ”.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <line x1="80" y1="102" x2="80" y2="44"/>
+            <path class="thin" d="M64 102 L80 62 L96 102"/>
+            <circle class="s" cx="80" cy="38" r="5"/>
+            <path class="b thin" d="M96 30 a24 24 0 0 1 0 20"/>
+            <path class="b thin" d="M64 30 a24 24 0 0 0 0 20"/>
+            <path class="thin" d="M108 22 a40 40 0 0 1 0 36" stroke-dasharray="4 5"/>
+            <path class="thin" d="M52 22 a40 40 0 0 0 0 36" stroke-dasharray="4 5"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li>Nhiều người không nghèo vì thiếu tiền mà vì bên trong luôn sống trong cảm giác <strong>“không đủ”</strong> — không đủ giỏi, không đủ giá trị, không đủ xứng đáng.</li>
+        <li>Bi kịch thật: khi cơ hội đến, <strong>phiên bản hiện tại không dám giữ lấy nó</strong>; đứng rất gần cánh cửa đổi đời nhưng lại tự lùi một bước.</li>
+        <li>Cuộc đời phản ứng với <strong>con người bạn đang là</strong>, không chỉ điều bạn nói: <em>“trước khi bạn mở miệng, người khác đã cảm thấy bạn là ai.”</em></li>
+        <li>Vấn đề gốc nằm ở <strong>tín hiệu bạn phát ra mỗi ngày</strong> — tín hiệu của nghi ngờ, sợ hãi, thiếu thốn.</li>
+        <li>Câu tuyên bố mẫu để khởi động: <em>“Tôi bắt đầu rèn lại khí chất của mình từ hôm nay.”</em></li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Bài học</p>
+        <p>Muốn thay đổi <strong>đời sống bên ngoài</strong> phải bắt đầu từ <strong>tín hiệu sống bên trong</strong> — rèn lại cách mình hiện diện chứ không chờ hoàn cảnh mở cửa.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 02 ===== -->
+    <section class="entry" id="muc-02">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 02</p>
+          <h2>Giàu có bắt đầu từ bên trong</h2>
+          <p class="entry-summary">Khí chất không phải làm màu — nó là cách bạn nghĩ về chính mình.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="80" cy="84" r="26"/>
+            <line class="b thin" x1="80" y1="72" x2="80" y2="96"/>
+            <path d="M80 72 C80 58 80 50 80 42"/>
+            <path class="b" d="M80 54 C70 52 62 44 66 36 C74 36 82 46 80 54"/>
+            <path class="s" d="M80 48 C90 46 98 38 94 30 C86 30 78 40 80 48"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li><em>“Sự giàu có thật sự không bắt đầu từ ví tiền, nó bắt đầu từ bên trong.”</em></li>
+        <li>Nhiều người chăm chỉ suốt nhiều năm nhưng mắc ở một <strong>“trần vô hình”</strong>; vấn đề không phải thiếu nỗ lực mà bên trong chưa sẵn sàng để <strong>giữ</strong> điều mình muốn.</li>
+        <li>Muốn cơ hội lớn nhưng sợ trách nhiệm lớn; muốn nhiều tiền nhưng mang mặc cảm, tội lỗi → cơ hội tới thì <strong>chần chừ, tự lùi</strong>.</li>
+        <li>Khí chất không phải vẻ ngoài hay câu khẳng định đọc cho hay, mà là cách phản ứng trước áp lực và <em>“cách bạn đối xử với mình khi chưa ai vỗ tay cho bạn.”</em></li>
+        <li>Khí chất yếu → dễ hoảng, dễ so sánh, <em>“dễ xin lỗi vì sự hiện diện của mình.”</em> Khí chất mạnh → điềm tĩnh, <strong>không cần hét lên để chứng minh bản thân</strong>.</li>
+        <li>Khí chất <strong>không bẩm sinh</strong> — rèn được ngay cả khi còn nhiều nghi ngờ, chưa có bằng chứng để tự hào.</li>
+        <li>Tự vấn nền tảng: <em>“Mình đang mang khí chất gì vào cuộc đời này?”</em></li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Nguyên tắc</p>
+        <p>Không giả vờ thành người khác, không đeo mặt nạ — <strong>quay về xây lại từ gốc</strong>: cách nghĩ, tiêu chuẩn, lòng tự trọng, cảm giác xứng đáng.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 03 ===== -->
+    <section class="entry" id="muc-03">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 03</p>
+          <h2>Aura — đi trước lời nói</h2>
+          <p class="entry-summary">Trước khi bạn giải thích mình là ai, người khác đã cảm được aura của bạn.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="80" cy="52" r="12"/>
+            <path d="M58 102 C58 78 102 78 102 102"/>
+            <path class="b thin" d="M46 46 a40 40 0 0 1 68 0"/>
+            <path class="s thin" d="M36 54 a52 52 0 0 1 88 0" stroke-dasharray="3 5"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li>Thứ đi vào trước không phải lời nói mà là <strong>Aura</strong> — khí chất vô hình, tín hiệu sống phát ra từ suy nghĩ, cảm xúc, niềm tin và cách bạn nhìn chính mình.</li>
+        <li><em>“Aura không nói dối”</em> — bạn có thể diễn một lúc, nhưng thứ phát ra đều đặn luôn là phần thật nhất, tạo từ những gì lặp lại mỗi ngày.</li>
+        <li>Sống lâu trong tự phủ nhận, sợ hãi, thiếu thốn → aura mang dấu vết của <strong>sự co rút, bất an, thiếu thốn</strong>.</li>
+        <li>Aura rèn được: giữ lời với bản thân, tôn trọng mình hơn, <em>“bớt xin phép để hiện diện”</em> → aura đổi.</li>
+        <li>Người khác cho bạn lời khuyên, chiến lược, cơ hội — nhưng <strong>không thể cho bạn khí chất thật</strong>.</li>
+        <li>Aura sinh ra lúc không ai nhìn thấy: cách đứng dậy sau thất bại, giữ lời hứa nhỏ, <strong>ngừng phản bội chính mình</strong>.</li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Bài học</p>
+        <p>Muốn cuộc đời phản hồi khác đi, <strong>đừng chỉ sửa lời nói</strong> — rèn lại aura: cách bạn nghĩ, cảm, đứng, giữ lời và nhìn chính mình.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 04 ===== -->
+    <section class="entry" id="muc-04">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 04</p>
+          <h2>Thu hút điều mình đang là</h2>
+          <p class="entry-summary">Cuộc đời trao cho bạn điều con người hiện tại của bạn có thể giữ được.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M58 98 L58 60 a22 22 0 0 1 44 0 L102 98"/>
+            <line class="s" x1="58" y1="98" x2="58" y2="86"/>
+            <line class="s" x1="102" y1="98" x2="102" y2="86"/>
+            <circle class="b" cx="80" cy="30" r="6"/>
+            <path class="b thin" d="M64 24 a20 20 0 0 1 32 0"/>
+            <path class="thin" d="M56 16 a34 34 0 0 1 48 0" stroke-dasharray="4 5"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li>Cuộc đời phản ứng với <strong>điều bạn đang là</strong>, không chỉ điều bạn cầu mong.</li>
+        <li>Muốn được trả giá cao nhưng bên trong thấy mình không đáng → giọng yếu đi, <em>“sự chắc chắn của bạn sẽ vỡ ra ngay giữa câu nói.”</em></li>
+        <li>Rất nhiều người muốn <strong>kết quả mới nhưng không muốn trở thành con người mới</strong>: muốn được tôn trọng nhưng không rèn sự chắc chắn; muốn được tin nhưng không sống nhất quán.</li>
+        <li>Câu hỏi đắt: <em>“Bạn thật sự muốn điều đó hay bạn chỉ thích ý tưởng về điều đó?”</em> và <em>“hay bạn chỉ thích tưởng tượng về nó khi mọi thứ còn an toàn?”</em></li>
+        <li>Nhiều người mất cơ hội không vì kém giỏi mà vì <em>“bên trong họ chưa đủ vững để giữ cơ hội đó.”</em></li>
+        <li>Thay đổi thật bắt đầu từ một quyết định: <em>“Mình sẽ không tiếp tục sống như phiên bản cũ nữa.”</em></li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Nguyên tắc</p>
+        <p>Muốn kết quả khác phải chấp nhận <strong>trở thành người khác</strong> — đổi từ gốc cách nhìn bản thân, không phải diễn mạnh mẽ hay đeo mặt nạ.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 05 ===== -->
+    <section class="entry" id="muc-05">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 05</p>
+          <h2>Ba gốc tạo nên Aura</h2>
+          <p class="entry-summary">Aura được tạo bằng sự lặp lại — dọn ba gốc trước khi mong đổi tín hiệu.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <line x1="80" y1="52" x2="80" y2="34"/>
+            <path class="b" d="M80 42 C72 40 66 34 68 28 C74 28 82 36 80 42"/>
+            <line class="thin" x1="42" y1="56" x2="118" y2="56"/>
+            <path class="s" d="M80 56 C70 70 58 78 50 98"/>
+            <path d="M80 56 C80 74 80 84 80 100"/>
+            <path class="s" d="M80 56 C90 70 102 78 110 98"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li><strong>Gốc 1 — Thói quen cảm xúc:</strong> bạn quen sống trong cảm xúc nào nhất (lo lắng/bình tĩnh, than phiền/biết ơn)? <em>“Không thể xây một cuộc đời mạnh trên một nền cảm xúc yếu.”</em></li>
+        <li><strong>Gốc 2 — Bản sắc cũ:</strong> nhiều người sống theo phiên bản từng bị xem thường, <em>“từng bị dạy phải sống nhỏ để an toàn”</em> — muốn sống lớn nhưng vẫn nghĩ như người cũ.</li>
+        <li><strong>Gốc 3 — Môi trường sống:</strong> những gì bạn nghe, xem, người ở gần; môi trường <strong>khuếch đại điều bạn lặp lại</strong>, không tạo ra hoàn toàn con người bạn.</li>
+        <li>Ba câu tự vấn để soi lại: <em>“Mình đang sống trong cảm xúc nào nhiều nhất?”</em>, <em>“Mình đang trung thành với phiên bản cũ nào?”</em>, <em>“Môi trường sống đang nuôi lớn mình hay âm thầm bào mòn mình?”</em></li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Bài học</p>
+        <p>Muốn aura đổi phải <strong>đổi từ gốc</strong>: dọn lại bên trong, buông con người cũ, chọn lại môi trường sống — không phải một khoảnh khắc bốc lên.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 06 ===== -->
+    <section class="entry" id="muc-06">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 06</p>
+          <h2>Đồng bộ trong – ngoài</h2>
+          <p class="entry-summary">Cuộc đời phản ứng mạnh với sự đồng bộ; năng lượng lệch nhau làm bạn kiệt sức.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="80" cy="60" r="34"/>
+            <circle class="b" cx="80" cy="60" r="16"/>
+            <circle class="s" cx="80" cy="60" r="3"/>
+            <line class="thin" x1="30" y1="60" x2="120" y2="60"/>
+            <path class="s thin" d="M112 52 L124 60 L112 68"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li>Mệt mỏi đến từ sự lệch giữa bên trong và bên ngoài: nói <em>“mình sẵn sàng”</em> nhưng <em>“tim bạn lại run vì không tin.”</em></li>
+        <li>Khi đứt gãy, aura không rõ và lời nói không đủ sức nặng dù nói rất hay.</li>
+        <li>Đồng bộ = suy nghĩ, cảm xúc, lời nói, hành động <strong>đi cùng một hướng</strong> → <em>“năng lượng của bạn không còn bị dò rỉ.”</em></li>
+        <li>Rèn cả bốn mặt; điều giết sự đồng bộ nhanh nhất là <em>“nói về kỷ luật nhưng sống tùy hứng”</em> — mỗi lần như vậy mất một phần niềm tin vào chính mình.</li>
+        <li>Gốc của đồng bộ là cảm giác xứng đáng: <em>“Mình không cần xin phép để trở thành phiên bản lớn hơn của chính mình.”</em></li>
+      </ul>
+      <div class="callout">
+        <p class="clabel">Nguyên tắc</p>
+        <p>Đừng bắt đầu bằng việc cố gây ấn tượng với thế giới — <strong>hãy làm hòa lại bên trong mình</strong> để aura hết nhiễu.</p>
+      </div>
+    </section>
+
+    <!-- ===== MỤC 07 ===== -->
+    <section class="entry" id="muc-07">
+      <div class="entry-head">
+        <div>
+          <p class="eyebrow">Mục 07</p>
+          <h2>Rèn Aura mỗi ngày</h2>
+          <p class="entry-summary">Làm đúng và làm đều những điều rất nhỏ cho đến khi thành một phần của bạn.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <rect x="46" y="22" width="68" height="82" rx="4"/>
+            <line class="thin" x1="56" y1="44" x2="104" y2="44"/>
+            <line class="thin" x1="56" y1="58" x2="104" y2="58"/>
+            <line class="thin" x1="56" y1="72" x2="104" y2="72"/>
+            <path class="b thin" d="M58 40 l4 5 l9 -10"/>
+            <path class="b thin" d="M58 54 l4 5 l9 -10"/>
+            <path class="s" d="M56 86 l6 6 l13 -14"/>
+          </svg>
+        </div>
+      </div>
+      <ul>
+        <li><strong>1. Kiểm tra trạng thái mỗi sáng</strong> — trước khi cầm điện thoại, dừng lại và hỏi <em>“hôm nay mình đang mang trạng thái gì?”</em>; chỉ nhận diện, không phán xét.</li>
+        <li><strong>2. Đổi tiếng nói bên trong</strong> — bớt kết án; tập nói <em>“mình đang học, mình đang rèn, mình chưa hoàn hảo nhưng mình không còn sống như cũ nữa.”</em></li>
+        <li><strong>3. Hình dung con người mình muốn trở thành</strong> — nhìn, thở, đứng như người đó khi bước vào một căn phòng, giữ bình tĩnh trước áp lực.</li>
+        <li><strong>4. Chuẩn bị trạng thái trước khoảnh khắc quan trọng</strong> — ngồi xuống, hít thật sâu, nhắm mắt, hỏi <em>“mình muốn bước vào khoảnh khắc này với aura như thế nào?”</em> rồi sống trước trạng thái đó vài phút.</li>
+        <li><strong>5. Bảo vệ môi trường sống</strong> — soi lại ai đang ở gần mình nhất và nội dung nào đang đi vào đầu mình nhiều nhất.</li>
+        <li><strong>6. Giữ lời với bản thân trong điều nhỏ</strong> — <em>“hứa dậy sớm hơn thì dậy, hứa ngừng trì hoãn thì bắt đầu, hứa bớt than phiền thì canh lời nói của mình.”</em> Mỗi lần giữ lời, bên trong nhận thông điệp <em>“mình là người có thể tin được.”</em></li>
+      </ul>
+
+      <div class="pillars">
+        <div class="pillar"><b>Sự chắc chắn</b><span>Biết mình là ai, đi đâu, không muốn quay lại con người cũ.</span></div>
+        <div class="pillar"><b>Sự bình tĩnh</b><span>Không để chuyện nhỏ kéo mình ra khỏi trung tâm.</span></div>
+        <div class="pillar"><b>Sự đồng bộ</b><span>Nghĩ sao, nói vậy, sống vậy — trong ngoài một hướng.</span></div>
+        <div class="pillar"><b>Giá trị đóng góp</b><span>Trở thành người giải quyết vấn đề, mang lại giá trị thật.</span></div>
+      </div>
+
+      <div class="callout">
+        <p class="clabel">Bài học</p>
+        <p><em>“Đừng chỉ cố thay đổi hoàn cảnh. Hãy rèn mình mỗi ngày, rèn trong im lặng.”</em> Thứ hút về cuộc đời bạn là <strong>con người bạn đã trở thành khi không ai nhìn thấy</strong> — giàu có thật là có aura đủ mạnh để giữ điều lớn hơn mà không tự phá nó.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      Nguồn · Thành công từ kỷ luật (YouTube) — ghi chú cá nhân No.09 · Ghi ngày 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- mobile drawer controls -->
+<div class="backdrop" id="backdrop"></div>
+<button class="drawer-toggle" id="drawerToggle" aria-controls="sidebar" aria-expanded="false">☰ MỤC LỤC</button>
+
+<script>
+(function(){
+  var sidebar   = document.getElementById('sidebar');
+  var backdrop  = document.getElementById('backdrop');
+  var toggle    = document.getElementById('drawerToggle');
+  var tocLinks  = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var sections  = tocLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+  /* ---- single source of truth for drawer state ---- */
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  toggle.addEventListener('click', function(){
+    var isOpen = sidebar.classList.contains('open');
+    setDrawer(!isOpen);
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setDrawer(false);
+  });
+  tocLinks.forEach(function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  /* ---- scrollspy ---- */
+  var isDesktop = function(){ return window.innerWidth > 900; };
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var id = entry.target.getAttribute('id');
+      tocLinks.forEach(function(a){
+        var active = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('active', active);
+        if(active && isDesktop()){
+          a.scrollIntoView({block:'nearest'});
+        }
+      });
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(function(s){ if(s) observer.observe(s); });
+})();
+</script>
+
+</body>
+</html>

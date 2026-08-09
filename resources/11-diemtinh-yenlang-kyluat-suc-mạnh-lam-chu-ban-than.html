@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sổ ghi chép · No.11 — Làm Chủ Bản Thân</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F3F5EE;
+    --paper-deep:#EAEEE3;
+    --ink:#1C2B22;
+    --ink-soft:#44544A;
+    --green:#2F5D4A;
+    --green-line:#C3D0C0;
+    --brass:#9C7A2E;
+    --seal:#B0492F;
+    --card:#FBFCF8;
+    --radius:10px;
+    --display:"Bricolage Grotesque", system-ui, sans-serif;
+    --body:"Be Vietnam Pro", system-ui, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.75;
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+  }
+
+  a{color:inherit;}
+
+  :focus-visible{
+    outline:2px solid var(--seal);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+
+  /* ---------- Shell / grid ---------- */
+  .shell{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 24px;
+    display:grid;
+    grid-template-columns:288px 1fr;
+    gap:48px;
+    align-items:start;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    padding:24px 0;
+    scrollbar-width:thin;
+    scrollbar-color:var(--green-line) transparent;
+  }
+  .sidebar::-webkit-scrollbar{width:8px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:8px;}
+
+  .cover{
+    position:relative;
+    background:var(--card);
+    border:2px solid var(--green);
+    border-radius:var(--radius);
+    padding:20px 18px;
+    margin-bottom:22px;
+  }
+  .cover::before{
+    content:"";
+    position:absolute;
+    inset:5px;
+    border:1px dashed var(--green-line);
+    border-radius:6px;
+    pointer-events:none;
+  }
+  .cover-label{
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--seal);
+    margin:0 0 10px;
+  }
+  .cover-title{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:26px;
+    line-height:1.15;
+    color:var(--green);
+    margin:0;
+  }
+  .cover-sub{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-soft);
+    margin:8px 0 0;
+    letter-spacing:.03em;
+  }
+
+  .toc-heading{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin:0 4px 8px;
+  }
+  .toc{
+    list-style:none;
+    counter-reset:toc;
+    margin:0;
+    padding:0;
+  }
+  .toc li{margin:0;}
+  .toc a{
+    display:grid;
+    grid-template-columns:26px 1fr;
+    gap:10px;
+    align-items:baseline;
+    text-decoration:none;
+    padding:8px 10px 8px 12px;
+    border-left:3px solid transparent;
+    border-radius:6px;
+    color:var(--ink-soft);
+    font-size:14px;
+    line-height:1.4;
+    transition:background .18s ease, color .18s ease, border-color .18s ease;
+  }
+  .toc a .num{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    color:var(--brass);
+    text-align:right;
+  }
+  .toc a:hover{background:var(--paper-deep);}
+  .toc a.active{
+    background:var(--card);
+    color:var(--green);
+    font-weight:600;
+    border-left-color:var(--seal);
+  }
+
+  /* ---------- Main ---------- */
+  .main{padding:40px 0 24px;min-width:0;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    margin-bottom:40px;
+  }
+  .kicker{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--seal);
+    margin:0 0 14px;
+  }
+  .hero h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(34px,5vw,56px);
+    line-height:1.05;
+    color:var(--green);
+    margin:0 0 16px;
+    max-width:16ch;
+  }
+  .hero .subtitle{
+    font-size:17px;
+    color:var(--ink-soft);
+    max-width:56ch;
+    margin:0 0 20px;
+  }
+  .meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .meta li{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--green);
+    background:var(--card);
+    border:1px solid var(--green-line);
+    border-radius:999px;
+    padding:6px 14px;
+  }
+
+  .stamp{
+    position:absolute;
+    top:-8px;
+    right:0;
+    width:118px;
+    height:118px;
+    transform:rotate(7deg);
+    color:var(--seal);
+  }
+
+  /* ---------- Sections / ledger entries ---------- */
+  .entry{
+    background:var(--card);
+    border:1px solid var(--green-line);
+    border-radius:var(--radius);
+    padding:26px 28px 28px;
+    margin-bottom:26px;
+    scroll-margin-top:24px;
+  }
+  .entry-head{
+    display:grid;
+    grid-template-columns:1fr 168px;
+    gap:24px;
+    align-items:start;
+    padding-bottom:20px;
+    border-bottom:1px dashed var(--green-line);
+    margin-bottom:20px;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin:0 0 8px;
+  }
+  .entry-head h2{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(23px,2.6vw,30px);
+    line-height:1.12;
+    color:var(--green);
+    margin:0 0 10px;
+  }
+  .entry-summary{
+    font-style:italic;
+    color:var(--ink-soft);
+    margin:0;
+    font-size:15px;
+    line-height:1.5;
+  }
+
+  .frame{
+    justify-self:end;
+    width:168px;
+    height:138px;
+    border:2px solid var(--green);
+    background:var(--paper);
+    border-radius:4px;
+    transform:rotate(-1.4deg);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .frame::before{
+    content:"";
+    position:absolute;
+    inset:4px;
+    border:1px dashed var(--green);
+    border-radius:2px;
+    pointer-events:none;
+  }
+  .frame svg{width:118px;height:auto;display:block;}
+
+  /* line-art illustration system */
+  .ill{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+  .ill .b{stroke:var(--brass);}
+  .ill .s{stroke:var(--seal);}
+  .ill .thin{stroke-width:2;}
+
+  /* ---------- Body content ---------- */
+  .entry-body ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .entry-body li{
+    position:relative;
+    padding-left:26px;
+    margin-bottom:12px;
+  }
+  .entry-body li::before{
+    content:"—";
+    position:absolute;
+    left:0;
+    top:0;
+    color:var(--brass);
+    font-family:var(--mono);
+    font-weight:500;
+  }
+  .entry-body strong{color:var(--green);font-weight:600;}
+  .entry-body em{font-style:italic;color:var(--ink);}
+
+  .callout{
+    margin-top:20px;
+    background:var(--paper);
+    border-left:3px solid var(--seal);
+    border-radius:0 6px 6px 0;
+    padding:14px 18px;
+  }
+  .callout .c-label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--seal);
+    margin-bottom:6px;
+  }
+  .callout p{margin:0;color:var(--ink);}
+
+  /* ---------- Footer ---------- */
+  .foot{
+    margin-top:34px;
+    padding-top:18px;
+    border-top:1px dashed var(--green-line);
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  /* ---------- Mobile drawer bits (hidden on desktop) ---------- */
+  .drawer-toggle{display:none;}
+  .backdrop{display:none;}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    .shell{
+      grid-template-columns:1fr;
+      gap:0;
+      padding:0 18px;
+    }
+
+    .stamp{display:none;}
+
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:60;
+      width:min(82vw,320px);
+      height:100vh;
+      height:100dvh;
+      background:var(--paper);
+      background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+      border-right:1px solid var(--green-line);
+      padding:24px 18px;
+      transform:translateX(-102%);
+      transition:transform .28s ease;
+      box-shadow:2px 0 24px rgba(28,43,34,.12);
+    }
+    .sidebar.open{transform:translateX(0);}
+
+    .backdrop{
+      display:block;
+      position:fixed;
+      inset:0;
+      z-index:55;
+      background:rgba(28,43,34,.42);
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .28s ease, visibility .28s ease;
+    }
+    .backdrop.show{opacity:1;visibility:visible;}
+
+    .drawer-toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      z-index:65;
+      background:var(--green);
+      color:var(--paper);
+      border:none;
+      border-radius:999px;
+      padding:12px 18px;
+      font-family:var(--mono);
+      font-size:13px;
+      font-weight:500;
+      letter-spacing:.08em;
+      cursor:pointer;
+      box-shadow:0 6px 18px rgba(28,43,34,.28);
+    }
+
+    .main{padding:34px 0 90px;}
+
+    .entry-head{
+      grid-template-columns:1fr;
+    }
+    .frame{
+      justify-self:start;
+      width:100%;
+      max-width:220px;
+      height:150px;
+      order:-1;
+      margin-bottom:16px;
+    }
+    .frame svg{width:150px;}
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{
+      animation:none !important;
+      transition:none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar" aria-label="Mục lục sổ ghi chép">
+      <div class="cover">
+        <p class="cover-label">Sổ ghi chép · No.11</p>
+        <h2 class="cover-title">Làm Chủ Bản Thân</h2>
+        <p class="cover-sub">Điềm tĩnh · Im lặng · Kỷ luật</p>
+      </div>
+
+      <p class="toc-heading">Mục lục</p>
+      <nav aria-label="Điều hướng các mục">
+        <ol class="toc" id="toc">
+          <li><a href="#muc-01"><span class="num">01</span><span>Điềm tĩnh: sức mạnh cao cấp nhất</span></a></li>
+          <li><a href="#muc-02"><span class="num">02</span><span>Bốn công cụ giữ điềm tĩnh</span></a></li>
+          <li><a href="#muc-03"><span class="num">03</span><span>Im lặng là chiến lược</span></a></li>
+          <li><a href="#muc-04"><span class="num">04</span><span>Làm chủ thế giới nội tâm</span></a></li>
+          <li><a href="#muc-05"><span class="num">05</span><span>Suy nghĩ trước khi nói</span></a></li>
+          <li><a href="#muc-06"><span class="num">06</span><span>Tự tin vô hiệu hóa xung đột</span></a></li>
+          <li><a href="#muc-07"><span class="num">07</span><span>Kiên nhẫn là vũ khí</span></a></li>
+          <li><a href="#muc-08"><span class="num">08</span><span>Kiểm soát cảm xúc tạo sự tôn trọng</span></a></li>
+          <li><a href="#muc-09"><span class="num">09</span><span>Tách mình khỏi cái tôi</span></a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="main">
+
+      <!-- HERO -->
+      <header class="hero">
+        <p class="kicker">Sổ tay tĩnh tâm · Đối đầu</p>
+        <h1>Làm chủ mọi cuộc đối đầu mà không cần chiến đấu</h1>
+        <p class="subtitle">Người mạnh nhất không phải người ồn ào nhất, mà là người điềm tĩnh nhất. Nếu hôm nay bạn giữ được sự điềm tĩnh hơn hôm qua, cuộc đời bạn sẽ đổi khác đến mức nào?</p>
+        <ul class="meta">
+          <li>9 mục · ghi chép</li>
+          <li>Chủ đề · làm chủ bản thân</li>
+          <li>Nguồn · Jim Rohn 24h</li>
+        </ul>
+
+        <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="3"/>
+          <circle cx="60" cy="60" r="45" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <text x="60" y="52" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="17" font-weight="500" letter-spacing="2" fill="currentColor">ĐÃ GHI</text>
+          <text x="60" y="74" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="1" fill="currentColor">SỔ · 2026</text>
+        </svg>
+      </header>
+
+      <!-- ===== MỤC 01 ===== -->
+      <section class="entry" id="muc-01">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 01</p>
+            <h2>Điềm tĩnh: sức mạnh cao cấp nhất</h2>
+            <p class="entry-summary">Người mạnh nhất trong đối đầu là người điềm tĩnh nhất, không phải người ồn ào nhất.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M14 104 L58 42 L84 80 L108 50 L150 104"/>
+              <path class="s" d="M58 42 L70 60 L46 60 Z"/>
+              <line x1="10" y1="104" x2="152" y2="104"/>
+              <circle class="b" cx="124" cy="34" r="11"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Những trận chiến lớn nhất diễn ra trong khoảnh khắc đời thường: khi bị nghi ngờ, xem thường, khiêu khích. Phần lớn người ta <strong>phản ứng và bùng nổ</strong>.</li>
+            <li>Người mạnh nhất không phải người nói to hay giận dữ nhất, mà là người điềm tĩnh nhất — điềm tĩnh là <strong>kiểm soát cộng sáng suốt</strong>.</li>
+            <li>Phần lớn đối đầu là <strong>bẫy cảm xúc</strong>, được tạo ra để đánh cắp sự bình an và tập trung của bạn.</li>
+            <li>Khoảnh khắc bạn mất kiểm soát là khoảnh khắc bạn thua — dù bạn nói đúng đến đâu.</li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Bài học</span>
+            <p><em>"Người khiến bạn nổi giận là người đang kiểm soát bạn."</em> Đừng trao quyền lực đó cho bất kỳ ai.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 02 ===== -->
+      <section class="entry" id="muc-02">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 02</p>
+            <h2>Bốn công cụ giữ điềm tĩnh</h2>
+            <p class="entry-summary">Những hành động cụ thể để không bị cảm xúc lái thay lý trí.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <circle cx="86" cy="60" r="34"/>
+              <line x1="78" y1="47" x2="78" y2="73"/>
+              <line x1="94" y1="47" x2="94" y2="73"/>
+              <path class="b thin" d="M12 60 q10 -12 20 0 q10 12 20 0"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li><strong>Làm chủ hơi thở</strong>: khi căng thẳng dâng lên, đừng vội nói — hít thở sâu, dừng một nhịp, rồi nghĩ.</li>
+            <li><strong>Từ chối phản ứng ngay</strong>: <em>"phản ứng là cảm xúc, đáp lại mới là trí tuệ"</em> — đáp lại có chủ đích.</li>
+            <li><strong>Đừng cá nhân hóa</strong>: phần lớn lời công kích nói về sự bất an, nỗi sợ của người kia, không phải về bạn.</li>
+            <li><strong>Chỉ lên tiếng khi cảm xúc đã ổn định</strong>, và tách mình khỏi cái tôi — bạn không cần chứng minh điều gì với ai.</li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Nguyên tắc</span>
+            <p>Lời nói trong cơn giận phá hủy thứ bạn xây suốt nhiều năm; lời nói điềm tĩnh có thể chấm dứt xung đột trong vài giây.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 03 ===== -->
+      <section class="entry" id="muc-03">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 03</p>
+            <h2>Im lặng là chiến lược</h2>
+            <p class="entry-summary">Im lặng không phải đầu hàng mà là kiểm soát, kỷ luật và chọn đúng thời điểm.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M42 38 H118 a10 10 0 0 1 10 10 V76 a10 10 0 0 1 -10 10 H72 L58 100 V86 H42 a10 10 0 0 1 -10 -10 V48 a10 10 0 0 1 10 -10 Z"/>
+              <line class="s" x1="46" y1="92" x2="126" y2="40"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Khả năng hiếm nhất là đứng yên khi mọi người bùng nổ — <em>"không phải thử thách nào cũng xứng đáng với một lời đáp."</em></li>
+            <li>Khi bạn ngừng nói, người khác bắt đầu <strong>bộc lộ chính họ</strong>; kẻ đang giận sẽ dần cạn năng lượng.</li>
+            <li>Im lặng trở thành tấm gương phản chiếu điểm yếu của người không kiểm soát được cảm xúc.</li>
+            <li>Đối thủ nguy hiểm nhất là người điềm tĩnh, nói rất ít — <em>"một con sư tử không cần gầm lên mỗi phút để chứng minh sức mạnh."</em></li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Nguyên tắc</span>
+            <p>Im lặng không phải đầu hàng — đó là chiến lược, là lựa chọn đúng thời điểm thay vì phản ứng sai thời điểm.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 04 ===== -->
+      <section class="entry" id="muc-04">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 04</p>
+            <h2>Làm chủ thế giới nội tâm</h2>
+            <p class="entry-summary">Cuộc sống bên ngoài luôn là tấm gương phản chiếu trạng thái bên trong.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <circle cx="80" cy="60" r="38"/>
+              <line x1="80" y1="80" x2="80" y2="52"/>
+              <path class="b" d="M80 60 q-14 -4 -18 -16 q14 0 18 12"/>
+              <path class="b" d="M80 56 q14 -4 18 -16 q-14 0 -18 12"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Trước khi kiểm soát hoàn cảnh, phải <em>"cai trị vương quốc bên trong chính mình"</em>; nếu cảm xúc kiểm soát bạn, thế giới sẽ kiểm soát bạn.</li>
+            <li><strong>Chịu trách nhiệm hoàn toàn</strong>: đừng đổ lỗi hoàn cảnh hay người khác cho cảm xúc của bạn.</li>
+            <li><strong>Đứng canh cổng tâm trí</strong>: quan sát suy nghĩ thay vì vâng lời chúng — không phải suy nghĩ nào cũng xứng đáng ở lại.</li>
+            <li>Xem nội tâm như một khu vườn: gieo nỗi sợ thì sống trong sợ hãi; gieo can đảm và kỷ luật thì nở rộ sức mạnh. Mỗi sáng, cuộc chiến lại bắt đầu.</li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Bài học</span>
+            <p>Dự án vĩ đại nhất bạn từng làm chính là bản thân bạn; kỹ năng giá trị nhất là sự tự chủ.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 05 ===== -->
+      <section class="entry" id="muc-05">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 05</p>
+            <h2>Suy nghĩ trước khi nói</h2>
+            <p class="entry-summary">Lời nói là vũ khí vô hình — một khi thốt ra thì không thể thu hồi.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M44 40 H116 L88 76 V98 H72 V76 Z"/>
+              <circle class="b" cx="62" cy="28" r="3"/>
+              <circle class="b" cx="80" cy="24" r="3"/>
+              <circle class="b" cx="98" cy="28" r="3"/>
+              <path class="s" d="M70 104 L78 112 L94 94"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li><em>"Hãy suy nghĩ trước khi nói."</em> Phần lớn người ta nói trước, nghĩ sau — để cái lưỡi chạy nhanh hơn cái đầu.</li>
+            <li>Trước khi nói, tự hỏi năm câu: <em>"Điều này có đúng không? Có cần thiết không? Có hữu ích không? Có tử tế không? Và có đáng nói không?"</em></li>
+            <li>Nói chậm và có chọn lọc mang lại <strong>uy tín</strong> — lời được cân nhắc thì có trọng lượng, người khác lắng nghe.</li>
+            <li>Người sống theo cảm xúc <em>"nói để xả"</em>; người khôn ngoan <em>"nói để tạo sự thấu hiểu."</em></li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Nguyên tắc</span>
+            <p>Reo lời trong cơn giận thì thu hoạch hối tiếc; kiểm soát lời nói chính là kiểm soát hướng đi của cuộc đời.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 06 ===== -->
+      <section class="entry" id="muc-06">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 06</p>
+            <h2>Tự tin vô hiệu hóa xung đột</h2>
+            <p class="entry-summary">Tự tin thật sự là sự ổn định bên trong, không phải kiêu ngạo hay nhu cầu phải thắng.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M80 22 L118 38 V66 C118 88 100 102 80 108 C60 102 42 88 42 66 V38 Z"/>
+              <path class="s" d="M64 62 L76 76 L98 48"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Phần lớn xung đột nảy sinh từ <strong>bất an</strong>: người ta cãi vã vì thấy bị đe dọa, lớn tiếng vì thấy mình nhỏ bé.</li>
+            <li>Người tự tin lắng nghe nhiều hơn nói, <strong>phản hồi thay vì phản ứng</strong>; lời xúc phạm không còn chạm tới họ.</li>
+            <li>Người mạnh nhất bạn từng gặp không phải người cãi nhiều nhất, mà là người không rung chuyển khi căng thẳng dâng cao.</li>
+            <li><em>"Không ai có thể kéo bạn vào cuộc chiến nếu bạn từ chối bước vào."</em></li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Bài học</span>
+            <p>Khi sự tự tin bước vào căn phòng, xung đột tự động im lặng.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 07 ===== -->
+      <section class="entry" id="muc-07">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 07</p>
+            <h2>Kiên nhẫn là vũ khí</h2>
+            <p class="entry-summary">Kiên nhẫn không phải chậm chạp mà là tự chủ cảm xúc ở cấp cao nhất.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <line x1="50" y1="30" x2="110" y2="30"/>
+              <line x1="50" y1="94" x2="110" y2="94"/>
+              <path d="M56 32 L104 32 L82 62 L104 92 L56 92 L78 62 Z"/>
+              <path class="b" d="M70 92 L94 92 L82 76 Z"/>
+              <line class="s thin" x1="82" y1="62" x2="82" y2="74"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Trong đối đầu, người mất kiên nhẫn luôn thua trước; người vội vàng <strong>tự trao quyền lực của mình cho hoàn cảnh</strong>.</li>
+            <li>Kiên nhẫn không phải ngồi yên — là giữ bình tĩnh trong khi vẫn hành động, vẫn chờ kết quả, vẫn làm việc với người khó chịu.</li>
+            <li>Thiên nhiên dạy bài học: <em>"một hạt giống không thể trở thành cây chỉ sau một đêm"</em>; thời gian thưởng cho người đứng vững.</li>
+            <li>Nôn nóng thì ồn ào và phản ứng; kiên nhẫn thì điềm tĩnh và phản hồi — <em>"nôn nóng tạo tiếng động, kiên nhẫn tạo tiến bộ."</em></li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Nguyên tắc</span>
+            <p>Khi ai đó cố khiêu khích mà bạn vẫn điềm tĩnh, bạn lấy đi sức mạnh của họ ngay lập tức.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 08 ===== -->
+      <section class="entry" id="muc-08">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 08</p>
+            <h2>Kiểm soát cảm xúc tạo sự tôn trọng</h2>
+            <p class="entry-summary">Sự tôn trọng đến từ quyền lực với chính mình, không phải với người khác.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M36 72 C46 102 114 102 124 72"/>
+              <path class="s" d="M80 48 C74 40 60 42 60 54 C60 66 80 76 80 76 C80 76 100 66 100 54 C100 42 86 40 80 48 Z"/>
+              <line class="thin" x1="42" y1="74" x2="34" y2="82"/>
+              <line class="thin" x1="118" y1="74" x2="126" y2="82"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Ai cũng bình tĩnh khi mọi thứ dễ dàng; <strong>nhân cách thật lộ diện khi áp lực</strong>, thất vọng, bị đối đầu.</li>
+            <li>Kiểm soát cảm xúc không có nghĩa là không còn cảm xúc — mà là không để cảm xúc quyết định thay bạn.</li>
+            <li>Con người có thể quên cuộc tranh cãi bắt đầu vì điều gì, nhưng <em>"không bao giờ quên cách bạn cư xử trong khoảnh khắc đó."</em></li>
+            <li>Muốn kiểm soát cảm xúc, trước hết kiểm soát suy nghĩ: dừng lại trước khi nói, hít một hơi sâu trước khi phản ứng, lùi một bước.</li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Bài học</span>
+            <p>Trong một thế giới nơi phần lớn sụp đổ dưới áp lực, người giữ được điềm tĩnh tự nhiên trở thành người dẫn đầu.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MỤC 09 ===== -->
+      <section class="entry" id="muc-09">
+        <div class="entry-head">
+          <div>
+            <p class="eyebrow">Mục 09</p>
+            <h2>Tách mình khỏi cái tôi</h2>
+            <p class="entry-summary">Nhiều trận chiến thua không vì thiếu sức mạnh mà vì cái tôi quá lớn.</p>
+          </div>
+          <div class="frame">
+            <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M40 78 L48 44 L66 66 L80 38 L94 66 L112 44 L120 78 Z"/>
+              <line x1="40" y1="86" x2="120" y2="86"/>
+              <line class="s" x1="135" y1="40" x2="135" y2="86"/>
+              <path class="s" d="M126 76 L135 88 L144 76"/>
+            </svg>
+          </div>
+        </div>
+        <div class="entry-body">
+          <ul>
+            <li>Cái tôi là kẻ thù thầm lặng, ẩn sau tự ái và nhu cầu phải đúng; nó thì thầm: <em>"Tôi không thể lùi lại, tôi phải thắng."</em></li>
+            <li>Phần lớn xung đột là <strong>cuộc chiến của lòng kiêu hãnh</strong>, không phải của chân lý — người ta tranh cãi để bảo vệ hình ảnh, không phải để hiểu nhau.</li>
+            <li>Những câu mạnh mẽ nhất lại đơn giản nhất: <em>"Tôi sai rồi. Tôi không biết. Bạn đúng. Tôi đã mắc lỗi."</em> — cái tôi chống lại, trí tuệ ôm lấy chúng.</li>
+            <li>Buông cái tôi không khiến bạn yếu đi mà thông minh hơn: chọn phát triển thay vì sĩ diện, bình an thay vì thắng thua vô nghĩa.</li>
+          </ul>
+          <div class="callout">
+            <span class="c-label">Nguyên tắc</span>
+            <p>Bạn không cần thắng mọi trận chiến để là người chiến thắng; con người không còn bị cái tôi điều khiển thì không xung đột nào đánh bại được.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        Nguồn: script YouTube — kênh Jim Rohn 24h · Ghi chú số 11 · 2026
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Mobile drawer controls -->
+  <div class="backdrop" id="backdrop"></div>
+  <button class="drawer-toggle" id="drawerToggle" aria-expanded="false" aria-controls="sidebar">☰ MỤC LỤC</button>
+
+  <script>
+  (function(){
+    "use strict";
+
+    var sidebar   = document.getElementById("sidebar");
+    var backdrop  = document.getElementById("backdrop");
+    var toggle    = document.getElementById("drawerToggle");
+    var tocLinks  = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+    var sections  = Array.prototype.slice.call(document.querySelectorAll(".entry"));
+
+    var isMobile = function(){ return window.matchMedia("(max-width:900px)").matches; };
+
+    /* ---- single source of truth for drawer state ---- */
+    function setDrawer(open){
+      sidebar.classList.toggle("open", open);
+      backdrop.classList.toggle("show", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    toggle.addEventListener("click", function(){
+      setDrawer(!sidebar.classList.contains("open"));
+    });
+    backdrop.addEventListener("click", function(){ setDrawer(false); });
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Escape") setDrawer(false);
+    });
+
+    /* ---- scrollspy ---- */
+    function setActive(id){
+      tocLinks.forEach(function(link){
+        var on = link.getAttribute("href") === "#" + id;
+        link.classList.toggle("active", on);
+        if(on && !isMobile()){
+          link.scrollIntoView({block:"nearest"});
+        }
+      });
+    }
+
+    tocLinks.forEach(function(link){
+      link.addEventListener("click", function(){
+        if(isMobile()) setDrawer(false);
+      });
+    });
+
+    if("IntersectionObserver" in window){
+      var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            setActive(entry.target.id);
+          }
+        });
+      }, { rootMargin:"-20% 0px -70% 0px", threshold:0 });
+
+      sections.forEach(function(s){ observer.observe(s); });
+    }
+  })();
+  </script>
+
+</body>
+</html>

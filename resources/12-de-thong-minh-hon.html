@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.12 — Thông minh hơn gấp 10 lần</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.12</span>
+      <div class="title">Thông minh hơn gấp 10 lần</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Trí tuệ do rèn luyện</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Tư duy linh hoạt</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Tư duy chiến thắng</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Tư duy chiến lược</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Tự tin không lay chuyển</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Tư duy khoa học</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Bẻ gãy giới hạn tư duy</span><span class="num">07</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay tư duy · Giải mã Jim Rohn</p>
+      <h1>Thông minh hơn gấp 10 lần</h1>
+      <p class="subtitle">Bảy trụ cột rèn tư duy và quản lý cảm xúc: trí tuệ không bẩm sinh mà là hành trình bạn tự tạo ra, bảo vệ và phát triển mỗi ngày.</p>
+      <div class="meta">
+        <span class="pill">7 phần</span>
+        <span class="pill">Nguồn · Jim Rohn</span>
+        <span class="pill">Ghi chú · No.12</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 01</span>
+          <h2>Trí tuệ là kết quả rèn luyện</h2>
+          <p class="summary-line">Trí tuệ do rèn luyện mà thành, không phải quà bẩm sinh.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <path class="thin" d="M30 96 H130"/>
+            <path d="M60 96 L66 112 H94 L100 96"/>
+            <path d="M80 96 V54"/>
+            <path d="M80 78 C66 74 58 62 62 52 C74 54 82 66 80 78 Z"/>
+            <path d="M80 70 C94 66 102 56 98 46 C86 48 78 58 80 70 Z"/>
+            <path class="b" d="M80 50 V28"/>
+            <path class="b" d="M72 36 L80 26 L88 36"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li><strong>Trí tuệ không có sẵn</strong> khi sinh ra — là kết quả rèn tư duy liên tục mỗi ngày. Jim Rohn: <em>"trí tuệ không phải là thứ bạn có sẵn mà là thứ bạn phải tạo ra, bảo vệ và phát triển mỗi ngày"</em>.</li>
+        <li>Người thông minh thực sự không sinh ra đã vượt trội, mà <strong>luôn rèn tư duy</strong> để giải quyết vấn đề sáng tạo hơn mỗi ngày.</li>
+        <li>Trí tuệ đến từ <strong>cách xử lý thông tin</strong>, quản lý cảm xúc và sự linh hoạt trong suy nghĩ — không chỉ từ tiếp thu kiến thức.</li>
+        <li>Muốn <strong>thông minh hơn gấp 10 lần</strong>: kết hợp tư duy chiến lược, biết khi nào cần thay đổi và khi nào cần giữ lập trường.</li>
+        <li>Kết hợp <strong>lý trí + cảm xúc + trực giác</strong>, không dựa vào lý thuyết cứng nhắc.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Nguyên tắc</span>
+        <p>Muốn thay đổi thế giới, bắt đầu từ chính mình — <em>"nếu bạn muốn thay đổi thế giới, hãy bắt đầu từ chính bản thân mình"</em>. Trí tuệ là hành trình phải tự tạo ra và bảo vệ mỗi ngày.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 02</span>
+          <h2>Tư duy linh hoạt</h2>
+          <p class="summary-line">Khả năng thích nghi và đổi góc nhìn trước thay đổi.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <circle class="s thin" cx="104" cy="70" r="15"/>
+            <path d="M26 94 C40 94 44 60 72 60 C98 60 96 34 120 34"/>
+            <path class="b" d="M110 28 L122 34 L110 40"/>
+            <path class="thin b" d="M40 44 L48 44 M40 44 L40 52"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li><strong>Điều chỉnh, thích nghi, phản ứng sáng suốt</strong> trước thay đổi bất ngờ. Jim Rohn: <em>"Thế giới không thay đổi để phù hợp với bạn, bạn phải thay đổi để phù hợp với thế giới"</em>.</li>
+        <li>Không giữ thành công bằng kiến thức cũ: <em>"những gì từng hiệu quả hôm qua có thể đã lỗi thời hôm nay"</em>.</li>
+        <li>Đào sâu bản chất, nhìn <strong>nhiều góc độ</strong>; khi chưa có đáp án, biết đặt ra những câu hỏi đúng đắn.</li>
+        <li>Gắn với <strong>quản lý cảm xúc</strong>: giữ bình tĩnh, không phản ứng vội vàng khi thay đổi đột ngột.</li>
+        <li>Đổi góc nhìn để thấy cơ hội người khác bỏ qua; xem thất bại là phần tất yếu của học hỏi.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Bài học</span>
+        <p><em>"chỉ khi bạn thay đổi cách bạn nghĩ, cuộc sống của bạn mới có thể thay đổi"</em>. Rèn linh hoạt mỗi ngày để mở rộng khả năng đối mặt thử thách.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 03</span>
+          <h2>Tư duy chiến thắng</h2>
+          <p class="summary-line">Chiến thắng chính mình, không bao giờ bỏ cuộc.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <path d="M20 100 L70 42 L100 76 L118 56 L142 100 Z"/>
+            <path class="thin" d="M70 42 L84 60"/>
+            <path class="b" d="M70 42 V18"/>
+            <path class="s" d="M70 20 L94 26 L70 33 Z"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li>Jim Rohn: <em>"Thành công không phải là đích đến mà là một hành trình"</em> — tư duy của người <strong>kiên trì, không bỏ cuộc</strong>.</li>
+        <li>Không hơn thua với người khác: <em>"thành công không phải là so sánh với người khác mà là chiến thắng chính bản thân mình"</em>.</li>
+        <li>Nền tảng là tin vào chính mình: <em>"Nếu bạn không tin vào chính mình thì ai sẽ tin vào bạn?"</em>.</li>
+        <li><strong>Không sợ thất bại</strong> — mỗi lần vấp ngã giúp mạnh hơn. <em>"Không ai có thể làm thay bạn được, nhưng bạn có thể làm thay đổi cuộc đời của chính mình"</em>.</li>
+        <li>Kết hợp lý trí + cảm xúc + hành động chiến lược; kiềm chế cảm xúc tiêu cực, tập trung vào giải pháp.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Bài học</span>
+        <p><em>"Thành công không đến từ việc bạn làm một lần mà đến từ việc bạn làm mỗi ngày"</em>. Tư duy chiến thắng là tư duy của người dẫn đầu.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 04</span>
+          <h2>Tư duy chiến lược</h2>
+          <p class="summary-line">Kế hoạch rõ ràng, hành động có mục tiêu dài hạn.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <path stroke-dasharray="6 7" d="M26 100 C58 100 50 66 84 66 C118 66 108 36 128 36"/>
+            <circle class="thin" cx="26" cy="100" r="5"/>
+            <circle class="b" cx="128" cy="36" r="14"/>
+            <circle class="b thin" cx="128" cy="36" r="7"/>
+            <circle class="s" cx="128" cy="36" r="2.5"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li>Xây <strong>lộ trình rõ ràng</strong>: phân tích mọi yếu tố, mỗi hành động có mục đích phục vụ mục tiêu dài hạn.</li>
+        <li>Jim Rohn: <em>"nếu bạn không lên kế hoạch cho cuộc đời mình, người khác sẽ lên kế hoạch cho bạn"</em>.</li>
+        <li>Nhìn xa, đánh giá tình huống <strong>từ góc độ tổng thể</strong>, chọn phương án tốt nhất thay vì quyết định vội vàng.</li>
+        <li>Chiến lược không cứng nhắc: biết khi nào kiên trì, khi nào đổi phương pháp — kết hợp tư duy linh hoạt.</li>
+        <li>Là quá trình liên tục, giữ tập trung và làm chủ cảm xúc để giữ bình tĩnh.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Nguyên tắc</span>
+        <p><em>"không ai có thể thay đổi cuộc đời của bạn, chỉ có bạn mới làm được điều đó"</em>. Tự chủ động xây chiến lược và hành động mỗi ngày.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 05</span>
+          <h2>Sự tự tin không thể lay chuyển</h2>
+          <p class="summary-line">Nền tảng của mọi thành tựu, đến từ nhận thức giá trị bản thân.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <circle cx="80" cy="26" r="8"/>
+            <path d="M80 34 V94"/>
+            <path class="thin" d="M60 58 H100"/>
+            <path d="M50 78 C50 100 68 106 80 106 C92 106 110 100 110 78"/>
+            <path class="b" d="M50 78 L43 70 M50 78 L59 74"/>
+            <path class="b" d="M110 78 L117 70 M110 78 L101 74"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li>Jim Rohn: <em>"Nếu bạn không tin vào chính mình thì ai sẽ tin vào bạn?"</em> — tự tin giúp vững vàng trước thử thách.</li>
+        <li><strong>Tự tin ≠ tự kiêu</strong>: hiểu mình chưa hoàn hảo nhưng có khả năng học hỏi và tiến bộ mỗi ngày.</li>
+        <li>Nguyên tắc: <em>"Sự tự tin thực sự không đến từ sự công nhận bên ngoài mà đến từ nhận thức về giá trị bản thân"</em>.</li>
+        <li>Không để lời chỉ trích bên ngoài làm lung lay; <strong>làm chủ cảm xúc</strong> để giữ tự tin vững vàng.</li>
+        <li>Đối diện thất bại bình tĩnh: <em>"thất bại không phải là điều tồi tệ nhất mà là không học được bài học từ thất bại"</em>. Sống thật: <em>"Hãy sống một cuộc đời mà bạn không hối tiếc"</em>.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Bài học</span>
+        <p>Xây mối quan hệ lành mạnh với chính mình, rèn tư duy mỗi ngày — vì <em>"thành công không phải là điểm đến mà là một hành trình"</em>.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 06</span>
+          <h2>Tư duy khoa học</h2>
+          <p class="summary-line">Phân tích logic, quyết định dựa trên dữ liệu thay vì cảm xúc.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <path class="thin" d="M28 98 H120"/>
+            <rect x="36" y="72" width="12" height="26"/>
+            <rect x="54" y="60" width="12" height="38"/>
+            <rect class="b" x="72" y="48" width="12" height="50"/>
+            <circle cx="104" cy="52" r="20"/>
+            <path class="s" d="M118 66 L134 82"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li>Nhìn vấn đề <strong>rõ ràng, không thiên lệch</strong>; quyết định dựa trên dữ liệu và phân tích chính xác, không phỏng đoán/cảm tính.</li>
+        <li>Jim Rohn: <em>"Nếu bạn không lên kế hoạch cho cuộc đời mình, người khác sẽ lên kế hoạch cho bạn"</em> — tự lập kế hoạch, kiểm tra lại giả thuyết trước mỗi bước.</li>
+        <li>Đánh giá khách quan <strong>nguyên nhân – hệ quả</strong> của mỗi quyết định; dành thời gian phân tích trước quyết định quan trọng.</li>
+        <li>Quản lý cảm xúc để lý trí không bị mờ (lo âu, sợ hãi, căng thẳng); phân biệt dữ liệu quan trọng và yếu tố bỏ qua được.</li>
+        <li>Sẵn sàng đổi chiến lược, học từ sai lầm: <em>"Sự thay đổi không phải là thứ bạn phải sợ mà là thứ bạn phải ôm lấy để tiến về phía trước"</em>.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Nguyên tắc</span>
+        <p><em>"bạn không thể thay đổi thế giới nhưng bạn có thể thay đổi cách bạn nhìn thế giới"</em>. Tư duy khoa học giúp giữ tỉnh táo trong tình huống phức tạp.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7">
+      <div class="entry-head">
+        <div>
+          <span class="eyebrow">Mục 07</span>
+          <h2>Bẻ gãy giới hạn tư duy</h2>
+          <p class="summary-line">Phá vỡ niềm tin cũ để mở rộng giới hạn bản thân.</p>
+        </div>
+        <div class="frame">
+          <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+            <rect x="24" y="52" width="30" height="16" rx="8"/>
+            <rect x="48" y="52" width="30" height="16" rx="8"/>
+            <path class="s" d="M96 52 A8 8 0 0 0 88 60 A8 8 0 0 0 93 67"/>
+            <path class="s" d="M112 68 A8 8 0 0 0 120 60 A8 8 0 0 0 115 53"/>
+            <path class="b thin" d="M104 40 V32 M114 44 L120 38 M94 44 L88 38"/>
+          </svg>
+        </div>
+      </div>
+      <ul class="points">
+        <li>Jim Rohn: <em>"những giới hạn không phải là thứ bền vững mà là những điều tạm thời được tin tưởng quá lâu"</em> — giới hạn chỉ là niềm tin, không cố định.</li>
+        <li>Giới hạn thường đến từ quá khứ, thất bại cũ, lời chỉ trích của người khác. <em>"nếu bạn muốn thay đổi cuộc sống của mình, bạn phải thay đổi cách bạn nghĩ"</em>.</li>
+        <li>Cách làm: <strong>đặt câu hỏi, nghi ngờ giả định</strong> đã tin, không ngại thử điều mới; không từ bỏ giá trị cốt lõi.</li>
+        <li>Quản lý cảm xúc để không mắc kẹt trong giới hạn tự tạo (sợ hãi, lo lắng, thiếu tự tin).</li>
+        <li>Nhìn thất bại như bài học; bước tiếp với quyết tâm: <em>"Không có gì là dễ dàng nhưng bạn có thể làm được nếu bạn quyết tâm"</em>.</li>
+      </ul>
+      <div class="callout">
+        <span class="clabel">Bài học</span>
+        <p>Kết hợp tư duy chiến thắng + chiến lược + khoa học để trở thành phiên bản tốt hơn — <em>"cuộc sống không phải là những gì bạn làm mà là những gì bạn trở thành"</em>.</p>
+      </div>
+    </section>
+
+    <footer>
+      Nguồn: Kênh Giải mã Jim Rohn (YouTube) · Ghi chú No.12 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
