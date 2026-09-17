@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.14 — Những quân bài của Trump</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.14</span>
+      <div class="title">Những quân bài của Trump</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Phong cách làm ăn</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Nghĩ đến vấn đề lớn</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Bảo vệ mặt yếu</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Gia tăng các chọn lựa</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Biết rõ thị trường</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Khả năng ảnh hưởng</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Cải thiện địa điểm</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Tiếp thị sản phẩm</span><span class="num">08</span></a></li>
+        <li><a href="#s9"><span class="t">Sự chống trả</span><span class="num">09</span></a></li>
+        <li><a href="#s10"><span class="t">Thực hiện lời hứa</span><span class="num">10</span></a></li>
+        <li><a href="#s11"><span class="t">Xem xét chi phí</span><span class="num">11</span></a></li>
+        <li><a href="#s12"><span class="t">Hãy vui vẻ</span><span class="num">12</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay kinh doanh · Nghệ thuật đàm phán</p>
+      <h1>Những quân bài của Trump</h1>
+      <p class="subtitle">Nhìn lại những thương vụ đã làm, kể cả thất bại và cơ hội bỏ lỡ, Trump rút ra 11 nguyên tắc làm ăn — mỗi nguyên tắc gắn với một thương vụ thật ở New York và Atlantic City.</p>
+      <div class="meta">
+        <span class="pill">12 phần</span>
+        <span class="pill">Nguồn · The Art of the Deal</span>
+        <span class="pill">Ghi chú · No.14</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Phong cách làm ăn">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Phong cách làm ăn: đơn giản, thẳng thắn, bản năng</h2>
+      <p class="summary-line">Đặt mục tiêu cao rồi tiến thẳng tới — kinh doanh phần lớn là bản năng.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="104" cy="60" r="34"/>
+        <circle class="thin" cx="104" cy="60" r="20"/>
+        <circle class="s" cx="104" cy="60" r="5"/>
+        <path class="b" d="M24 60 H98"/>
+        <path d="M88 52 L100 60 L88 68"/>
+        <path d="M34 60 L22 48 M34 60 L22 72"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Tôi đề ra mục tiêu rất cao rồi cứ tiến tới, tiến tới để đạt được cái mình đang theo đuổi"</em> — hầu hết đều <strong>đến đích</strong>.</li>
+    <li>Kinh doanh là <strong>bẩm sinh, di truyền</strong>: <em>"chỉ cần một chút thông minh, còn lại phần lớn là do bản năng"</em>. Đứa trẻ thông minh nhất trường Wharton, toàn điểm A, IQ 170, không có <strong>bản năng kinh doanh</strong> thì không thành doanh nhân được.</li>
+    <li>Ngược lại, người có bản năng thường không nhận ra vì <strong>thiếu can đảm hay cơ hội</strong>: có người bẩm sinh chơi golf giỏi hơn Jack Nicklaus, quần vợt giỏi hơn Chris Evert hay Martina Navratilova, nhưng chưa bao giờ cầm gậy hay vợt — <em>"hài lòng khi ngồi xem các ngôi sao thi đấu trên tivi"</em>.</li>
+    <li>Không hứa <em>"trở thành triệu phú trong một đêm"</em> như người thuyết giảng địa ốc trên tivi; <em>"đa số những người cố gắng làm giàu nhanh chóng đều sớm đi đến phá sản"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Đặt mục tiêu cao, tin vào bản năng kinh doanh và đừng mơ làm giàu nhanh.</p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Nghĩ đến vấn đề lớn">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Hãy nghĩ đến những vấn đề lớn</h2>
+      <p class="summary-line">Không sợ thành công, nhắm vị trí tốt nhất và tập trung hoàn toàn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 108 H140"/>
+        <path d="M28 108 V88 L42 76 L56 88 V108"/>
+        <rect x="70" y="32" width="30" height="76"/>
+        <path d="M78 44 H92 M78 58 H92 M78 72 H92 M78 86 H92"/>
+        <rect x="108" y="58" width="24" height="50"/>
+        <path d="M85 32 V14"/>
+        <path class="b" d="M85 14 L99 19 L85 24"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Tôi thích nghĩ đến những thương vụ lớn và tôi luôn có được chúng."</em> Hầu hết mọi người <strong>nghĩ tầm thường</strong> <em>"vì họ sợ thành công, sợ phải ra quyết định, sợ chiến thắng"</em>.</li>
+    <li>Bố xây nhà cho người lợi tức thấp ở Brooklyn và Queens; ông luôn hướng đến <strong>vị trí tốt nhất</strong>: ở Queens muốn Forest Hills, rồi nhận ra <em>"Forest Hills tuy vĩ đại nhưng nó không là Đại lộ số Năm"</em> — hướng về <strong>Manhattan</strong> từ khi còn rất trẻ.</li>
+    <li><em>"Tôi sinh ra để xây dựng một cái gì đó hoành tráng"</em>: khu phát triển <strong>trên 30 hecta</strong> dọc sông Hudson phía tây Manhattan; khách sạn khổng lồ cạnh nhà ga Trung tâm ở đại lộ Park và đường 42; ở Atlantic City, khách sạn kèm sòng bài <em>"với lợi nhuận gấp 50 lần lợi nhuận khách sạn"</em>.</li>
+    <li>Then chốt là <em>"sự tập trung hoàn toàn"</em>: doanh nhân thành đạt <em>"luôn suy nghĩ, luôn bị thôi thúc, luôn chuyên chú vào công việc"</em>. Địa ốc New York toàn <em>"những người thông minh nhất, cứng rắn nhất và xảo quyệt nhất trên thế giới"</em> — <em>"tôi thích đối đầu với những người như thế và tôi thích đánh bại họ"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Nghĩ lớn, nhắm vị trí tốt nhất và dồn toàn bộ sự tập trung vào công việc.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Bảo vệ mặt yếu">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Bảo vệ những mặt yếu, những mặt mạnh sẽ tự phát triển</h2>
+      <p class="summary-line">Lường trước kịch bản xấu nhất; chắc giấy phép rồi mới đổ tiền xây.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 16 L116 28 V60 C116 84 100 100 80 108 C60 100 44 84 44 60 V28 Z"/>
+        <path class="thin" d="M80 28 L104 36 V60 C104 78 94 90 80 96 C66 90 56 78 56 60 V36 Z"/>
+        <path class="b" d="M68 60 L77 70 L94 50"/>
+        <path class="thin" d="M20 40 L34 48"/>
+        <path d="M22 82 L36 74"/>
+        <path d="M140 44 L126 50"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Ông chưa bao giờ đánh bài: <em>"người đánh bài là người chơi các loại máy đánh bài (slot machine), tôi thì thích làm chủ những chiếc máy này hơn"</em>.</li>
+    <li>Rất <strong>bảo thủ</strong>, không tin <em>"suy nghĩ tích cực"</em>: <em>"Tôi luôn bước vào một thương vụ với sự tiên liệu về những khả năng xấu nhất… Nếu bạn có thể chịu đựng những tình huống tồi tệ nhất thì những điều tốt nhất sẽ luôn xuất hiện."</em></li>
+    <li>Lần duy nhất phá luật: <strong>USFL</strong> — mua đội bóng thua cuộc, vụ kiện chống độc quyền bị chặn, <em>"tôi không có đường thoái lui"</em>. <em>"Phải chấp nhận những thất bại nhưng đừng quá liều lĩnh."</em></li>
+    <li><strong>Trump Plaza</strong> (Atlantic City): mua đất trên Boardwalk từ lâu nhưng không vội xây, chịu phí duy trì (carrying charge) để <strong>chắc có giấy phép sòng bài</strong> trước khi bỏ <em>"hàng trăm triệu đô la và nhiều năm trời"</em>. Holiday Inn đề nghị hợp tác: trả lại tiền mua đất, chịu toàn bộ chi phí xây, bảo đảm không lỗ trong 5 năm. Người ta nói <em>"tại sao phải từ bỏ 50 phần trăm lợi nhuận"</em>, nhưng tự chịu mọi rủi ro hay bán 50% cổ phần mà không bỏ ra đồng nào — <em>"Đó là một quyết định dễ dàng"</em>.</li>
+    <li><strong>Baron Hilton</strong> <em>"can đảm hơn"</em>: xây sòng bài 400 triệu đô la, vừa xin phép vừa xây; hai tháng trước khai trương bị từ chối cấp phép, phải bán cho Trump. Ông đổi tên thành <strong>Trump's Castle</strong> — nay thuộc hàng sòng bài thành công nhất thế giới.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Chuẩn bị cho tình huống xấu nhất và khóa rủi ro trước khi xuống tiền lớn.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Gia tăng các chọn lựa">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Gia tăng tối đa các chọn lựa</h2>
+      <p class="summary-line">Không gắn chặt vào một phương án — luôn có sẵn lối đi thứ hai, thứ ba.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle class="s" cx="28" cy="60" r="6"/>
+        <path d="M34 60 H132"/>
+        <path d="M34 56 C70 50 90 26 132 22"/>
+        <path d="M34 64 C70 70 90 94 132 98"/>
+        <path d="M34 58 C74 52 100 42 132 40"/>
+        <path d="M34 62 C74 68 100 78 132 80"/>
+        <path class="b" d="M124 52 L134 60 L124 68"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Tôi không bao giờ quá gắn kết với một thương vụ hoặc một phương cách nào cả… tôi luôn đưa ra ít nhất sáu giải pháp để thực hiện nó."</em></li>
+    <li>Không được kinh doanh căn hộ ở <strong>Trump Tower</strong> thì đã xây văn phòng; không có giấy phép sòng bài ở Atlantic thì đã <strong>bán đất lấy lãi lớn</strong>.</li>
+    <li>Thương vụ đầu tiên ở Manhattan — <strong>nhà ga Penn Central</strong> ở đường West 34: định xây nhà cho người lợi tức thấp với tài trợ chính phủ; thành phố cắt trợ cấp → chuyển ngay sang <strong>chọn lựa hai</strong>, vận động xây trung tâm hội nghị, mất hai năm mới được chấp thuận. <em>"Nếu họ không chọn khu đất của tôi thì tôi ắt hẳn đã đưa ra một chọn lựa thứ ba nữa."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Luôn chuẩn bị nhiều phương án để khi một hướng đóng lại vẫn còn lối khác.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Biết rõ thị trường">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Biết rõ thị trường</h2>
+      <p class="summary-line">Tự đi hỏi thay vì thuê khảo sát; bản năng đặt trên lời phê bình.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 104 H100"/>
+        <path d="M30 104 V74 L52 56 L74 74 V104"/>
+        <rect x="46" y="86" width="12" height="18"/>
+        <circle cx="96" cy="46" r="24"/>
+        <path class="b" d="M113 63 L136 88"/>
+        <path class="thin" d="M84 40 C86 34 92 30 98 30"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><strong>Sylvester Stallone</strong>, 41 tuổi, nổi tiếng với Rocky và Rambo — <em>"viên ngọc quý chưa được mài giũa"</em>, <em>"biết công chúng muốn cái gì và mang cái đó tới cho họ"</em>. Trump nghĩ mình có bản năng này nên <strong>không thuê nhà phân tích thống kê</strong>, không tin khảo sát thị trường.</li>
+    <li>Định mua bất động sản thì <strong>hỏi người sống quanh đó</strong> về trường học, tiệm bán hàng, tội phạm; đến thành phố lạ thì đi taxi hỏi tài xế. <em>"Tôi hỏi, hỏi và hỏi cho đến khi hiểu rõ về vấn đề đó, và khi ấy là lúc tôi quyết định."</em></li>
+    <li>Hãng tư vấn lớn cho một nhóm từ Boston xuống New York mướn phòng, tính <strong>100.000 đô la</strong>, cuối cùng chẳng kết luận gì — thương vụ béo bở <em>"sẽ vượt khỏi tay bạn"</em>.</li>
+    <li><strong>Nhà phê bình</strong> viết để gây ấn tượng, chạy theo thời trang: <em>"tuần này họ đưa những tòa nhà bằng kính lên tận chín tầng mây, tuần tới phát hiện ra một tòa nhà cũ họ lại ca ngợi"</em>. Trump Tower bị hoài nghi trước khi xây, nhưng <strong>công chúng ưa thích</strong>; cuối cùng <em>"nó là tòa nhà tráng lệ đến nỗi họ không có lựa chọn nào khác là nói tốt về nó"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Tôi luôn đi theo bản năng của mình, nhưng cũng phải công nhận rằng có những bài phê bình tốt thì cũng hay."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Khả năng ảnh hưởng">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Sử dụng khả năng ảnh hưởng</h2>
+      <p class="summary-line">Nắm cái đối phương cần, và đừng bao giờ tỏ ra tuyệt vọng.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 108 H140"/>
+        <path d="M92 108 L104 86 L116 108 Z"/>
+        <path d="M24 110 L136 76"/>
+        <rect x="116" y="50" width="24" height="26"/>
+        <path class="b" d="M34 40 V92 M26 84 L34 94 L42 84"/>
+        <circle class="s" cx="34" cy="30" r="6"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Tệ nhất là <em>"cảm thấy tuyệt vọng khi thực hiện"</em> thương vụ — đối phương sẽ xông lên tấn công. <em>"Khả năng ảnh hưởng là sức mạnh lớn nhất mà bạn có thể có"</em>: nắm cái đối phương <strong>muốn, cần, hoặc không thể thiếu</strong>; tình huống đó hiếm, nên phải <em>"thuyết phục đối tác rằng việc thực hiện thương vụ đó là lợi ích của họ"</em>.</li>
+    <li>Năm 1974, để mua <strong>khách sạn Commodore</strong> trên đường East 42, ông thuyết phục chủ khách sạn công bố sẽ đóng cửa, rồi chỉ cho thành phố thấy việc đó <em>"sẽ là một điều rất tồi tệ cho khu vực nhà ga Grand Central và cho cả toàn thành phố"</em>.</li>
+    <li><strong>Holiday Inn</strong> tin việc xây dựng của ông tốt hơn hẳn — <em>"Thực ra tôi cũng không giỏi đến như thế"</em>, nhưng ông <em>"khẳng định một ấn tượng mà họ đã có về tôi"</em>.</li>
+    <li>Đặt tên dự án nhà ga West Side là <strong>Television City</strong> vì thành phố rất muốn giữ mạng truyền hình, nhất là <strong>NBC</strong>, ở New York — để họ sang New Jersey là thiệt hại kinh tế và <em>"tổn thất nghiêm trọng về tâm lý"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"Đừng bao giờ thực hiện các thương vụ mà bạn không có khả năng ảnh hưởng đến chúng."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Cải thiện địa điểm">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Cải thiện địa điểm</h2>
+      <p class="summary-line">Không cần vị trí tốt nhất — cần thương vụ tốt nhất và đúng người mua.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M64 100 C44 72 36 60 36 46 C36 30 48 18 64 18 C80 18 92 30 92 46 C92 60 84 72 64 100 Z"/>
+        <circle class="s" cx="64" cy="46" r="10"/>
+        <ellipse class="thin" cx="64" cy="104" rx="26" ry="6"/>
+        <path class="b" d="M100 96 L118 74 L128 82 L142 60 M130 60 H142 V72"/>
+        <path d="M112 30 V42 M106 36 H118"/>
+        <path d="M132 18 V26 M128 22 H136"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Chìa khóa cho sự thành công trong địa ốc là địa điểm"</em> là khái niệm <strong>bị hiểu lầm nhiều nhất</strong>. <em>"Bạn không nhất thiết phải có một vị trí tốt, cái bạn cần là một thương vụ tốt nhất"</em> — bằng <strong>vận động và tâm lý</strong> <em>"bạn có thể làm cho một địa điểm trở nên tốt hơn"</em>.</li>
+    <li><strong>Trump Tower</strong> (góc đường 57 và Đại lộ số Năm) ít cần vận động nhưng ông vẫn vận động; <strong>Museum Tower</strong> chỉ cách ba ngã tư, xây trên Museum of Modern Art, không được tiếp thị tốt nên kém giá trị hơn.</li>
+    <li><em>"Chuyển một địa điểm tầm thường thành một nơi có giá trị nếu bạn thu hút được đúng đối tượng mua"</em>: <strong>Trump Plaza</strong> ở góc đường 61 và Đại lộ số 3 — đất mua rất rẻ, Đại lộ số 3 không so được với Đại lộ số Năm, nhưng <strong>tên Trump đã có giá trị</strong> nên bán được giá cao cho người rất giàu (những người thích Trump Tower nhưng căn hộ tốt nhất đã hết). Nay Đại lộ số 3 thành nơi nổi tiếng.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"điều mà bạn đừng nên làm là trả quá nhiều tiền, cho dù phải từ bỏ một địa điểm rất tốt"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Tiếp thị sản phẩm">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Tiếp thị sản phẩm</h2>
+      <p class="summary-line">Sản phẩm hay mà không ai biết thì chẳng có giá trị; báo chí là kênh miễn phí.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M28 50 H46 L92 26 V94 L46 70 H28 Z"/>
+        <path d="M40 70 L46 94 H58 L54 72"/>
+        <path class="b" d="M104 46 C110 52 110 68 104 74"/>
+        <path d="M116 36 C126 48 126 72 116 84"/>
+        <path class="thin" d="M128 26 C142 44 142 76 128 94"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Sản phẩm tuyệt vời nhất trên thế giới nhưng nếu mọi người không biết về nó thì nó cũng không có giá trị nhiều."</em> Có người hát hay như <strong>Frank Sinatra</strong> <em>"nhưng họ chỉ hát trong nhà để xe vì không ai đã từng nghe họ hát"</em>. Thuê PR hậu hĩ <em>"không tốt bằng chính bạn làm"</em>.</li>
+    <li>Báo chí <em>"luôn khao khát một câu chuyện hay, và càng giật gân càng tốt"</em>: <strong>khác thường, táo bạo, gây tranh luận</strong> thì họ sẽ viết về bạn. Quảng cáo nguyên trang New York Times tốn đến <strong>40.000 đô la</strong> và bị hoài nghi; một bài ủng hộ <em>"dù chỉ một cột thì nó cũng có giá trị hơn 40.000 đô la, và tôi chẳng tốn đồng nào cả"</em>. Cả bài nói xấu cá nhân cũng có thể có giá trị.</li>
+    <li><strong>Television City</strong>: mua 30 ha năm 1985, nhiều người West Side còn không biết; tuyên bố xây <strong>tòa nhà cao nhất thế giới</strong> → New York Times đưa trang nhất, Dan Rather đưa vào bản tin tối CBS, George Will viết trên Newsweek. <em>"Quan trọng nhất là chúng tôi được nhiều người chú ý, và điều đó cũng đủ để tạo nên giá trị cho dự án."</em></li>
+    <li>Với phóng viên: <strong>thẳng thắn, không lừa dối</strong>, không tự bảo vệ, trả lời sát vấn đề. Hỏi tác động xấu lên West Side → nói lợi ích cho dân New York; hỏi sao chỉ xây cho người giàu → hàng ngàn việc làm, thành phố thu thuế, Trump Tower <em>"khơi mào sự phục hưng của New York"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"cường điệu một chút cũng không làm hại đến ai cả — tôi gọi đó là sự cường điệu chân thật không có hại, một hình thức tiếp thị rất hiệu quả"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 9 -->
+    <section class="entry" id="s9" data-toc="Sự chống trả">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 09</span>
+      <h2>Sự chống trả</h2>
+      <p class="summary-line">Tốt với người tốt, phản công mạnh khi bị đối xử bất công.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M68 22 L82 37 L45 74 L30 59 Z"/>
+        <path d="M58 32 L72 46"/>
+        <path d="M63 55 L112 104"/>
+        <rect x="24" y="92" width="44" height="14" rx="3"/>
+        <path class="thin" d="M18 108 H80"/>
+        <path class="b" d="M18 80 L26 86 M48 76 V84 M78 80 L70 86"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Tôi rất tốt với những người đối xử tốt với tôi, nhưng khi người ta đối xử xấu, không công bằng hoặc lợi dụng tôi, tôi sẽ phản công rất mạnh."</em> Rủi ro là <strong>làm tình hình tệ hơn</strong>; nhưng <em>"nếu bạn đấu tranh cho niềm tin của mình thì mọi việc cuối cùng sẽ tốt đẹp"</em>.</li>
+    <li>Thành phố bác dự án Trump Tower bất công → <strong>kiện ở sáu tòa án</strong>, tốn nhiều tiền, ai cũng bảo không thể thắng; <em>"tôi chú trọng nhiều đến những nỗ lực của mình chứ không để ý đến kết quả"</em> — và <strong>ông thắng</strong>.</li>
+    <li><strong>Holiday Inn</strong> điều hành sòng bài Trump Plaza tệ, kém xa các sòng khác → ông đấu quyết liệt để họ <strong>bán hết cổ phần</strong>, rồi nghĩ đến thâu tóm cả công ty.</li>
+    <li>Kẻ ganh ghét ngăn người khác vươn lên là <em>"những kẻ thất bại trong cuộc sống… nếu họ có khả năng thật sự thì họ sẽ không chống lại tôi"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Khi bị đối xử bất công, hãy đấu tranh đến cùng cho niềm tin của mình.</p>
+  </div>
+</section>
+
+    <!-- SECTION 10 -->
+    <section class="entry" id="s10" data-toc="Thực hiện lời hứa">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 10</span>
+      <h2>Thực hiện lời hứa</h2>
+      <p class="summary-line">Quảng cáo mạnh chỉ bền khi sản phẩm xứng đáng với lời quảng cáo.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="36" y="56" width="72" height="52"/>
+        <rect x="30" y="42" width="84" height="14"/>
+        <path d="M72 42 V108"/>
+        <path class="b" d="M72 42 C60 24 44 28 52 40 M72 42 C84 24 100 28 92 40"/>
+        <circle class="s" cx="126" cy="26" r="12"/>
+        <path class="thin" d="M120 26 L125 31 L132 21"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Bạn không thể lừa dối mọi người trong một thời gian dài… nếu bạn không thực hiện lời hứa, mọi người rồi cũng hiểu được sự thật về bạn."</em></li>
+    <li><strong>Jimmy Carter</strong>, sau khi thua Ronald Reagan năm 1980, đến xin đóng góp cho Thư viện Jimmy Carter: <em>"Donald, tôi sẽ rất cảm ơn anh nếu anh đóng góp 5 triệu đô la"</em> — Trump <em>"điếng cả người đến nỗi không trả lời được"</em>. Carter không đủ phẩm chất làm tổng thống <em>"nhưng ông ta có can đảm để yêu cầu một điều phi thường"</em> — được bầu, rồi <strong>thảm bại khi tái tranh cử</strong>.</li>
+    <li><strong>Reagan</strong> hòa nhã, tạo ấn tượng; <em>"chỉ đến bây giờ, gần 7 năm sau, người ta mới bắt đầu đặt câu hỏi về những gì ở đằng sau nụ cười của ông"</em>.</li>
+    <li>Nhiều nhà phát triển bắt chước <strong>không gian mở khu bán lẻ Trump Tower</strong>, nhưng tính chi phí — cầu thang đồng hơn 1 triệu đô la, thác nước 2 triệu, đá hoa cương thêm nhiều triệu — rồi bỏ; <em>"chi phí luôn là điều quyết định cuối cùng"</em>. <em>"Tôi quảng cáo rất mạnh cho Trump Tower, nhưng tôi cũng đưa ra một sản phẩm tuyệt vời xứng đáng với sự quảng cáo đó."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lời hứa và quảng cáo phải đi kèm một sản phẩm thật sự xứng đáng.</p>
+  </div>
+</section>
+
+    <!-- SECTION 11 -->
+    <section class="entry" id="s11" data-toc="Xem xét chi phí">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 11</span>
+      <h2>Xem xét chi phí</h2>
+      <p class="summary-line">Chi cho thứ cần mua, nhưng không trả thêm một đồng nào quá mức.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 22 V100"/>
+        <path class="thin" d="M56 104 H104"/>
+        <path d="M36 36 H124"/>
+        <path d="M36 36 L22 68 M36 36 L50 68"/>
+        <path d="M20 68 H52 C50 78 22 78 20 68 Z"/>
+        <path d="M124 36 L110 68 M124 36 L138 68"/>
+        <path d="M108 68 H140 C138 78 110 78 108 68 Z"/>
+        <circle class="b" cx="36" cy="60" r="5"/>
+        <circle class="s" cx="80" cy="18" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Tôi chấp nhận chi tiền cho những gì cần phải mua nhưng không chấp nhận chi nhiều hơn khoản tiền mình phải trả."</em> <strong>Tiết kiệm học từ bố</strong>.</li>
+    <li>Nhà thầu tính cao dù chỉ <strong>5.000 hay 10.000 đô la</strong>, ông điện thoại than phiền ngay: <em>"chỉ tốn 25 cent tiền điện thoại nhưng tiết kiệm được 10.000 đô la; ngày nào tôi không thể làm như thế thì ngày đó tôi chuẩn bị dẹp tiệm là vừa"</em>.</li>
+    <li><em>"Ước mơ lớn… sẽ không bao giờ là lớn nếu bạn không thể biến chúng thành hiện thực với một cái giá phải chăng."</em></li>
+    <li><strong>Trump Plaza</strong> (Atlantic) xây <strong>đúng tiến độ và ngân sách</strong>, mở cửa tuần lễ Memorial Day, trong khi hầu hết sòng bài vượt ngân sách hàng chục triệu đô la; Bob Guccione (sáng lập Penthouse) cố 7 năm xây sòng bài ngay cạnh, nay chỉ là <em>"một khung nhà rỉ sét"</em>.</li>
+    <li><strong>Wollman Rink</strong> ở Central Park: thành phố xây lại suốt 7 năm, lãng phí hàng triệu đô la; ông đề nghị tự làm, <strong>hoàn tất trong 4 tháng</strong> với chi phí rất khiêm tốn.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Ước mơ lớn chỉ thành hiện thực khi từng khoản chi được kiểm soát chặt chẽ.</p>
+  </div>
+</section>
+
+    <!-- SECTION 12 -->
+    <section class="entry" id="s12" data-toc="Hãy vui vẻ">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 12</span>
+      <h2>Hãy vui vẻ</h2>
+      <p class="summary-line">Cuộc sống mong manh; niềm vui thật sự là được tham gia cuộc chơi.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M74 30 H45 C42 30 40 32 40 35 V91 C40 94 42 96 45 96 H81 C84 96 86 94 86 91 V90"/>
+        <rect x="74" y="24" width="46" height="66" rx="5"/>
+        <path class="s" d="M97 66 C85 56 87 46 93 46 C96 46 97 49 97 50 C97 49 98 46 101 46 C107 46 109 56 97 66 Z"/>
+        <path class="thin" d="M82 32 V40 M112 74 V82"/>
+        <path class="b" d="M28 18 V30 M22 24 H34"/>
+        <path d="M134 98 V108 M129 103 H139"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Cuộc sống rất là mong manh và sự thành công không thể thay đổi được điều đó, có thể còn làm cho nó mong manh hơn nữa là khác."</em> Mọi thứ có thể <strong>thay đổi không báo trước</strong>, nên ông không xem những gì đã xảy ra là quá nghiêm trọng.</li>
+    <li><em>"Tiền không bao giờ là một động cơ thúc đẩy mạnh đối với tôi, trừ phi nó là một cách để giữ thế mạnh. Sự thích thú thật sự là tham gia cuộc chơi."</em></li>
+    <li><strong>Không lo lắng</strong> về những gì đáng lẽ phải làm khác đi hay sắp xảy ra; hỏi thương vụ mang lại gì, ông không chắc có câu trả lời hay <em>"trừ phi tôi có thời gian thuận lợi để thực hiện chúng"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Đừng quá nặng nề chuyện được mất — hãy tận hưởng chính cuộc chơi.</p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Sách nói Nghệ thuật đàm phán (The Art of the Deal) — Donald J. Trump &amp; Tony Schwartz, NXB Trẻ, Fonos · Chương 2 · YouTube: https://www.youtube.com/watch?v=6AONeCSJR4s · Ghi chú No.14 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
