@@ -20,7 +20,10 @@ layout: null
 const resources = {
 {% for file in resource_files %}
   {% assign number = file.name | split: "-" | first %}
-  "{{ number }}": "{{ file.path }}"{% unless forloop.last %},{% endunless %}
+  {% assign number_value = number | plus: 0 %}
+  {% if number_value > 0 %}
+  "{{ number }}": "{{ file.path }}",
+  {% endif %}
 {% endfor %}
 };
 

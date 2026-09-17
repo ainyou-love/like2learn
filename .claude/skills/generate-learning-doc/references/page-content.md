@@ -7,7 +7,7 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 ## Inputs
 
 - The notes file from step 1 (the only content source — do not reopen the raw script and do not add ideas).
-- Entry number `NO`, year `YEAR`, and output dir, given by the orchestrator.
+- Entry number `NO`, year `YEAR`, output dir, and the book chapter when the entry is one, given by the orchestrator.
 
 ## File 1 — `meta.json`
 
@@ -24,10 +24,11 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 ```
 
 - `title`: the notes' `#` heading, tightened if needed. Also becomes the file slug.
-- `kicker`: short mono label, `<Loại sổ> · <Nguồn/tác giả>`.
+- `kicker`: short mono label, `<Loại sổ> · <Nguồn/tác giả>`. For a book chapter use `<Tên sách> · Chương N` instead (e.g. `Nghệ thuật đàm phán · Chương 4–5`).
 - `subtitle`: 1–2 sentences, based on the notes' `Tóm lược`. Paraphrase it without quoting: meta fields are plain text, so a quote here can't get its `<em>` styling. Put the quote in a section instead.
 - `pills`: exactly 3 — part count, source, `Ghi chú · No.NN`.
 - `source`: footer line, taken from the notes' `Nguồn`.
+- `chapter` (only for a book chapter): the chapter number as given, e.g. `"1"` or `"4–5"`. The script puts it in the browser tab title and the file name (`NN-chuong-04-05-<slug>.html`). Leave the key out for anything else.
 - Plain text only (the script escapes it). Keep the JSON valid UTF-8, no HTML.
 
 ## File 2 — `sections.html`
@@ -88,9 +89,9 @@ One inline SVG per section: a simple visual metaphor for that section's idea (se
 ## Build
 
 ```bash
-python3 <skill-dir>/scripts/build_doc.py --meta <work>/meta.json --sections <work>/sections.html --out-dir resources
+python3 <skill-dir>/scripts/build_doc.py --meta <work>/meta.json --sections <work>/sections.html --out-dir <output dir>
 ```
 
-The script generates the TOC, fills the template, checks structure and verbatim-quote wrapping, and writes `resources/NN-<slug>.html` (the slug has no diacritics). `ERROR` lines mean nothing was written: fix `sections.html`/`meta.json` and rerun. `WARN` lines are advisory; fix them if the fix is quick. Never pass `--force` unless the orchestrator says so — an existing file with that number is someone's earlier entry.
+The script generates the TOC, fills the template, checks structure and verbatim-quote wrapping, and writes `<output dir>/NN-<slug>.html` (the slug has no diacritics; `NN-chuong-XX-<slug>.html` when `chapter` is set). `ERROR` lines mean nothing was written: fix `sections.html`/`meta.json` and rerun. `WARN` lines are advisory; fix them if the fix is quick. Never pass `--force` unless the orchestrator says so — an existing file with that number anywhere under `resources/` is someone's earlier entry.
 
 When done, reply with the output path, the section count, and any remaining WARN lines.

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="vi" data-lang="vi" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Người &amp; AI-Agent — Sổ tay Phối hợp</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface-2:#f0f2f5; --border:#e2e6ec;
+  --text:#1b2330; --muted:#5a6472; --faint:#8a94a3;
+  --accent:#3b5bdb; --accent-soft:#e7ecff; --accent-2:#0ca678;
+  --topic:#3b5bdb; --topic-bg:#eef2ff;
+  --goal:#0ca678; --goal-bg:#e6f7f1;
+  --pain:#e8590c; --pain-bg:#fff1e6;
+  --code-bg:#0f1420; --code-text:#d7e0f2;
+  --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.06);
+  --radius:14px; --sidebar-w:290px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  html[data-theme="auto"]{
+    --bg:#0d1117; --surface:#151b24; --surface-2:#1b2230; --border:#26303f;
+    --text:#e6ecf5; --muted:#a2adbd; --faint:#6b7787;
+    --accent:#7aa2ff; --accent-soft:#1c2740; --accent-2:#37d3a3;
+    --topic:#7aa2ff; --topic-bg:#182035;
+    --goal:#37d3a3; --goal-bg:#0f2a24;
+    --pain:#ff9f5a; --pain-bg:#2c1d12;
+    --code-bg:#080b12; --code-text:#cdd8ee;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+html[data-theme="dark"]{
+  --bg:#0d1117; --surface:#151b24; --surface-2:#1b2230; --border:#26303f;
+  --text:#e6ecf5; --muted:#a2adbd; --faint:#6b7787;
+  --accent:#7aa2ff; --accent-soft:#1c2740; --accent-2:#37d3a3;
+  --topic:#7aa2ff; --topic-bg:#182035;
+  --goal:#37d3a3; --goal-bg:#0f2a24;
+  --pain:#ff9f5a; --pain-bg:#2c1d12;
+  --code-bg:#080b12; --code-text:#cdd8ee;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;scroll-padding-top:20px;}
+html[data-lang="vi"] .en{display:none}
+html[data-lang="en"] .vi{display:none}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.gloss{color:var(--faint);font-weight:400;font-style:italic}
+
+/* ---------- Sidebar ---------- */
+.sidebar{position:fixed;top:0;left:0;height:100vh;width:var(--sidebar-w);
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:50;transition:transform .28s ease;overflow:hidden;}
+.sidebar__brand{padding:22px 20px 14px;border-bottom:1px solid var(--border)}
+.sidebar__brand .kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.sidebar__brand h1{font-size:17px;margin:6px 0 0;line-height:1.3}
+.controls{display:flex;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface-2)}
+.seg button{border:0;background:transparent;color:var(--muted);padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.theme-btn{border:1px solid var(--border);background:var(--surface-2);color:var(--muted);border-radius:10px;padding:7px 11px;cursor:pointer;font-size:14px;font-family:inherit}
+.nav{overflow-y:auto;padding:12px 12px 30px;flex:1}
+.nav .nav-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:8px 10px 4px}
+.nav a{display:flex;gap:10px;align-items:baseline;color:var(--muted);padding:9px 10px;border-radius:9px;font-size:14px;line-height:1.35;}
+.nav a .n{font-family:var(--mono);font-size:12px;color:var(--faint);min-width:20px}
+.nav a:hover{background:var(--surface-2);text-decoration:none;color:var(--text)}
+.nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav a.active .n{color:var(--accent)}
+
+/* ---------- Layout ---------- */
+.main{margin-left:var(--sidebar-w);transition:margin .28s ease;min-height:100vh}
+body.collapsed .sidebar{transform:translateX(-100%)}
+body.collapsed .main{margin-left:0}
+.wrap{max-width:900px;margin:0 auto;padding:26px 26px 80px}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);
+  padding:12px 18px;border-bottom:1px solid var(--border)}
+.hamb{border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:10px;width:40px;height:40px;cursor:pointer;font-size:18px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.topbar .tb-title{font-weight:600;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* hero */
+.hero{background:linear-gradient(135deg,var(--accent-soft),var(--surface));
+  border:1px solid var(--border);border-radius:var(--radius);padding:30px 28px;margin-bottom:28px;box-shadow:var(--shadow)}
+.hero .kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hero h2{font-size:clamp(24px,4.5vw,34px);margin:10px 0 12px;line-height:1.2}
+.hero p{font-size:16px;color:var(--muted);margin:0;max-width:62ch}
+.hero .tags{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:12px;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:999px;font-weight:600}
+
+/* section */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px 26px 8px;margin-bottom:26px;box-shadow:var(--shadow);scroll-margin-top:16px}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.section-head .sec-num{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;background:var(--accent);border-radius:8px;padding:4px 9px;flex:0 0 auto}
+.section-head h3{font-size:clamp(19px,3vw,24px);margin:0;flex:1;line-height:1.25}
+.section-head .anchor{color:var(--faint);font-size:18px;opacity:0;transition:opacity .15s}
+.section:hover .anchor{opacity:1}
+.lead{color:var(--muted);margin:2px 0 20px}
+
+/* meta cards */
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 22px}
+.meta-card{border:1px solid var(--border);border-radius:12px;padding:14px 15px;background:var(--surface-2)}
+.meta-card .mc-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.meta-card .mc-label::before{content:"";width:9px;height:9px;border-radius:3px;display:inline-block}
+.meta-card.topic{background:var(--topic-bg)} .meta-card.topic .mc-label{color:var(--topic)} .meta-card.topic .mc-label::before{background:var(--topic)}
+.meta-card.goal{background:var(--goal-bg)} .meta-card.goal .mc-label{color:var(--goal)} .meta-card.goal .mc-label::before{background:var(--goal)}
+.meta-card.pain{background:var(--pain-bg)} .meta-card.pain .mc-label{color:var(--pain)} .meta-card.pain .mc-label::before{background:var(--pain)}
+.meta-card p{margin:0;font-size:14.5px;line-height:1.55}
+
+/* content */
+.body h4{font-size:16px;margin:22px 0 8px}
+.body p{margin:10px 0}
+.body ul{margin:10px 0;padding-left:22px}
+.body li{margin:6px 0}
+pre.ascii{background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.5;margin:16px 0}
+.caption{font-size:12.5px;color:var(--faint);margin:-8px 0 16px;font-style:italic}
+
+/* subcards + PSB + callouts */
+.subcard{border:1px solid var(--border);border-radius:12px;padding:16px 16px 6px;margin:16px 0;background:var(--surface-2)}
+.subcard>h5{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
+.subcard>h5 .badge{font-family:var(--mono);font-size:12px;color:#fff;background:var(--pain);border-radius:6px;padding:2px 7px}
+.subcard .sc-sub{color:var(--muted);font-size:14px;margin:0 0 6px}
+.callout{border-left:3px solid var(--accent);background:var(--surface);padding:11px 14px;border-radius:0 10px 10px 0;margin:12px 0;font-size:14px}
+.callout .co-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
+.callout.history{border-color:var(--pain)} .callout.history .co-label{color:var(--pain)}
+.callout.example{border-color:var(--goal)} .callout.example .co-label{color:var(--goal)}
+.psb{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.psb .cell{border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13.5px;background:var(--surface);line-height:1.5}
+.psb .cell .p-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px}
+.psb .p .p-label{color:var(--pain)} .psb .s .p-label{color:var(--accent)} .psb .b .p-label{color:var(--goal)}
+@media(max-width:700px){.psb{grid-template-columns:1fr}}
+
+/* chips row + table */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0}
+.flow .chip{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:8px 13px;font-size:13.5px;font-weight:600}
+.flow .arrow{color:var(--faint);font-weight:700}
+.flow .chip.hi{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tbl-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:420px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+
+/* glossary footer */
+.glossary{border-top:1px dashed var(--border);margin:18px -26px 0;padding:18px 26px 22px;background:var(--surface-2);border-radius:0 0 var(--radius) var(--radius)}
+.glossary h4{margin:0 0 10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:7px}
+.glossary h4::before{content:"§";color:var(--accent);font-weight:700}
+.glossary dl{margin:0;display:grid;grid-template-columns:1fr;gap:8px}
+.glossary dt{font-weight:700;font-size:13.5px;color:var(--text)}
+.glossary dd{margin:2px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5}
+.glossary .term{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:baseline}
+@media(max-width:560px){.glossary .term{grid-template-columns:1fr}}
+
+.footer-note{text-align:center;color:var(--faint);font-size:13px;padding:20px}
+.backtop{position:fixed;right:18px;bottom:18px;z-index:40;background:var(--accent);color:#fff;border:0;
+  width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:18px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
+.backtop.show{opacity:1;pointer-events:auto}
+.overlay{position:fixed;inset:0;background:rgba(8,12,20,.45);z-index:45;opacity:0;pointer-events:none;transition:opacity .25s}
+body.nav-open .overlay{opacity:1;pointer-events:auto}
+
+@media(max-width:960px){.meta-grid{grid-template-columns:1fr}.main{margin-left:0}.sidebar{transform:translateX(-100%)}body.nav-open .sidebar{transform:translateX(0)}.desktop-only{display:none}}
+@media(min-width:961px){.overlay{display:none}.mobile-only{display:none}}
+@media(max-width:520px){.wrap{padding:16px 14px 60px}.section{padding:20px 16px 8px}.glossary{margin:18px -16px 0;padding:16px}.hero{padding:22px 18px}}
+</style>
+</head>
+<body class="">
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar" aria-label="Navigation">
+  <div class="sidebar__brand">
+    <div class="kicker"><span class="vi">Sổ tay</span><span class="en">Handbook</span></div>
+    <h1><span class="vi">Người &amp; AI-Agent</span><span class="en">Humans &amp; AI Agents</span></h1>
+  </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Language">
+      <button id="lang-vi" aria-pressed="true" onclick="setLang('vi')">VI</button>
+      <button id="lang-en" aria-pressed="false" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="cycleTheme()" title="Theme">🌗</button>
+  </div>
+  <nav class="nav" id="toc" aria-label="Table of contents">
+    <div class="nav-label"><span class="vi">Danh mục</span><span class="en">Contents</span></div>
+    <a href="#intro"><span class="n">00</span><span><span class="vi">Giới thiệu</span><span class="en">Introduction</span></span></a>
+    <a href="#sec1"><span class="n">01</span><span><span class="vi">Xu hướng tiến hóa người–máy</span><span class="en">Human–machine evolution trends</span></span></a>
+    <a href="#sec2"><span class="n">02</span><span><span class="vi">Các bẫy đã biết</span><span class="en">Known traps</span></span></a>
+    <a href="#sec3"><span class="n">03</span><span><span class="vi">Chậm hơn / Linh hoạt hơn</span><span class="en">Slow down / Stay flexible</span></span></a>
+    <a href="#sec4"><span class="n">04</span><span><span class="vi">Nhóm kỹ năng mềm</span><span class="en">Soft-skill clusters</span></span></a>
+    <a href="#sec5"><span class="n">05</span><span><span class="vi">Giao tiếp Người → Máy</span><span class="en">Human → Machine</span></span></a>
+    <a href="#sec6"><span class="n">06</span><span><span class="vi">Giao tiếp Máy → Người</span><span class="en">Machine → Human</span></span></a>
+    <a href="#sec7"><span class="n">07</span><span><span class="vi">Chỉ số xuyên suốt</span><span class="en">Cross-cutting principles</span></span></a>
+    <a href="#sec8"><span class="n">08</span><span><span class="vi">Chi tiết kỹ thuật: Claude Code</span><span class="en">Technical appendix: Claude Code</span></span></a>
+  </nav>
+</aside>
+<div class="overlay" onclick="closeNav()"></div>
+
+<!-- ============ MAIN ============ -->
+<div class="main">
+  <div class="topbar">
+    <button class="hamb" id="hamb" aria-label="Toggle menu" onclick="toggleNav()">☰</button>
+    <div class="tb-title"><span class="vi">Người &amp; AI-Agent — Sổ tay Phối hợp</span><span class="en">Humans &amp; AI Agents — Collaboration Handbook</span></div>
+  </div>
+
+  <div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero" id="intro">
+    <div class="kicker"><span class="vi">Tài liệu tổng hợp · 2026</span><span class="en">Synthesis · 2026</span></div>
+    <h2><span class="vi">Người &amp; AI-Agent: Xu hướng, Bẫy, và Kỹ thuật Phối hợp</span><span class="en">Humans &amp; AI Agents: Trends, Traps, and Collaboration Craft</span></h2>
+    <p>
+      <span class="vi">Từ xu hướng tiến hóa giữa người và trợ lý AI, các bẫy nhận thức đã được lịch sử ghi nhận, đến kỹ thuật giao tiếp hai chiều giúp hai bên phối hợp hiệu quả. Nguyên tắc xuyên suốt: mọi kỹ thuật đều nhằm <strong>giảm công sức kiểm chứng của người tiếp nhận</strong> <span class="gloss">(cost of verification)</span>.</span>
+      <span class="en">From the evolving relationship between humans and AI assistants, to cognitive traps history already recorded, to the two-way communication craft that lets both sides collaborate well. The through-line: every technique aims to <strong>lower the receiver's cost of verification</strong>.</span>
+    </p>
+    <div class="tags">
+      <span class="tag"><span class="vi">Xu hướng</span><span class="en">Trends</span></span>
+      <span class="tag"><span class="vi">Bẫy nhận thức</span><span class="en">Cognitive traps</span></span>
+      <span class="tag"><span class="vi">Kỹ năng mềm</span><span class="en">Soft skills</span></span>
+      <span class="tag"><span class="vi">Giao tiếp 2 chiều</span><span class="en">2-way comms</span></span>
+    </div>
+  </header>
+
+  <!-- ============ SECTION 1: TRENDS ============ -->
+  <section class="section" id="sec1" aria-labelledby="sec1-h">
+    <div class="section-head">
+      <span class="sec-num">01</span>
+      <h3 id="sec1-h"><span class="vi">Xu hướng tiến hóa người–máy</span><span class="en">Human–machine evolution trends</span></h3>
+      <a class="anchor" href="#sec1" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Công cụ tiến về đâu, con người phải dịch trọng tâm về đâu.</span><span class="en">Where the tool is heading, and where humans must shift focus.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Bốn trục thay đổi của máy và trọng tâm dịch chuyển của người.</span><span class="en">Four axes of machine change and the human shift of focus.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Phân vai người–máy theo đúng lợi thế của từng bên.</span><span class="en">Split roles by each side's true advantage.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Máy làm nhiều hơn → nút cổ chai chuyển sang việc review và độ rõ yêu cầu của người.</span><span class="en">As the machine does more, the bottleneck moves to human review and clarity of intent.</span></p></div>
+    </div>
+
+    <div class="body">
+      <h4><span class="vi">Quỹ đạo của công cụ</span><span class="en">The tool's trajectory</span></h4>
+      <pre class="ascii">2023-2024          2025               2026 (now)
+-------------      -------------      ---------------------
+Chat + sửa file -> Vòng tự động   ->  "Đội hình" chạy nền
+1 phiên, 1 việc,   tự gọi công cụ,    nhiều việc song song,
+người xem          tự sửa lỗi         chạy nền, tự đặt mục tiêu
+từng bước</pre>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Trục</span><span class="en">Axis</span></th><th><span class="vi">Ý nghĩa</span><span class="en">Meaning</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="vi">Song song hóa <span class="gloss">(parallelization)</span></span><span class="en">Parallelization</span></td><td><span class="vi">1 người điều nhiều trợ lý cùng lúc, không còn kèm 1-1.</span><span class="en">One person steers many agents at once; no longer 1-to-1.</span></td></tr>
+          <tr><td><span class="vi">Tự trị dài hơi <span class="gloss">(long-horizon autonomy)</span></span><span class="en">Long-horizon autonomy</span></td><td><span class="vi">Máy chạy qua nhiều bước không cần người ngồi canh.</span><span class="en">Runs across many steps unattended.</span></td></tr>
+          <tr><td><span class="vi">Kiểm chứng bằng thực thi <span class="gloss">(verify by execution)</span></span><span class="en">Verify by execution</span></td><td><span class="vi">Máy chạy thử sản phẩm thật để tự chứng minh, không chỉ tin bài kiểm tra tự động.</span><span class="en">The machine runs the real product to prove itself, not just trust automated tests.</span></td></tr>
+          <tr><td><span class="vi">Kinh tế ngữ cảnh <span class="gloss">(context economy)</span></span><span class="en">Context economy</span></td><td><span class="vi">Kiến thức được đóng gói, chỉ nạp vào đúng lúc cần.</span><span class="en">Knowledge packaged, loaded only when needed.</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4><span class="vi">Trọng tâm con người dịch chuyển</span><span class="en">The human focus shift</span></h4>
+      <pre class="ascii">GIẢM DẦN / GIVING WAY          TĂNG DẦN / RISING
+----------------------         ------------------------------
+Tự tay làm từng thao tác  ->   Nói rõ ý định + ràng buộc
+Prompt khéo từng câu       ->   Chuẩn bị ngữ cảnh nền tốt
+Xem tay từng thay đổi      ->   Thiết kế cách kiểm chứng
+Làm tuần tự 1 việc         ->   Điều phối nhiều luồng song song</pre>
+
+      <div class="flow">
+        <span class="chip hi"><span class="vi">NGƯỜI: định nghĩa "đúng là gì"</span><span class="en">HUMAN: defines "what is right"</span></span>
+        <span class="arrow">+</span>
+        <span class="chip"><span class="vi">MÁY: thực thi &amp; tự sửa</span><span class="en">MACHINE: executes &amp; self-fixes</span></span>
+        <span class="arrow">→</span>
+        <span class="chip hi"><span class="vi">NGƯỜI: kiểm chứng cuối &amp; chịu trách nhiệm</span><span class="en">HUMAN: final verify &amp; ownership</span></span>
+      </div>
+      <p><span class="vi">Ba đầu tư sinh lời kép theo thời gian: (1) đóng gói kiến thức lặp lại thành công cụ tái dùng; (2) xây cơ chế tự kiểm chứng trước khi giao việc lớn; (3) giao việc theo đơn vị có tiêu chí hoàn thành đo được.</span>
+      <span class="en">Three compounding investments: (1) package repeated knowledge into reusable tools; (2) build automated verification before delegating big work; (3) delegate in units with measurable done-conditions.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Trợ lý / tác tử AI (AI agent)</span><span class="en">AI agent</span></dt><dd><span class="vi">Phần mềm AI tự thực hiện chuỗi việc thay người, không chỉ trả lời.</span><span class="en">AI software that carries out chains of tasks for you, not just answers.</span></dd></div>
+        <div class="term"><dt><span class="vi">Tự trị (autonomy)</span><span class="en">Autonomy</span></dt><dd><span class="vi">Mức độ máy được chạy mà không cần người can thiệp.</span><span class="en">How far the machine runs without human intervention.</span></dd></div>
+        <div class="term"><dt><span class="vi">Ngữ cảnh (context)</span><span class="en">Context</span></dt><dd><span class="vi">Thông tin nền máy cần để hiểu và làm đúng việc.</span><span class="en">The background the machine needs to understand and act correctly.</span></dd></div>
+        <div class="term"><dt><span class="vi">Điều phối (orchestration)</span><span class="en">Orchestration</span></dt><dd><span class="vi">Việc điều nhiều luồng/trợ lý làm song song có kiểm soát.</span><span class="en">Steering many streams/agents in controlled parallel.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 2: TRAPS (EXPANDED) ============ -->
+  <section class="section" id="sec2" aria-labelledby="sec2-h">
+    <div class="section-head">
+      <span class="sec-num">02</span>
+      <h3 id="sec2-h"><span class="vi">Các bẫy đã biết</span><span class="en">Known traps</span></h3>
+      <a class="anchor" href="#sec2" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Không phải bẫy mới — chỉ là những bẫy cũ nay bùng phát nhanh hơn nhiều.</span><span class="en">Not new traps — old ones now erupting far faster.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Bốn nhóm bẫy: nhận thức, năng suất, tổ chức, hệ sinh thái.</span><span class="en">Four families: cognition, throughput, organization, ecosystem.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Nhận diện sớm để đặt đối trọng, không để bẫy tự siết chặt.</span><span class="en">Spot them early to place counterweights before they tighten.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Bẫy vô hình vì kết quả trông trơn tru và đến với số lượng lớn che mất sai sót.</span><span class="en">Traps stay invisible because fluent, high-volume output hides the flaws.</span></p></div>
+    </div>
+
+    <div class="body">
+      <h4><span class="vi">Quy luật gốc: bỏ đi sự vất vả cũng là bỏ đi nơi rèn kỹ năng</span><span class="en">The root law: removing effort also removes where skill is forged</span></h4>
+      <pre class="ascii">Công cụ bỏ đi SỰ VẤT VẢ (friction)
+        |
+        +-- được : nhanh hơn, làm được nhiều hơn
+        +-- mất  : chính sự vất vả đó là nơi kỹ năng,
+                   sự chú ý & hiểu sâu được tôi luyện</pre>
+      <p class="caption"><span class="vi">"Sự vất vả" (friction) = mọi trở ngại buộc ta phải nghĩ và tự làm. Đây là quy luật cũ; điểm khác lần này là tốc độ, độ phủ và sức thuyết phục của kết quả.</span><span class="en">"Friction" = every obstacle that forces us to think and do it ourselves. An old law; what's new is speed, coverage, and how persuasive the output is.</span></p>
+
+      <!-- A -->
+      <div class="subcard">
+        <h5><span class="badge">A</span><span class="vi">Bẫy nhận thức — kỹ năng cá nhân mai một</span><span class="en">Cognitive traps — personal skills atrophy</span></h5>
+        <p class="sc-sub"><span class="vi">Gồm: teo kỹ năng, tin máy quá mức (thiên kiến tự động hóa), bị văn trôi chảy đánh lừa, và ngày càng lười đọc kỹ.</span><span class="en">Includes: skill atrophy, over-trusting the machine (automation bias), being fooled by fluent prose, and skimming ever more.</span></p>
+        <div class="callout history"><span class="co-label"><span class="vi">Lịch sử</span><span class="en">History</span></span><span class="vi">Triết gia Plato từng lo chữ viết làm hỏng trí nhớ. Gần hơn: tài xế phụ thuộc bản đồ dẫn đường (GPS) dần mất khả năng tự định hướng; học sinh dùng máy tính bỏ túi yếu dần tính nhẩm. Kỹ sư Lisanne Bainbridge gọi đây là "nghịch lý của tự động hóa" (1983): người phải cứu khi máy hỏng lại chính là người đã mất kỹ năng vì máy làm thay.</span><span class="en">Plato feared writing would ruin memory. More recently, drivers relying on GPS lose their sense of direction; students with calculators weaken at mental math. Engineer Lisanne Bainbridge called it the "irony of automation" (1983): the person who must rescue a failed machine is the very one who lost the skill because the machine did it for them.</span></div>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Giao hết cho máy → kỹ năng của chính mình cùn đi, đến lúc máy sai thì không đủ sức phát hiện.</span><span class="en">Delegate everything → your own skills dull, and when the machine errs you can't catch it.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Giữ "sự vất vả có chủ đích": định kỳ tự làm tay những việc quan trọng.</span><span class="en">Keep "deliberate friction": periodically do critical work by hand.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Luôn đủ năng lực để giám sát và bắt lỗi máy.</span><span class="en">Always retain the capacity to supervise and catch errors.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ thành công</span><span class="en">Success example</span></span><span class="vi">Ngành hàng không buộc phi công bay tay định kỳ dù đã có lái tự động, để phản xạ không bị thui chột — nhờ đó xử lý được sự cố khi hệ thống tự động thất bại.</span><span class="en">Aviation requires pilots to hand-fly periodically despite autopilot, so reflexes don't fade — which is what saves the day when automation fails.</span></div>
+      </div>
+
+      <!-- B -->
+      <div class="subcard">
+        <h5><span class="badge">B</span><span class="vi">Bẫy năng suất — làm ra quá nhiều</span><span class="en">Throughput traps — producing too much</span></h5>
+        <p class="sc-sub"><span class="vi">Gồm: nghịch lý Jevons, bất đối xứng giữa "sinh ra" và "kiểm tra", và việc đẩy gánh nặng xuống người phía sau.</span><span class="en">Includes: the Jevons paradox, the generate-vs-verify asymmetry, and pushing the burden onto people downstream.</span></p>
+        <div class="callout history"><span class="co-label"><span class="vi">Lịch sử</span><span class="en">History</span></span><span class="vi">Năm 1865, kinh tế gia William Jevons phát hiện: máy hơi nước dùng than hiệu quả hơn lại khiến tổng lượng than tiêu thụ tăng vọt — vì rẻ nên người ta dùng nhiều hơn. Tương tự, mở rộng đường cao tốc thường không hết kẹt xe mà hút thêm xe (hiện tượng "cầu cảm ứng").</span><span class="en">In 1865, economist William Jevons found that more efficient steam engines raised total coal use — cheaper meant people used more. Likewise, widening highways rarely ends congestion; it draws more cars ("induced demand").</span></div>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Máy tạo kết quả nhanh gấp bội, nhưng người kiểm vẫn chậm → hoặc thành nút cổ chai, hoặc duyệt ẩu và tích nợ chất lượng vô hình.</span><span class="en">The machine produces far faster while human checking stays slow → either a bottleneck, or sloppy approvals piling up invisible quality debt.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Chỉ giao máy tự chạy tới mức mình kiểm nổi; đặt giới hạn số việc làm dở cùng lúc.</span><span class="en">Let the machine run only as far as you can verify; cap the number of things in progress at once.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Tốc độ thật, không phải tốc độ ảo đi kèm đống việc phải sửa lại.</span><span class="en">Real speed, not illusory speed trailed by rework.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ thành công</span><span class="en">Success example</span></span><span class="vi">Hệ sản xuất Toyota (Lean/Kanban) giới hạn lượng "việc đang làm dở" và cho phép dừng cả dây chuyền khi phát hiện lỗi — nhờ đó không đẩy hàng lỗi xuống công đoạn sau, chất lượng và tốc độ cùng tăng.</span><span class="en">The Toyota Production System (Lean/Kanban) caps work-in-progress and lets anyone stop the line on a defect — so faults aren't pushed downstream, and both quality and speed rise.</span></div>
+      </div>
+
+      <!-- C -->
+      <div class="subcard">
+        <h5><span class="badge">C</span><span class="vi">Bẫy tổ chức — mất người kế cận, đổ lỗi sai chỗ</span><span class="en">Organizational traps — losing successors, misplaced blame</span></h5>
+        <p class="sc-sub"><span class="vi">Gồm: đứt gãy đào tạo nghề, "vùng chịu tội thay", và đo nhầm chỉ số.</span><span class="en">Includes: the apprenticeship gap, the "moral crumple zone", and measuring the wrong metric.</span></p>
+        <div class="callout history"><span class="co-label"><span class="vi">Lịch sử</span><span class="en">History</span></span><span class="vi">Khi nhà máy tự động hóa, nhiều nghề thủ công truyền từ thầy sang thợ bị đứt mạch. Trong các tai nạn liên quan tự động hóa (máy bay, xe tự lái), người vận hành thường bị quy trách nhiệm dù thực tế kiểm soát rất ít — nhà nghiên cứu Madeleine Elish gọi đó là "vùng chịu tội thay" (moral crumple zone), như vùng biến dạng hấp thụ va chạm của xe hơi.</span><span class="en">As factories automated, many master-to-apprentice crafts lost their chain. In automation-related accidents (aircraft, self-driving cars), the operator is often blamed despite little real control — researcher Madeleine Elish calls it the "moral crumple zone", like a car's crumple zone absorbing the impact.</span></div>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Cắt việc "nhàm" của người mới mà AI làm được → người mới mất nấc thang để trở thành chuyên gia; người duyệt gánh lỗi của máy.</span><span class="en">Cut the "boring" junior work AI can do → juniors lose the ladder to expertise; approvers absorb the machine's faults.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Thiết kế lại lộ trình học nghề (kiểm chứng &amp; giám sát thành nghề chính); đo kết quả thật, không đo sản lượng.</span><span class="en">Redesign the learning path (verification &amp; oversight as the core craft); measure real outcomes, not output volume.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Giữ được nguồn chuyên gia cho 5–10 năm tới.</span><span class="en">Preserve the pipeline of experts for the next 5–10 years.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ thành công</span><span class="en">Success example</span></span><span class="vi">Ngành y giữ chế độ bác sĩ nội trú làm việc dưới giám sát; hàng không áp dụng "văn hóa công bằng" (just culture) — điều tra để học từ lỗi thay vì tìm người đổ tội, nhờ đó an toàn tăng đều qua các thập kỷ.</span><span class="en">Medicine keeps supervised residencies; aviation runs a "just culture" — investigating to learn from errors instead of finding someone to blame, which is why safety has improved steadily for decades.</span></div>
+      </div>
+
+      <!-- D -->
+      <div class="subcard">
+        <h5><span class="badge">D</span><span class="vi">Bẫy hệ sinh thái — mọi người nghĩ giống nhau</span><span class="en">Ecosystem traps — everyone thinking alike</span></h5>
+        <p class="sc-sub"><span class="vi">Gồm: đồng nhất hóa lời giải, nội dung tự nhiễm, và niềm tin dao động thất thường.</span><span class="en">Includes: solution homogenization, self-polluting content, and erratic trust swings.</span></p>
+        <div class="callout history"><span class="co-label"><span class="vi">Lịch sử</span><span class="en">History</span></span><span class="vi">Nạn đói khoai tây Ireland (1845) là bài học kinh điển về "độc canh": cả nước trồng cùng một giống khoai, một loại bệnh quét sạch. Đa dạng là lớp bảo hiểm trước rủi ro hệ thống — điều đúng cho cả nông nghiệp lẫn cách tư duy.</span><span class="en">The Irish Potato Famine (1845) is the classic lesson in "monoculture": a nation planting one potato variety, wiped out by one disease. Diversity is insurance against systemic risk — true for farming and for ways of thinking alike.</span></div>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Mọi người hỏi cùng một AI → lời giải hội tụ về một kiểu, mất đa dạng; AI lại học từ nội dung do AI viết → chất lượng nguồn trôi dần.</span><span class="en">Everyone asks the same AI → solutions converge, diversity fades; AI then trains on AI-written content → source quality drifts down.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Giữ nguồn gốc trực tiếp cho việc quan trọng; chủ động tìm cách nghĩ khác chuẩn mực.</span><span class="en">Keep primary sources for key work; deliberately seek off-consensus thinking.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Tránh rủi ro cả tập thể "cùng sai một kiểu".</span><span class="en">Avoid the risk of a whole group "being wrong the same way".</span></div>
+        </div>
+      </div>
+
+      <h4><span class="vi">Kiểm nhanh mức độ phụ thuộc</span><span class="en">Quick dependency check</span></h4>
+      <p><span class="vi">Hỏi: <em>"Nếu công cụ này biến mất 1 tuần, tôi và đội còn làm được việc gì?"</em> — khoảng cách giữa câu trả lời hôm nay và một năm trước cho biết mình đã rơi vào bẫy nhóm A/C sâu tới đâu.</span>
+      <span class="en">Ask: <em>"If this tool vanished for a week, what could my team and I still do?"</em> — the gap between the answer today and a year ago shows how deep you've fallen into traps A/C.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Sự vất vả (friction)</span><span class="en">Friction</span></dt><dd><span class="vi">Trở ngại buộc ta phải suy nghĩ và tự làm — nơi kỹ năng được rèn.</span><span class="en">Resistance that forces thinking and doing yourself — where skill is forged.</span></dd></div>
+        <div class="term"><dt><span class="vi">Thiên kiến tự động hóa (automation bias)</span><span class="en">Automation bias</span></dt><dd><span class="vi">Xu hướng tin kết quả của máy hơn quan sát của chính mình.</span><span class="en">The tendency to trust machine output over your own observation.</span></dd></div>
+        <div class="term"><dt><span class="vi">Bẫy trôi chảy (fluency trap)</span><span class="en">Fluency trap</span></dt><dd><span class="vi">Văn viết mượt tạo cảm giác đáng tin dù nội dung có thể sai.</span><span class="en">Smooth writing feels trustworthy even when the content is wrong.</span></dd></div>
+        <div class="term"><dt><span class="vi">Nghịch lý Jevons</span><span class="en">Jevons paradox</span></dt><dd><span class="vi">Càng hiệu quả càng dùng nhiều, tổng tiêu thụ tăng chứ không giảm.</span><span class="en">More efficiency leads to more use; total consumption rises, not falls.</span></dd></div>
+        <div class="term"><dt><span class="vi">Vùng chịu tội thay (moral crumple zone)</span><span class="en">Moral crumple zone</span></dt><dd><span class="vi">Người vận hành gánh trách nhiệm cho lỗi của máy dù kiểm soát rất ít.</span><span class="en">The operator absorbs blame for machine errors despite little control.</span></dd></div>
+        <div class="term"><dt><span class="vi">Độc canh (monoculture)</span><span class="en">Monoculture</span></dt><dd><span class="vi">Tất cả cùng một kiểu → một điểm yếu chung có thể quét sạch cả hệ.</span><span class="en">All alike → one shared weakness can wipe out the whole system.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 3: SLOW / FLEXIBLE (EXPANDED) ============ -->
+  <section class="section" id="sec3" aria-labelledby="sec3-h">
+    <div class="section-head">
+      <span class="sec-num">03</span>
+      <h3 id="sec3-h"><span class="vi">Chậm hơn ở đâu · Linh hoạt hơn ở đâu</span><span class="en">Where to slow down · Where to stay flexible</span></h3>
+      <a class="anchor" href="#sec3" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Một quy tắc chi phối cả hai vế.</span><span class="en">One rule governs both sides.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Nơi cần cẩn trọng và nơi cần buông bỏ.</span><span class="en">Where to be careful, and where to let go.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Dồn sự cẩn trọng vào đúng chỗ có đòn bẩy cao nhất.</span><span class="en">Concentrate caution where leverage is highest.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Con người thường làm ngược: vội ở quyết định, cứng nhắc ở thói quen.</span><span class="en">People often do it backwards: rushed on decisions, rigid on habits.</span></p></div>
+    </div>
+
+    <div class="body">
+      <pre class="ascii">CHẬM HƠN   nơi sai lầm ĐẮT + KHÓ ĐẢO NGƯỢC
+SLOW DOWN  where a mistake is EXPENSIVE + HARD TO REVERSE
+
+LINH HOẠT     nơi gắn bó ĐẮT + chóng LỖI THỜI
+STAY FLEXIBLE where attachment is COSTLY + quickly OBSOLETE</pre>
+      <div class="callout history"><span class="co-label"><span class="vi">Lịch sử</span><span class="en">History</span></span><span class="vi">Người La Mã cổ có châm ngôn "festina lente" — "nhanh mà chậm". Thợ mộc có câu "đo hai lần, cắt một lần". Cùng một ý: bỏ chút thời gian ở khâu không thể làm lại để tiết kiệm rất nhiều về sau.</span><span class="en">The ancient Romans said "festina lente" — "make haste slowly". Carpenters say "measure twice, cut once". Same idea: spend a little at the un-redoable step to save a lot later.</span></div>
+
+      <div class="subcard">
+        <h5><span class="vi">Cần CHẬM hơn</span><span class="en">Where to SLOW DOWN</span></h5>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Máy sinh 5 phương án trong 1 phút khiến ta tưởng phải chọn cũng trong 1 phút. Nhưng chi phí sửa sai vẫn y nguyên — chỉ chi phí tạo ra là giảm.</span><span class="en">The machine offers 5 options in a minute, tempting us to decide in a minute too. But the cost of fixing a wrong choice is unchanged — only the cost of creating it dropped.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Chậm lại ở: quyết định khó đảo (kiến trúc, dữ liệu, cam kết); nói rõ ý định đầu vào; kiểm chứng đầu ra; nạp kiến thức nền để đủ sức phán xét.</span><span class="en">Slow down on: irreversible decisions (architecture, data, commitments); clear intent up front; output verification; building the background to judge by.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Tránh những sai lầm đắt nhất — thứ ăn mòn toàn bộ tốc độ về sau.</span><span class="en">Avoid the most expensive mistakes — the kind that eat all your later speed.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ thành công</span><span class="en">Success example</span></span><span class="vi">Amazon phân biệt "cửa một chiều" và "cửa hai chiều": quyết định khó đảo (cửa một chiều) thì cân nhắc kỹ, quyết định đảo được (cửa hai chiều) thì làm nhanh. Nhờ vậy họ vừa cẩn trọng vừa nhanh nhẹn. Bác sĩ Atul Gawande cũng chứng minh: một bảng kiểm ngắn trước phẫu thuật (chậm vài phút) giảm mạnh biến chứng và tử vong.</span><span class="en">Amazon distinguishes "one-way doors" from "two-way doors": deliberate carefully on irreversible calls, move fast on reversible ones — careful and nimble at once. Surgeon Atul Gawande showed a short pre-surgery checklist (a few slow minutes) sharply cuts complications and deaths.</span></div>
+      </div>
+
+      <div class="subcard">
+        <h5><span class="vi">Cần LINH HOẠT hơn</span><span class="en">Where to STAY FLEXIBLE</span></h5>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Công cụ và cách làm đổi theo tháng. Ai gắn giá trị bản thân vào một thao tác cụ thể sẽ kháng cự đúng lúc thao tác đó bị thay thế.</span><span class="en">Tools and methods change monthly. Anyone who ties their self-worth to a specific operation will resist exactly when that operation gets replaced.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Linh hoạt ở: công cụ &amp; quy trình; danh tính nghề nghiệp; ranh giới việc người–máy; cách học (học theo nhu cầu). Coi chúng là biến số, xem lại định kỳ.</span><span class="en">Stay flexible on: tools &amp; process; professional identity; the human–machine task boundary; how you learn (just-in-time). Treat them as variables, review periodically.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Không bị mắc kẹt trong cách làm đã lỗi thời; thích nghi nhanh với thay đổi.</span><span class="en">Not stuck in outdated methods; adapt fast to change.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ thành công</span><span class="en">Success example</span></span><span class="vi">Netflix chuyển từ cho thuê đĩa DVD sang phát trực tuyến rồi tự sản xuất phim — buông mô hình cũ đúng lúc dù đang có lãi. Ngược lại, Kodak phát minh ra máy ảnh số nhưng bám lấy phim truyền thống vì sợ mất doanh thu, và sụp đổ. Linh hoạt về danh tính ("chúng ta bán trải nghiệm giải trí", không phải "chúng ta bán đĩa") quyết định ai sống sót.</span><span class="en">Netflix moved from mailing DVDs to streaming to producing its own shows — dropping the old model at the right time while still profitable. Kodak, by contrast, invented the digital camera but clung to film for fear of losing revenue, and collapsed. Flexible identity ("we sell entertainment", not "we sell discs") decides who survives.</span></div>
+      </div>
+
+      <p><span class="vi"><strong>Nghịch lý cần chấp nhận:</strong> chậm ở phán đoán chính là thứ cho phép nhanh ở mọi chỗ khác — vì chỉ khi kiểm chứng chắc chắn ta mới dám giao máy chạy song song nhiều luồng.</span>
+      <span class="en"><strong>The paradox to accept:</strong> being slow on judgment is what lets you be fast everywhere else — only solid verification makes it safe to run many parallel streams.</span></p>
+
+      <h4><span class="vi">Ma trận kiểm nhanh</span><span class="en">Quick-check matrix</span></h4>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Câu hỏi</span><span class="en">Question</span></th><th><span class="vi">Nếu CÓ →</span><span class="en">If YES →</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="vi">Sai ở đây có đắt hoặc khó sửa không?</span><span class="en">Is a mistake here expensive or hard to fix?</span></td><td><span class="vi">Chậm lại</span><span class="en">Slow down</span></td></tr>
+          <tr><td><span class="vi">Đây là thao tác hay là phán đoán?</span><span class="en">Is this a manual operation or a judgment?</span></td><td><span class="vi">Thao tác → buông; phán đoán → giữ &amp; rèn</span><span class="en">Operation → let go; judgment → keep &amp; hone</span></td></tr>
+          <tr><td><span class="vi">Giữ cách này vì nó đúng hay vì nó quen?</span><span class="en">Keeping this because it's right, or just familiar?</span></td><td><span class="vi">Quen → cần linh hoạt</span><span class="en">Familiar → be flexible</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Quyết định khó đảo ngược</span><span class="en">Irreversible decision</span></dt><dd><span class="vi">Lựa chọn mà chi phí sửa về sau rất cao — nên cân nhắc kỹ.</span><span class="en">A choice whose later reversal cost is very high — deliberate carefully.</span></dd></div>
+        <div class="term"><dt><span class="vi">Cửa một chiều / hai chiều</span><span class="en">One-way / two-way door</span></dt><dd><span class="vi">Cách Amazon gọi quyết định không thể / có thể đảo ngược.</span><span class="en">Amazon's terms for a decision you can't / can undo.</span></dd></div>
+        <div class="term"><dt><span class="vi">Ý định (intent)</span><span class="en">Intent</span></dt><dd><span class="vi">Điều ta thực sự muốn đạt được, phát biểu rõ ràng cho máy.</span><span class="en">What you truly want to achieve, stated clearly for the machine.</span></dd></div>
+        <div class="term"><dt><span class="vi">Kỹ năng nền (meta-skill)</span><span class="en">Meta-skill</span></dt><dd><span class="vi">Kỹ năng gốc (phán đoán, đặc tả, học) giữ giá trị dài lâu.</span><span class="en">A foundational skill (judgment, specification, learning) that stays valuable.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 4: SOFT SKILLS (EXPANDED) ============ -->
+  <section class="section" id="sec4" aria-labelledby="sec4-h">
+    <div class="section-head">
+      <span class="sec-num">04</span>
+      <h3 id="sec4-h"><span class="vi">Nhóm kỹ năng mềm đồng hành</span><span class="en">Soft-skill clusters</span></h3>
+      <a class="anchor" href="#sec4" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Rèn gì thì không sợ lỗi thời.</span><span class="en">What to hone so you won't be obsoleted.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Kỹ năng theo 4 giai đoạn của một vòng làm việc với trợ lý AI.</span><span class="en">Skills across four stages of a work cycle with an AI agent.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Đầu tư vào kỹ năng bổ trợ cho máy, buông kỹ năng máy thay được.</span><span class="en">Invest in skills that complement the machine; drop those it replaces.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Kỹ năng thao tác mất giá dần, nhưng nhiều người vẫn định danh mình bằng nó.</span><span class="en">Operational skills lose value, yet many still identify by them.</span></p></div>
+    </div>
+
+    <div class="body">
+      <div class="flow">
+        <span class="chip hi"><span class="vi">1. Định hình</span><span class="en">1. Shape</span></span><span class="arrow">→</span>
+        <span class="chip hi"><span class="vi">2. Điều phối</span><span class="en">2. Coordinate</span></span><span class="arrow">→</span>
+        <span class="chip hi"><span class="vi">3. Phán xét</span><span class="en">3. Judge</span></span><span class="arrow">→</span>
+        <span class="chip hi"><span class="vi">4. Thích nghi</span><span class="en">4. Adapt</span></span>
+      </div>
+
+      <div class="subcard">
+        <h5><span class="vi">1 · Định hình (trước khi giao việc)</span><span class="en">1 · Shape (before delegating)</span></h5>
+        <p class="sc-sub"><span class="vi">Định nghĩa đúng vấn đề · nói rõ yêu cầu (viết rõ = nghĩ rõ) · chia việc lớn thành phần nhỏ giao được.</span><span class="en">Define the right problem · state requirements clearly (clear writing = clear thinking) · split big work into delegable parts.</span></p>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Máy giải rất nhanh vấn đề được nêu ra — kể cả khi vấn đề đó nêu sai.</span><span class="en">The machine solves the stated problem fast — even when the problem is stated wrong.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Dành công sức làm rõ "vấn đề thật là gì" và tiêu chí hoàn thành trước khi bấm nút.</span><span class="en">Spend effort clarifying "what the real problem is" and the done-criteria before hitting go.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Không phải dọn hàng loạt kết quả đúng-hình-thức-nhưng-sai-ý.</span><span class="en">No cleanup of output that's technically right but misses the point.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ &amp; câu nói kinh điển</span><span class="en">Example &amp; classic quote</span></span><span class="vi">Câu thường gán cho Einstein: "Nếu có 1 giờ để cứu thế giới, tôi dành 55 phút định nghĩa vấn đề và 5 phút tìm lời giải." Amazon áp dụng lối "làm ngược" (working backwards): viết thông cáo báo chí cho sản phẩm <em>trước khi</em> bắt tay làm, để chốt rõ giá trị cần đạt.</span><span class="en">A quote often attributed to Einstein: "If I had an hour to save the world, I'd spend 55 minutes defining the problem and 5 minutes on the solution." Amazon "works backwards": writing a product's press release <em>before</em> building it, to lock in the value to be delivered.</span></div>
+      </div>
+
+      <div class="subcard">
+        <h5><span class="vi">2 · Điều phối (trong khi máy chạy)</span><span class="en">2 · Coordinate (while the machine runs)</span></h5>
+        <p class="sc-sub"><span class="vi">Giao đúng việc cho đúng mức tự trị · kỷ luật chú ý (chọn cái gì đọc kỹ, cái gì lướt).</span><span class="en">Delegate the right task at the right autonomy · attention discipline (choose what to read closely vs skim).</span></p>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Điều nhiều luồng cùng lúc dễ quá tải; khối lượng lớn kéo ta vào đọc lướt tất cả.</span><span class="en">Steering many streams overloads; sheer volume drags us into skimming everything.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Tư duy như người quản lý/nhạc trưởng: giới hạn số luồng, chủ động chọn điểm cần chú ý.</span><span class="en">Think like a manager/conductor: cap the streams, deliberately pick where attention goes.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Kiểm soát được chất lượng nhiều việc song song mà không kiệt sức.</span><span class="en">Control quality across parallel work without burning out.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ</span><span class="en">Example</span></span><span class="vi">Nhạc trưởng không tự chơi nhạc cụ nào, nhưng quyết định nhịp độ, sự cân bằng và điểm nhấn của cả dàn nhạc — giá trị nằm ở điều phối, không ở thao tác. Đây chính là vai trò con người đang dịch chuyển tới.</span><span class="en">A conductor plays no instrument yet sets the tempo, balance, and emphasis of the whole orchestra — value in coordination, not operation. This is exactly the human role now shifting into place.</span></div>
+      </div>
+
+      <div class="subcard">
+        <h5><span class="vi">3 · Phán xét (khi nhận kết quả)</span><span class="en">3 · Judge (when receiving results)</span></h5>
+        <p class="sc-sub"><span class="vi">Hoài nghi có hiệu chỉnh · phân biệt "trôi chảy" với "đúng" · dám chịu trách nhiệm cuối.</span><span class="en">Calibrated skepticism · telling "fluent" from "correct" · owning the final call.</span></p>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Kết quả trông trơn tru dễ khiến ta gật đầu; ai duyệt cũng gánh trách nhiệm cho thứ mình duyệt.</span><span class="en">Smooth-looking output invites a nod; whoever approves owns what they approved.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Đặt mức nghi ngờ theo loại việc máy giỏi/kém; dám nói "tôi chưa hiểu chỗ này nên chưa duyệt".</span><span class="en">Set doubt by what the machine is good/bad at; be willing to say "I don't understand this yet, so I won't approve it".</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Bắt được lỗi sớm, giữ được uy tín và an toàn.</span><span class="en">Catch errors early, keep credibility and safety.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ &amp; câu nói kinh điển</span><span class="en">Example &amp; classic quote</span></span><span class="vi">Biên tập viên báo chí luôn kiểm chứng nguồn trước khi đăng — nghề của họ là hoài nghi có phương pháp. Châm ngôn được Tổng thống Reagan làm nổi tiếng: "Tin, nhưng phải kiểm chứng" (trust, but verify).</span><span class="en">News editors verify sources before publishing — their craft is methodical skepticism. The maxim popularized by President Reagan: "Trust, but verify."</span></div>
+      </div>
+
+      <div class="subcard">
+        <h5><span class="vi">4 · Thích nghi (nền dài hạn)</span><span class="en">4 · Adapt (the long-term base)</span></h5>
+        <p class="sc-sub"><span class="vi">Học nhanh cái mới, quên có chọn lọc cái cũ · chịu được mơ hồ · giữ kỹ năng thuần con người (xây niềm tin, dẫn dắt, đọc bối cảnh).</span><span class="en">Learn the new fast, unlearn selectively · tolerate ambiguity · keep purely human skills (building trust, leading, reading context).</span></p>
+        <div class="psb">
+          <div class="cell p"><div class="p-label"><span class="vi">Vấn đề</span><span class="en">Problem</span></div><span class="vi">Ranh giới việc người–máy dịch chuyển liên tục; kiến thức "học một lần dùng mãi" không còn đủ.</span><span class="en">The human–machine boundary keeps shifting; "learn once, use forever" no longer suffices.</span></div>
+          <div class="cell s"><div class="p-label"><span class="vi">Giải pháp</span><span class="en">Solution</span></div><span class="vi">Coi việc học là liên tục; gắn giá trị bản thân vào kết quả, không vào một thao tác cố định.</span><span class="en">Treat learning as continuous; tie self-worth to outcomes, not a fixed operation.</span></div>
+          <div class="cell b"><div class="p-label"><span class="vi">Lợi ích</span><span class="en">Benefit</span></div><span class="vi">Vững vàng qua mỗi làn sóng công nghệ thay vì bị nó cuốn đi.</span><span class="en">Stay steady through each tech wave instead of being swept away.</span></div>
+        </div>
+        <div class="callout example"><span class="co-label"><span class="vi">Ví dụ &amp; câu nói kinh điển</span><span class="en">Example &amp; classic quote</span></span><span class="vi">Nguyên tắc thường gắn với thuyết Darwin: không phải loài mạnh nhất hay thông minh nhất sống sót, mà là loài thích nghi tốt nhất với thay đổi. Máy càng gánh phần kỹ thuật, phần quyết định giá trị của một người càng dồn về kỹ năng con người.</span><span class="en">A principle often linked to Darwin: it's not the strongest or smartest that survive, but those most adaptable to change. The more the machine carries the technical load, the more a person's value concentrates in human skills.</span></div>
+      </div>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Giai đoạn</span><span class="en">Stage</span></th><th><span class="vi">Kỹ năng lõi</span><span class="en">Core skills</span></th><th><span class="vi">Đối trọng bẫy</span><span class="en">Counters trap</span></th></tr></thead>
+        <tbody>
+          <tr><td><strong><span class="vi">Trước</span><span class="en">Before</span></strong></td><td><span class="vi">Định nghĩa vấn đề, đặc tả, phân rã việc</span><span class="en">Problem framing, specification, decomposition</span></td><td>B</td></tr>
+          <tr><td><strong><span class="vi">Trong</span><span class="en">During</span></strong></td><td><span class="vi">Điều phối, kỷ luật chú ý</span><span class="en">Orchestration, attention discipline</span></td><td>A</td></tr>
+          <tr><td><strong><span class="vi">Sau</span><span class="en">After</span></strong></td><td><span class="vi">Hoài nghi hiệu chỉnh, chịu trách nhiệm</span><span class="en">Calibrated skepticism, ownership</span></td><td>A · C</td></tr>
+          <tr><td><strong><span class="vi">Nền</span><span class="en">Base</span></strong></td><td><span class="vi">Thích nghi, kỹ năng thuần người</span><span class="en">Adaptability, purely human skills</span></td><td>C</td></tr>
+        </tbody>
+      </table></div>
+      <p><span class="vi"><strong>Mẫu số chung:</strong> tất cả đều là kỹ năng <em>phán đoán và quan hệ con người</em>, không phải thao tác — đây chính là ranh giới giữa phần máy bổ trợ và phần máy thay thế.</span>
+      <span class="en"><strong>Common denominator:</strong> all are <em>judgment and human-relational</em> skills, not operational ones — precisely the line between what the machine complements and what it replaces.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Định nghĩa vấn đề (problem framing)</span><span class="en">Problem framing</span></dt><dd><span class="vi">Xác định đúng vấn đề cần giải trước khi bắt tay giải.</span><span class="en">Pinning down the right problem before solving it.</span></dd></div>
+        <div class="term"><dt><span class="vi">Phân rã việc (decomposition)</span><span class="en">Decomposition</span></dt><dd><span class="vi">Cắt việc lớn thành các phần nhỏ có ranh giới rõ, giao được.</span><span class="en">Cutting big work into small, clearly bounded, delegable parts.</span></dd></div>
+        <div class="term"><dt><span class="vi">Hoài nghi có hiệu chỉnh</span><span class="en">Calibrated skepticism</span></dt><dd><span class="vi">Không tin mù cũng không bác bỏ mù — đặt mức nghi theo bằng chứng.</span><span class="en">Neither blind trust nor blind rejection — doubt set by evidence.</span></dd></div>
+        <div class="term"><dt><span class="vi">Chịu trách nhiệm (ownership)</span><span class="en">Ownership</span></dt><dd><span class="vi">Nhận trách nhiệm cuối cùng cho thứ mình phê duyệt.</span><span class="en">Taking final responsibility for what you approve.</span></dd></div>
+        <div class="term"><dt><span class="vi">Nhanh nhạy học hỏi (learning agility)</span><span class="en">Learning agility</span></dt><dd><span class="vi">Học cái mới nhanh và mạnh dạn bỏ cái đã lỗi thời.</span><span class="en">Learning the new quickly and boldly dropping the obsolete.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 5: HUMAN -> MACHINE ============ -->
+  <section class="section" id="sec5" aria-labelledby="sec5-h">
+    <div class="section-head">
+      <span class="sec-num">05</span>
+      <h3 id="sec5-h"><span class="vi">Giao tiếp Người → Máy</span><span class="en">Communication: Human → Machine</span></h3>
+      <a class="anchor" href="#sec5" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Diễn đạt để máy hiểu đúng ngay lần đầu.</span><span class="en">Express so the machine gets it right the first time.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Ba tầng thông tin và cách chọn ngôn ngữ diễn đạt.</span><span class="en">Three information layers and how to choose language.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Truyền ý định kiểm được để máy tự chạy tới kết quả đúng.</span><span class="en">Convey a testable intent so the machine self-runs to a correct result.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Yêu cầu mơ hồ bị nhân bản thành kết quả sai với tốc độ máy.</span><span class="en">Vague requests get replicated into wrong output at machine speed.</span></p></div>
+    </div>
+
+    <div class="body">
+      <h4><span class="vi">Ba tầng, ba vòng đời</span><span class="en">Three layers, three lifespans</span></h4>
+      <pre class="ascii">Ý ĐỊNH (prompt)   - sống 1 lượt    -> điều muốn đạt lần này
+NGỮ CẢNH (context)- sống 1 dự án   -> sự thật ổn định của môi trường
+QUY TRÌNH(workflow)-sống dài hạn   -> cơ chế để máy tự sửa
+                                      mà không cần nói lại</pre>
+
+      <h4><span class="vi">Lựa chọn ngôn ngữ — ưu tiên theo đòn bẩy</span><span class="en">Language choice — priority by leverage</span></h4>
+      <pre class="ascii">KIỂM ĐƯỢC (điều kiện xong) ****  máy tự kiểm & tự lặp tới đúng
+ĐỐI TƯỢNG (gọi tên rõ)     ***   khỏi phải đoán đang nói về cái gì
+ĐỘNG TỪ  (nghĩa hẹp)       ***   khóa chặt phạm vi hành động
+TÍNH TỪ  (định lượng)      **    đổi cảm tính thành ngưỡng đo
+Súc tích                   *     là HỆ QUẢ, không phải mục tiêu</pre>
+      <ul>
+        <li><strong><span class="vi">Động từ</span><span class="en">Verb</span>:</strong> <span class="vi">dùng động từ hẹp ("giảm X còn Y", "gộp A vào B") thay vì rộng ("cải thiện", "tối ưu").</span><span class="en">use narrow verbs ("reduce X to Y", "merge A into B") over broad ones ("improve", "optimize").</span></li>
+        <li><strong><span class="vi">Đối tượng</span><span class="en">Subject</span>:</strong> <span class="vi">gọi tên cụ thể (đường dẫn tệp, tên hàm, số hiệu) thắng mô tả chung; lặp lại danh từ thay vì dùng "nó".</span><span class="en">name it specifically (file path, function name, number) over vague description; repeat the noun instead of "it".</span></li>
+        <li><strong><span class="vi">Tính từ</span><span class="en">Adjective</span>:</strong> <span class="vi">quy đổi tính từ định tính thành con số — "nhanh" → "phản hồi dưới 200 mili-giây".</span><span class="en">convert qualitative adjectives to numbers — "fast" → "responds under 200 ms".</span></li>
+        <li><strong><span class="vi">Súc tích</span><span class="en">Concise</span>:</strong> <span class="vi">đo bằng <em>mật độ ràng buộc trên mỗi dòng</em>, không phải số dòng. Cắt lời khách sáo, giữ ràng buộc.</span><span class="en">measured by <em>constraint density per line</em>, not line count. Cut pleasantries, keep constraints.</span></li>
+      </ul>
+
+      <h4><span class="vi">Khuôn ghép đủ bộ</span><span class="en">The full template</span></h4>
+      <pre class="ascii">[ĐỘNG TỪ hẹp] [ĐỐI TƯỢNG gọi tên rõ]
+[RÀNG BUỘC định lượng]
+[RANH GIỚI: không được đụng vào cái gì]
+[XONG KHI: lệnh chạy + kết quả quan sát được]</pre>
+      <p><span class="vi"><em>Ví dụ (dành cho lập trình, nhưng nguyên tắc áp dụng cho mọi việc):</em> "Viết lại hàm <code>parsePayment()</code> trong tệp <code>src/billing.ts</code>, giữ nguyên giao diện công khai, rút còn tối đa 50 dòng, không thêm thư viện. Xong khi bộ kiểm tra <code>npm test -- billing</code> chạy đạt toàn bộ."</span>
+      <span class="en"><em>Example (coding, but the principle applies to any task):</em> "Rewrite <code>parsePayment()</code> in <code>src/billing.ts</code>, keep the public interface, cut to ≤50 lines, add no library. Done when <code>npm test -- billing</code> fully passes."</span></p>
+      <p><span class="vi"><strong>Cách tự kiểm trước khi gửi:</strong> che phần "Xong khi" và hỏi "máy có thể làm ra một thứ thỏa mãn mọi chữ trong câu này mà vẫn sai ý mình không?" — nếu có, ràng buộc còn thiếu nằm đúng ngay chỗ đó.</span>
+      <span class="en"><strong>Self-check before sending:</strong> hide the "Done when" part and ask "could the machine satisfy every word here and still miss my intent?" — if yes, the missing constraint sits exactly there.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Câu lệnh yêu cầu (prompt)</span><span class="en">Prompt</span></dt><dd><span class="vi">Nội dung ta gõ cho AI để nêu việc cần làm ngay lúc này.</span><span class="en">What you type to the AI to state the task right now.</span></dd></div>
+        <div class="term"><dt><span class="vi">Điều kiện hoàn thành (done-condition)</span><span class="en">Done-condition</span></dt><dd><span class="vi">Tiêu chí máy tự chạy được và quan sát được để biết đã xong.</span><span class="en">A criterion the machine can run and observe to know it's finished.</span></dd></div>
+        <div class="term"><dt><span class="vi">Ràng buộc (constraint)</span><span class="en">Constraint</span></dt><dd><span class="vi">Giới hạn cần tuân thủ khi làm (thời gian, phạm vi, điều cấm).</span><span class="en">A limit to obey while doing the work (time, scope, prohibitions).</span></dd></div>
+        <div class="term"><dt><span class="vi">Mật độ ràng buộc</span><span class="en">Constraint density</span></dt><dd><span class="vi">Lượng ràng buộc hữu ích trên mỗi dòng — thước đo "súc tích" thật.</span><span class="en">Useful constraints per line — the real measure of "concise".</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 6: MACHINE -> HUMAN ============ -->
+  <section class="section" id="sec6" aria-labelledby="sec6-h">
+    <div class="section-head">
+      <span class="sec-num">06</span>
+      <h3 id="sec6-h"><span class="vi">Giao tiếp Máy → Người</span><span class="en">Communication: Machine → Human</span></h3>
+      <a class="anchor" href="#sec6" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Chọn cách trình bày theo cấu trúc thông tin.</span><span class="en">Pick the presentation form by the data's structure.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Khi nào dùng bảng / cây / sơ đồ / văn xuôi, và khi nào tóm tắt trước.</span><span class="en">When to use table / tree / diagram / prose, and when to summarize first.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Cách trình bày khớp cấu trúc dữ liệu + thói quen đọc thật.</span><span class="en">Match the form to data structure + real reading habits.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Người đọc lướt, bị ngắt quãng, và dừng bất cứ lúc nào.</span><span class="en">Readers skim, get interrupted, and stop anytime.</span></p></div>
+    </div>
+
+    <div class="body">
+      <h4><span class="vi">Chọn dạng theo kiểu quan hệ của dữ liệu</span><span class="en">Choose by the data's relationship type</span></h4>
+      <pre class="ascii">Không quan hệ, cùng thuộc tính     -> BẢNG   (table)
+Cha-con, mỗi con một cha           -> CÂY    (tree)
+Nhiều-nhiều, có hướng, có vòng     -> SƠ ĐỒ  (diagram)
+Nhân-quả, cần lập luận             -> VĂN XUÔI (prose)
+Tuần tự theo bước                  -> DANH SÁCH (list)</pre>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Dạng</span><span class="en">Form</span></th><th><span class="vi">Dùng khi</span><span class="en">Use when</span></th><th><span class="vi">Dấu hiệu cần đổi dạng</span><span class="en">Switch signal</span></th></tr></thead>
+        <tbody>
+          <tr><td><strong><span class="vi">Bảng</span><span class="en">Table</span></strong></td><td><span class="vi">Nhiều mục đồng nhất, so cùng vài thuộc tính.</span><span class="en">Many uniform items compared on shared attributes.</span></td><td><span class="vi">Nhiều ô trống hoặc phình dài → tách thành đoạn.</span><span class="en">Many blank or bloated cells → split into sections.</span></td></tr>
+          <tr><td><strong><span class="vi">Cây</span><span class="en">Tree</span></strong></td><td><span class="vi">Quan hệ bao-chứa, mỗi nhánh một gốc.</span><span class="en">Containment, one parent per branch.</span></td><td><span class="vi">Một mục có hai gốc → chuyển sơ đồ; sâu quá 3 tầng → cắt nhỏ.</span><span class="en">An item with two parents → use a diagram; deeper than 3 levels → split.</span></td></tr>
+          <tr><td><strong><span class="vi">Sơ đồ</span><span class="en">Diagram</span></strong></td><td><span class="vi">Quan hệ nhiều-nhiều, có chiều hoặc có vòng lặp.</span><span class="en">Many-to-many, directed or cyclic.</span></td><td><span class="vi">Quá ~15 nút → tách lớp (tổng quan rồi phóng to).</span><span class="en">More than ~15 nodes → layer it (overview then zoom).</span></td></tr>
+          <tr><td><strong><span class="vi">Văn xuôi</span><span class="en">Prose</span></strong></td><td><span class="vi">Giá trị nằm ở mạch lập luận nhân-quả.</span><span class="en">Value lives in the causal reasoning.</span></td><td><span class="vi">Bẻ thành gạch đầu dòng = chặt đứt mạch suy luận.</span><span class="en">Bulleting it = severing the reasoning chain.</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4><span class="vi">Khi nào cần "tóm tắt trước, chi tiết sau"</span><span class="en">When to go "summary first, detail later"</span></h4>
+      <p><span class="vi">Áp dụng khi chạm <strong>1 trong 4</strong>: (1) dài quá một màn hình (~30 dòng); (2) trả lời từ 3 chủ đề trở lên; (3) có quyết định/việc cần người làm; (4) đọc trong hoàn cảnh bất lợi (điện thoại, giữa cuộc họp, dễ bị ngắt).</span>
+      <span class="en">Apply when <strong>any of 4</strong> holds: (1) longer than one screen (~30 lines); (2) answers 3+ topics; (3) contains a decision/action for the person; (4) read in bad conditions (phone, mid-meeting, easily interrupted).</span></p>
+      <pre class="ascii">[1] TÓM TẮT (3-5 dòng): kết luận + việc cần làm + cảnh báo rủi ro
+[2] CÁC ĐOẠN ĐỘC LẬP  : mỗi đoạn trả trọn một câu hỏi con
+[3] CHI TIẾT / PHỤ LỤC: số liệu, bằng chứng - đọc khi cần</pre>
+      <p><span class="vi"><strong>Kiểm nhanh:</strong> "Nếu người đọc dừng ở dòng thứ 5, họ có mang đi được kết luận và việc cần làm không?"</span>
+      <span class="en"><strong>Quick test:</strong> "If the reader stops at line 5, do they leave with the conclusion and the action?"</span></p>
+
+      <h4><span class="vi">Ba lớp phải ghi nhãn rõ ràng</span><span class="en">Three layers to label explicitly</span></h4>
+      <div class="flow">
+        <span class="chip"><span class="vi">Đây là sự thật hay phỏng đoán? (kèm độ tự tin)</span><span class="en">Fact or guess? (with confidence)</span></span>
+        <span class="chip"><span class="vi">Cần người làm gì? (quyết định / xem lại / chỉ để biết)</span><span class="en">What's needed? (decide / review / just FYI)</span></span>
+        <span class="chip"><span class="vi">Bất thường &amp; rủi ro (đưa lên đầu)</span><span class="en">Anomaly &amp; risk (surface first)</span></span>
+      </div>
+      <p class="caption"><span class="vi">Vì văn AI trôi chảy đều giọng, ba lớp này dễ bị che mất nếu không ghi nhãn rõ.</span><span class="en">Because AI prose is uniformly fluent, these three layers get hidden unless labeled clearly.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Kết luận trước (BLUF)</span><span class="en">BLUF</span></dt><dd><span class="vi">"Bottom Line Up Front" — nêu kết luận ngay đầu, chi tiết để sau.</span><span class="en">"Bottom Line Up Front" — state the conclusion first, detail later.</span></dd></div>
+        <div class="term"><dt><span class="vi">Tiết lộ dần (progressive disclosure)</span><span class="en">Progressive disclosure</span></dt><dd><span class="vi">Đưa thông tin theo lớp: tóm tắt → điểm chính → chi tiết khi hỏi.</span><span class="en">Reveal in layers: summary → highlights → detail on request.</span></dd></div>
+        <div class="term"><dt><span class="vi">Tiêu đề mang thông tin</span><span class="en">Informative header</span></dt><dd><span class="vi">Tiêu đề là một kết luận thu nhỏ, không phải nhãn chung chung.</span><span class="en">A heading that is a mini-conclusion, not a generic label.</span></dd></div>
+        <div class="term"><dt><span class="vi">Đoạn tự đứng được</span><span class="en">Self-contained section</span></dt><dd><span class="vi">Đọc riêng vẫn hiểu, có nhắc lại bối cảnh cục bộ.</span><span class="en">Understandable on its own, with a local context reminder.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 7: CROSS-CUTTING ============ -->
+  <section class="section" id="sec7" aria-labelledby="sec7-h">
+    <div class="section-head">
+      <span class="sec-num">07</span>
+      <h3 id="sec7-h"><span class="vi">Chỉ số xuyên suốt</span><span class="en">Cross-cutting principles</span></h3>
+      <a class="anchor" href="#sec7" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Một nguyên tắc lặp lại ở mọi phần.</span><span class="en">One principle recurring in every section.</span></p>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Sợi chỉ nối tất cả các phần trên.</span><span class="en">The thread tying all sections together.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Có một kim chỉ nam duy nhất, dễ nhớ, dễ áp dụng.</span><span class="en">Hold one memorable, applicable north star.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Nhiều nguyên tắc rời rạc khó nhớ và khó dùng khi vội.</span><span class="en">Scattered principles are hard to recall and use under pressure.</span></p></div>
+    </div>
+
+    <div class="body">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Chủ đề</span><span class="en">Theme</span></th><th><span class="vi">Đều quy về</span><span class="en">Reduces to</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="vi">Xu hướng máy</span><span class="en">Machine trend</span></td><td><span class="vi">Mức tự trị tỷ lệ với sức kiểm chứng.</span><span class="en">Autonomy scales with verification capacity.</span></td></tr>
+          <tr><td><span class="vi">Các bẫy</span><span class="en">Traps</span></td><td><span class="vi">Bỏ đi sự vất vả = bỏ đi kỹ năng.</span><span class="en">Removing friction = removing skill.</span></td></tr>
+          <tr><td><span class="vi">Chậm / linh hoạt</span><span class="en">Slow / flexible</span></td><td><span class="vi">Chậm ở phán đoán, buông ở thao tác.</span><span class="en">Slow on judgment, let go on operation.</span></td></tr>
+          <tr><td><span class="vi">Kỹ năng mềm</span><span class="en">Soft skills</span></td><td><span class="vi">Kỹ năng bổ trợ máy tăng giá, kỹ năng bị thay mất giá.</span><span class="en">Complements appreciate; substitutes depreciate.</span></td></tr>
+          <tr><td><span class="vi">Giao tiếp 2 chiều</span><span class="en">2-way comms</span></td><td><span class="vi">Giảm công sức kiểm chứng của người tiếp nhận.</span><span class="en">Lower the receiver's cost of verification.</span></td></tr>
+        </tbody>
+      </table></div>
+      <p><span class="vi"><strong>Điểm gặp nhau:</strong> giao tiếp tốt nhất dần rời khỏi hội thoại tạm thời, đi vào <em>tài sản bền vững</em> (bản đặc tả có tiêu chí đo được, tài liệu dự án, công cụ tái dùng, bộ kiểm tra). Chất lượng phối hợp của một cặp người–AI đo bằng <em>tỷ lệ hiểu lầm phải sửa bằng lời giảm dần theo thời gian</em> — vì mỗi lần sửa đã được chuyển thành một cơ chế.</span>
+      <span class="en"><strong>The meeting point:</strong> the best communication gradually leaves transient chat and moves into <em>durable assets</em> (specs with measurable criteria, project docs, reusable tools, test suites). A human–AI pair's collaboration quality is measured by <em>the declining rate of misunderstandings that must be fixed with words</em> — because each fix has become a mechanism.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Tài sản bền vững (durable artifact)</span><span class="en">Durable artifact</span></dt><dd><span class="vi">Vật phẩm kiểm được, giữ lại được (đặc tả, công cụ, bộ kiểm tra) thay cho hội thoại tạm.</span><span class="en">A verifiable, retained object (spec, tool, test) replacing transient chat.</span></dd></div>
+        <div class="term"><dt><span class="vi">Công sức kiểm chứng</span><span class="en">Cost of verification</span></dt><dd><span class="vi">Sức lực người tiếp nhận bỏ ra để tin được thông tin.</span><span class="en">The effort the receiver spends to trust the information.</span></dd></div>
+        <div class="term"><dt><span class="vi">Nguồn gốc (primary source)</span><span class="en">Primary source</span></dt><dd><span class="vi">Nguồn trực tiếp, dùng cho các khẳng định quan trọng.</span><span class="en">The direct origin, used for important claims.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <!-- ============ SECTION 8: TECHNICAL APPENDIX (MOVED TO BOTTOM) ============ -->
+  <section class="section" id="sec8" aria-labelledby="sec8-h">
+    <div class="section-head">
+      <span class="sec-num">08</span>
+      <h3 id="sec8-h"><span class="vi">Chi tiết kỹ thuật: Skill/Command mới nhất của Claude Code</span><span class="en">Technical appendix: latest Claude Code skills/commands</span></h3>
+      <a class="anchor" href="#sec8" aria-label="anchor">#</a>
+    </div>
+    <p class="lead"><span class="vi">Dữ kiện gốc dành cho người kỹ thuật — đặt ở cuối vì đây là phần chuyên sâu.</span><span class="en">The raw fact for technical readers — placed last as it is the deep-dive part.</span></p>
+
+    <div class="callout"><span class="co-label"><span class="vi">Ngày lấy thông tin</span><span class="en">Data retrieved on</span></span><span class="vi"><strong>18/07/2026</strong>, từ tài liệu chính thức tại code.claude.com/docs/en/commands và /skills. Tính năng Claude Code thay đổi theo tháng — hãy kiểm tra lại nguồn để có bản cập nhật nhất.</span><span class="en"><strong>18 Jul 2026</strong>, from official docs at code.claude.com/docs/en/commands and /skills. Claude Code features change monthly — recheck the source for the latest.</span></div>
+
+    <div class="meta-grid">
+      <div class="meta-card topic"><div class="mc-label">Topic · <span class="vi">Chủ đề</span><span class="en">Topic</span></div><p><span class="vi">Bộ lệnh dựng sẵn (bundled skills) và quy trình tự động của Claude Code.</span><span class="en">The bundled skills and workflows of Claude Code.</span></p></div>
+      <div class="meta-card goal"><div class="mc-label">Goal · <span class="vi">Mục tiêu</span><span class="en">Goal</span></div><p><span class="vi">Thấy hướng dịch chuyển của công cụ qua chính tính năng nó cung cấp.</span><span class="en">See the tool's direction through the features it ships.</span></p></div>
+      <div class="meta-card pain"><div class="mc-label">Pain · <span class="vi">Nỗi đau</span><span class="en">Pain</span></div><p><span class="vi">Tính năng đổi theo tháng; danh sách nhớ trong đầu nhanh lỗi thời.</span><span class="en">Features change monthly; any memorized list goes stale fast.</span></p></div>
+    </div>
+
+    <div class="body">
+      <p><span class="vi"><strong>Thay đổi cấu trúc quan trọng nhất:</strong> lệnh tùy chỉnh (custom command) đã được gộp vào "kỹ năng" (skill). Tệp <code>.claude/commands/deploy.md</code> và kỹ năng <code>.claude/skills/deploy/SKILL.md</code> đều tạo ra lệnh <code>/deploy</code>. Nội dung kỹ năng chỉ được nạp khi dùng, nên tài liệu dài gần như không tốn "bộ nhớ ngữ cảnh" cho đến khi cần.</span>
+      <span class="en"><strong>The key structural change:</strong> custom commands have merged into "skills". A file <code>.claude/commands/deploy.md</code> and a skill <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code>. A skill's body loads only when used, so long docs cost almost no "context memory" until needed.</span></p>
+
+      <h4><span class="vi">Nhóm kỹ năng dựng sẵn</span><span class="en">Bundled skills</span></h4>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th><span class="vi">Lệnh</span><span class="en">Command</span></th><th><span class="vi">Chức năng</span><span class="en">Function</span></th></tr></thead>
+        <tbody>
+          <tr><td><code>/batch</code></td><td><span class="vi">Chia thay đổi lớn thành 5–30 phần chạy song song trong bản sao mã nguồn riêng, mỗi phần mở một yêu cầu gộp mã (PR).</span><span class="en">Split a large change into 5–30 parallel units in isolated code copies, each opening a pull request (PR).</span></td></tr>
+          <tr><td><code>/code-review</code></td><td><span class="vi">Rà soát thay đổi tìm lỗi + dọn dẹp; mức <code>ultra</code> chạy rà soát trên máy chủ đám mây.</span><span class="en">Review the change for bugs + cleanups; <code>ultra</code> runs a cloud review.</span></td></tr>
+          <tr><td><code>/run</code> · <code>/verify</code></td><td><span class="vi">Chạy thật ứng dụng để kiểm chứng thay đổi — không chỉ dựa vào bài kiểm tra tự động.</span><span class="en">Actually run the app to verify a change — not just rely on automated tests.</span></td></tr>
+          <tr><td><code>/dataviz</code></td><td><span class="vi">Hướng dẫn thiết kế biểu đồ/bảng điều khiển, kiểm màu an toàn cho người mù màu.</span><span class="en">Chart/dashboard design guidance with colorblind-safe checks.</span></td></tr>
+          <tr><td><code>/doctor</code></td><td><span class="vi">Kiểm tra + sửa lỗi cài đặt, dọn tệp cấu hình dự án, tối ưu bộ nhớ ngữ cảnh.</span><span class="en">Diagnose + fix setup, trim the project config file, optimize context memory.</span></td></tr>
+          <tr><td><code>/deep-research</code></td><td><span class="vi"><em>Quy trình tự động.</em> Tỏa nhiều tìm kiếm web, đối chiếu nguồn, tổng hợp báo cáo có trích dẫn.</span><span class="en"><em>Workflow.</em> Fan out web searches, cross-check sources, synthesize a cited report.</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4><span class="vi">Các thay đổi mới nhất (theo phiên bản)</span><span class="en">Newest changes (by version)</span></h4>
+      <ul>
+        <li><strong>v2.1.212:</strong> <span class="vi"><code>/fork</code> (sao hội thoại sang phiên chạy nền), <code>/subtask</code> (giao việc phụ cho trợ lý con).</span><span class="en"><code>/fork</code> (copy the conversation to a background session), <code>/subtask</code> (hand a side task to a sub-agent).</span></li>
+        <li><strong>v2.1.199:</strong> <span class="vi">nối chuỗi kỹ năng — gõ nhiều lệnh liền nhau sẽ nạp tất cả (tối đa 6).</span><span class="en">skill chaining — several commands in a row load all of them (up to 6).</span></li>
+        <li><strong>v2.1.152:</strong> <span class="vi"><code>/reload-skills</code> — nạp lại kỹ năng vừa thêm/sửa mà không cần khởi động lại.</span><span class="en"><code>/reload-skills</code> — reload added/edited skills without restarting.</span></li>
+        <li><strong>v2.1.145:</strong> <span class="vi"><code>/run</code>, <code>/verify</code>, <code>/run-skill-generator</code>.</span><span class="en"><code>/run</code>, <code>/verify</code>, <code>/run-skill-generator</code>.</span></li>
+      </ul>
+      <p class="caption"><span class="vi">Nguồn: code.claude.com/docs/en/commands · /skills — truy cập ngày 18/07/2026.</span><span class="en">Source: code.claude.com/docs/en/commands · /skills — accessed 18 Jul 2026.</span></p>
+    </div>
+
+    <footer class="glossary">
+      <h4><span class="vi">Thuật ngữ dùng trong phần này</span><span class="en">Terms used in this section</span></h4>
+      <dl>
+        <div class="term"><dt><span class="vi">Kỹ năng (skill)</span><span class="en">Skill</span></dt><dd><span class="vi">Gói hướng dẫn mở rộng năng lực của AI; chỉ nạp khi cần dùng.</span><span class="en">An instruction package extending the AI's ability; loaded only when needed.</span></dd></div>
+        <div class="term"><dt><span class="vi">Lệnh (command)</span><span class="en">Command</span></dt><dd><span class="vi">Chuỗi gõ bắt đầu bằng dấu "/" để ra lệnh nhanh, ví dụ <code>/run</code>.</span><span class="en">A "/"-prefixed shortcut to issue a quick instruction, e.g. <code>/run</code>.</span></dd></div>
+        <div class="term"><dt><span class="vi">Quy trình tự động (workflow)</span><span class="en">Workflow</span></dt><dd><span class="vi">Chuỗi việc tự phân ra nhiều trợ lý con chạy nền.</span><span class="en">A process that fans work out to background sub-agents.</span></dd></div>
+        <div class="term"><dt><span class="vi">Yêu cầu gộp mã (pull request / PR)</span><span class="en">Pull request (PR)</span></dt><dd><span class="vi">Đề nghị đưa một thay đổi mã vào dự án, để người khác xem xét trước khi chấp nhận.</span><span class="en">A proposal to merge a code change, reviewed before acceptance.</span></dd></div>
+      </dl>
+    </footer>
+  </section>
+
+  <p class="footer-note">
+    <span class="vi">Tài liệu tĩnh · chạy độc lập trong trình duyệt · song ngữ VI/EN · phần kỹ thuật cập nhật 18/07/2026</span>
+    <span class="en">Static document · runs standalone in the browser · bilingual VI/EN · technical part updated 18 Jul 2026</span>
+  </p>
+
+  </div>
+</div>
+
+<button class="backtop" id="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<script>
+(function(){
+  var root=document.documentElement, body=document.body;
+  function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+
+  window.setLang=function(l){
+    root.setAttribute('data-lang',l);root.setAttribute('lang',l);
+    document.getElementById('lang-vi').setAttribute('aria-pressed', l==='vi');
+    document.getElementById('lang-en').setAttribute('aria-pressed', l==='en');
+    save('lang',l);
+  };
+  var savedLang=load('lang'); if(savedLang) setLang(savedLang);
+
+  var themes=['auto','light','dark'], icons={auto:'🌗',light:'☀️',dark:'🌙'};
+  function applyTheme(t){root.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=icons[t];save('theme',t);}
+  window.cycleTheme=function(){var cur=root.getAttribute('data-theme');var i=(themes.indexOf(cur)+1)%themes.length;applyTheme(themes[i]);};
+  var savedTheme=load('theme'); applyTheme(savedTheme||'auto');
+
+  var isMobile=function(){return window.matchMedia('(max-width:960px)').matches;};
+  window.toggleNav=function(){ if(isMobile()){ body.classList.toggle('nav-open'); } else { body.classList.toggle('collapsed'); } };
+  window.closeNav=function(){ body.classList.remove('nav-open'); };
+  document.querySelectorAll('#toc a').forEach(function(a){ a.addEventListener('click',function(){ if(isMobile()) closeNav(); }); });
+
+  var bt=document.getElementById('backtop');
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var map={}; links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var targets=[].slice.call(document.querySelectorAll('section[id], header#intro'));
+  var spy=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ links.forEach(function(a){a.classList.remove('active');}); var id=en.target.id; if(map[id]) map[id].classList.add('active'); }
+    });
+  },{rootMargin:'-20% 0px -70% 0px',threshold:0});
+  targets.forEach(function(t){spy.observe(t);});
+
+  window.addEventListener('scroll',function(){ if(window.scrollY>500) bt.classList.add('show'); else bt.classList.remove('show'); },{passive:true});
+})();
+</script>
+</body>
+</html>

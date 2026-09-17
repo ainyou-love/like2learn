@@ -1,0 +1,2173 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cách sử dụng Claude Code trong dự án phần mềm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>
+:root{
+  --ground:#F2F5F6; --surface:#FFFFFF; --tint:#E8EEF0; --panel:#F7F9FA;
+  --ink:#141C20; --muted:#55646B; --line:#D4DDE1; --line-soft:#E3EAEC;
+  --t1:#235C93; --t1-soft:#E4EEF7; --t1-fill:rgba(35,92,147,.13);
+  --t2:#8C5210; --t2-soft:#F8EEDF; --t2-fill:rgba(140,82,16,.13);
+  --guard:#92302A; --guard-soft:#F8E8E6;
+  --code-ink:#243138;
+  --v-b1:#DCE7EE; --v-b2:#E9EFF2; --v-b3:#F3E3E0; --v-b4:#EDEFEF;
+  --v-stroke:#8A9AA2;
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1316; --surface:#161D21; --tint:#1A2327; --panel:#121A1E;
+  --ink:#E2E9EC; --muted:#8B9FA7; --line:#273237; --line-soft:#1F292E;
+  --t1:#7EB6EA; --t1-soft:#152431; --t1-fill:rgba(126,182,234,.16);
+  --t2:#E0A55E; --t2-soft:#272016; --t2-fill:rgba(224,165,94,.16);
+  --guard:#E58D86; --guard-soft:#2B1A19;
+  --code-ink:#C4D2D8;
+  --v-b1:#1D2B34; --v-b2:#182126; --v-b3:#2C1E1D; --v-b4:#1A2124;
+  --v-stroke:#6C808A;
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1316; --surface:#161D21; --tint:#1A2327; --panel:#121A1E;
+  --ink:#E2E9EC; --muted:#8B9FA7; --line:#273237; --line-soft:#1F292E;
+  --t1:#7EB6EA; --t1-soft:#152431; --t1-fill:rgba(126,182,234,.16);
+  --t2:#E0A55E; --t2-soft:#272016; --t2-fill:rgba(224,165,94,.16);
+  --guard:#E58D86; --guard-soft:#2B1A19;
+  --code-ink:#C4D2D8;
+  --v-b1:#1D2B34; --v-b2:#182126; --v-b3:#2C1E1D; --v-b4:#1A2124;
+  --v-stroke:#6C808A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+  font-size:17px;line-height:1.68;-webkit-font-smoothing:antialiased}
+.shell{max-width:1200px;margin:0 auto;padding-inline:16px}
+html{scroll-behavior:smooth}
+:focus-visible{outline:2px solid var(--t1);outline-offset:2px;border-radius:2px}
+
+/* hero */
+.hero{padding-block:42px 26px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px}
+.hero h1{font-family:var(--sans);font-weight:700;font-size:clamp(27px,5.1vw,43px);
+  line-height:1.12;letter-spacing:-.02em;margin:0 0 15px;text-wrap:balance;max-width:19ch}
+.lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--muted);margin:0;max-width:60ch}
+.legend-top{display:flex;flex-wrap:wrap;gap:9px 22px;margin:22px 0 0;
+  font-family:var(--mono);font-size:12px;color:var(--muted)}
+.legend-top span{display:inline-flex;align-items:center;gap:8px}
+.swatch{width:11px;height:11px;border-radius:2px;flex:none}
+.sw1{background:var(--t1)}.sw2{background:var(--t2)}
+
+/* tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-top:26px}
+.tabs button{font-family:var(--sans);font-weight:600;font-size:13.5px;padding:11px 17px;
+  background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);
+  cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--t1)}
+.tabs button:hover{color:var(--ink)}
+
+/* controls */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px;
+  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.controls p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 230px}
+button.toggle,button.copy{font-family:var(--mono);font-size:12px;letter-spacing:.05em;
+  text-transform:uppercase;padding:9px 14px;cursor:pointer;border:1px solid var(--t1);
+  color:var(--t1);background:transparent;border-radius:2px;transition:background .15s,color .15s}
+button.toggle:hover,button.copy:hover{background:var(--t1-soft)}
+button.toggle[aria-pressed="true"]{background:var(--t1);color:var(--ground)}
+
+/* layout */
+.wrap{display:grid;grid-template-columns:1fr}
+@media (min-width:1040px){.wrap{grid-template-columns:238px minmax(0,1fr);gap:54px;align-items:start}
+  nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);max-height:90vh;overflow-y:auto}}
+nav.toc{padding-block:24px;border-bottom:1px solid var(--line-soft)}
+@media (min-width:1040px){nav.toc{border-bottom:0}}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-family:var(--sans);
+  font-size:12.5px;line-height:1.4;padding:5px 0 5px 12px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--ink);border-left-color:var(--t1)}
+nav.toc a.toc-part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink);margin-top:17px;border-left-color:var(--t1);font-weight:500}
+nav.toc a.toc-part:first-child{margin-top:0}
+main{padding-block:10px 70px;min-width:0}
+
+/* parts */
+.part-head{padding-block:38px 6px}
+.part-eyebrow{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--t1);border:1px solid var(--t1);padding:3px 9px;border-radius:2px}
+.part-title{font-family:var(--sans);font-weight:700;font-size:clamp(23px,3.9vw,33px);
+  letter-spacing:-.015em;margin:15px 0 8px;line-height:1.15}
+.part-sub{margin:0;color:var(--muted);font-size:16px;max-width:58ch}
+.part-ii{background:var(--tint);border-top:1px solid var(--line);margin-inline:-16px;
+  padding-inline:16px;margin-top:52px}
+@media (min-width:1040px){.part-ii{margin-inline:-26px;padding-inline:26px}}
+.part-ii .part-eyebrow{color:var(--t2);border-color:var(--t2)}
+
+/* sections */
+.sec{padding-block:32px;border-top:1px solid var(--line-soft)}
+.sec:first-of-type{border-top:0}
+.sec>h2{font-family:var(--sans);font-weight:700;font-size:clamp(20px,3.1vw,26px);line-height:1.24;
+  letter-spacing:-.012em;margin:0 0 18px;display:flex;gap:13px;align-items:baseline;text-wrap:balance}
+.num{font-family:var(--mono);font-weight:500;font-size:.64em;color:var(--t1);flex:none;
+  font-variant-numeric:tabular-nums}
+.part-ii .num{color:var(--t2)}
+h3{font-family:var(--sans);font-weight:600;font-size:16.5px;margin:32px 0 11px}
+p{margin:0 0 16px;max-width:68ch}
+ul{margin:0 0 18px;padding-left:20px;max-width:68ch}
+li{margin-bottom:7px}
+li::marker{color:var(--t1)}
+strong{font-weight:600}
+em{font-style:italic}
+code{font-family:var(--mono);font-size:.84em;background:var(--panel);border:1px solid var(--line-soft);
+  border-radius:2px;padding:1px 4px;color:var(--code-ink);overflow-wrap:break-word}
+
+/* code */
+.pre-wrap{overflow-x:auto;margin:0 0 22px;border:1px solid var(--line);border-radius:3px;
+  background:var(--panel)}
+pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.5;
+  color:var(--code-ink)}
+@media (min-width:600px){pre{font-size:13px}}
+pre code{background:none;border:0;padding:0;font-size:inherit;color:inherit}
+pre.shell{border-left:3px solid var(--t2)}
+
+/* tables */
+.table-wrap{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:430px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);text-align:left;font-weight:500;padding:10px 13px;
+  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.5}
+tr:last-child td{border-bottom:0}
+td code{font-size:.9em}
+
+/* callouts */
+.example{margin:0 0 24px;padding:15px 17px 3px;background:var(--t2-soft);
+  border-left:3px solid var(--t2);border-radius:0 3px 3px 0}
+.ex-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--t2);margin-bottom:8px;font-weight:500}
+.example p{font-size:15.5px;margin-bottom:12px}
+.note{margin:0 0 24px;padding:14px 17px 1px;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--muted);border-radius:0 3px 3px 0}
+.note p{font-size:15.5px;margin-bottom:13px;color:var(--muted)}
+.keybox{margin:0 0 24px;padding:17px 19px 4px;background:var(--t1-soft);
+  border-left:3px solid var(--t1);border-radius:0 3px 3px 0}
+.key-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--t1);margin-bottom:9px;font-weight:500}
+.keybox p{font-size:15.5px;margin-bottom:12px}
+.key-last{border-top:1px solid var(--line);padding-top:12px}
+
+/* ===== viz ===== */
+.viz{margin:0 0 28px}
+.viz-body{border:1px solid var(--line);border-radius:3px;background:var(--surface);
+  padding:18px 16px;overflow-x:auto}
+figure.viz figcaption{font-size:13.5px;color:var(--muted);margin-top:10px;max-width:66ch;
+  line-height:1.55;padding-left:1px}
+.svg-fit{display:block;width:100%;height:auto;max-width:100%;min-width:320px}
+.vt{font-family:var(--mono);fill:var(--ink)}
+.vt-h{font-size:14px;font-weight:600;letter-spacing:.04em}
+.vt-m{font-size:12.5px}
+.vt-s{font-size:11px;fill:var(--muted)}
+.viz-legend{display:flex;flex-direction:column;gap:7px;margin-top:15px;padding-top:14px;
+  border-top:1px solid var(--line-soft);font-size:13.5px;color:var(--muted)}
+.viz-legend span{display:flex;align-items:center;gap:9px}
+.viz-legend b{color:var(--ink);font-weight:600}
+.dot{width:12px;height:12px;border-radius:2px;flex:none;border:1px solid var(--line)}
+.d2{background:var(--v-b2)}.d3{background:var(--v-b3)}.d4{background:var(--v-b4)}
+
+/* compare 2-panel */
+.cmp{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:640px){.cmp{grid-template-columns:1fr 1fr}}
+.cmp-col{padding:15px 16px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.cmp-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;font-weight:500;margin-bottom:9px}
+.cmp-what{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 11px}
+.cmp-col p{font-size:14.5px;margin-bottom:11px;max-width:none}
+.cmp-use{border-top:1px solid var(--line-soft);padding-top:10px;font-size:13.5px!important}
+.cmp-soft,.cmp-t1{border-left:3px solid var(--t1)} .cmp-soft .cmp-tag,.cmp-t1 .cmp-tag{color:var(--t1)}
+.cmp-hard{border-left:3px solid var(--guard)} .cmp-hard .cmp-tag{color:var(--guard)}
+.cmp-t2{border-left:3px solid var(--t2)} .cmp-t2 .cmp-tag{color:var(--t2)}
+
+/* 3 cards */
+.cards3{display:grid;gap:13px;grid-template-columns:1fr}
+@media (min-width:720px){.cards3{grid-template-columns:repeat(3,1fr)}}
+.card{padding:14px 15px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.card-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--t1);font-weight:500;margin-bottom:9px}
+.card p{font-size:14px;margin-bottom:9px;max-width:none}
+.card-note{color:var(--muted);font-size:13.5px!important;margin-bottom:0!important}
+
+/* pipeline */
+.pipe{display:grid;gap:11px;grid-template-columns:1fr}
+@media (min-width:560px){.pipe{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:900px){.pipe{grid-template-columns:repeat(3,1fr)}}
+.pipe-step{padding:13px 14px;border:1px solid var(--line);border-top:3px solid var(--t1);
+  border-radius:0 0 3px 3px;background:var(--panel);display:flex;flex-direction:column}
+.pipe-n{font-family:var(--mono);font-size:11px;color:var(--t1);font-weight:500}
+.pipe-name{font-family:var(--sans);font-weight:700;font-size:15px;letter-spacing:.02em;margin:2px 0 8px}
+.pipe-q{font-size:13.5px;margin:0 0 10px;max-width:none;flex:1}
+.pipe-out{font-size:12.5px;color:var(--muted);margin:0;max-width:none;
+  border-top:1px solid var(--line-soft);padding-top:8px}
+.pipe-out span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--t1);margin-right:7px}
+
+/* matrix */
+.mx{display:grid;grid-template-columns:130px repeat(3,minmax(140px,1fr));min-width:600px;
+  border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.mx-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);
+  font-weight:500}
+.mx-row{font-family:var(--mono);font-size:11px;color:var(--t1);padding:11px 12px;
+  background:var(--panel);border-bottom:1px solid var(--line-soft);line-height:1.35}
+.mx-c{font-size:13.5px;padding:11px 12px;border-bottom:1px solid var(--line-soft);line-height:1.45;
+  border-left:1px solid var(--line-soft)}
+
+/* tree */
+.tre{font-family:var(--sans)}
+.tre-root{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--t2);margin:0 0 14px;font-weight:500;max-width:none}
+.tre-l1{list-style:none;padding:0;margin:0;max-width:none}
+.tre-l1>li{border-left:2px solid var(--line);padding:0 0 4px 15px;margin-bottom:14px}
+.tre-g{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:500}
+.tre-l2{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:9px;max-width:none}
+.tre-l2>li{display:flex;flex-direction:column;gap:3px;margin:0}
+.tre-n{font-family:var(--mono);font-size:12.5px;color:var(--t2);background:var(--t2-soft);
+  border:0;align-self:flex-start;padding:2px 7px;border-radius:2px}
+.tre-d{font-family:var(--serif);font-size:13.5px;color:var(--muted);line-height:1.5}
+
+/* wrapper viz */
+.wrap-outer{border:2px solid var(--t2);border-radius:4px;padding:15px 16px;background:var(--t2-soft)}
+.wrap-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--t2);font-weight:500;margin-bottom:7px}
+.wrap-outer>p{font-size:13.5px;margin-bottom:14px;max-width:none;color:var(--muted)}
+.wrap-inner{border:2px solid var(--t1);border-radius:3px;padding:14px 15px;background:var(--surface)}
+.wrap-tag2{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--t1);font-weight:500;margin-bottom:6px}
+.wrap-inner p{font-size:13.5px;margin:0;max-width:none;color:var(--muted)}
+
+/* stack of 3 */
+.stk{display:flex;flex-direction:column;gap:11px}
+.stk-row{display:flex;gap:13px;padding:14px 15px;border:1px solid var(--line);border-radius:3px;
+  background:var(--panel)}
+.stk-n{font-family:var(--mono);font-size:15px;font-weight:500;flex:none;width:26px;height:26px;
+  display:grid;place-items:center;border-radius:2px}
+.stk-1{border-left:3px solid var(--line)} .stk-1 .stk-n{background:var(--line);color:var(--ink)}
+.stk-2{border-left:3px solid var(--t1)} .stk-2 .stk-n{background:var(--t1);color:var(--ground)}
+.stk-3{border-left:3px solid var(--guard)} .stk-3 .stk-n{background:var(--guard);color:var(--ground)}
+.stk-row b{font-family:var(--sans);font-size:14.5px}
+.stk-row em{font-family:var(--mono);font-size:11px;color:var(--muted);font-style:normal;
+  margin-left:7px;letter-spacing:.03em}
+.stk-row p{font-size:13.5px;margin:6px 0 0;max-width:none}
+.stk-k{color:var(--muted);font-size:13px!important}
+
+/* split (skill.md vs references) */
+.splitviz{display:flex;flex-direction:column;gap:2px}
+.split-row{display:flex;gap:14px;align-items:stretch;border:1px solid var(--line);
+  background:var(--panel)}
+.split-thin{border-radius:3px 3px 0 0;border-bottom:0}
+.split-thick{border-radius:0 0 3px 3px;border-left:3px solid var(--t1)}
+.split-l{font-family:var(--mono);font-size:11.5px;padding:14px 13px;background:var(--surface);
+  border-right:1px solid var(--line);min-width:128px;color:var(--ink);line-height:1.4;flex:none}
+.split-r{padding:14px 15px;font-size:14px}
+.split-note{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:5px}
+
+/* timeline */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(var(--t1),var(--t2))}
+.tl-item{position:relative;margin-bottom:26px}
+.tl-item:nth-child(2){margin-bottom:34px}
+.tl-item:nth-child(3){margin-bottom:44px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-26px;top:7px;width:12px;height:12px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--t1)}
+.tl-item:nth-child(3) .tl-dot,.tl-item:nth-child(4) .tl-dot{border-color:var(--t2)}
+.tl-h{margin:0 0 7px;max-width:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.tl-h b{font-family:var(--sans);font-size:15px;font-weight:700}
+.tl-h span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.tl-body ul{margin:0;padding-left:17px;max-width:none}
+.tl-body li{font-size:14px;margin-bottom:5px}
+
+/* escalation */
+.esc{display:grid;gap:11px;grid-template-columns:1fr}
+@media (min-width:640px){.esc{grid-template-columns:repeat(3,1fr);align-items:end}}
+.esc-s{padding:13px 14px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.esc-n{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.esc-s b{font-family:var(--sans);font-size:15px}
+.esc-s p{font-size:13.5px;color:var(--muted);margin:5px 0 0;max-width:none}
+@media (min-width:640px){.esc-1{padding-block:13px}.esc-2{padding-block:20px}.esc-3{padding-block:28px}}
+.esc-3{border-left:3px solid var(--t2);background:var(--t2-soft)}
+.esc-3 b{color:var(--t2)}
+
+/* mapping */
+.mapv{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:3px;
+  overflow:hidden}
+@media (min-width:600px){.mapv{grid-template-columns:1fr 1fr}}
+.map-q{padding:10px 13px;font-size:14px;background:var(--panel);border-bottom:1px solid var(--line-soft)}
+.map-a{padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--t1);
+  border-bottom:1px solid var(--line-soft);border-left:1px solid var(--line-soft)}
+
+/* case flow */
+.flw{display:flex;flex-direction:column;gap:0}
+.fl-step{display:flex;gap:14px;padding-bottom:18px;position:relative}
+.fl-step:not(:last-child)::before{content:"";position:absolute;left:13px;top:30px;bottom:0;
+  width:2px;background:var(--line)}
+.fl-n{font-family:var(--mono);font-size:13px;font-weight:500;flex:none;width:28px;height:28px;
+  display:grid;place-items:center;border-radius:50%;background:var(--t1);color:var(--ground);
+  position:relative;z-index:1}
+.fl-b{flex:1;min-width:0}
+.fl-name{font-family:var(--sans);font-weight:700;font-size:15px;letter-spacing:.03em;
+  margin:3px 0 6px;max-width:none}
+.fl-sk{margin:0 0 9px;max-width:none}
+.fl-sk code{font-size:12px;color:var(--t1);background:var(--t1-soft)}
+.fl-pull{list-style:none;padding:0 0 0 13px;margin:0 0 9px;border-left:2px solid var(--t2);
+  max-width:none}
+.fl-pull-h{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--t2);margin-bottom:5px}
+.fl-pull li{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:4px;
+  line-height:1.45}
+.fl-note{font-size:13.5px;color:var(--muted);margin:0;max-width:none;background:var(--panel);
+  padding:9px 12px;border-radius:3px;border:1px solid var(--line-soft)}
+
+/* glossary */
+.gloss .gl{margin:0 0 22px}
+.gl-row{display:grid;grid-template-columns:1fr;gap:2px;padding:10px 0;
+  border-bottom:1px solid var(--line-soft)}
+@media (min-width:640px){.gl-row{grid-template-columns:200px 1fr;gap:18px}}
+.gl dt{font-family:var(--mono);font-size:13px;color:var(--t1);font-weight:500}
+.gl dd{margin:0;font-size:14.5px;color:var(--muted);line-height:1.55}
+.gl dd em{color:var(--ink);font-style:italic}
+
+/* markdown tab */
+.md-panel{padding-block:24px 70px}
+.md-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px}
+.md-head p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 240px}
+#mdsrc{max-height:76vh;overflow:auto;border:1px solid var(--line);border-radius:3px;
+  background:var(--panel)}
+#mdsrc pre{font-size:11.5px;line-height:1.5;white-space:pre}
+@media (min-width:600px){#mdsrc pre{font-size:12.5px}}
+
+/* principles-only */
+html.only-principles [data-example]{display:none!important}
+html.only-principles nav.toc a.is-example{display:none}
+
+footer.end{border-top:1px solid var(--line);padding-block:24px 40px;font-family:var(--mono);
+  font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 22px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}
+  html{scroll-behavior:auto}}
+
+/* part 0 */
+.part-0{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-inline:-16px;padding-inline:16px;margin-bottom:8px}
+@media (min-width:1040px){.part-0{margin-inline:-26px;padding-inline:26px}}
+.part-0 .part-head{padding-block:30px 6px}
+.part-0 .part-eyebrow{color:var(--ink);border-color:var(--ink)}
+.part-0 .num{color:var(--ink)}
+.part-0 .sec{border-top-color:var(--line)}
+
+/* three parts map */
+.parts3{display:flex;flex-direction:column;align-items:stretch;gap:0}
+.p3{padding:14px 16px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.p3-n{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;margin-bottom:5px;font-weight:500}
+.p3 b{font-family:var(--sans);font-size:16px;display:block;margin-bottom:5px}
+.p3 p{font-size:13.5px;color:var(--muted);margin:0;max-width:none}
+.p3-0{border-left:3px solid var(--ink)} .p3-0 .p3-n{color:var(--ink)}
+.p3-1{border-left:3px solid var(--t1)} .p3-1 .p3-n{color:var(--t1)}
+.p3-2{border-left:3px solid var(--t2)} .p3-2 .p3-n{color:var(--t2)}
+.p3-ar{text-align:center;font-size:17px;color:var(--muted);line-height:1;padding:7px 0}
+
+/* description quality */
+.desc-w,.desc-s{padding:14px 15px;border:1px solid var(--line);border-radius:3px;
+  background:var(--panel)}
+.desc-w{border-left:3px solid var(--muted)}
+.desc-s{border-left:3px solid var(--t1)}
+.desc-tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;font-weight:500;margin-bottom:6px;color:var(--muted)}
+.desc-s .desc-tag{color:var(--t1)}
+.desc-note{font-size:13.5px;color:var(--muted);margin:0 0 11px;max-width:none}
+.desc-code{background:var(--surface);border:1px solid var(--line-soft);border-radius:2px;
+  padding:12px 13px;overflow-x:auto;font-size:11.5px;line-height:1.55}
+@media (min-width:600px){.desc-code{font-size:12.5px}}
+
+/* test layers */
+.ly{display:grid;grid-template-columns:150px 165px minmax(200px,1fr);min-width:560px;
+  border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.ly-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:10px 12px;background:var(--panel);
+  border-bottom:1px solid var(--line);font-weight:500}
+.ly-t{display:flex;align-items:baseline;gap:9px;font-family:var(--sans);font-weight:700;
+  font-size:14px;padding:12px;background:var(--panel);
+  border-bottom:1px solid var(--line-soft);border-left:3px solid var(--line)}
+.ly-n{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);flex:none}
+.ly-c{font-size:13.5px;padding:12px;border-bottom:1px solid var(--line-soft);line-height:1.45;
+  border-left:1px solid var(--line-soft)}
+.ly-what{color:var(--muted)}
+.ly-t.l1{border-left-color:var(--line)}
+.ly-t.l2{border-left-color:var(--t1)}
+.ly-t.l3{border-left-color:var(--t1)}
+.ly-t.l4{border-left-color:var(--t2)}
+.ly-t.l5{border-left-color:var(--guard)}
+.ly-t.l5{background:var(--guard-soft)}
+
+/* key box: principle vs example */
+.keybox{padding:0;background:none;border-left:0;border:1px solid var(--line);border-radius:3px;
+  overflow:hidden}
+.key-part{padding:15px 17px 4px;border-left:3px solid var(--t1)}
+.key-part+.key-part{border-top:1px solid var(--line)}
+.key-gen{background:var(--t1-soft);border-left-color:var(--t1)}
+.key-gen .key-tag{color:var(--t1)}
+.key-ex{background:var(--t2-soft);border-left-color:var(--t2)}
+.key-ex .key-tag{color:var(--t2)}
+.key-out{background:var(--panel);border-left-color:var(--muted)}
+.key-out .key-tag{color:var(--muted)}
+.key-sub{font-size:14px!important;color:var(--muted)}
+
+.map-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:10px 13px;background:var(--panel);
+  border-bottom:1px solid var(--line);font-weight:500}
+.mapv-wide .map-q{font-weight:600}
+</style>
+</head>
+<body>
+
+
+
+
+
+
+<div class="shell">
+  <header class="hero">
+    <p class="kicker">Ghi chép nội bộ &middot; làm việc với Claude Code</p>
+    <h1>Cách sử dụng Claude Code trong dự án phần mềm</h1>
+    <p class="lede">Bắt đầu bằng ví von dễ hiểu cho người chưa rành kỹ thuật, rồi đi sâu
+    vào nguyên lý: vì sao tri thức đưa cho AI phải tách làm hai cây &mdash;
+    <em>làm thế nào</em> tách khỏi <em>biết cái gì về dự án này</em>.</p>
+    <div class="legend-top">
+      <span><i class="swatch sw1"></i>Cây 1 &mdash; Workflow &middot; mang đi được</span>
+      <span><i class="swatch sw2"></i>Cây 2 &mdash; Domain &middot; trói vào dự án</span>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Chế độ xem">
+    <button role="tab" id="t-doc" aria-controls="p-doc" aria-selected="true">Tài liệu</button>
+    <button role="tab" id="t-md" aria-controls="p-md" aria-selected="false">Markdown &middot; copy</button>
+  </div>
+
+  <div id="p-doc" role="tabpanel" aria-labelledby="t-doc">
+    <div class="controls">
+      <p>Ví dụ và toàn bộ Phần II được đánh dấu riêng. Tắt đi để chỉ còn phần nguyên lý
+      mang sang dự án khác được.</p>
+      <button class="toggle" id="tg" type="button" aria-pressed="false">Chỉ nguyên lý</button>
+    </div>
+    <div class="wrap">
+      <nav class="toc" aria-label="Mục lục">
+<a class="toc-sec" href="#s1">Cách đọc tài liệu này</a>
+<a class="toc-part" href="#part-0">Phần 0 · Tổng quan</a>
+<a class="toc-sec" href="#s2">1. Ví von dễ hiểu nhất: bạn vừa nhận một người mới</a>
+<a class="toc-sec" href="#s3">2. Một yêu cầu nên đi qua sáu bước</a>
+<a class="toc-sec" href="#s4">3. Ba hiểu lầm hay gặp lúc mới bắt đầu</a>
+<a class="toc-part" href="#part-i">Phần I · Nguyên lý</a>
+<a class="toc-sec" href="#s5">4. Vấn đề đang giải</a>
+<a class="toc-sec" href="#s6">5. Bản đồ các lớp điều khiển</a>
+<a class="toc-sec" href="#s7">6. Credential và ranh giới truy cập</a>
+<a class="toc-sec" href="#s8">7. Nguyên lý cốt lõi của lớp Skill</a>
+<a class="toc-sec" href="#s9">8. Phân loại: skill này thuộc cây nào?</a>
+<a class="toc-sec" href="#s10">9. Cây 1 — Workflow: sáu giai đoạn</a>
+<a class="toc-sec" href="#s11">10. Kiểm thử theo tầng — lấy bằng chứng mà không chạm dữ liệu thật</a>
+<a class="toc-sec" href="#s12">11. Cây 2 — Domain: phân theo lát cắt kỹ thuật</a>
+<a class="toc-sec" href="#s13">12. Hai cây ánh xạ vào nhau bằng cách nào</a>
+<a class="toc-sec" href="#s14">13. Nguyên tắc thiết kế skill</a>
+<a class="toc-sec" href="#s15">14. Ba chỗ mô hình bị rò rỉ</a>
+<a class="toc-sec" href="#s16">15. Lộ trình cho một dự án mới</a>
+<a class="toc-part" href="#part-i">Phần I · Nguyên lý</a>
+<a class="toc-sec" href="#s17">16. Hồ sơ dự án ví dụ</a>
+<a class="toc-sec" href="#s18">17. Cây 1 cho dự án ví dụ — sáu giai đoạn ánh xạ vào skill</a>
+<a class="toc-sec" href="#s19">18. Cây 2 cho dự án ví dụ — domain skills</a>
+<a class="toc-sec" href="#s20">19. Đi xuyên một yêu cầu</a>
+<a class="toc-sec" href="#s21">20. Chỗ mô hình bị rò rỉ ở ví dụ này</a>
+<a class="toc-sec" href="#glossary">§ Glossary</a>
+      </nav>
+      <main>
+<p>Từ ví von dễ hiểu cho người chưa rành kỹ thuật, đến mô hình hai cây skill: <strong>workflow</strong> (làm thế nào) tách khỏi <strong>domain</strong> (biết cái gì về dự án này).</p>
+<section class="sec" id="s1">
+<h2>Cách đọc tài liệu này</h2>
+<p>Tài liệu chia làm ba phần, khó dần. Không cần đọc hết.</p>
+<figure class="viz "><div class="viz-body">
+<div class="parts3">
+  <div class="p3 p3-0"><span class="p3-n">Phần 0</span><b>Tổng quan</b>
+    <p>Không cần biết kỹ thuật. Hiểu được cách làm việc tổng quát.</p></div>
+  <div class="p3-ar">&darr;</div>
+  <div class="p3 p3-1"><span class="p3-n">Phần I</span><b>Nguyên lý</b>
+    <p>Mang sang bất kỳ dự án nào. Đây là phần cần nhớ.</p></div>
+  <div class="p3-ar">&darr;</div>
+  <div class="p3 p3-2"><span class="p3-n">Phần II</span><b>Ví dụ áp dụng</b>
+    <p>Khung ở Phần I áp vào một dự án cụ thể. Để <b>đối chiếu</b>, không phải để sao chép.</p></div>
+</div></div><figcaption>Ba phần, khó dần. Không cần đọc hết — bảng ngay dưới nói bạn nên bắt đầu từ đâu.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>Bạn là</th><th>Nên đọc</th></tr></thead><tbody><tr><td>Người làm nghiệp vụ, mới bắt đầu tìm hiểu</td><td><strong>Phần 0</strong> là đủ để trao đổi được với team kỹ thuật</td></tr><tr><td>Kỹ sư sắp dựng cho dự án của mình</td><td>Phần 0 + <strong>Phần I</strong></td></tr><tr><td>Muốn xem khung được áp vào một dự án cụ thể</td><td>Đọc thêm <strong>Phần II</strong></td></tr></tbody></table></div>
+<p>Trong Phần I, mọi ví dụ cụ thể đều được đóng khung như thế này:</p>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span><p>nội dung trong khung là minh hoạ. Bỏ khung này đi thì nguyên lý phía trên vẫn đứng vững.</p></aside>
+<p>Thuật ngữ chuyên ngành được giữ nguyên tiếng Anh vì team kỹ thuật dùng đúng những từ đó; phần giải thích nằm ở <strong>Glossary</strong> cuối tài liệu.</p>
+<p>Nếu bạn làm frontend, mobile, data hay hạ tầng — nguyên lý không đổi, chỉ nội dung thay. Mục <strong>Cây 2 — Domain</strong> có ví dụ cho cả ba loại.</p>
+</section>
+<div class="part part-0" id="part-0"><header class="part-head"><span class="part-eyebrow">Phần 0</span><h2 class="part-title">Tổng quan</h2><p class="part-sub">Viết cho người chưa rành kỹ thuật. Không có dòng code nào. Đọc hết ba mục này là đủ để trao đổi được với team kỹ thuật.</p></header>
+<aside class="note"><p>Phần này viết cho người chưa rành kỹ thuật. Không có dòng code nào.</p></aside>
+<section class="sec" id="s2">
+<h2><span class="num">1</span>Ví von dễ hiểu nhất: bạn vừa nhận một người mới</h2>
+<p>AI ở đây giống một người mới vào công ty: rất giỏi nghề, làm rất nhanh, nhưng chưa biết gì về công ty bạn — chưa biết quy trình nội bộ, chưa biết ai phụ trách gì, chưa biết những lần trước team đã vấp ở đâu.</p>
+<p>Có <strong>một khác biệt lớn</strong> so với người thật, và gần như mọi thứ còn lại trong tài liệu này đều bắt nguồn từ nó:</p>
+<aside class="note"><p>Người mới làm vài tuần rồi sẽ nhớ. <strong>AI thì không.</strong> Mỗi lần bạn mở một phiên làm việc mới, nó bắt đầu lại từ con số không.</p></aside>
+<p>Hệ quả rất thực tế: <strong>tri thức không được nằm trong đầu ai cả</strong> — nó phải nằm trong file, để lần nào mở ra cũng đủ. Việc "chuẩn bị cho AI" vì vậy giống hệt việc soạn tài liệu onboarding cho người mới, chỉ khác là bạn phải soạn một lần cho tất cả các lần sau.</p>
+<p>Sáu thứ bạn chuẩn bị, và tên gọi kỹ thuật của chúng:</p>
+<div class="table-wrap"><table><thead><tr><th>Với người mới, bạn sẽ…</th><th>Tên gọi kỹ thuật</th><th>Bản chất</th></tr></thead><tbody><tr><td>Đưa nội quy an toàn — chỗ nào tuyệt đối không được vào</td><td><strong>guardrail</strong></td><td>hàng rào cứng, không thương lượng được</td></tr><tr><td>Đưa bản giới thiệu công ty — làm gì, cấu trúc ra sao</td><td><strong>memory</strong></td><td>nền sự thật</td></tr><tr><td>Dặn cách hành xử — việc mơ hồ thì hỏi, đừng tự đoán</td><td><strong>rule</strong></td><td>luật ứng xử chung</td></tr><tr><td>Đưa cẩm nang nghiệp vụ, lấy ra đúng lúc làm loại việc đó</td><td><strong>skill</strong></td><td>trọng tâm của tài liệu này</td></tr><tr><td>Cấp tài khoản vào hệ thống thật để tự tra số liệu</td><td><strong>MCP</strong></td><td>quyền truy cập</td></tr><tr><td>Giao việc, duyệt, bẻ lái khi thấy đi sai</td><td><strong>chat</strong></td><td>vai trò của chính bạn</td></tr></tbody></table></div>
+<p>Thiếu mỗi thứ sẽ hỏng theo một kiểu khác nhau:</p>
+<div class="table-wrap"><table><thead><tr><th>Thiếu</th><th>Điều bạn sẽ nhìn thấy</th></tr></thead><tbody><tr><td>Guardrail</td><td>Một thao tác sai làm hỏng dữ liệu thật</td></tr><tr><td>Memory / Rule</td><td>AI tự đoán, làm ra thứ trông đúng nhưng sai chỗ</td></tr><tr><td>Skill</td><td>Lần nào bạn cũng phải giải thích lại từ đầu</td></tr><tr><td>MCP</td><td>AI trả lời bằng suy đoán thay vì số liệu thật</td></tr><tr><td>Người lái</td><td>Đi sai hướng, nhưng đi rất nhanh</td></tr></tbody></table></div>
+</section>
+<section class="sec" id="s3">
+<h2><span class="num">2</span>Một yêu cầu nên đi qua sáu bước</h2>
+<p>Đây không phải quy trình riêng của AI. Đây là quy trình của bất kỳ ai làm việc tử tế — AI chỉ là người thực hiện. Giá trị của việc viết nó ra là: AI sẽ không tự nhớ, nên nếu không viết, nó sẽ nhảy thẳng vào bước 4.</p>
+<div class="table-wrap"><table><thead><tr><th>Bước</th><th>Câu hỏi đời thường</th><th>Kết quả nhìn thấy được</th></tr></thead><tbody><tr><td><strong>1. Hiểu</strong></td><td>Chuyện gì đang xảy ra? Ai bị ảnh hưởng? Thông tin đã đủ chưa?</td><td>Bản phân tích + danh sách những gì còn thiếu</td></tr><tr><td><strong>2. Quyết</strong></td><td>Có mấy cách làm? Chọn cách nào? Đánh đổi cái gì?</td><td>Quyết định kèm lý do</td></tr><tr><td><strong>3. Đặc tả</strong></td><td>Thế nào là xong?</td><td>Danh sách tiêu chí nghiệm thu</td></tr><tr><td><strong>4. Làm</strong></td><td>—</td><td>Sản phẩm</td></tr><tr><td><strong>5. Kiểm</strong></td><td>Nó có chạy không? Nó có tốt không?</td><td>Bằng chứng, không phải lời hứa</td></tr><tr><td><strong>6. Giao</strong></td><td>—</td><td>Bàn giao / phát hành</td></tr></tbody></table></div>
+<p>Ba điều đáng nhớ nhất, kể cả khi bạn không đụng đến kỹ thuật:</p>
+<p><strong>(a) Bước 1 quyết định phần lớn kết quả — và là bước bị bỏ qua nhiều nhất.</strong> Người giao việc thường mô tả <em>giải pháp mình nghĩ ra</em> thay vì <em>vấn đề mình đang gặp</em>. Khi đó AI sẽ làm rất nhanh đúng cái giải pháp sai. Danh sách câu hỏi đầy đủ cho bước này nằm ở mục <strong>Cây 1 — Workflow: sáu giai đoạn</strong>.</p>
+<p><strong>(b) Bước 5 là hai câu hỏi tách rời.</strong> "Nó có chạy không" trả lời bằng cách chạy thử thật. "Nó có tốt không" trả lời bằng cách đọc và đánh giá. Gộp hai câu này lại là lý do phổ biến khiến một thứ "đã test rồi" vẫn hỏng.</p>
+<p><strong>(c) Được phép bỏ bước — nhưng phải cố ý.</strong> Sửa một lỗi chính tả thì nhảy thẳng sang bước 4. Vấn đề chỉ xảy ra khi bước bị bỏ vì <em>quên</em>, không phải vì <em>quyết định</em>.</p>
+</section>
+<section class="sec" id="s4">
+<h2><span class="num">3</span>Ba hiểu lầm hay gặp lúc mới bắt đầu</h2>
+<p><strong>Hiểu lầm 1 — "Viết yêu cầu thật dài, thật chi tiết là đủ."</strong> Không. Một yêu cầu dài chỉ dùng được đúng một lần. Thứ cần làm là <strong>đặt đúng thông tin vào đúng chỗ</strong> để lần sau không phải viết lại: cái gì đúng mãi mãi thì để ở memory, cái gì chỉ cần khi làm một loại việc thì để ở skill.</p>
+<p><strong>Hiểu lầm 2 — "Dặn hôm nay thì mai nó nhớ."</strong> Không. Mỗi phiên làm việc là một tờ giấy trắng. Tín hiệu rõ nhất cho thấy bạn đang làm sai: <strong>phải giải thích lại cùng một thứ lần thứ ba</strong>. Đến lần thứ ba thì đó không còn là chuyện giải thích nữa — đó là một tài liệu chưa được viết.</p>
+<p><strong>Hiểu lầm 3 — "Cứ viết TUYỆT ĐỐI KHÔNG ĐƯỢC… là nó sẽ không làm."</strong> Không chắc chắn. Chữ viết ra chỉ là lời dặn — AI đọc rồi tự quyết có theo hay không. Việc <strong>tuyệt đối không được sai</strong> (xoá dữ liệu, lộ thông tin mật, đẩy nhầm lên môi trường thật) phải được chặn bằng <strong>cơ chế</strong>, tức là một hàng rào chạy bên ngoài AI, chứ không phải bằng một câu dặn dò. Phân biệt <strong>văn bản và cơ chế</strong> này được nói kỹ trong Phần I.</p>
+</section>
+</div>
+<div class="part part-i" id="part-i"><header class="part-head"><span class="part-eyebrow">Phần I</span><h2 class="part-title">Nguyên lý</h2><p class="part-sub">Mang sang bất kỳ dự án nào — không phụ thuộc ngôn ngữ, framework hay công cụ quản lý việc. Đây là phần cần nhớ.</p></header>
+<section class="sec" id="s5">
+<h2><span class="num">4</span>Vấn đề đang giải</h2>
+<p>Khi đưa một business requirement cho AI, có hai kiểu thất bại <strong>độc lập nhau</strong>:</p>
+<div class="table-wrap"><table><thead><tr><th>Kiểu thất bại</th><th>Biểu hiện</th><th>Gốc rễ</th></tr></thead><tbody><tr><td>Sai <strong>quy trình</strong></td><td>Nhảy thẳng vào code, chưa rõ vấn đề, chưa rõ ai chịu ảnh hưởng, không có tiêu chí dừng</td><td>AI không biết <em>thứ tự</em> việc</td></tr><tr><td>Sai <strong>ngữ cảnh</strong></td><td>Quy trình đúng nhưng code sai convention, sai tầng, lặp lại thứ đã có, vấp cạm bẫy team đã biết</td><td>AI không biết <em>sự thật</em> của dự án</td></tr></tbody></table></div>
+<p>Vì hai gốc rễ độc lập, chúng phải được giải bằng <strong>hai lớp tri thức tách rời</strong> — không trộn vào một prompt khổng lồ, không nhét hết vào một file hướng dẫn duy nhất.</p>
+<figure class="viz "><div class="viz-body">
+<div class="cmp">
+  <div class="cmp-col cmp-t1"><span class="cmp-tag">Sai quy trình</span>
+    <p class="cmp-what">"làm sai thứ tự"</p>
+    <p>Nhảy thẳng vào code, chưa rõ vấn đề, chưa rõ ai chịu ảnh hưởng,
+    không có tiêu chí dừng.</p>
+    <p class="cmp-use">Gốc rễ: AI không biết <b>thứ tự</b> việc<br>
+    ⇒ giải bằng <b>cây 1 · workflow skills</b></p></div>
+  <div class="cmp-col cmp-t2"><span class="cmp-tag">Sai ngữ cảnh</span>
+    <p class="cmp-what">"làm sai cách"</p>
+    <p>Quy trình đúng nhưng code sai convention, sai tầng, lặp lại thứ đã có,
+    vấp cạm bẫy team đã biết.</p>
+    <p class="cmp-use">Gốc rễ: AI không biết <b>sự thật</b> của dự án<br>
+    ⇒ giải bằng <b>cây 2 · domain skills</b></p></div>
+</div></div><figcaption>Hai gốc rễ độc lập nhau — nên phải giải bằng hai lớp tri thức tách rời.</figcaption></figure>
+<p>Nhưng trước khi nói về hai cây, cần thấy <strong>toàn bộ bàn cờ</strong> — skill chỉ là một trong nhiều lớp điều khiển.</p>
+</section>
+<section class="sec" id="s6">
+<h2><span class="num">5</span>Bản đồ các lớp điều khiển</h2>
+<p>Khi làm việc với Claude, có 7 lớp can thiệp được. Mỗi lớp có vai trò khác nhau; dùng sai lớp là nguồn gốc của phần lớn thất vọng.</p>
+<figure class="viz "><div class="viz-body">
+<svg viewBox="0 0 660 400" role="img" aria-label="Tháp bảy lớp điều khiển"
+     class="svg-fit">
+  <polygon points="330,14 402,108 258,108" fill="var(--v-b1)" stroke="var(--line)"/>
+  <polygon points="258,108 402,108 474,202 186,202" fill="var(--v-b2)" stroke="var(--line)"/>
+  <polygon points="186,202 474,202 546,296 114,296" fill="var(--v-b3)" stroke="var(--line)"/>
+  <polygon points="114,296 546,296 618,390 42,390" fill="var(--v-b4)" stroke="var(--line)"/>
+  <text x="330" y="96" class="vt vt-s" text-anchor="middle">[7] NGƯỜI · chat mode</text>
+  <text x="330" y="150" class="vt vt-h" text-anchor="middle">VĂN BẢN</text>
+  <text x="330" y="176" class="vt vt-s" text-anchor="middle">[1] memory · [2] rule · [3] skill · [4] subagent</text>
+  <text x="330" y="244" class="vt vt-h" text-anchor="middle">CƠ CHẾ</text>
+  <text x="330" y="270" class="vt vt-s" text-anchor="middle">[0] guardrail · permission + hook</text>
+  <text x="330" y="338" class="vt vt-h" text-anchor="middle">NĂNG LỰC</text>
+  <text x="330" y="364" class="vt vt-s" text-anchor="middle">[5] tool · [6] MCP</text>
+</svg>
+<div class="viz-legend">
+  <span><i class="dot d2"></i><b>Văn bản</b> — model <em>có thể</em> bỏ qua</span>
+  <span><i class="dot d3"></i><b>Cơ chế</b> — model <em>không thể</em> bỏ qua</span>
+  <span><i class="dot d4"></i><b>Năng lực</b> — thứ model <em>làm được</em></span>
+</div></div><figcaption>Bảy lớp điều khiển. Càng xuống dưới càng khó thương lượng: năng lực là nền, cơ chế là ràng buộc cứng, văn bản là hướng dẫn mềm.</figcaption></figure>
+<h3>5.1 Bảng vai trò</h3>
+<div class="table-wrap"><table><thead><tr><th>Lớp</th><th>Vai trò</th><th>Nhiệm vụ</th><th>Nạp khi nào</th></tr></thead><tbody><tr><td>[0] Guardrail</td><td>Người gác cổng</td><td>Chặn hành động nguy hiểm, ép hành vi bắt buộc</td><td>Mọi lúc, tự động</td></tr><tr><td>[1] Memory</td><td>Nền sự thật</td><td>Dự án là gì, cấu trúc ra sao, luật tối thượng</td><td>Mọi phiên</td></tr><tr><td>[2] Rule</td><td>Luật hành vi</td><td>Cách hành xử chung: hỏi khi mơ hồ, không đoán bừa</td><td>Mọi phiên</td></tr><tr><td>[3] Skill</td><td>Chuyên gia mời</td><td>Quy trình một loại việc, hoặc tri thức một domain</td><td>Khi khớp ngữ cảnh</td></tr><tr><td>[4] Subagent</td><td>Đồng nghiệp</td><td>Làm việc nặng trong context riêng, trả về kết luận</td><td>Khi được gọi</td></tr><tr><td>[5] Tool</td><td>Tay chân</td><td>Đọc/ghi file, chạy lệnh, tìm kiếm</td><td>Khi cần</td></tr><tr><td>[6] MCP</td><td>Cánh tay nối dài</td><td>Nối vào hệ thống thật: ticket, DB, log, wiki</td><td>Khi cần</td></tr><tr><td>[7] Chat mode</td><td>Người lái</td><td>Cấp ý định, phê duyệt, bẻ lái, phán quyết</td><td>Liên tục</td></tr></tbody></table></div>
+<h3>5.2 Phân biệt quan trọng nhất: VĂN BẢN vs CƠ CHẾ</h3>
+<p>Đây là điểm hay bị hiểu sai nhất, và nó quyết định bạn đặt một yêu cầu vào đâu.</p>
+<figure class="viz "><div class="viz-body">
+<div class="cmp">
+  <div class="cmp-col cmp-soft">
+    <span class="cmp-tag">Văn bản</span>
+    <p class="cmp-what">memory · rule · skill</p>
+    <p>Là <b>chữ</b>. Model đọc, hiểu, rồi <b>tự quyết</b> có tuân hay không.
+    Viết "TUYỆT ĐỐI KHÔNG được xoá file" vẫn có xác suất bị vi phạm — vì nó
+    chỉ là một câu trong context.</p>
+    <p class="cmp-use">Dùng cho: <b>cách làm đúng</b></p>
+  </div>
+  <div class="cmp-col cmp-hard">
+    <span class="cmp-tag">Cơ chế</span>
+    <p class="cmp-what">permission · hook</p>
+    <p>Là <b>code</b> chạy bên ngoài model. Model không "đọc" nó — nó bị
+    <b>chặn</b> hoặc bị <b>chèn</b> thêm dữ liệu, không thương lượng.</p>
+    <p class="cmp-use">Dùng cho: <b>việc tuyệt đối không được sai</b></p>
+  </div>
+</div></div><figcaption>Phân biệt quan trọng nhất của cả tài liệu — nó quyết định bạn đặt một yêu cầu vào lớp nào.</figcaption></figure>
+<p>Quy tắc chọn lớp:</p>
+<figure class="viz "><div class="viz-body">
+<svg viewBox="0 0 640 262" role="img" aria-label="Cây quyết định chọn lớp" class="svg-fit">
+  <rect x="150" y="8" width="340" height="44" rx="3" fill="var(--v-b2)" stroke="var(--line)"/>
+  <text x="320" y="35" class="vt vt-m" text-anchor="middle">Yêu cầu này nếu bị vi phạm thì sao?</text>
+  <path d="M320 52 L320 78 M320 78 L170 78 L170 104 M320 78 L470 78 L470 104"
+        fill="none" stroke="var(--v-stroke)" stroke-width="1.5"/>
+  <polygon points="170,112 165,102 175,102" fill="var(--v-stroke)"/>
+  <polygon points="470,112 465,102 475,102" fill="var(--v-stroke)"/>
+  <rect x="30" y="112" width="280" height="56" rx="3" fill="var(--v-b3)" stroke="var(--line)"/>
+  <text x="170" y="136" class="vt vt-m" text-anchor="middle">Hỏng thật sự</text>
+  <text x="170" y="156" class="vt vt-s" text-anchor="middle">mất data · lộ secret · deploy nhầm</text>
+  <rect x="330" y="112" width="280" height="56" rx="3" fill="var(--v-b1)" stroke="var(--line)"/>
+  <text x="470" y="136" class="vt vt-m" text-anchor="middle">Khó chịu / kém chất lượng</text>
+  <text x="470" y="156" class="vt vt-s" text-anchor="middle">sai style · thiếu bước</text>
+  <path d="M170 168 L170 196" fill="none" stroke="var(--v-stroke)" stroke-width="1.5"/>
+  <polygon points="170,204 165,194 175,194" fill="var(--v-stroke)"/>
+  <path d="M470 168 L470 196" fill="none" stroke="var(--v-stroke)" stroke-width="1.5"/>
+  <polygon points="470,204 465,194 475,194" fill="var(--v-stroke)"/>
+  <rect x="60" y="204" width="220" height="46" rx="3" fill="none" stroke="var(--guard)" stroke-width="2"/>
+  <text x="170" y="233" class="vt vt-h" text-anchor="middle" fill="var(--guard)">CƠ CHẾ</text>
+  <rect x="360" y="204" width="220" height="46" rx="3" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <text x="470" y="233" class="vt vt-h" text-anchor="middle" fill="var(--t1)">VĂN BẢN</text>
+</svg></div><figcaption>Quy tắc chọn lớp: mức thiệt hại khi vi phạm quyết định, không phải mức quan trọng cảm tính.</figcaption></figure>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span><p>một cấu hình guardrail thực tế: 25 luật <strong>deny</strong> (chặn hẳn các lệnh phá huỷ, chặn đọc file <code>.env</code>), 10 luật <strong>allow</strong> (lệnh chỉ-đọc cho chạy thẳng khỏi hỏi), và 4 <strong>hook</strong> gắn vào các thời điểm: khi người gửi prompt, sau mỗi lần dùng tool, khi phiên bắt đầu, khi model dừng.</p><p>Hook "khi người gửi prompt" được dùng để <strong>chèn thêm ngữ cảnh</strong> vào mọi câu hỏi — ví dụ ép một giao thức trình bày. Model không thể quên, vì nó không phải thứ model phải nhớ.</p></aside>
+<h3>5.3 Tool vs MCP — ranh giới</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Tool có sẵn</th><th>MCP</th></tr></thead><tbody><tr><td>Phạm vi</td><td>Máy của bạn: file, shell, tìm kiếm, web</td><td>Hệ thống bên ngoài</td></tr><tr><td>Cài đặt</td><td>Có sẵn</td><td>Phải khai báo server</td></tr><tr><td>Rủi ro</td><td>Giới hạn bởi permission</td><td>Thêm quyền vào hệ thống thật</td></tr><tr><td>Khi nào thêm</td><td>—</td><td>Khi AI cần <strong>sự thật runtime</strong>, không phải code</td></tr></tbody></table></div>
+<p>Điểm mấu chốt về MCP: nó không làm model thông minh hơn, nó làm model <strong>bớt đoán</strong>. Không có MCP, AI đọc code quản lý dữ liệu rồi suy ra dữ liệu. Có MCP, AI đọc dữ liệu thật.</p>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span><p>MCP nối vào hệ quản lý ticket, DB nội bộ, DB của đối tác, và hệ theo dõi lỗi. Nhờ đó câu "bảng này đang có bao nhiêu bản ghi hỏng" được trả lời bằng truy vấn thật, không phải bằng suy đoán từ model class.</p></aside>
+<h3>5.4 Chat mode — vai trò của con người</h3>
+<p>Đây là lớp hay bị đánh giá thấp nhất. Cấu hình tốt đến mấy cũng không thay được việc người lái đúng.</p>
+<div class="table-wrap"><table><thead><tr><th>Người <strong>nên</strong> làm</th><th>Người <strong>không nên</strong> làm</th></tr></thead><tbody><tr><td>Cấp ý định và ràng buộc nghiệp vụ</td><td>Đọc từng dòng code AI viết</td></tr><tr><td>Phán quyết khi có đánh đổi</td><td>Tự nhớ quy trình thay cho skill</td></tr><tr><td>Chặn hướng sai <strong>sớm</strong></td><td>Sửa lỗi ở cuối bằng cách viết lại</td></tr><tr><td>Cung cấp sự thật AI không tra được</td><td>Lặp lại cùng một giải thích lần thứ ba</td></tr></tbody></table></div>
+<p>Ba chế độ tương tác cần phân biệt:</p>
+<figure class="viz "><div class="viz-body">
+<div class="cards3">
+  <div class="card"><span class="card-tag">Chế độ hỏi</span>
+    <p>AI hỏi lại khi yêu cầu mơ hồ.</p>
+    <p class="card-note">Thiếu nó thì AI đoán bừa. Nên <b>ép bằng rule</b>:
+    "mơ hồ thì hỏi, đừng đoán".</p></div>
+  <div class="card"><span class="card-tag">Chế độ kế hoạch</span>
+    <p>AI trình bày kế hoạch, <b>chờ duyệt</b>, rồi mới làm.</p>
+    <p class="card-note">Dùng cho việc lớn hoặc khó đảo ngược.</p></div>
+  <div class="card"><span class="card-tag">Chế độ làm ngay</span>
+    <p>AI làm thẳng.</p>
+    <p class="card-note">Dùng cho việc nhỏ, rõ ràng, đảo ngược được.</p></div>
+</div></div><figcaption>Ba chế độ tương tác. Chọn sai chế độ cho mức rủi ro là lỗi lái phổ biến.</figcaption></figure>
+<p><strong>Tín hiệu bạn đang lái sai:</strong> phải giải thích lại cùng một thứ ở phiên làm việc thứ ba. Đó không phải lỗi của AI — đó là tri thức chưa được ghi xuống thành skill.</p>
+<h3>5.5 Hai cây skill nằm ở đâu trên bàn cờ</h3>
+<p>Toàn bộ phần còn lại của tài liệu này nói về <strong>lớp [3] — Skill</strong>. Sáu lớp kia là bối cảnh, cần biết để không đặt nhầm thứ vào skill:</p>
+<div class="table-wrap"><table><thead><tr><th>Đặt vào</th><th>Khi nào</th></tr></thead><tbody><tr><td><strong>Guardrail</strong></td><td>Sai là hỏng thật</td></tr><tr><td><strong>Memory</strong></td><td>Mọi phiên đều cần, và rất ngắn</td></tr><tr><td><strong>Rule</strong></td><td>Là luật hành xử chung, không gắn với một loại việc</td></tr><tr><td><strong>Skill</strong></td><td>Chỉ cần khi làm <strong>một loại việc cụ thể</strong> — chính là chỗ này</td></tr><tr><td><strong>MCP</strong></td><td>Cần sự thật đang chạy, không phải văn bản</td></tr></tbody></table></div>
+</section>
+<section class="sec" id="s7">
+<h2><span class="num">6</span>Credential và ranh giới truy cập</h2>
+<p>Câu hỏi nền: AI cần chạm vào hệ thống thật để làm việc — nhưng <strong>không được cầm chìa khoá</strong>. Giải bằng một nguyên tắc duy nhất:</p>
+<aside class="note"><p>AI không giữ credential. Nó <strong>gọi qua một tool đã được cấp quyền sẵn</strong>, và chỉ nhìn thấy <strong>kết quả</strong>, không nhìn thấy <strong>khoá</strong>.</p></aside>
+<figure class="viz "><div class="viz-body">
+<svg viewBox="0 0 660 320" role="img" aria-label="Ranh giới truy cập credential"
+     class="svg-fit">
+  <rect x="40" y="16" width="155" height="48" rx="3" fill="var(--v-b2)" stroke="var(--line)"/>
+  <text x="117" y="46" class="vt vt-m" text-anchor="middle">NGƯỜI</text>
+  <rect x="40" y="126" width="155" height="56" rx="3" fill="var(--v-b1)" stroke="var(--line)"/>
+  <text x="117" y="160" class="vt vt-h" text-anchor="middle">AI</text>
+  <rect x="258" y="126" width="150" height="56" rx="3" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <text x="333" y="160" class="vt vt-h" text-anchor="middle" fill="var(--t1)">TOOL</text>
+  <rect x="470" y="126" width="160" height="56" rx="3" fill="var(--v-b4)" stroke="var(--line)"/>
+  <text x="550" y="153" class="vt vt-m" text-anchor="middle">HỆ THỐNG THẬT</text>
+  <text x="550" y="171" class="vt vt-s" text-anchor="middle">DB · API · cloud</text>
+  <rect x="258" y="244" width="150" height="50" rx="3" fill="var(--v-b3)" stroke="var(--line)"/>
+  <text x="333" y="266" class="vt vt-m" text-anchor="middle">ENV VARIABLE</text>
+  <text x="333" y="284" class="vt vt-s" text-anchor="middle">nơi khoá nằm</text>
+
+  <path d="M117 64 L117 120" fill="none" stroke="var(--v-stroke)" stroke-width="1.5"/>
+  <polygon points="117,126 112,116 122,116" fill="var(--v-stroke)"/>
+  <text x="128" y="98" class="vt vt-s">yêu cầu</text>
+
+  <path d="M195 154 L252 154" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <polygon points="258,154 248,149 248,159" fill="var(--t1)"/>
+  <text x="224" y="142" class="vt vt-s" text-anchor="middle" fill="var(--t1)">gọi</text>
+
+  <path d="M408 154 L464 154" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <polygon points="470,154 460,149 460,159" fill="var(--t1)"/>
+  <text x="437" y="142" class="vt vt-s" text-anchor="middle" fill="var(--t1)">xác thực</text>
+
+  <path d="M333 244 L333 188" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <polygon points="333,182 328,192 338,192" fill="var(--t1)"/>
+  <text x="344" y="220" class="vt vt-s" fill="var(--t1)">chỉ TOOL đọc</text>
+
+  <path d="M117 182 L117 269 L250 269" fill="none" stroke="var(--guard)" stroke-width="2"
+        stroke-dasharray="5 4"/>
+  <path d="M174 260 L190 278 M190 260 L174 278" stroke="var(--guard)" stroke-width="2.5"/>
+  <text x="117" y="300" class="vt vt-s" fill="var(--guard)">AI đọc thẳng env: CHẶN</text>
+
+  <text x="205" y="34" class="vt vt-s" fill="var(--guard)">✕ không gõ credential vào ô chat</text>
+</svg></div><figcaption>Ranh giới nằm ở TOOL: tool biết khoá, AI biết kết quả. Hai đường nét đứt đỏ là hai chỗ phải chặn bằng cơ chế, không phải bằng lời dặn.</figcaption></figure>
+<h3>6.1 Ba quy tắc</h3>
+<p><strong>(1) Khoá nằm ở biến môi trường, không nằm trong repo.</strong> Không để trong file cấu hình của AI, không commit, không dán vào tài liệu.</p>
+<p><strong>(2) AI gọi qua tool, tool tự đọc biến môi trường và tự xác thực.</strong> Ranh giới nằm đúng chỗ này: tool biết khoá, AI biết kết quả. Đổi khoá thì không phải sửa gì ở phía AI.</p>
+<p><strong>(3) Chặn cứng hai đường rò.</strong> Không phải dặn — phải chặn:</p>
+<div class="table-wrap"><table><thead><tr><th>Đường rò</th><th>Vì sao nguy hiểm</th></tr></thead><tbody><tr><td>AI đọc thẳng biến môi trường (<code>cat .env</code>, in biến ra màn hình)</td><td>Khoá rơi vào ngữ cảnh hội thoại, từ đó đi vào log, bản tóm tắt, bản sao</td></tr><tr><td>Người gõ credential vào ô chat</td><td>Mọi thứ gõ vào chat đều được lưu lại. Một khoá gõ vào đó coi như <strong>đã rò</strong>, kể cả khi xoá tin nhắn</td></tr></tbody></table></div>
+<p>Đây chính là ví dụ rõ nhất cho phân biệt <strong>văn bản và cơ chế</strong>: "đừng đọc file bí mật" viết ra chỉ là <strong>lời dặn</strong>; thứ cần là <strong>cơ chế</strong> chặn ở tầng quyền, chạy bên ngoài AI.</p>
+<h3>6.2 Ba cách đưa credential, chỉ một cách dùng được</h3>
+<div class="table-wrap"><table><thead><tr><th>Cách</th><th>Ai nhìn thấy khoá</th><th>Đánh giá</th></tr></thead><tbody><tr><td>Gõ vào ô chat</td><td>AI + toàn bộ lịch sử hội thoại + mọi bản sao của nó</td><td><strong>Cấm</strong></td></tr><tr><td>Để trong file cấu hình đi kèm repo</td><td>Bất kỳ ai clone repo</td><td><strong>Cấm</strong></td></tr><tr><td>Biến môi trường + tool đã được cấp quyền</td><td>Chỉ tool</td><td><strong>Cách duy nhất</strong></td></tr></tbody></table></div>
+<h3>6.3 Quyền tối thiểu</h3>
+<p>Tool được cấp quyền không có nghĩa là cấp toàn quyền. Một tool chỉ cần đọc thì cấp khoá chỉ-đọc. Nguyên tắc này quan trọng hơn bình thường khi người dùng tool là AI: nó sẽ thử nhiều hướng hơn người, nhanh hơn người, và không có trực giác "cái này có vẻ nguy hiểm".</p>
+</section>
+<section class="sec" id="s8">
+<h2><span class="num">7</span>Nguyên lý cốt lõi của lớp Skill</h2>
+<p><strong>Tách "cách làm" ra khỏi "biết gì".</strong></p>
+<div class="table-wrap"><table><thead><tr><th></th><th>Cây 1 — Workflow</th><th>Cây 2 — Domain</th></tr></thead><tbody><tr><td>Chứa gì</td><td>Thứ tự bước, gate, tiêu chí dừng, định dạng output</td><td>Convention, pattern, cạm bẫy, lệnh, schema</td></tr><tr><td>Phụ thuộc dự án</td><td>Gần như không</td><td>Hoàn toàn</td></tr><tr><td>Vòng đời</td><td>Ổn định nhiều năm</td><td>Đổi theo mỗi lần refactor</td></tr><tr><td>Ai viết</td><td>Người có kinh nghiệm quy trình</td><td>Người thuộc codebase</td></tr><tr><td>Mang sang repo khác</td><td>Được</td><td>Không</td></tr></tbody></table></div>
+<p>Lợi ích của việc tách:</p>
+<div class="table-wrap"><table><thead><tr><th>Lợi ích</th><th>Vì sao</th></tr></thead><tbody><tr><td>Tái sử dụng</td><td>Dự án mới chỉ thay cây 2, giữ nguyên cây 1</td></tr><tr><td>Context rẻ</td><td>Chỉ nạp domain skill đúng chỗ đang đụng, không nạp cả kho</td></tr><tr><td>Sửa độc lập</td><td>Đổi convention không phá quy trình review</td></tr><tr><td>Quy trách nhiệm rõ</td><td>Quy trình sai → sửa cây 1. Code sai style → sửa cây 2</td></tr></tbody></table></div>
+</section>
+<section class="sec" id="s9">
+<h2><span class="num">8</span>Phân loại: skill này thuộc cây nào?</h2>
+<p>Dùng một phép thử duy nhất, không cần tranh luận:</p>
+<figure class="viz "><div class="viz-body">
+<svg viewBox="0 0 640 250" role="img" aria-label="Phép thử phân loại skill" class="svg-fit">
+  <rect x="90" y="8" width="460" height="62" rx="3" fill="var(--v-b2)" stroke="var(--line)"/>
+  <text x="320" y="32" class="vt vt-m" text-anchor="middle">Bỏ hết tên dự án, tên công cụ, tên stack ra khỏi skill.</text>
+  <text x="320" y="55" class="vt vt-m" text-anchor="middle" font-weight="600">Skill đó CÒN NGHĨA không?</text>
+  <path d="M320 70 L320 98 M320 98 L165 98 L165 126 M320 98 L475 98 L475 126"
+        fill="none" stroke="var(--v-stroke)" stroke-width="1.5"/>
+  <text x="240" y="92" class="vt vt-s" text-anchor="middle">CÒN</text>
+  <text x="404" y="92" class="vt vt-s" text-anchor="middle">KHÔNG CÒN</text>
+  <polygon points="165,134 160,124 170,124" fill="var(--v-stroke)"/>
+  <polygon points="475,134 470,124 480,124" fill="var(--v-stroke)"/>
+  <rect x="45" y="134" width="240" height="66" rx="3" fill="none" stroke="var(--t1)" stroke-width="2"/>
+  <text x="165" y="163" class="vt vt-h" text-anchor="middle" fill="var(--t1)">CÂY 1 · WORKFLOW</text>
+  <text x="165" y="185" class="vt vt-s" text-anchor="middle">mang sang dự án khác được</text>
+  <rect x="355" y="134" width="240" height="66" rx="3" fill="none" stroke="var(--t2)" stroke-width="2"/>
+  <text x="475" y="163" class="vt vt-h" text-anchor="middle" fill="var(--t2)">CÂY 2 · DOMAIN</text>
+  <text x="475" y="185" class="vt vt-s" text-anchor="middle">chết cứng với dự án này</text>
+  <text x="320" y="230" class="vt vt-s" text-anchor="middle" opacity=".8">Một phép thử duy nhất — không cần tranh luận.</text>
+</svg></div><figcaption>Phép thử phân loại. Áp được cho mọi skill, kể cả skill bạn chưa viết.</figcaption></figure>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span><p>"Review code: đọc diff, tìm lỗi đúng/sai, đánh giá scope, báo cáo   theo mức nghiêm trọng" — bỏ hết tên công cụ vẫn còn nghĩa → <strong>cây 1</strong>. - "Trong dự án này, hàm mở transaction chỉ tạo SAVEPOINT chứ không mở   transaction mới nếu trước đó đã có SELECT" — bỏ tên dự án đi thì câu   này vô nghĩa → <strong>cây 2</strong>.</p></aside>
+</section>
+<section class="sec" id="s10">
+<h2><span class="num">9</span>Cây 1 — Workflow: sáu giai đoạn</h2>
+<p>Cây workflow không phân theo chủ đề, mà phân theo <strong>dòng chảy của một yêu cầu</strong>. Sáu giai đoạn, mỗi giai đoạn trả lời một câu hỏi khác nhau:</p>
+<figure class="viz "><div class="viz-body"><div class="pipe"><div class="pipe-step"><span class="pipe-n">1</span><span class="pipe-name">HIỂU</span><p class="pipe-q">Vấn đề là gì? Ai liên quan? Dữ liệu đủ chưa?</p><p class="pipe-out"><span>out</span>bản phân tích + danh sách thiếu hụt</p></div><div class="pipe-step"><span class="pipe-n">2</span><span class="pipe-name">QUYẾT</span><p class="pipe-q">Chọn hướng nào? Đánh đổi gì? Vì sao không chọn B?</p><p class="pipe-out"><span>out</span>quyết định + lý do</p></div><div class="pipe-step"><span class="pipe-n">3</span><span class="pipe-name">ĐẶC TẢ</span><p class="pipe-q">Thế nào là XONG?</p><p class="pipe-out"><span>out</span>acceptance criteria / kịch bản kiểm thử</p></div><div class="pipe-step"><span class="pipe-n">4</span><span class="pipe-name">LÀM</span><p class="pipe-q">Viết ra</p><p class="pipe-out"><span>out</span>code</p></div><div class="pipe-step"><span class="pipe-n">5</span><span class="pipe-name">KIỂM</span><p class="pipe-q">Nó CHẠY được không? Nó TỐT không?</p><p class="pipe-out"><span>out</span>verdict + bằng chứng</p></div><div class="pipe-step"><span class="pipe-n">6</span><span class="pipe-name">GIAO</span><p class="pipe-q">Đưa đến tay người khác</p><p class="pipe-out"><span>out</span>PR / release / tài liệu</p></div></div></div><figcaption>Sáu giai đoạn của cây workflow. Mỗi giai đoạn trả lời một câu hỏi khác nhau và sinh ra một loại output khác nhau.</figcaption></figure>
+<p>Bốn điểm đáng nhớ hơn cả tên sáu giai đoạn:</p>
+<p><strong>(a) Giai đoạn HIỂU là chỗ ăn tiền nhất, và cũng là chỗ bị bỏ qua nhiều nhất.</strong> Nó phải trả lời được tối thiểu:</p>
+<ul><li>Vấn đề này thực chất là gì? Cái gì gây ra nó?</li><li>Những yếu tố nào đang chi phối? Ràng buộc nào không được phá?</li><li>Có bao nhiêu bên tham gia? Với mỗi bên: <strong>vai trò, chức năng, nhiệm vụ, quyền lợi</strong> — và <strong>giá trị cốt lõi</strong> nào khiến họ chịu thay đổi hoặc chịu từ bỏ?</li><li>Đây có phải vấn đề đã có người giải rồi không? Nếu có: cộng đồng đang giải thế nào? Nếu không: vì sao chưa ai gặp?</li><li>Dữ liệu đã đủ để quyết chưa? Còn thiếu gì?</li><li>Vai trò nào, kỹ năng nào, chỉ số nào đánh giá được vấn đề này?</li><li>Thế nào là <strong>xong</strong>? Lấy gì làm bằng chứng là đã xong?</li></ul>
+<p>Khung này <strong>không nên nằm trong đầu người hỏi</strong>. Nó phải được đóng gói thành file để lần nào chạy cũng đủ, không phụ thuộc hôm đó nhớ được bao nhiêu. Đó chính là lý do tồn tại của một workflow skill.</p>
+<p><strong>(b) KIỂM là hai câu hỏi tách rời.</strong> "Nó chạy được không" (chạy thật, lấy bằng chứng) khác hẳn "nó tốt không" (đọc code, đánh giá). Gộp hai thứ này vào một skill là lỗi thiết kế phổ biến nhất.</p>
+<p><strong>(c) Không phải yêu cầu nào cũng đi đủ 6 giai đoạn.</strong> Sửa typo thì nhảy thẳng [4]→[5]. Nhưng bỏ giai đoạn phải là <strong>quyết định có ý thức</strong>, không phải quên.</p>
+<p><strong>(d) Cần thêm một nhánh META — skill viết về skill.</strong> Đây là nhánh khiến hệ thống tự lớn lên: mỗi lần vấp một cạm bẫy mới, nó được ghi ngược vào skill thay vì tan biến sau cuộc chat.</p>
+</section>
+<section class="sec" id="s11">
+<h2><span class="num">10</span>Kiểm thử theo tầng — lấy bằng chứng mà không chạm dữ liệu thật</h2>
+<p>Giai đoạn <strong>KIỂM</strong> đòi <strong>bằng chứng</strong>, không đòi lời hứa. Vấn đề: bằng chứng phải lấy được <strong>mà không đụng vào hệ thống thật</strong>. Cách giải là dựng từng tầng thay thế.</p>
+<figure class="viz "><div class="viz-body"><div class="ly"><div class="ly-h">Tầng</div><div class="ly-h">Thay thế cái gì</div><div class="ly-h">Bằng cách</div><div class="ly-t l1"><span class="ly-n">1</span>UNIT</div><div class="ly-c ly-what">mọi phụ thuộc</div><div class="ly-c">mock / giả lập</div><div class="ly-t l2"><span class="ly-n">2</span>INTEGRATION</div><div class="ly-c ly-what">DB + hệ thứ ba</div><div class="ly-c">container dựng DB mô phỏng · proxy-api đứng trước hệ ngoài</div><div class="ly-t l3"><span class="ly-n">3</span>API / E2E</div><div class="ly-c ly-what">danh tính người dùng</div><div class="ly-c">khoá nội bộ + identity-id</div><div class="ly-t l4"><span class="ly-n">4</span>WEB</div><div class="ly-c ly-what">thao tác người dùng</div><div class="ly-c">agent điều khiển trình duyệt</div><div class="ly-t l5"><span class="ly-n">5</span>LOG</div><div class="ly-c ly-what">suy đoán</div><div class="ly-c">tham số đủ để đọc ra kết luận</div></div></div><figcaption>Năm tầng thay thế. Tầng 5 không phải phụ lục — không có log đủ tham số thì bốn tầng trên chỉ cho biết đỏ hay xanh, không cho biết vì sao.</figcaption></figure>
+<h3>10.1 Điều kiện tiên quyết</h3>
+<p>Thiếu điều này thì cả bốn tầng trên đều không dựng được:</p>
+<aside class="note"><p>Dự án phải cho phép <strong>cấu hình toàn bộ bằng biến môi trường</strong>. Mọi địa chỉ hệ ngoài, mọi khoá, mọi chế độ xác thực đều phải đổi được từ bên ngoài — không hardcode, không "chỉ chạy đúng khi trỏ vào môi trường thật".</p></aside>
+<p>Đây là khoản đầu tư hạ tầng, không phải việc riêng của người viết test. Nếu dự án chưa có, đó là việc phải làm <strong>trước</strong>, không phải làm sau.</p>
+<h3>10.2 Tầng 1 — Unit: giả lập mọi thứ xung quanh</h3>
+<p>Cắt đứt mọi phụ thuộc, chỉ còn lại logic. Nhanh, chạy được hàng nghìn lần. Đổi lại: <strong>không chứng minh được hệ thống ghép lại có chạy không</strong>.</p>
+<h3>10.3 Tầng 2 — Integration: dựng bản mô phỏng chạy thật</h3>
+<p>Điểm mấu chốt: bản mô phỏng <strong>không phải là mock</strong>. Mock trả về câu trả lời có sẵn; bản mô phỏng thì <strong>chạy thật</strong> trên dữ liệu giả.</p>
+<div class="table-wrap"><table><thead><tr><th>Thay thế</th><th>Cách dựng</th><th>Điều kiện</th></tr></thead><tbody><tr><td>Cơ sở dữ liệu</td><td>Container dựng DB đúng cấu trúc và đúng kiểu trả về, rồi sinh dữ liệu giả vào</td><td>Biết schema và kiểu dữ liệu trả về</td></tr><tr><td>Hệ thứ ba</td><td>Proxy-api đứng trước: ghi lại phản hồi thật một lần, sau đó phát lại</td><td>Biết hợp đồng API của họ</td></tr></tbody></table></div>
+<p>Nhờ vậy câu truy vấn thật được chạy thật — sai schema, sai kiểu, sai ràng buộc đều lộ ra ngay, thứ mà mock không bao giờ bắt được.</p>
+<h3>10.4 Tầng 3 — Khoá nội bộ kèm identity-id</h3>
+<p>Rào cản lớn nhất khi test API không phải logic, mà là <strong>đăng nhập</strong>. SSO, OAuth, xác thực nhiều bước — không dựng lại được trong test.</p>
+<p>Cách giải: một <strong>khoá nội bộ chỉ tồn tại ở local và CI</strong>, đi kèm một <strong>identity-id</strong> trong cùng lời gọi. Hệ thống đọc identity-id đó và xử lý như thể người dùng đã đăng nhập.</p>
+<div class="table-wrap"><table><thead><tr><th>Bỏ qua</th><th><strong>Không</strong> bỏ qua</th></tr></thead><tbody><tr><td>Bước đăng nhập, SSO, đổi token</td><td>Phân quyền — vẫn chạy đúng luồng kiểm tra quyền</td></tr><tr><td>Phụ thuộc vào nhà cung cấp danh tính</td><td>Mọi luật nghiệp vụ theo vai trò</td></tr></tbody></table></div>
+<p>Nhờ có identity-id, test trả lời được câu "API này <strong>với người dùng loại X</strong> thì ra gì" — chứ không chỉ "API này có chạy không".</p>
+<p><strong>Rủi ro phải nói thẳng:</strong> nếu cơ chế này lọt sang môi trường thật thì đó là một cửa hậu. Vì vậy nó phải được tắt bằng <strong>cơ chế</strong> — chặn ở cấu hình build hoặc ở tầng hạ tầng — chứ không phải bằng một dòng ghi chú "nhớ tắt khi deploy".</p>
+<h3>10.5 Tầng 4 — Web: để AI tự thao tác trình duyệt</h3>
+<p>Phần giao diện không kiểm được bằng cách đọc code. Dùng một tool điều khiển trình duyệt: AI tự mở trang, tự điền, tự bấm, tự chụp màn hình làm bằng chứng. Đây là tầng duy nhất kiểm được thứ <strong>người dùng thật sự nhìn thấy</strong>.</p>
+<h3>10.6 Tầng 5 — Log: nguồn bằng chứng, không phải công cụ gỡ lỗi</h3>
+<p>Đây là tầng hay bị bỏ quên nhất, và cũng là tầng quyết định bốn tầng trên có giá trị hay không.</p>
+<aside class="note"><p>Log phải mang <strong>đủ tham số</strong> để khi chạy E2E, người đọc ghép được log với các trạng thái dữ liệu khác nhau và <strong>ra được kết luận</strong>, thay vì phải đoán.</p></aside>
+<p>Một dòng log ghi "xử lý thất bại" là vô dụng. Dòng log ghi rõ đầu vào nào, ở trạng thái nào, đi qua nhánh nào, trả ra gì — mới là bằng chứng. Với AI điều này còn quan trọng hơn: nó không ngồi cạnh để hỏi lại, nó chỉ có log.</p>
+</section>
+<section class="sec" id="s12">
+<h2><span class="num">11</span>Cây 2 — Domain: phân theo lát cắt kỹ thuật</h2>
+<p>Cây 2 không có cấu trúc chuẩn — nó phản chiếu <strong>chính kiến trúc của dự án</strong>. Nhưng hầu hết dự án đều tách được thành sáu lát cắt tương tự nhau, chỉ khác nội dung:</p>
+<figure class="viz "><div class="viz-body"><div class="mx"><div class="mx-head">Lát cắt chung</div><div class="mx-head">Backend</div><div class="mx-head">Frontend</div><div class="mx-head">Mobile</div><div class="mx-row">RUNTIME /<br>FRAMEWORK</div><div class="mx-c">phân tầng, DI, error handling</div><div class="mx-c">component, state management</div><div class="mx-c">navigation, lifecycle</div><div class="mx-row">DATA</div><div class="mx-c">query, schema, migration</div><div class="mx-c">data fetching, cache invalidation</div><div class="mx-c">local store, offline sync</div><div class="mx-row">BUILD / OPS</div><div class="mx-c">deploy, IaC, monitor</div><div class="mx-c">bundler, env, CDN, feature flag</div><div class="mx-c">ký app, store release, OTA</div><div class="mx-row">EXTERNAL<br>PROVIDER</div><div class="mx-c">API đối tác</div><div class="mx-c">SDK bên thứ ba</div><div class="mx-c">SDK native, push, payment</div><div class="mx-row">TRÌNH BÀY (UI)</div><div class="mx-c">&mdash;</div><div class="mx-c">design system, a11y, responsive</div><div class="mx-c">design system theo platform</div><div class="mx-row">TESTING<br>HARNESS</div><div class="mx-c">đồ nghề test của dự án này</div><div class="mx-c">đồ nghề test của dự án này</div><div class="mx-c">đồ nghề test của dự án này</div></div></div><figcaption>Cùng sáu lát cắt, khác nội dung. Đây là lý do mô hình không chỉ hợp backend.</figcaption></figure>
+<h3>11.1 Ví dụ cây 2 cho FRONTEND</h3>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span></aside>
+<figure class="viz viz-tree-fig"><div class="viz-body"><div class="tre"><p class="tre-root">DOMAIN SKILLS — dự án frontend</p><ul class="tre-l1"><li><span class="tre-g">RUNTIME / FRAMEWORK</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-component-conventions</code><span class="tre-d">cấu trúc thư mục, đặt tên, khi nào tách component, ranh giới server/client component</span></li><li><code class="tre-n">&lt;tên&gt;-state-management</code><span class="tre-d">state nào ở đâu: local / URL / server cache / global — và khi nào KHÔNG được đưa vào global store</span></li></ul></li><li><span class="tre-g">DATA</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-data-fetching</code><span class="tre-d">pattern gọi API, cache key, khi nào invalidate, xử lý loading/error thống nhất</span></li></ul></li><li><span class="tre-g">BUILD / OPS</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-build-and-env</code><span class="tre-d">biến môi trường nào lộ ra client, feature flag, quy tắc tách bundle</span></li></ul></li><li><span class="tre-g">TRÌNH BÀY</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-design-system</code><span class="tre-d">token màu/khoảng cách, khi nào dùng component có sẵn thay vì viết mới, quy tắc a11y bắt buộc</span></li></ul></li><li><span class="tre-g">TESTING HARNESS</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-component-test</code><span class="tre-d">render helper, mock API, selector ổn định — không query theo class CSS</span></li></ul></li></ul></div></div><figcaption>Cây 2 cho một dự án frontend. Tên skill là chỗ trống để bạn điền.</figcaption></figure>
+<p>Nội dung <strong>xứng đáng</strong> viết cho frontend, ví dụ:</p>
+<ul><li>"Component trong <code>features/</code> được phép gọi API; component trong <code>ui/</code> thì không — nếu thấy <code>ui/</code> gọi API là sai tầng."</li><li>"Cache key phải theo dạng <code>[domain, id, params]</code>; sai thứ tự sẽ làm invalidate không ăn — đã mất nửa ngày vì lỗi này."</li><li>"Dùng selector theo <code>data-testid</code>, không theo class — class đổi theo mỗi lần refactor style."</li></ul>
+<h3>11.2 Ví dụ cây 2 cho MOBILE</h3>
+<aside class="example" data-example><span class="ex-tag">ví dụ</span></aside>
+<figure class="viz viz-tree-fig"><div class="viz-body"><div class="tre"><p class="tre-root">DOMAIN SKILLS — dự án mobile</p><ul class="tre-l1"><li><span class="tre-g">RUNTIME / FRAMEWORK</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-navigation</code><span class="tre-d">cây màn hình, deeplink, truyền tham số, xử lý back trên từng platform</span></li><li><code class="tre-n">&lt;tên&gt;-lifecycle-and-permission</code><span class="tre-d">background/foreground, xin quyền, hành vi khi người dùng từ chối quyền</span></li></ul></li><li><span class="tre-g">DATA</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-offline-and-sync</code><span class="tre-d">cái gì lưu local, chiến lược đồng bộ, xử lý xung đột, hành vi khi mất mạng giữa chừng</span></li></ul></li><li><span class="tre-g">BUILD / OPS</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-release-pipeline</code><span class="tre-d">ký app, số build, kênh phát hành, cập nhật OTA, tương thích ngược với bản cũ còn trên máy</span></li></ul></li><li><span class="tre-g">EXTERNAL PROVIDER</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-push-notification</code><span class="tre-d">đăng ký token, payload, deeplink từ notification</span></li><li><code class="tre-n">&lt;tên&gt;-in-app-payment</code><span class="tre-d">luồng mua trong app, xác thực biên lai, hoàn tiền</span></li></ul></li><li><span class="tre-g">TESTING HARNESS</span><ul class="tre-l2"><li><code class="tre-n">&lt;tên&gt;-device-test</code><span class="tre-d">chạy trên máy ảo, chụp màn hình, kịch bản thủ công</span></li></ul></li></ul></div></div><figcaption>Cây 2 cho một dự án mobile. Cùng sáu lát cắt, nội dung hoàn toàn khác.</figcaption></figure>
+<p>Nội dung <strong>xứng đáng</strong> viết cho mobile, ví dụ:</p>
+<ul><li>"Bản cũ vẫn còn trên máy người dùng hàng tháng sau khi phát hành — mọi thay đổi API phải tương thích ngược, không có ngoại lệ."</li><li>"Deeplink phải chạy được ở cả hai trạng thái: app đang tắt và app đang chạy nền. Quên trạng thái thứ hai là lỗi hay gặp nhất."</li><li>"Khi người dùng từ chối quyền lần hai, hệ điều hành không hiện hộp thoại nữa — phải tự điều hướng sang phần cài đặt."</li></ul>
+<h3>11.3 Tiêu chí: cái gì xứng đáng thành một domain skill?</h3>
+<div class="table-wrap"><table><thead><tr><th>Xứng đáng</th><th>Không xứng đáng</th></tr></thead><tbody><tr><td>Sự thật đã kiểm chứng của repo này</td><td>Best practice chung tra Google ra</td></tr><tr><td>Cạm bẫy đã làm ai đó mất nửa ngày</td><td>Thứ đọc docs chính thức là biết</td></tr><tr><td>Quyết định của team, không suy ra được từ code</td><td>Thứ code tự nói lên</td></tr><tr><td>Lệnh/quy trình vận hành chỉ team này biết</td><td>Kiến thức phổ thông của stack</td></tr></tbody></table></div>
+<p>Phép thử ngắn: <strong>nếu model tự đoán đúng thì đừng viết.</strong> Domain skill chỉ nên chứa thứ model <em>không thể</em> đoán ra.</p>
+<h3>11.4 Mẫu wrapper</h3>
+<p>Khi có một khung chung tốt nhưng cần gắn tri thức dự án lên, đừng fork khung đó — viết skill bọc ngoài:</p>
+<figure class="viz "><div class="viz-body">
+<div class="wrapviz">
+  <div class="wrap-outer"><span class="wrap-tag">skill wrapper của dự án</span>
+    <p>chỉ chứa phần riêng: seed data, hệ ngoài, tài khoản test</p>
+    <div class="wrap-inner"><span class="wrap-tag2">skill khung chung</span>
+      <p>tái sử dụng được — không sửa, không fork</p></div>
+  </div>
+</div></div><figcaption>Mẫu wrapper: bọc ngoài thay vì fork. Fork tạo ra hai bản lệch nhau dần.</figcaption></figure>
+</section>
+<section class="sec" id="s13">
+<h2><span class="num">12</span>Hai cây ánh xạ vào nhau bằng cách nào</h2>
+<p>Không cần file "router" nào cả. Ánh xạ xảy ra qua <strong>3 cơ chế xếp chồng</strong>, từ lỏng đến chặt:</p>
+<figure class="viz "><div class="viz-body">
+<div class="stk">
+  <div class="stk-row stk-1"><span class="stk-n">1</span>
+    <div><b>Description-based</b> <em>tự động, lỏng lẻo</em>
+    <p>Mỗi skill khai báo "khi nào dùng tới". Model đọc mô tả rồi tự chọn.</p>
+    <p class="stk-k">Chất lượng ánh xạ = chất lượng mô tả. Đây là chỗ hay làm ẩu nhất.</p></div></div>
+  <div class="stk-row stk-2"><span class="stk-n">2</span>
+    <div><b>Cross-reference</b> <em>tường minh, viết trong skill</em>
+    <p>Workflow skill gọi thẳng tên skill khác: "bước này hãy dùng skill X".</p>
+    <p class="stk-k">Tạo một đồ thị phụ thuộc có thật, grep ra được.</p></div></div>
+  <div class="stk-row stk-3"><span class="stk-n">3</span>
+    <div><b>Rule</b> <em>bắt buộc, toàn cục</em>
+    <p>Một file rule áp dụng cho mọi phiên: "LUÔN nạp skill liên quan TRƯỚC khi
+    làm bất cứ việc gì — kể cả việc nhỏ".</p>
+    <p class="stk-k">Chặn thói quen bỏ qua skill vì chủ quan.</p></div></div>
+</div></div><figcaption>Ba cơ chế xếp chồng, từ lỏng đến chặt. Không có file router nào cả.</figcaption></figure>
+<p>grep -rhoE '/[a-z][a-z0-9-]+' &lt;thu-muc-skill&gt;/*/SKILL.md \ | sort | uniq -c | sort -rn</p>
+<div class="pre-wrap"><pre class="mono"><code>
+Skill đứng đầu danh sách là skill gánh nhiều việc nhất — và cũng là skill mà
+một thay đổi nhỏ sẽ lan xa nhất.Co che 3: RULE  (bat buoc, toan cuc)
+  +-------------------------------------------------------+
+  | Mot file rule ap dung cho moi phien lam viec, ep:      |
+  | "LUON nap skill lien quan TRUOC khi lam bat cu viec    |
+  |  gi -- ke ca viec nho, ke ca khi da doc file do roi".  |
+  | =&gt; Chan thoi quen bo qua skill vi chu quan.           |
+  +-------------------------------------------------------+</code></pre></div>
+<p><strong>Cơ chế 1 quyết định phần lớn kết quả.</strong> Một mô tả kiểu "Use for backend work" gần như không bao giờ trigger đúng. Mô tả tốt cần <strong>trigger cụ thể + ranh giới phủ định</strong>:</p>
+<p><strong>Mô tả YẾU</strong> — gần như không bao giờ trigger đúng:</p>
+<figure class="viz "><div class="viz-body"><div class="desc-w"><span class="desc-tag">Mô tả yếu</span><p class="desc-note">Gần như không bao giờ trigger đúng.</p><pre class="desc-code"><code>"Use for testing things."</code></pre></div></div><figcaption>Mô tả viết cho có. Model không biết khi nào nên chọn skill này.</figcaption></figure>
+<p><strong>Mô tả MẠNH</strong> — có trigger cụ thể và có ranh giới phủ định:</p>
+<figure class="viz "><div class="viz-body"><div class="desc-s"><span class="desc-tag">Mô tả mạnh</span><p class="desc-note">Có trigger cụ thể <b>và</b> ranh giới phủ định.</p><pre class="desc-code"><code>"Use when the user wants to know if something works -- the answer
+ requires running code, not analyzing it.
+ Triggers: 'run the tests', 'did the merge break anything?',
+           'verify the fix worked'.
+ Hard stops -- do NOT use for: reviewing test quality, debugging
+ test infrastructure, writing tests, diagnosing root causes."</code></pre></div></div><figcaption>Phần <b>do NOT use for</b> quan trọng ngang phần trigger — nó ngăn skill này nuốt việc của skill kia. Mô tả viết bằng tiếng Anh vì model đọc nó, không phải người.</figcaption></figure>
+<p>Phần <code>do NOT use for</code> quan trọng <strong>ngang</strong> phần trigger: nó ngăn skill này nuốt việc của skill kia. Không có nó, càng nhiều skill càng nhiễu.</p>
+</section>
+<section class="sec" id="s14">
+<h2><span class="num">13</span>Nguyên tắc thiết kế skill</h2>
+<div class="table-wrap"><table><thead><tr><th>Nguyên tắc</th><th>Nội dung</th><th>Vi phạm thì sao</th></tr></thead><tbody><tr><td>Một skill = một ý định</td><td>Mô tả cần chữ "và" → cân nhắc tách đôi</td><td>Trigger nhầm lẫn lộn</td></tr><tr><td>Workflow không nhúng tri thức</td><td>Skill "viết code" không được biết framework nào</td><td>Mất tính mang đi</td></tr><tr><td>Domain không nhúng quy trình</td><td>Skill convention không được ra lệnh thứ tự việc</td><td>Hai cây tranh quyền điều phối</td></tr><tr><td>Ranh giới phủ định bắt buộc</td><td>Luôn viết <code>do NOT use for ...</code></td><td>Skill nuốt việc của nhau</td></tr><tr><td>Wrapper thay vì fork</td><td>Bọc khung chung, đừng sao chép</td><td>Hai bản lệch nhau dần</td></tr><tr><td>Chi tiết nặng đẩy xuống file phụ</td><td>File chính giữ mỏng</td><td>Context đắt, nạp thừa</td></tr></tbody></table></div>
+<p>Cấu trúc thư mục nên theo:</p>
+<div class="table-wrap"><table><thead><tr><th>Tệp / thư mục</th><th>Chứa gì</th></tr></thead><tbody><tr><td><code>SKILL.md</code></td><td><strong>Mỏng</strong> — khi nào dùng tới, và quy trình các bước</td></tr><tr><td><code>references/</code></td><td>Chi tiết nặng, chỉ đọc khi thực sự cần</td></tr><tr><td><code>templates/</code></td><td>Mẫu output copy-paste được</td></tr></tbody></table></div>
+<p>Lý do tách <code>references/</code>: file chính được nạp vào context mỗi lần skill kích hoạt; file phụ chỉ nạp khi thực sự cần. Nhồi hết vào file chính là cách nhanh nhất để đốt context.</p>
+</section>
+<section class="sec" id="s15">
+<h2><span class="num">14</span>Ba chỗ mô hình bị rò rỉ</h2>
+<p>Nói trước để người sau không vấp.</p>
+<h3>14.1 Hai cây không tách sạch — có skill lai</h3>
+<p>Một số skill <strong>hình dạng là workflow nhưng nội dung trói vào công cụ của team</strong> (bảng quản lý việc, wiki, script release...).</p>
+<p>Hệ quả: mang sang dự án khác thì cây 1 <strong>không</strong> chuyển sạch 100%.</p>
+<p>Cách giảm đau:</p>
+<figure class="viz "><div class="viz-body">
+<div class="splitviz">
+  <div class="split-row split-thin"><div class="split-l">SKILL.md</div>
+    <div class="split-r"><b>Lớp mỏng</b> — nối vào công cụ của team
+    <span class="split-note">phải viết lại khi đổi dự án</span></div></div>
+  <div class="split-row split-thick"><div class="split-l">references/<br>methodology.md</div>
+    <div class="split-r"><b>Phương pháp thuần tuý</b> — không tên công cụ nào
+    <span class="split-note">dùng lại được nguyên vẹn</span></div></div>
+</div></div><figcaption>Cách giảm đau cho skill lai: tách phương pháp xuống file phụ, giữ file chính là lớp nối mỏng.</figcaption></figure><figure class="viz "><div class="viz-body">
+<svg viewBox="0 0 560 300" role="img" aria-label="Giao của hai cây skill" class="svg-fit">
+  <circle cx="215" cy="150" r="108" fill="var(--v-t1f)" stroke="var(--t1)" stroke-width="2"/>
+  <circle cx="345" cy="150" r="108" fill="var(--v-t2f)" stroke="var(--t2)" stroke-width="2"/>
+  <text x="140" y="146" class="vt vt-h" text-anchor="middle" fill="var(--t1)">CÂY 1</text>
+  <text x="140" y="166" class="vt vt-s" text-anchor="middle">workflow</text>
+  <text x="420" y="146" class="vt vt-h" text-anchor="middle" fill="var(--t2)">CÂY 2</text>
+  <text x="420" y="166" class="vt vt-s" text-anchor="middle">domain</text>
+  <text x="280" y="140" class="vt vt-m" text-anchor="middle" font-weight="600">SKILL LAI</text>
+  <text x="280" y="160" class="vt vt-s" text-anchor="middle">hình dạng</text>
+  <text x="280" y="176" class="vt vt-s" text-anchor="middle">workflow,</text>
+  <text x="280" y="192" class="vt vt-s" text-anchor="middle">nội dung trói</text>
+  <text x="280" y="208" class="vt vt-s" text-anchor="middle">vào công cụ</text>
+  <text x="140" y="276" class="vt vt-s" text-anchor="middle">mang đi được</text>
+  <text x="420" y="276" class="vt vt-s" text-anchor="middle">không mang đi được</text>
+  <text x="280" y="276" class="vt vt-s" text-anchor="middle" opacity=".75">← vùng đau ←</text>
+</svg></div><figcaption>Hai cây không tách sạch. Phần giao là nơi mô hình rò rỉ — và là thứ khiến việc "mang cây 1 sang dự án khác" không bao giờ đạt 100%.</figcaption></figure>
+<p>Tách phương pháp xuống file phụ, giữ file chính là lớp nối mỏng.</p>
+<h3>14.2 Càng nhiều skill càng dễ chọn nhầm</h3>
+<p>Số skill tăng → mô tả chồng lấn → model chọn sai. Chi phí này tăng nhanh hơn tuyến tính.</p>
+<p>Đối phó: <strong>audit định kỳ</strong>, không phải làm một lần. Cần một skill chuyên soát lại các skill khác (trùng lặp, mô tả mờ, thiếu ranh giới phủ định).</p>
+<h3>14.3 Skill dở hại hơn không có skill</h3>
+<p>Một skill mô tả sai sẽ trigger nhầm chỗ và đẩy AI đi sai hướng <strong>một cách tự tin</strong>. Không có skill thì ít ra AI còn hỏi lại.</p>
+<p>Suy ra: đừng dựng nhiều skill từ đầu.</p>
+</section>
+<section class="sec" id="s16">
+<h2><span class="num">15</span>Lộ trình cho một dự án mới</h2>
+<p>Đừng dựng vài chục skill ngay. Tăng dần:</p>
+<figure class="viz "><div class="viz-body"><div class="tl"><div class="tl-item"><div class="tl-mark"><span class="tl-dot"></span></div><div class="tl-body"><p class="tl-h"><b>Vòng 1</b><span>ngày đầu</span></p><ul><li><b>GUARDRAIL trước tiên</b> — deny các lệnh phá huỷ, chặn đọc file bí mật</li><li>1 file <b>memory</b> ngắn: dự án là gì, cấu trúc, luật tối thượng</li><li>1 <b>domain skill</b>: convention của stack chính</li></ul></div></div><div class="tl-item"><div class="tl-mark"><span class="tl-dot"></span></div><div class="tl-body"><p class="tl-h"><b>Vòng 2</b><span>sau vài ticket</span></p><ul><li>1 file <b>rule</b>: “mơ hồ thì HỎI”, “nạp skill TRƯỚC khi làm”</li><li>Thêm <b>workflow skill</b> cho giai đoạn đang đau nhất — thường là [1] HIỂU hoặc [5] KIỂM</li></ul></div></div><div class="tl-item"><div class="tl-mark"><span class="tl-dot"></span></div><div class="tl-body"><p class="tl-h"><b>Vòng 3</b><span>khi đã có nhịp</span></p><ul><li>Chuỗi đầy đủ <b>6 giai đoạn</b></li><li>Thêm <b>MCP</b> khi bắt đầu thấy AI đoán dữ liệu runtime</li><li>Thêm nhánh <b>META</b> để hệ tự lớn lên</li></ul></div></div><div class="tl-item"><div class="tl-mark"><span class="tl-dot"></span></div><div class="tl-body"><p class="tl-h"><b>Vòng 4</b><span>khi quy mô tăng</span></p><ul><li>Tách domain skill theo lát cắt khi một file phình quá ~200 dòng</li><li>Bắt đầu <b>audit định kỳ</b></li></ul></div></div></div></div><figcaption>Bốn vòng tiến hoá. Khoảng cách giữa các vòng là thời gian thật — đừng nhảy vòng, mỗi vòng cần dữ liệu từ vòng trước.</figcaption></figure>
+<p><strong>Tín hiệu để viết một skill mới: cùng một lời giải thích phải lặp lại lần thứ ba.</strong></p>
+<figure class="viz "><div class="viz-body">
+<div class="esc">
+  <div class="esc-s esc-1"><span class="esc-n">Lần 1</span><b>Tình cờ</b>
+    <p>đừng viết</p></div>
+  <div class="esc-s esc-2"><span class="esc-n">Lần 2</span><b>Trùng hợp</b>
+    <p>ghi chú lại</p></div>
+  <div class="esc-s esc-3"><span class="esc-n">Lần 3</span><b>PATTERN</b>
+    <p>đóng gói thành skill</p></div>
+</div></div><figcaption>Tín hiệu để viết một skill mới: cùng một lời giải thích phải lặp lại lần thứ ba.</figcaption></figure>
+</section>
+</div>
+<div class="part part-i" id="part-i"><header class="part-head"><span class="part-eyebrow">Phần I</span><h2 class="part-title">Nguyên lý</h2><p class="part-sub">Mang sang bất kỳ dự án nào — không phụ thuộc ngôn ngữ, framework hay công cụ quản lý việc. Đây là phần cần nhớ.</p></header>
+<aside class="note"><p>Từ đây trở xuống là <strong>một ví dụ</strong>, không phải khuôn mẫu bắt buộc.</p><p>Cách đọc: xem hồ sơ dự án ở mục đầu, rồi xem khung ở Phần I được áp vào đó ra hình gì. <strong>Mọi tên công nghệ, tên skill, tên bảng từ đây trở xuống đều là chi tiết của ví dụ, không phải khuyến nghị.</strong> Dự án của bạn thay chúng bằng tên của chính mình — khung phía trên không đổi.</p></aside>
+<section class="sec" id="s17">
+<h2><span class="num">16</span>Hồ sơ dự án ví dụ</h2>
+<p>Trước khi xem hai cây được dựng ra sao, cần biết đây là dự án gì. Đó là một dự án phần mềm <strong>điển hình</strong> — không có gì đặc biệt, và chính vì vậy nó dùng làm ví dụ được.</p>
+<h3>16.1 Nghiệp vụ</h3>
+<p>Một sản phẩm bán gói dịch vụ số cho khách hàng cá nhân:</p>
+<ul><li>Khách chọn gói và thanh toán ngay trong app</li><li>Hệ thống gọi sang nhà cung cấp bên ngoài để kích hoạt dịch vụ</li><li>Gói có hạn mức sử dụng, có cảnh báo khi sắp hết, có mua thêm</li><li>Có hoàn tiền, có tra cứu lịch sử</li><li>Đội vận hành nội bộ cần trang quản trị để tra cứu và xử lý sự cố</li></ul>
+<p>Nghiệp vụ này có đủ ba thứ khiến một dự án trở nên khó: <strong>tiền</strong>, <strong>hệ thống bên thứ ba</strong>, và <strong>trạng thái thay đổi theo thời gian</strong>. Dự án của bạn nhiều khả năng cũng có ít nhất một trong ba.</p>
+<h3>16.2 Thành phần kỹ thuật</h3>
+<div class="table-wrap"><table><thead><tr><th>Thành phần</th><th>Vai trò</th><th>Techstack (chỉ là ví dụ)</th></tr></thead><tbody><tr><td>Backend API</td><td>Nơi đặt toàn bộ luật nghiệp vụ</td><td>Một ngôn ngữ + một framework web</td></tr><tr><td>Cơ sở dữ liệu</td><td>Lưu khách, đơn, gói, giao dịch</td><td>CSDL quan hệ</td></tr><tr><td>Tác vụ nền</td><td>Việc chạy chậm, việc định kỳ</td><td>Hàng đợi + worker</td></tr><tr><td>Trang quản trị</td><td>Đội vận hành nội bộ dùng</td><td>Web</td></tr><tr><td>App di động</td><td>Khách hàng dùng</td><td>Mobile</td></tr><tr><td>Hạ tầng</td><td>Máy chủ, mạng, triển khai</td><td>Cloud + mô tả bằng code</td></tr><tr><td>Giám sát</td><td>Biết khi nào hỏng</td><td>Thu log, đo chỉ số, gửi cảnh báo</td></tr><tr><td>Hệ bên ngoài</td><td>Nhà cung cấp dịch vụ, cổng thanh toán, hệ tính cước</td><td>API của họ</td></tr><tr><td>Công cụ team</td><td>Quản lý việc, wiki, kho mã nguồn</td><td>—</td></tr></tbody></table></div>
+<h3>16.3 Từ hồ sơ này suy ra được gì</h3>
+<figure class="viz "><div class="viz-body"><div class="mapv mapv-wide"><div class="map-h">Hồ sơ dự án</div><div class="map-h">Lát cắt cây 2 sinh ra</div><div class="map-q">Backend API + framework</div><div class="map-a">RUNTIME / FRAMEWORK</div><div class="map-q">CSDL + hệ tính cước bên ngoài</div><div class="map-a">DATA</div><div class="map-q">Hạ tầng + giám sát</div><div class="map-a">BUILD / OPS</div><div class="map-q">Nhà cung cấp + cổng thanh toán</div><div class="map-a">EXTERNAL PROVIDER</div><div class="map-q">Trang quản trị + app</div><div class="map-a">TRÌNH BÀY</div><div class="map-q">Nhiều hệ ghép lại</div><div class="map-a">TESTING HARNESS</div></div></div><figcaption>Mỗi dòng hồ sơ sinh ra đúng một lát cắt. Cây 1 thì <b>không</b> suy ra từ hồ sơ — nó giống nhau ở mọi dự án. Đó là toàn bộ ý nghĩa của việc tách hai cây.</figcaption></figure>
+<p>Mỗi dòng hồ sơ sinh ra đúng một lát cắt. Đổi hồ sơ thì đổi lát cắt.</p>
+<p>Còn <strong>cây 1 thì không suy ra từ hồ sơ</strong> — nó giống nhau ở mọi dự án, dù bạn làm sản phẩm bán hàng, hệ thống nội bộ hay nền tảng dữ liệu. Đó là toàn bộ ý nghĩa của việc tách hai cây.</p>
+</section>
+<section class="sec" id="s18">
+<h2><span class="num">17</span>Cây 1 cho dự án ví dụ — sáu giai đoạn ánh xạ vào skill</h2>
+<div class="table-wrap"><table><thead><tr><th>Giai đoạn</th><th>Skill</th><th>Ghi chú</th></tr></thead><tbody><tr><td>[1] HIỂU</td><td><code>/your-project-ticket-business-review</code></td><td>phương pháp 8 pha</td></tr><tr><td></td><td><code>/research</code>, <code>/docs-seeker</code>, <code>/ask</code>, <code>/diagnose</code></td><td>thuần workflow</td></tr><tr><td>[2] QUYẾT</td><td><code>/discuss</code></td><td>tranh luận để chốt</td></tr><tr><td></td><td><code>/give-plan</code></td><td>kế hoạch để review</td></tr><tr><td></td><td><code>/doc-adr</code></td><td>ghi quyết định khó đảo ngược</td></tr><tr><td>[3] ĐẶC TẢ</td><td><code>/bdd</code></td><td>Given/When/Then → <code>docs/bdd/</code></td></tr><tr><td></td><td><code>/your-project-tech-design</code></td><td>design doc bám code</td></tr><tr><td></td><td><code>/create-doc</code></td><td>runbook, onboarding, postmortem</td></tr><tr><td>[4] LÀM</td><td><code>/cook</code></td><td>mặc định cho code mới</td></tr><tr><td></td><td><code>/fix</code></td><td>đã đủ bằng chứng về lỗi</td></tr><tr><td></td><td><code>/tdd</code></td><td>để test dẫn dắt thiết kế</td></tr><tr><td>[5] KIỂM</td><td><code>/test</code></td><td><strong>nó chạy được không</strong></td></tr><tr><td></td><td><code>/review-code</code>, <code>/review-code-adr</code></td><td><strong>nó tốt không</strong></td></tr><tr><td></td><td><code>/bdd-verify</code>, <code>/test-report</code></td><td>phủ kịch bản, coverage</td></tr><tr><td>[6] GIAO</td><td><code>/git-workflow</code> → <code>/sync-pr</code> → <code>/backend-release</code></td><td></td></tr><tr><td>META</td><td><code>/skill-creator</code>, <code>/review-skill</code>, <code>/self-evolve</code></td><td></td></tr></tbody></table></div>
+<p>Khung câu hỏi nghiệp vụ của giai đoạn HIỂU chính là phương pháp 8 pha, nằm trong <code>references/methodology.md</code>:</p>
+<figure class="viz "><div class="viz-body"><div class="mapv"><div class="map-q">Vấn đề là gì?</div><div class="map-a">Phase 1 — Goal &amp; Purpose</div><div class="map-q">Yếu tố chi phối?</div><div class="map-a">Phase 2 — Principles &amp; Constraints</div><div class="map-q">Bên tham gia, vai trò, kỹ năng, metric?</div><div class="map-a">Phase 3 — Roles &amp; Skills Needed</div><div class="map-q">Dữ liệu đủ chưa?</div><div class="map-a">Phase 4 — Information Ready</div><div class="map-q">Thế nào là xong?</div><div class="map-a">Phase 5 — Definition of Done</div><div class="map-q">Tình huống biên?</div><div class="map-a">Phase 6 — Use Cases &amp; Edge Scenarios</div><div class="map-q">Test kiểu gì?</div><div class="map-a">Phase 7 — How to Test When Done</div><div class="map-q">Kiến trúc / đánh đổi?</div><div class="map-a">Phase 8 — Architecture &amp; Decisions</div></div></div><figcaption>Khung câu hỏi nghiệp vụ của giai đoạn HIỂU không phải phát minh mới — nó ánh xạ 1-1 vào phương pháp 8 pha đã đóng gói thành file.</figcaption></figure>
+</section>
+<section class="sec" id="s19">
+<h2><span class="num">18</span>Cây 2 cho dự án ví dụ — domain skills</h2>
+<figure class="viz viz-tree-fig"><div class="viz-body"><div class="tre"><p class="tre-root">DOMAIN (cây 2) — dự án ví dụ</p><ul class="tre-l1"><li><span class="tre-g">RUNTIME / FRAMEWORK</span><ul class="tre-l2"><li><code class="tre-n">your-project-backend-fastapi-python</code><span class="tre-d">phân tầng, DI, repository pattern</span></li><li><code class="tre-n">your-project-fastapi-transactions</code><span class="tre-d">session, hành vi của atomic()</span></li><li><code class="tre-n">your-project-unit-test-skill</code><span class="tre-d">đặt tên test, chiến lược mocking</span></li></ul></li><li><span class="tre-g">DATA</span><ul class="tre-l2"><li><code class="tre-n">your-project-db-query</code><span class="tre-d">PostgreSQL nội bộ</span></li><li><code class="tre-n">your-project-pb-mysql</code><span class="tre-d">DB đối tác</span></li></ul></li><li><span class="tre-g">BUILD / OPS</span><ul class="tre-l2"><li><code class="tre-n">your-project-infra</code><span class="tre-d">Terraform</span></li><li><code class="tre-n">your-project-deployment</code><span class="tre-d">blue-green, rollback</span></li><li><code class="tre-n">your-project-monitor</code><span class="tre-d">CloudWatch, Telegram</span></li><li><code class="tre-n">your-project-aws-cloudwatch-query</code><span class="tre-d">Logs Insights</span></li><li><code class="tre-n">docker</code><span class="tre-d">image, healthcheck</span></li></ul></li><li><span class="tre-g">EXTERNAL PROVIDER</span><ul class="tre-l2"><li><code class="tre-n">your-project-admin-api</code><span class="tre-d"></span></li><li><code class="tre-n">agent-browser</code><span class="tre-d"></span></li></ul></li><li><span class="tre-g">TRÌNH BÀY</span><ul class="tre-l2"><li><code class="tre-n">frontend-design</code><span class="tre-d"></span></li><li><code class="tre-n">custom-admin-site</code><span class="tre-d"></span></li></ul></li><li><span class="tre-g">TESTING HARNESS</span><ul class="tre-l2"><li><code class="tre-n">e2e-test</code><span class="tre-d">khung chung</span></li><li><code class="tre-n">your-project-e2e</code><span class="tre-d">wrapper: DB đối tác, threshold, seed</span></li></ul></li></ul></div></div><figcaption>Cây 2 của dự án ví dụ. Mọi tên trong ngoặc (PostgreSQL, Terraform, CloudWatch…) là công nghệ của riêng dự án đó — thứ dùng lại được là <b>sáu lát cắt</b>, không phải danh sách này.</figcaption></figure>
+<p>Cặp <code>e2e-test</code> / <code>your-project-e2e</code> là mẫu <strong>wrapper</strong>: khung chung không bị fork, phần riêng của dự án nằm ở lớp bọc ngoài.</p>
+</section>
+<section class="sec" id="s20">
+<h2><span class="num">19</span>Đi xuyên một yêu cầu</h2>
+<p>Yêu cầu nghiệp vụ: <em>"Khách hàng cần xem lịch sử giao dịch tiền trong app."</em></p>
+<figure class="viz "><div class="viz-body"><div class="flw"><div class="fl-step"><div class="fl-n">1</div><div class="fl-b"><p class="fl-name">HIỂU</p><p class="fl-sk"><code>/your-project-ticket-business-review TICKET-123</code></p><ul class="fl-pull"><li class="fl-pull-h">kéo xuống cây 2</li><li>/your-project-db-query — bảng nào đang lưu giao dịch?</li><li>/your-project-pb-mysql — hệ đối tác có sẵn dữ liệu không?</li></ul><p class="fl-note">payment_transactions chưa hề expose ra API. /me/usage-history là dữ liệu SỬ DỤNG, KHÔNG phải tiền. ⇒ Cần endpoint MỚI, không phải mở rộng cái cũ.</p></div></div><div class="fl-step"><div class="fl-n">2</div><div class="fl-b"><p class="fl-name">QUYẾT</p><p class="fl-sk"><code>/discuss → /doc-adr</code></p><p class="fl-note">Chốt: tạo /v1/me/transactions. Khó đảo ngược ⇒ ghi ADR.</p></div></div><div class="fl-step"><div class="fl-n">3</div><div class="fl-b"><p class="fl-name">ĐẶC TẢ</p><p class="fl-sk"><code>/bdd</code></p><p class="fl-note">Given khách có 3 giao dịch / When gọi API / Then trả về…</p></div></div><div class="fl-step"><div class="fl-n">4</div><div class="fl-b"><p class="fl-name">LÀM</p><p class="fl-sk"><code>/cook</code></p><ul class="fl-pull"><li class="fl-pull-h">kéo xuống cây 2</li><li>/your-project-backend-fastapi-python — tầng nào, DI ra sao</li><li>/your-project-fastapi-transactions — dùng session thế nào</li><li>/your-project-unit-test-skill — đặt tên test ra sao</li></ul></div></div><div class="fl-step"><div class="fl-n">5</div><div class="fl-b"><p class="fl-name">KIỂM</p><p class="fl-sk"><code>/test → /bdd-verify → /review-code-adr</code></p><p class="fl-note">Chạy thật lấy bằng chứng · từng kịch bản BDD đã có test chưa · có quyết định nào chưa ghi ADR?</p></div></div><div class="fl-step"><div class="fl-n">6</div><div class="fl-b"><p class="fl-name">GIAO</p><p class="fl-sk"><code>/git-workflow → /sync-pr-adr → /backend-release</code></p></div></div></div></div><figcaption>Một requirement thật đi qua đủ sáu giai đoạn. Chú ý bước [4]: cây 1 điều phối, cây 2 được kéo vào đúng lúc.</figcaption></figure>
+<p><strong>Điểm mấu chốt của cả tài liệu nằm ở bước [4]</strong> — và cần tách rõ đâu là nguyên lý, đâu là chi tiết của riêng dự án này:</p>
+<aside class="keybox"><div class="key-part key-gen"><span class="key-tag">Nguyên lý — dùng cho mọi dự án</span><p>Skill workflow <b>không chứa một dòng nào về stack kỹ thuật.</b> Nó chỉ biết: implement &rarr; verify &rarr; review &rarr; next.</p></div><div class="key-part key-ex"><span class="key-tag">Ví dụ — chi tiết của riêng dự án backend này</span><p>Stack ở đây tình cờ là <b>FastAPI</b>. Tri thức FastAPI được <b>kéo vào</b> đúng lúc bước [4] chạy, rồi <b>biến mất</b> khỏi context ở bước [5].</p><p class="key-sub">Dự án của bạn thay FastAPI bằng stack của chính mình — phần nguyên lý phía trên không đổi.</p></div><div class="key-part key-out"><span class="key-tag">Hệ quả</span><p>Đổi dự án: skill workflow giữ nguyên. Chỉ thay ba domain skill được kéo xuống.</p></div></aside>
+</section>
+<section class="sec" id="s21">
+<h2><span class="num">20</span>Chỗ mô hình bị rò rỉ ở ví dụ này</h2>
+<p>Ngay trong ví dụ này đã có bốn skill lai — hình dạng workflow, nhưng nội dung trói vào công cụ của team:</p>
+<div class="table-wrap"><table><thead><tr><th>Skill lai</th><th>Phần dùng lại được</th><th>Phần trói vào công cụ</th></tr></thead><tbody><tr><td><code>your-project-ticket-business-review</code></td><td>phương pháp 8 pha</td><td>board Jira</td></tr><tr><td><code>your-project-tech-design</code></td><td>cấu trúc design doc</td><td>Confluence space</td></tr><tr><td><code>backend-release</code></td><td>quy trình cắt release</td><td>tag <code>BE-vX.Y.Z</code>, <code>ops.sh</code></td></tr><tr><td><code>jira-epic-planner</code></td><td>cách chẻ epic</td><td>schema Jira của team</td></tr></tbody></table></div>
+<p>Trong 4 cái trên, <code>your-project-ticket-business-review</code> tách đúng nhất: phương pháp nằm trọn trong <code>references/methodology.md</code>, <code>SKILL.md</code> chỉ là lớp nối vào Jira. Mang sang dự án khác thì giữ được file phương pháp.</p>
+<p>Ba cái còn lại chưa tách — đó là nợ kỹ thuật đã biết, chưa trả.</p>
+</section>
+</div>
+<section class="sec gloss" id="glossary"><h2><span class="num">§</span>Glossary</h2><p>Thuật ngữ chuyên ngành giữ nguyên tiếng Anh; phần giải thích bằng tiếng Việt, theo nghĩa dùng <em>trong tài liệu này</em>.</p><h3>Lớp điều khiển</h3><dl class="gl"><div class="gl-row"><dt>guardrail</dt><dd>Lớp cơ chế chặn hoặc ép hành vi. Gồm permission + hook. Model không thương lượng được.</dd></div><div class="gl-row"><dt>permission</dt><dd>Luật allow / deny / ask cho từng lệnh hoặc tool. Chạy ngoài model.</dd></div><div class="gl-row"><dt>hook</dt><dd>Script tự chạy tại một thời điểm: phiên bắt đầu, trước/sau khi dùng tool, khi người gửi prompt.</dd></div><div class="gl-row"><dt>memory</dt><dd>File nền sự thật của dự án, nạp ở mọi phiên. Phải ngắn.</dd></div><div class="gl-row"><dt>rule</dt><dd>File luật hành vi chung, nạp ở mọi phiên. Khác memory ở chỗ nói về <em>cách hành xử</em>, không phải về dự án.</dd></div><div class="gl-row"><dt>skill</dt><dd>Gói hướng dẫn nạp <em>theo nhu cầu</em> khi khớp ngữ cảnh. Trọng tâm của tài liệu này.</dd></div><div class="gl-row"><dt>subagent</dt><dd>Phiên con có context riêng, làm việc nặng rồi trả về kết luận.</dd></div><div class="gl-row"><dt>tool</dt><dd>Năng lực thực thi có sẵn: đọc/ghi file, chạy lệnh, tìm kiếm.</dd></div><div class="gl-row"><dt>MCP</dt><dd><em>Model Context Protocol</em> — chuẩn nối AI vào hệ thống bên ngoài (ticket, DB, log, wiki). Làm model <b>bớt đoán</b>, không làm model thông minh hơn.</dd></div><div class="gl-row"><dt>context</dt><dd>Vùng nhớ làm việc của model trong một phiên. Có giới hạn — đó là lý do phải nạp chọn lọc.</dd></div></dl><h3>Về skill</h3><dl class="gl"><div class="gl-row"><dt>workflow skill</dt><dd>Cây 1 — chứa thứ tự bước, gate, tiêu chí dừng. Mang sang dự án khác được.</dd></div><div class="gl-row"><dt>domain skill</dt><dd>Cây 2 — chứa convention, cạm bẫy, lệnh, schema của <em>chính dự án này</em>.</dd></div><div class="gl-row"><dt>trigger</dt><dd>Điều kiện khiến một skill được chọn. Viết trong trường description.</dd></div><div class="gl-row"><dt>description</dt><dd>Trường mô tả “khi nào dùng tới”. Chất lượng ánh xạ = chất lượng trường này.</dd></div><div class="gl-row"><dt>hard stop / do NOT use for</dt><dd>Ranh giới phủ định trong description. Ngăn skill nuốt việc của skill khác.</dd></div><div class="gl-row"><dt>cross-reference</dt><dd>Skill gọi thẳng tên skill khác trong nội dung. Tạo đồ thị phụ thuộc grep ra được.</dd></div><div class="gl-row"><dt>wrapper</dt><dd>Skill bọc ngoài một khung chung, chỉ chứa phần riêng của dự án.</dd></div><div class="gl-row"><dt>fork</dt><dd>Sao chép khung chung ra sửa riêng. Tránh — hai bản sẽ lệch nhau dần.</dd></div><div class="gl-row"><dt>skill lai</dt><dd>Skill hình dạng workflow nhưng nội dung trói vào công cụ của team. Phần giao của hai cây.</dd></div><div class="gl-row"><dt>audit</dt><dd>Rà soát định kỳ các skill: trùng lặp, mô tả mờ, thiếu ranh giới phủ định.</dd></div></dl><h3>Quy trình</h3><dl class="gl"><div class="gl-row"><dt>BDD</dt><dd><em>Behaviour-Driven Development</em> — mô tả hành vi bằng kịch bản Given / When / Then.</dd></div><div class="gl-row"><dt>acceptance criteria</dt><dd>Tiêu chí nghiệm thu — điều kiện để coi là XONG.</dd></div><div class="gl-row"><dt>Definition of Done</dt><dd>Định nghĩa “xong”, gồm cả phần chức năng lẫn phi chức năng.</dd></div><div class="gl-row"><dt>ADR</dt><dd><em>Architecture Decision Record</em> — bản ghi lý do của một quyết định kiến trúc khó đảo ngược.</dd></div><div class="gl-row"><dt>traceability</dt><dd>Truy vết: kịch bản nào được phủ bởi test nào.</dd></div><div class="gl-row"><dt>coverage</dt><dd>Tỉ lệ code được test chạy qua. Là chỉ số, không phải bằng chứng đúng.</dd></div><div class="gl-row"><dt>E2E</dt><dd><em>End-to-End</em> — test chạy xuyên toàn hệ, gần nhất với người dùng thật.</dd></div><div class="gl-row"><dt>regression</dt><dd>Thứ đang chạy đúng bỗng hỏng sau một thay đổi.</dd></div></dl><h3>Kỹ thuật xuất hiện trong ví dụ</h3><dl class="gl"><div class="gl-row"><dt>DI</dt><dd><em>Dependency Injection</em> — truyền phụ thuộc từ ngoài vào thay vì tự khởi tạo bên trong.</dd></div><div class="gl-row"><dt>repository pattern</dt><dd>Tầng bọc riêng cho truy cập dữ liệu, tách khỏi business logic.</dd></div><div class="gl-row"><dt>transaction / savepoint</dt><dd>Đơn vị ghi dữ liệu toàn-vẹn-hoặc-không. Savepoint là điểm quay lui <em>bên trong</em> một transaction.</dd></div><div class="gl-row"><dt>cache key / invalidate</dt><dd>Khoá định danh dữ liệu đã cache, và thao tác làm nó hết hiệu lực.</dd></div><div class="gl-row"><dt>state management</dt><dd>Cách quản lý trạng thái ở frontend: local / URL / server cache / global.</dd></div><div class="gl-row"><dt>lifecycle</dt><dd>Vòng đời màn hình hoặc app: khởi tạo, chạy nền, quay lại, huỷ.</dd></div><div class="gl-row"><dt>deeplink</dt><dd>Link mở thẳng vào một màn hình cụ thể trong app.</dd></div><div class="gl-row"><dt>OTA</dt><dd><em>Over-The-Air</em> — cập nhật app không qua store.</dd></div><div class="gl-row"><dt>feature flag</dt><dd>Công tắc bật/tắt tính năng lúc chạy, không cần deploy lại.</dd></div><div class="gl-row"><dt>IaC</dt><dd><em>Infrastructure as Code</em> — mô tả hạ tầng bằng code (ví dụ Terraform).</dd></div><div class="gl-row"><dt>blue-green</dt><dd>Kiểu deploy chạy song song hai bản, chuyển tải sang bản mới rồi mới bỏ bản cũ.</dd></div><div class="gl-row"><dt>rollback</dt><dd>Quay về bản chạy tốt trước đó.</dd></div><div class="gl-row"><dt>seed data</dt><dd>Dữ liệu mồi nạp sẵn để test chạy được.</dd></div><div class="gl-row"><dt>a11y</dt><dd><em>accessibility</em> — khả năng tiếp cận cho người khuyết tật.</dd></div></dl></section>
+      </main>
+    </div>
+  </div>
+
+  <div id="p-md" role="tabpanel" aria-labelledby="t-md" class="md-panel" hidden>
+    <div class="md-head">
+      <p>Toàn bộ tài liệu ở dạng Markdown gốc &mdash; dán thẳng vào wiki, repo hay chat.</p>
+      <button class="copy" id="cp" type="button">Copy toàn bộ</button>
+    </div>
+    <div id="mdsrc"><pre><code id="mdcode"># Cách sử dụng Claude Code trong dự án phần mềm
+
+Từ ví von dễ hiểu cho người chưa rành kỹ thuật, đến mô hình hai cây skill:
+**workflow** (làm thế nào) tách khỏi **domain** (biết cái gì về dự án này).
+
+## Cách đọc tài liệu này
+
+Tài liệu chia làm ba phần, khó dần. Không cần đọc hết.
+
+```
+  PHAN 0 -- TONG QUAN
+  Khong can biet ky thuat. Hieu duoc cach lam viec tong quat.
+        |
+        v
+  PHAN I -- NGUYEN LY
+  Mang sang bat ky du an nao. Day la phan can nho.
+        |
+        v
+  PHAN II -- VI DU AP DUNG
+  Khung o Phan I ap vao mot du an cu the. De DOI CHIEU.
+```
+
+| Bạn là | Nên đọc |
+|---|---|
+| Người làm nghiệp vụ, mới bắt đầu tìm hiểu | **Phần 0** là đủ để trao đổi được với team kỹ thuật |
+| Kỹ sư sắp dựng cho dự án của mình | Phần 0 + **Phần I** |
+| Muốn xem khung được áp vào một dự án cụ thể | Đọc thêm **Phần II** |
+
+Trong Phần I, mọi ví dụ cụ thể đều được đóng khung như thế này:
+
+&gt; **[VÍ DỤ]** — nội dung trong khung là minh hoạ. Bỏ khung này đi thì nguyên
+&gt; lý phía trên vẫn đứng vững.
+
+Thuật ngữ chuyên ngành được giữ nguyên tiếng Anh vì team kỹ thuật dùng đúng
+những từ đó; phần giải thích nằm ở **Glossary** cuối tài liệu.
+
+Nếu bạn làm frontend, mobile, data hay hạ tầng — nguyên lý không đổi, chỉ nội
+dung thay. Mục **Cây 2 — Domain** có ví dụ cho cả ba loại.
+
+---
+---
+
+# PHẦN 0 — TỔNG QUAN
+
+&gt; Phần này viết cho người chưa rành kỹ thuật. Không có dòng code nào.
+
+---
+
+## 1. Ví von dễ hiểu nhất: bạn vừa nhận một người mới
+
+AI ở đây giống một người mới vào công ty: rất giỏi nghề, làm rất nhanh, nhưng
+chưa biết gì về công ty bạn — chưa biết quy trình nội bộ, chưa biết ai phụ
+trách gì, chưa biết những lần trước team đã vấp ở đâu.
+
+Có **một khác biệt lớn** so với người thật, và gần như mọi thứ còn lại trong
+tài liệu này đều bắt nguồn từ nó:
+
+&gt; Người mới làm vài tuần rồi sẽ nhớ. **AI thì không.** Mỗi lần bạn mở một
+&gt; phiên làm việc mới, nó bắt đầu lại từ con số không.
+
+Hệ quả rất thực tế: **tri thức không được nằm trong đầu ai cả** — nó phải nằm
+trong file, để lần nào mở ra cũng đủ. Việc "chuẩn bị cho AI" vì vậy giống hệt
+việc soạn tài liệu onboarding cho người mới, chỉ khác là bạn phải soạn một lần
+cho tất cả các lần sau.
+
+Sáu thứ bạn chuẩn bị, và tên gọi kỹ thuật của chúng:
+
+| Với người mới, bạn sẽ… | Tên gọi kỹ thuật | Bản chất |
+|---|---|---|
+| Đưa nội quy an toàn — chỗ nào tuyệt đối không được vào | **guardrail** | hàng rào cứng, không thương lượng được |
+| Đưa bản giới thiệu công ty — làm gì, cấu trúc ra sao | **memory** | nền sự thật |
+| Dặn cách hành xử — việc mơ hồ thì hỏi, đừng tự đoán | **rule** | luật ứng xử chung |
+| Đưa cẩm nang nghiệp vụ, lấy ra đúng lúc làm loại việc đó | **skill** | trọng tâm của tài liệu này |
+| Cấp tài khoản vào hệ thống thật để tự tra số liệu | **MCP** | quyền truy cập |
+| Giao việc, duyệt, bẻ lái khi thấy đi sai | **chat** | vai trò của chính bạn |
+
+Thiếu mỗi thứ sẽ hỏng theo một kiểu khác nhau:
+
+| Thiếu | Điều bạn sẽ nhìn thấy |
+|---|---|
+| Guardrail | Một thao tác sai làm hỏng dữ liệu thật |
+| Memory / Rule | AI tự đoán, làm ra thứ trông đúng nhưng sai chỗ |
+| Skill | Lần nào bạn cũng phải giải thích lại từ đầu |
+| MCP | AI trả lời bằng suy đoán thay vì số liệu thật |
+| Người lái | Đi sai hướng, nhưng đi rất nhanh |
+
+---
+
+## 2. Một yêu cầu nên đi qua sáu bước
+
+Đây không phải quy trình riêng của AI. Đây là quy trình của bất kỳ ai làm việc
+tử tế — AI chỉ là người thực hiện. Giá trị của việc viết nó ra là: AI sẽ không
+tự nhớ, nên nếu không viết, nó sẽ nhảy thẳng vào bước 4.
+
+| Bước | Câu hỏi đời thường | Kết quả nhìn thấy được |
+|---|---|---|
+| **1. Hiểu** | Chuyện gì đang xảy ra? Ai bị ảnh hưởng? Thông tin đã đủ chưa? | Bản phân tích + danh sách những gì còn thiếu |
+| **2. Quyết** | Có mấy cách làm? Chọn cách nào? Đánh đổi cái gì? | Quyết định kèm lý do |
+| **3. Đặc tả** | Thế nào là xong? | Danh sách tiêu chí nghiệm thu |
+| **4. Làm** | — | Sản phẩm |
+| **5. Kiểm** | Nó có chạy không? Nó có tốt không? | Bằng chứng, không phải lời hứa |
+| **6. Giao** | — | Bàn giao / phát hành |
+
+Ba điều đáng nhớ nhất, kể cả khi bạn không đụng đến kỹ thuật:
+
+**(a) Bước 1 quyết định phần lớn kết quả — và là bước bị bỏ qua nhiều nhất.**
+Người giao việc thường mô tả *giải pháp mình nghĩ ra* thay vì *vấn đề mình
+đang gặp*. Khi đó AI sẽ làm rất nhanh đúng cái giải pháp sai. Danh sách câu
+hỏi đầy đủ cho bước này nằm ở mục **Cây 1 — Workflow: sáu giai đoạn**.
+
+**(b) Bước 5 là hai câu hỏi tách rời.** "Nó có chạy không" trả lời bằng cách
+chạy thử thật. "Nó có tốt không" trả lời bằng cách đọc và đánh giá. Gộp hai
+câu này lại là lý do phổ biến khiến một thứ "đã test rồi" vẫn hỏng.
+
+**(c) Được phép bỏ bước — nhưng phải cố ý.** Sửa một lỗi chính tả thì nhảy
+thẳng sang bước 4. Vấn đề chỉ xảy ra khi bước bị bỏ vì *quên*, không phải vì
+*quyết định*.
+
+---
+
+## 3. Ba hiểu lầm hay gặp lúc mới bắt đầu
+
+**Hiểu lầm 1 — "Viết yêu cầu thật dài, thật chi tiết là đủ."**
+Không. Một yêu cầu dài chỉ dùng được đúng một lần. Thứ cần làm là **đặt đúng
+thông tin vào đúng chỗ** để lần sau không phải viết lại: cái gì đúng mãi mãi
+thì để ở memory, cái gì chỉ cần khi làm một loại việc thì để ở skill.
+
+**Hiểu lầm 2 — "Dặn hôm nay thì mai nó nhớ."**
+Không. Mỗi phiên làm việc là một tờ giấy trắng. Tín hiệu rõ nhất cho thấy bạn
+đang làm sai: **phải giải thích lại cùng một thứ lần thứ ba**. Đến lần thứ ba
+thì đó không còn là chuyện giải thích nữa — đó là một tài liệu chưa được viết.
+
+**Hiểu lầm 3 — "Cứ viết TUYỆT ĐỐI KHÔNG ĐƯỢC… là nó sẽ không làm."**
+Không chắc chắn. Chữ viết ra chỉ là lời dặn — AI đọc rồi tự quyết có theo hay
+không. Việc **tuyệt đối không được sai** (xoá dữ liệu, lộ thông tin mật, đẩy
+nhầm lên môi trường thật) phải được chặn bằng **cơ chế**, tức là một hàng rào
+chạy bên ngoài AI, chứ không phải bằng một câu dặn dò. Phân biệt **văn bản và cơ chế** này được nói kỹ
+trong Phần I.
+
+---
+---
+
+# PHẦN I — NGUYÊN LÝ
+
+---
+
+## 4. Vấn đề đang giải
+
+Khi đưa một business requirement cho AI, có hai kiểu thất bại **độc lập
+nhau**:
+
+| Kiểu thất bại | Biểu hiện | Gốc rễ |
+|---|---|---|
+| Sai **quy trình** | Nhảy thẳng vào code, chưa rõ vấn đề, chưa rõ ai chịu ảnh hưởng, không có tiêu chí dừng | AI không biết *thứ tự* việc |
+| Sai **ngữ cảnh** | Quy trình đúng nhưng code sai convention, sai tầng, lặp lại thứ đã có, vấp cạm bẫy team đã biết | AI không biết *sự thật* của dự án |
+
+Vì hai gốc rễ độc lập, chúng phải được giải bằng **hai lớp tri thức tách
+rời** — không trộn vào một prompt khổng lồ, không nhét hết vào một file
+hướng dẫn duy nhất.
+
+```
+   SAI QUY TRINH                    SAI NGU CANH
+   "lam sai thu tu"                 "lam sai cach"
+          |                                |
+          v                                v
+   +--------------+                 +--------------+
+   |   WORKFLOW   |                 |    DOMAIN    |
+   |    SKILLS    |                 |    SKILLS    |
+   |  (CAY 1)     |                 |   (CAY 2)    |
+   +--------------+                 +--------------+
+    mang di duoc                     chet cung voi
+    sang du an khac                  du an nay
+```
+
+Nhưng trước khi nói về hai cây, cần thấy **toàn bộ bàn cờ** — skill chỉ là
+một trong nhiều lớp điều khiển.
+
+---
+
+## 5. Bản đồ các lớp điều khiển
+
+Khi làm việc với Claude, có 7 lớp can thiệp được. Mỗi lớp có vai trò khác
+nhau; dùng sai lớp là nguồn gốc của phần lớn thất vọng.
+
+```
+                      +---------------------+
+                      |   NGUOI (chat mode) |  [7] dieu huong thoi gian that
+                      +---------------------+
+                                |
+  ==============================|==============================
+   VAN BAN -- model CO THE bo qua|
+  ==============================|==============================
+                                |
+    [1] MEMORY  ----------------+  su that nen, LUON nap
+    [2] RULE    ----------------+  luat hanh vi, LUON nap
+    [3] SKILL   ----------------+  quy trinh + tri thuc, nap THEO NHU CAU
+    [4] SUBAGENT ---------------+  context rieng, tra ve ket luan
+                                |
+  ==============================|==============================
+   CO CHE -- model KHONG THE bo qua
+  ==============================|==============================
+                                |
+    [0] GUARDRAIL --------------+  permission + hook: CHAN va EP
+                                |
+  ==============================|==============================
+   NANG LUC -- thu model LAM duoc
+  ==============================|==============================
+                                |
+    [5] TOOL    ----------------+  nang luc san co
+    [6] MCP     ----------------+  nang luc mo rong ra he thong that
+```
+
+### 5.1 Bảng vai trò
+
+| Lớp | Vai trò | Nhiệm vụ | Nạp khi nào |
+|---|---|---|---|
+| [0] Guardrail | Người gác cổng | Chặn hành động nguy hiểm, ép hành vi bắt buộc | Mọi lúc, tự động |
+| [1] Memory | Nền sự thật | Dự án là gì, cấu trúc ra sao, luật tối thượng | Mọi phiên |
+| [2] Rule | Luật hành vi | Cách hành xử chung: hỏi khi mơ hồ, không đoán bừa | Mọi phiên |
+| [3] Skill | Chuyên gia mời | Quy trình một loại việc, hoặc tri thức một domain | Khi khớp ngữ cảnh |
+| [4] Subagent | Đồng nghiệp | Làm việc nặng trong context riêng, trả về kết luận | Khi được gọi |
+| [5] Tool | Tay chân | Đọc/ghi file, chạy lệnh, tìm kiếm | Khi cần |
+| [6] MCP | Cánh tay nối dài | Nối vào hệ thống thật: ticket, DB, log, wiki | Khi cần |
+| [7] Chat mode | Người lái | Cấp ý định, phê duyệt, bẻ lái, phán quyết | Liên tục |
+
+### 5.2 Phân biệt quan trọng nhất: VĂN BẢN vs CƠ CHẾ
+
+Đây là điểm hay bị hiểu sai nhất, và nó quyết định bạn đặt một yêu cầu
+vào đâu.
+
+```
+  VAN BAN (memory / rule / skill)
+  +---------------------------------------------------------+
+  | La CHU. Model doc, hieu, roi TU QUYET co tuan hay khong. |
+  | Viet "TUYET DOI KHONG duoc xoa file" van co xac suat     |
+  | bi vi pham -- vi no chi la mot cau trong context.        |
+  | =&gt; Dung cho: CACH LAM DUNG.                              |
+  +---------------------------------------------------------+
+
+  CO CHE (permission / hook)
+  +---------------------------------------------------------+
+  | La CODE chay ben ngoai model. Model khong "doc" no --    |
+  | no bi CHAN hoac bi CHEN them du lieu, khong thuong luong.|
+  | =&gt; Dung cho: VIEC TUYET DOI KHONG DUOC SAI.              |
+  +---------------------------------------------------------+
+```
+
+Quy tắc chọn lớp:
+
+```
+     Yeu cau nay neu bi vi pham thi sao?
+                  |
+      +-----------+------------+
+      |                        |
+   Hong that su            Kho chiu / kem chat luong
+   (mat data, lo             (sai style, thieu buoc)
+    secret, deploy nham)          |
+      |                           v
+      v                     +-----------+
+  +-----------+             |  VAN BAN  |
+  | CO CHE    |             | rule/skill|
+  | permission|             +-----------+
+  | + hook    |
+  +-----------+
+```
+
+&gt; **[VÍ DỤ]** — một cấu hình guardrail thực tế: 25 luật **deny**
+&gt; (chặn hẳn các lệnh phá huỷ, chặn đọc file `.env`), 10 luật **allow**
+&gt; (lệnh chỉ-đọc cho chạy thẳng khỏi hỏi), và 4 **hook** gắn vào các thời
+&gt; điểm: khi người gửi prompt, sau mỗi lần dùng tool, khi phiên bắt đầu,
+&gt; khi model dừng.
+&gt;
+&gt; Hook "khi người gửi prompt" được dùng để **chèn thêm ngữ cảnh** vào mọi
+&gt; câu hỏi — ví dụ ép một giao thức trình bày. Model không thể quên, vì
+&gt; nó không phải thứ model phải nhớ.
+
+### 5.3 Tool vs MCP — ranh giới
+
+| | Tool có sẵn | MCP |
+|---|---|---|
+| Phạm vi | Máy của bạn: file, shell, tìm kiếm, web | Hệ thống bên ngoài |
+| Cài đặt | Có sẵn | Phải khai báo server |
+| Rủi ro | Giới hạn bởi permission | Thêm quyền vào hệ thống thật |
+| Khi nào thêm | — | Khi AI cần **sự thật runtime**, không phải code |
+
+Điểm mấu chốt về MCP: nó không làm model thông minh hơn, nó làm model
+**bớt đoán**. Không có MCP, AI đọc code quản lý dữ liệu rồi suy ra dữ
+liệu. Có MCP, AI đọc dữ liệu thật.
+
+&gt; **[VÍ DỤ]** — MCP nối vào hệ quản lý ticket, DB nội bộ, DB của đối tác,
+&gt; và hệ theo dõi lỗi. Nhờ đó câu "bảng này đang có bao nhiêu bản ghi hỏng"
+&gt; được trả lời bằng truy vấn thật, không phải bằng suy đoán từ model class.
+
+### 5.4 Chat mode — vai trò của con người
+
+Đây là lớp hay bị đánh giá thấp nhất. Cấu hình tốt đến mấy cũng không
+thay được việc người lái đúng.
+
+| Người **nên** làm | Người **không nên** làm |
+|---|---|
+| Cấp ý định và ràng buộc nghiệp vụ | Đọc từng dòng code AI viết |
+| Phán quyết khi có đánh đổi | Tự nhớ quy trình thay cho skill |
+| Chặn hướng sai **sớm** | Sửa lỗi ở cuối bằng cách viết lại |
+| Cung cấp sự thật AI không tra được | Lặp lại cùng một giải thích lần thứ ba |
+
+Ba chế độ tương tác cần phân biệt:
+
+```
+  CHE DO HOI   -- AI hoi lai khi yeu cau mo ho
+                  =&gt; TOT. Thieu no thi AI doan bua.
+                  =&gt; Nen EP bang rule: "mo ho thi hoi, dung doan".
+
+  CHE DO KE HOACH -- AI trinh bay ke hoach, CHO duyet, roi moi lam
+                  =&gt; Dung cho viec lon / kho dao nguoc.
+
+  CHE DO LAM NGAY -- AI lam thang
+                  =&gt; Dung cho viec nho, ro rang, dao nguoc duoc.
+```
+
+**Tín hiệu bạn đang lái sai:** phải giải thích lại cùng một thứ ở phiên
+làm việc thứ ba. Đó không phải lỗi của AI — đó là tri thức chưa được ghi
+xuống thành skill.
+
+### 5.5 Hai cây skill nằm ở đâu trên bàn cờ
+
+Toàn bộ phần còn lại của tài liệu này nói về **lớp [3] — Skill**. Sáu lớp
+kia là bối cảnh, cần biết để không đặt nhầm thứ vào skill:
+
+| Đặt vào | Khi nào |
+|---|---|
+| **Guardrail** | Sai là hỏng thật |
+| **Memory** | Mọi phiên đều cần, và rất ngắn |
+| **Rule** | Là luật hành xử chung, không gắn với một loại việc |
+| **Skill** | Chỉ cần khi làm **một loại việc cụ thể** — chính là chỗ này |
+| **MCP** | Cần sự thật đang chạy, không phải văn bản |
+
+---
+
+## 6. Credential và ranh giới truy cập
+
+Câu hỏi nền: AI cần chạm vào hệ thống thật để làm việc — nhưng **không được
+cầm chìa khoá**. Giải bằng một nguyên tắc duy nhất:
+
+&gt; AI không giữ credential. Nó **gọi qua một tool đã được cấp quyền sẵn**, và
+&gt; chỉ nhìn thấy **kết quả**, không nhìn thấy **khoá**.
+
+```
+   NGUOI                                  HE THONG THAT
+     |                                     (DB, API, cloud)
+     | X  khong go credential vao chat          ^
+     v                                          |
+   +-------+      goi tool       +------+   xac thuc
+   |  AI   | -----------------&gt; | TOOL | -------+
+   +-------+                     +------+
+       |                            ^
+       | X  khong doc env truc tiep |  chi TOOL doc
+       +--------- BI CHAN --------&gt; ENV VARIABLE
+```
+
+### 6.1 Ba quy tắc
+
+**(1) Khoá nằm ở biến môi trường, không nằm trong repo.** Không để trong file
+cấu hình của AI, không commit, không dán vào tài liệu.
+
+**(2) AI gọi qua tool, tool tự đọc biến môi trường và tự xác thực.** Ranh giới
+nằm đúng chỗ này: tool biết khoá, AI biết kết quả. Đổi khoá thì không phải sửa
+gì ở phía AI.
+
+**(3) Chặn cứng hai đường rò.** Không phải dặn — phải chặn:
+
+| Đường rò | Vì sao nguy hiểm |
+|---|---|
+| AI đọc thẳng biến môi trường (`cat .env`, in biến ra màn hình) | Khoá rơi vào ngữ cảnh hội thoại, từ đó đi vào log, bản tóm tắt, bản sao |
+| Người gõ credential vào ô chat | Mọi thứ gõ vào chat đều được lưu lại. Một khoá gõ vào đó coi như **đã rò**, kể cả khi xoá tin nhắn |
+
+Đây chính là ví dụ rõ nhất cho phân biệt **văn bản và cơ chế**: "đừng đọc file bí mật" viết
+ra chỉ là **lời dặn**; thứ cần là **cơ chế** chặn ở tầng quyền, chạy bên ngoài AI.
+
+### 6.2 Ba cách đưa credential, chỉ một cách dùng được
+
+| Cách | Ai nhìn thấy khoá | Đánh giá |
+|---|---|---|
+| Gõ vào ô chat | AI + toàn bộ lịch sử hội thoại + mọi bản sao của nó | **Cấm** |
+| Để trong file cấu hình đi kèm repo | Bất kỳ ai clone repo | **Cấm** |
+| Biến môi trường + tool đã được cấp quyền | Chỉ tool | **Cách duy nhất** |
+
+### 6.3 Quyền tối thiểu
+
+Tool được cấp quyền không có nghĩa là cấp toàn quyền. Một tool chỉ cần đọc thì
+cấp khoá chỉ-đọc. Nguyên tắc này quan trọng hơn bình thường khi người dùng tool
+là AI: nó sẽ thử nhiều hướng hơn người, nhanh hơn người, và không có trực giác
+"cái này có vẻ nguy hiểm".
+
+---
+
+## 7. Nguyên lý cốt lõi của lớp Skill
+
+**Tách "cách làm" ra khỏi "biết gì".**
+
+| | Cây 1 — Workflow | Cây 2 — Domain |
+|---|---|---|
+| Chứa gì | Thứ tự bước, gate, tiêu chí dừng, định dạng output | Convention, pattern, cạm bẫy, lệnh, schema |
+| Phụ thuộc dự án | Gần như không | Hoàn toàn |
+| Vòng đời | Ổn định nhiều năm | Đổi theo mỗi lần refactor |
+| Ai viết | Người có kinh nghiệm quy trình | Người thuộc codebase |
+| Mang sang repo khác | Được | Không |
+
+Lợi ích của việc tách:
+
+| Lợi ích | Vì sao |
+|---|---|
+| Tái sử dụng | Dự án mới chỉ thay cây 2, giữ nguyên cây 1 |
+| Context rẻ | Chỉ nạp domain skill đúng chỗ đang đụng, không nạp cả kho |
+| Sửa độc lập | Đổi convention không phá quy trình review |
+| Quy trách nhiệm rõ | Quy trình sai → sửa cây 1. Code sai style → sửa cây 2 |
+
+---
+
+## 8. Phân loại: skill này thuộc cây nào?
+
+Dùng một phép thử duy nhất, không cần tranh luận:
+
+```
+              Skill nay thuoc cay nao?
+                        |
+                        v
+      +------------------------------------------+
+      |  Bo het ten du an, ten cong cu, ten stack |
+      |  ra khoi noi dung skill.                  |
+      |  Skill do CON NGHIA khong?                |
+      +------------------------------------------+
+             |                        |
+           CON                    KHONG CON
+             |                        |
+             v                        v
+      +-------------+          +-------------+
+      |   CAY 1     |          |   CAY 2     |
+      |  WORKFLOW   |          |   DOMAIN    |
+      +-------------+          +-------------+
+```
+
+&gt; **[VÍ DỤ]**
+&gt; - "Review code: đọc diff, tìm lỗi đúng/sai, đánh giá scope, báo cáo
+&gt;   theo mức nghiêm trọng" — bỏ hết tên công cụ vẫn còn nghĩa → **cây 1**.
+&gt; - "Trong dự án này, hàm mở transaction chỉ tạo SAVEPOINT chứ không mở
+&gt;   transaction mới nếu trước đó đã có SELECT" — bỏ tên dự án đi thì câu
+&gt;   này vô nghĩa → **cây 2**.
+
+---
+
+## 9. Cây 1 — Workflow: sáu giai đoạn
+
+Cây workflow không phân theo chủ đề, mà phân theo **dòng chảy của một yêu
+cầu**. Sáu giai đoạn, mỗi giai đoạn trả lời một câu hỏi khác nhau:
+
+```
+   REQUIREMENT
+       |
+       v
+   [1] HIEU    -- Van de la gi? Ai lien quan? Du lieu du chua?
+       |           out: ban phan tich + danh sach thieu hut
+       v
+   [2] QUYET   -- Chon huong nao? Danh doi gi? Vi sao khong chon B?
+       |           out: quyet dinh + ly do (ghi lai neu kho dao nguoc)
+       v
+   [3] DAC TA  -- The nao la XONG?
+       |           out: acceptance criteria / kich ban kiem thu
+       v
+   [4] LAM     -- Viet ra
+       |           out: code
+       v
+   [5] KIEM    -- No CHAY duoc khong? No TOT khong? (hai cau khac nhau)
+       |           out: verdict + bang chung
+       v
+   [6] GIAO    -- Dua den tay nguoi khac
+                   out: PR / release / tai lieu
+```
+
+Bốn điểm đáng nhớ hơn cả tên sáu giai đoạn:
+
+**(a) Giai đoạn HIỂU là chỗ ăn tiền nhất, và cũng là chỗ bị bỏ qua nhiều
+nhất.** Nó phải trả lời được tối thiểu:
+
+- Vấn đề này thực chất là gì? Cái gì gây ra nó?
+- Những yếu tố nào đang chi phối? Ràng buộc nào không được phá?
+- Có bao nhiêu bên tham gia? Với mỗi bên: **vai trò, chức năng, nhiệm vụ, quyền lợi** — và **giá trị cốt lõi** nào khiến họ chịu thay đổi hoặc chịu từ bỏ?
+- Đây có phải vấn đề đã có người giải rồi không? Nếu có: cộng đồng đang giải thế nào? Nếu không: vì sao chưa ai gặp?
+- Dữ liệu đã đủ để quyết chưa? Còn thiếu gì?
+- Vai trò nào, kỹ năng nào, chỉ số nào đánh giá được vấn đề này?
+- Thế nào là **xong**? Lấy gì làm bằng chứng là đã xong?
+
+Khung này **không nên nằm trong đầu người hỏi**. Nó phải được đóng gói
+thành file để lần nào chạy cũng đủ, không phụ thuộc hôm đó nhớ được bao
+nhiêu. Đó chính là lý do tồn tại của một workflow skill.
+
+**(b) KIỂM là hai câu hỏi tách rời.** "Nó chạy được không" (chạy thật,
+lấy bằng chứng) khác hẳn "nó tốt không" (đọc code, đánh giá). Gộp hai thứ
+này vào một skill là lỗi thiết kế phổ biến nhất.
+
+**(c) Không phải yêu cầu nào cũng đi đủ 6 giai đoạn.** Sửa typo thì nhảy
+thẳng [4]→[5]. Nhưng bỏ giai đoạn phải là **quyết định có ý thức**, không
+phải quên.
+
+**(d) Cần thêm một nhánh META — skill viết về skill.** Đây là nhánh khiến
+hệ thống tự lớn lên: mỗi lần vấp một cạm bẫy mới, nó được ghi ngược vào
+skill thay vì tan biến sau cuộc chat.
+
+---
+
+## 10. Kiểm thử theo tầng — lấy bằng chứng mà không chạm dữ liệu thật
+
+Giai đoạn **KIỂM** đòi **bằng chứng**, không đòi lời hứa. Vấn đề: bằng
+chứng phải lấy được **mà không đụng vào hệ thống thật**. Cách giải là dựng
+từng tầng thay thế.
+
+```
+   TANG            THAY THE CAI GI          BANG CACH
+   -----------     ---------------------    ----------------------------
+   1. UNIT         moi phu thuoc            mock / gia lap
+   2. INTEGRATION  DB + he thu ba           container dung DB mo phong,
+                                            proxy-api dung truoc he ngoai
+   3. API / E2E    danh tinh nguoi dung     khoa noi bo + identity-id
+   4. WEB          thao tac nguoi dung      agent dieu khien trinh duyet
+   5. LOG          suy doan                 tham so du de doc ra ket luan
+```
+
+### 10.1 Điều kiện tiên quyết
+
+Thiếu điều này thì cả bốn tầng trên đều không dựng được:
+
+&gt; Dự án phải cho phép **cấu hình toàn bộ bằng biến môi trường**. Mọi địa chỉ hệ
+&gt; ngoài, mọi khoá, mọi chế độ xác thực đều phải đổi được từ bên ngoài — không
+&gt; hardcode, không "chỉ chạy đúng khi trỏ vào môi trường thật".
+
+Đây là khoản đầu tư hạ tầng, không phải việc riêng của người viết test. Nếu dự
+án chưa có, đó là việc phải làm **trước**, không phải làm sau.
+
+### 10.2 Tầng 1 — Unit: giả lập mọi thứ xung quanh
+
+Cắt đứt mọi phụ thuộc, chỉ còn lại logic. Nhanh, chạy được hàng nghìn lần.
+Đổi lại: **không chứng minh được hệ thống ghép lại có chạy không**.
+
+### 10.3 Tầng 2 — Integration: dựng bản mô phỏng chạy thật
+
+Điểm mấu chốt: bản mô phỏng **không phải là mock**. Mock trả về câu trả lời có
+sẵn; bản mô phỏng thì **chạy thật** trên dữ liệu giả.
+
+| Thay thế | Cách dựng | Điều kiện |
+|---|---|---|
+| Cơ sở dữ liệu | Container dựng DB đúng cấu trúc và đúng kiểu trả về, rồi sinh dữ liệu giả vào | Biết schema và kiểu dữ liệu trả về |
+| Hệ thứ ba | Proxy-api đứng trước: ghi lại phản hồi thật một lần, sau đó phát lại | Biết hợp đồng API của họ |
+
+Nhờ vậy câu truy vấn thật được chạy thật — sai schema, sai kiểu, sai ràng buộc
+đều lộ ra ngay, thứ mà mock không bao giờ bắt được.
+
+### 10.4 Tầng 3 — Khoá nội bộ kèm identity-id
+
+Rào cản lớn nhất khi test API không phải logic, mà là **đăng nhập**. SSO,
+OAuth, xác thực nhiều bước — không dựng lại được trong test.
+
+Cách giải: một **khoá nội bộ chỉ tồn tại ở local và CI**, đi kèm một
+**identity-id** trong cùng lời gọi. Hệ thống đọc identity-id đó và xử lý như
+thể người dùng đã đăng nhập.
+
+| Bỏ qua | **Không** bỏ qua |
+|---|---|
+| Bước đăng nhập, SSO, đổi token | Phân quyền — vẫn chạy đúng luồng kiểm tra quyền |
+| Phụ thuộc vào nhà cung cấp danh tính | Mọi luật nghiệp vụ theo vai trò |
+
+Nhờ có identity-id, test trả lời được câu "API này **với người dùng loại X**
+thì ra gì" — chứ không chỉ "API này có chạy không".
+
+**Rủi ro phải nói thẳng:** nếu cơ chế này lọt sang môi trường thật thì đó là một
+cửa hậu. Vì vậy nó phải được tắt bằng **cơ chế** — chặn ở cấu hình build hoặc ở
+tầng hạ tầng — chứ không phải bằng một dòng ghi chú "nhớ tắt khi deploy".
+
+### 10.5 Tầng 4 — Web: để AI tự thao tác trình duyệt
+
+Phần giao diện không kiểm được bằng cách đọc code. Dùng một tool điều khiển
+trình duyệt: AI tự mở trang, tự điền, tự bấm, tự chụp màn hình làm bằng chứng.
+Đây là tầng duy nhất kiểm được thứ **người dùng thật sự nhìn thấy**.
+
+### 10.6 Tầng 5 — Log: nguồn bằng chứng, không phải công cụ gỡ lỗi
+
+Đây là tầng hay bị bỏ quên nhất, và cũng là tầng quyết định bốn tầng trên có
+giá trị hay không.
+
+&gt; Log phải mang **đủ tham số** để khi chạy E2E, người đọc ghép được log với các
+&gt; trạng thái dữ liệu khác nhau và **ra được kết luận**, thay vì phải đoán.
+
+Một dòng log ghi "xử lý thất bại" là vô dụng. Dòng log ghi rõ đầu vào nào, ở
+trạng thái nào, đi qua nhánh nào, trả ra gì — mới là bằng chứng. Với AI điều
+này còn quan trọng hơn: nó không ngồi cạnh để hỏi lại, nó chỉ có log.
+
+---
+
+## 11. Cây 2 — Domain: phân theo lát cắt kỹ thuật
+
+Cây 2 không có cấu trúc chuẩn — nó phản chiếu **chính kiến trúc của dự
+án**. Nhưng hầu hết dự án đều tách được thành sáu lát cắt tương tự nhau,
+chỉ khác nội dung:
+
+```
+   LAT CAT CHUNG          BACKEND          FRONTEND         MOBILE
+   -------------------    -------------    -------------    -----------
+   RUNTIME/FRAMEWORK      phan tang, DI    component,       navigation,
+                          error handling   state mgmt       lifecycle
+
+   DATA                   query, schema,   data fetching,   local store,
+                          migration        cache invalid.   offline sync
+
+   BUILD / OPS            deploy, IaC,     bundler, env,    ky app, store
+                          monitor          CDN, feature fl. release, OTA
+
+   EXTERNAL PROVIDER      API doi tac      SDK ben thu 3    SDK native,
+                                                            push, payment
+
+   TRINH BAY (UI)         --               design system,   design system
+                                           a11y, responsive theo platform
+
+   TESTING HARNESS        do nghe test     do nghe test     do nghe test
+                          cua du an nay    cua du an nay    cua du an nay
+```
+
+### 11.1 Ví dụ cây 2 cho FRONTEND
+
+&gt; **[VÍ DỤ — minh hoạ, không lấy từ repo thật]**
+
+```
+   DOMAIN SKILLS -- du an frontend
+        |
+        +-- RUNTIME / FRAMEWORK
+        |     +-- &lt;ten&gt;-component-conventions
+        |     |     cau truc thu muc, dat ten, khi nao tach component,
+        |     |     ranh gioi server/client component
+        |     +-- &lt;ten&gt;-state-management
+        |           state nao o dau: local / URL / server cache / global
+        |           cam bay: khi nao KHONG duoc dua vao global store
+        |
+        +-- DATA
+        |     +-- &lt;ten&gt;-data-fetching
+        |           pattern goi API, cache key, khi nao invalidate,
+        |           xu ly loading/error thong nhat
+        |
+        +-- BUILD / OPS
+        |     +-- &lt;ten&gt;-build-and-env
+        |           bien moi truong nao lo ra client, feature flag,
+        |           quy tac tach bundle
+        |
+        +-- TRINH BAY
+        |     +-- &lt;ten&gt;-design-system
+        |           token mau/khoang cach, khi nao dung component co san
+        |           thay vi viet moi, quy tac a11y bat buoc
+        |
+        +-- TESTING HARNESS
+              +-- &lt;ten&gt;-component-test
+                    render helper, mock API, selector on dinh
+                    (khong query theo class CSS)
+```
+
+Nội dung **xứng đáng** viết cho frontend, ví dụ:
+
+- "Component trong `features/` được phép gọi API; component trong `ui/`
+  thì không — nếu thấy `ui/` gọi API là sai tầng."
+- "Cache key phải theo dạng `[domain, id, params]`; sai thứ tự sẽ làm
+  invalidate không ăn — đã mất nửa ngày vì lỗi này."
+- "Dùng selector theo `data-testid`, không theo class — class đổi theo
+  mỗi lần refactor style."
+
+### 11.2 Ví dụ cây 2 cho MOBILE
+
+&gt; **[VÍ DỤ — minh hoạ, không lấy từ repo thật]**
+
+```
+   DOMAIN SKILLS -- du an mobile
+        |
+        +-- RUNTIME / FRAMEWORK
+        |     +-- &lt;ten&gt;-navigation
+        |     |     cay man hinh, deeplink, truyen tham so,
+        |     |     xu ly back tren tung platform
+        |     +-- &lt;ten&gt;-lifecycle-and-permission
+        |           background/foreground, xin quyen (camera, vi tri),
+        |           hanh vi khi nguoi dung tu choi quyen
+        |
+        +-- DATA
+        |     +-- &lt;ten&gt;-offline-and-sync
+        |           cai gi luu local, chien luoc dong bo, xu ly xung dot,
+        |           hanh vi khi mat mang giua chung
+        |
+        +-- BUILD / OPS
+        |     +-- &lt;ten&gt;-release-pipeline
+        |           ky app, so build, kenh phat hanh, cap nhat OTA,
+        |           quy tac tuong thich nguoc voi ban cu con tren may
+        |
+        +-- EXTERNAL PROVIDER
+        |     +-- &lt;ten&gt;-push-notification
+        |     |     dang ky token, payload, deeplink tu notification
+        |     +-- &lt;ten&gt;-in-app-payment
+        |           luong mua trong app, xac thuc bien lai, hoan tien
+        |
+        +-- TESTING HARNESS
+              +-- &lt;ten&gt;-device-test
+                    chay tren may ao, chup man hinh, kich ban thu cong
+```
+
+Nội dung **xứng đáng** viết cho mobile, ví dụ:
+
+- "Bản cũ vẫn còn trên máy người dùng hàng tháng sau khi phát hành — mọi
+  thay đổi API phải tương thích ngược, không có ngoại lệ."
+- "Deeplink phải chạy được ở cả hai trạng thái: app đang tắt và app đang
+  chạy nền. Quên trạng thái thứ hai là lỗi hay gặp nhất."
+- "Khi người dùng từ chối quyền lần hai, hệ điều hành không hiện hộp
+  thoại nữa — phải tự điều hướng sang phần cài đặt."
+
+### 11.3 Tiêu chí: cái gì xứng đáng thành một domain skill?
+
+| Xứng đáng | Không xứng đáng |
+|---|---|
+| Sự thật đã kiểm chứng của repo này | Best practice chung tra Google ra |
+| Cạm bẫy đã làm ai đó mất nửa ngày | Thứ đọc docs chính thức là biết |
+| Quyết định của team, không suy ra được từ code | Thứ code tự nói lên |
+| Lệnh/quy trình vận hành chỉ team này biết | Kiến thức phổ thông của stack |
+
+Phép thử ngắn: **nếu model tự đoán đúng thì đừng viết.** Domain skill chỉ
+nên chứa thứ model *không thể* đoán ra.
+
+### 11.4 Mẫu wrapper
+
+Khi có một khung chung tốt nhưng cần gắn tri thức dự án lên, đừng fork
+khung đó — viết skill bọc ngoài:
+
+```
+   +---------------------------+
+   |  skill khung chung        |   &lt;- tai su dung duoc
+   |  (vi du: khung E2E)       |
+   +---------------------------+
+              ^
+              | boc ngoai, khong sua ben trong
+              |
+   +---------------------------+
+   |  skill wrapper cua du an  |   &lt;- chi chua phan rieng
+   |  (seed data, he ngoai,    |
+   |   tai khoan test...)      |
+   +---------------------------+
+```
+
+---
+
+## 12. Hai cây ánh xạ vào nhau bằng cách nào
+
+Không cần file "router" nào cả. Ánh xạ xảy ra qua **3 cơ chế xếp chồng**,
+từ lỏng đến chặt:
+
+```
+  Co che 1: DESCRIPTION-BASED  (tu dong, long leo)
+  +-------------------------------------------------------+
+  | Moi skill khai bao "khi nao dung toi". Model doc mo ta |
+  | roi tu chon.                                          |
+  | =&gt; CHAT LUONG ANH XA = CHAT LUONG MO TA.              |
+  | =&gt; Day la cho hay lam au nhat.                        |
+  +-------------------------------------------------------+
+
+  Co che 2: CROSS-REFERENCE  (tuong minh, viet trong skill)
+  +-------------------------------------------------------+
+  | Workflow skill goi thang ten skill khac trong noi      |
+  | dung cua no: "buoc nay hay dung skill X".             |
+  | =&gt; Tao mot DO THI PHU THUOC co that, grep ra duoc.    |
+  +-------------------------------------------------------+
+
+  
+
+Đồ thị đó kiểm tra được bằng một lệnh — đếm xem skill nào đang được các skill
+khác gọi tới nhiều nhất:
+
+```bash
+grep -rhoE '/[a-z][a-z0-9-]+' &lt;thu-muc-skill&gt;/*/SKILL.md \
+  | sort | uniq -c | sort -rn
+```
+
+Skill đứng đầu danh sách là skill gánh nhiều việc nhất — và cũng là skill mà
+một thay đổi nhỏ sẽ lan xa nhất.Co che 3: RULE  (bat buoc, toan cuc)
+  +-------------------------------------------------------+
+  | Mot file rule ap dung cho moi phien lam viec, ep:      |
+  | "LUON nap skill lien quan TRUOC khi lam bat cu viec    |
+  |  gi -- ke ca viec nho, ke ca khi da doc file do roi".  |
+  | =&gt; Chan thoi quen bo qua skill vi chu quan.           |
+  +-------------------------------------------------------+
+```
+
+**Cơ chế 1 quyết định phần lớn kết quả.** Một mô tả kiểu "Use for backend
+work" gần như không bao giờ trigger đúng. Mô tả tốt cần **trigger cụ thể
++ ranh giới phủ định**:
+
+**Mô tả YẾU** — gần như không bao giờ trigger đúng:
+
+```
+"Use for testing things."
+```
+
+**Mô tả MẠNH** — có trigger cụ thể và có ranh giới phủ định:
+
+```
+"Use when the user wants to know if something works -- the answer
+ requires running code, not analyzing it.
+ Triggers: 'run the tests', 'did the merge break anything?',
+           'verify the fix worked'.
+ Hard stops -- do NOT use for: reviewing test quality, debugging
+ test infrastructure, writing tests, diagnosing root causes."
+```
+
+Phần `do NOT use for` quan trọng **ngang** phần trigger: nó ngăn skill
+này nuốt việc của skill kia. Không có nó, càng nhiều skill càng nhiễu.
+
+---
+
+## 13. Nguyên tắc thiết kế skill
+
+| Nguyên tắc | Nội dung | Vi phạm thì sao |
+|---|---|---|
+| Một skill = một ý định | Mô tả cần chữ "và" → cân nhắc tách đôi | Trigger nhầm lẫn lộn |
+| Workflow không nhúng tri thức | Skill "viết code" không được biết framework nào | Mất tính mang đi |
+| Domain không nhúng quy trình | Skill convention không được ra lệnh thứ tự việc | Hai cây tranh quyền điều phối |
+| Ranh giới phủ định bắt buộc | Luôn viết `do NOT use for ...` | Skill nuốt việc của nhau |
+| Wrapper thay vì fork | Bọc khung chung, đừng sao chép | Hai bản lệch nhau dần |
+| Chi tiết nặng đẩy xuống file phụ | File chính giữ mỏng | Context đắt, nạp thừa |
+
+Cấu trúc thư mục nên theo:
+
+| Tệp / thư mục | Chứa gì |
+|---|---|
+| `SKILL.md` | **Mỏng** — khi nào dùng tới, và quy trình các bước |
+| `references/` | Chi tiết nặng, chỉ đọc khi thực sự cần |
+| `templates/` | Mẫu output copy-paste được |
+
+Lý do tách `references/`: file chính được nạp vào context mỗi lần skill
+kích hoạt; file phụ chỉ nạp khi thực sự cần. Nhồi hết vào file chính là
+cách nhanh nhất để đốt context.
+
+---
+
+## 14. Ba chỗ mô hình bị rò rỉ
+
+Nói trước để người sau không vấp.
+
+### 14.1 Hai cây không tách sạch — có skill lai
+
+Một số skill **hình dạng là workflow nhưng nội dung trói vào công cụ của
+team** (bảng quản lý việc, wiki, script release...).
+
+Hệ quả: mang sang dự án khác thì cây 1 **không** chuyển sạch 100%.
+
+Cách giảm đau:
+
+```
+  +-----------------------------------------+
+  |  SKILL.md         &lt;- lop MONG, noi vao  |  &lt;- phan phai viet lai
+  |                      cong cu cua team   |     khi doi du an
+  +-----------------------------------------+
+  |  references/methodology.md              |  &lt;- phan DUNG LAI DUOC
+  |     phuong phap thuan tuy, khong ten    |     nguyen ven
+  |     cong cu nao                         |
+  +-----------------------------------------+
+```
+
+Tách phương pháp xuống file phụ, giữ file chính là lớp nối mỏng.
+
+### 14.2 Càng nhiều skill càng dễ chọn nhầm
+
+Số skill tăng → mô tả chồng lấn → model chọn sai. Chi phí này tăng nhanh
+hơn tuyến tính.
+
+Đối phó: **audit định kỳ**, không phải làm một lần. Cần một skill chuyên
+soát lại các skill khác (trùng lặp, mô tả mờ, thiếu ranh giới phủ định).
+
+### 14.3 Skill dở hại hơn không có skill
+
+Một skill mô tả sai sẽ trigger nhầm chỗ và đẩy AI đi sai hướng **một
+cách tự tin**. Không có skill thì ít ra AI còn hỏi lại.
+
+Suy ra: đừng dựng nhiều skill từ đầu.
+
+---
+
+## 15. Lộ trình cho một dự án mới
+
+Đừng dựng vài chục skill ngay. Tăng dần:
+
+```
+  VONG 1 -- ngay dau
+    +-- GUARDRAIL truoc tien: deny cac lenh pha huy, chan doc file bi mat
+    +-- 1 file memory ngan: du an la gi, cau truc, luat toi thuong
+    +-- 1 domain skill: convention cua stack chinh
+
+  VONG 2 -- sau vai ticket
+    +-- 1 file rule: "mo ho thi HOI", "nap skill TRUOC khi lam"
+    +-- Them workflow skill cho giai doan dang DAU NHAT
+          thuong la [1] HIEU hoac [5] KIEM
+
+  VONG 3 -- khi da co nhip
+    +-- Chuoi day du 6 giai doan
+    +-- Them MCP khi bat dau thay AI DOAN du lieu runtime
+    +-- Them nhanh META de he tu lon len
+
+  VONG 4 -- khi quy mo tang
+    +-- Tach domain skill theo lat cat khi mot file phinh qua ~200 dong
+    +-- Bat dau audit dinh ky
+```
+
+**Tín hiệu để viết một skill mới: cùng một lời giải thích phải lặp lại
+lần thứ ba.**
+
+```
+   Lan 1 -&gt; tinh co       -&gt; dung viet
+   Lan 2 -&gt; trung hop     -&gt; ghi chu lai
+   Lan 3 -&gt; PATTERN       -&gt; dong goi thanh skill
+```
+
+---
+---
+
+# PHẦN II — VÍ DỤ ÁP DỤNG
+
+&gt; Từ đây trở xuống là **một ví dụ**, không phải khuôn mẫu bắt buộc.
+&gt;
+&gt; Cách đọc: xem hồ sơ dự án ở mục đầu, rồi xem khung ở Phần I được áp vào đó
+&gt; ra hình gì. **Mọi tên công nghệ, tên skill, tên bảng từ đây trở xuống đều là
+&gt; chi tiết của ví dụ, không phải khuyến nghị.** Dự án của bạn thay chúng bằng
+&gt; tên của chính mình — khung phía trên không đổi.
+
+---
+
+## 16. Hồ sơ dự án ví dụ
+
+Trước khi xem hai cây được dựng ra sao, cần biết đây là dự án gì. Đó là một dự
+án phần mềm **điển hình** — không có gì đặc biệt, và chính vì vậy nó dùng làm
+ví dụ được.
+
+### 16.1 Nghiệp vụ
+
+Một sản phẩm bán gói dịch vụ số cho khách hàng cá nhân:
+
+- Khách chọn gói và thanh toán ngay trong app
+- Hệ thống gọi sang nhà cung cấp bên ngoài để kích hoạt dịch vụ
+- Gói có hạn mức sử dụng, có cảnh báo khi sắp hết, có mua thêm
+- Có hoàn tiền, có tra cứu lịch sử
+- Đội vận hành nội bộ cần trang quản trị để tra cứu và xử lý sự cố
+
+Nghiệp vụ này có đủ ba thứ khiến một dự án trở nên khó: **tiền**, **hệ thống
+bên thứ ba**, và **trạng thái thay đổi theo thời gian**. Dự án của bạn nhiều
+khả năng cũng có ít nhất một trong ba.
+
+### 16.2 Thành phần kỹ thuật
+
+| Thành phần | Vai trò | Techstack (chỉ là ví dụ) |
+|---|---|---|
+| Backend API | Nơi đặt toàn bộ luật nghiệp vụ | Một ngôn ngữ + một framework web |
+| Cơ sở dữ liệu | Lưu khách, đơn, gói, giao dịch | CSDL quan hệ |
+| Tác vụ nền | Việc chạy chậm, việc định kỳ | Hàng đợi + worker |
+| Trang quản trị | Đội vận hành nội bộ dùng | Web |
+| App di động | Khách hàng dùng | Mobile |
+| Hạ tầng | Máy chủ, mạng, triển khai | Cloud + mô tả bằng code |
+| Giám sát | Biết khi nào hỏng | Thu log, đo chỉ số, gửi cảnh báo |
+| Hệ bên ngoài | Nhà cung cấp dịch vụ, cổng thanh toán, hệ tính cước | API của họ |
+| Công cụ team | Quản lý việc, wiki, kho mã nguồn | — |
+
+### 16.3 Từ hồ sơ này suy ra được gì
+
+```
+   HO SO DU AN                       LAT CAT CAY 2 SINH RA
+   -------------------------------   ----------------------------
+   Backend API + framework       -&gt;  RUNTIME / FRAMEWORK
+   CSDL + he tinh cuoc ben ngoai -&gt;  DATA
+   Ha tang + giam sat            -&gt;  BUILD / OPS
+   Nha cung cap + cong thanh toan-&gt;  EXTERNAL PROVIDER
+   Trang quan tri + app          -&gt;  TRINH BAY
+   Nhieu he ghep lai             -&gt;  TESTING HARNESS
+```
+
+Mỗi dòng hồ sơ sinh ra đúng một lát cắt. Đổi hồ sơ thì đổi lát cắt.
+
+Còn **cây 1 thì không suy ra từ hồ sơ** — nó giống nhau ở mọi dự án, dù bạn
+làm sản phẩm bán hàng, hệ thống nội bộ hay nền tảng dữ liệu. Đó là toàn bộ ý
+nghĩa của việc tách hai cây.
+
+---
+
+## 17. Cây 1 cho dự án ví dụ — sáu giai đoạn ánh xạ vào skill
+
+| Giai đoạn | Skill | Ghi chú |
+|---|---|---|
+| [1] HIỂU | `/your-project-ticket-business-review` | phương pháp 8 pha |
+| | `/research`, `/docs-seeker`, `/ask`, `/diagnose` | thuần workflow |
+| [2] QUYẾT | `/discuss` | tranh luận để chốt |
+| | `/give-plan` | kế hoạch để review |
+| | `/doc-adr` | ghi quyết định khó đảo ngược |
+| [3] ĐẶC TẢ | `/bdd` | Given/When/Then → `docs/bdd/` |
+| | `/your-project-tech-design` | design doc bám code |
+| | `/create-doc` | runbook, onboarding, postmortem |
+| [4] LÀM | `/cook` | mặc định cho code mới |
+| | `/fix` | đã đủ bằng chứng về lỗi |
+| | `/tdd` | để test dẫn dắt thiết kế |
+| [5] KIỂM | `/test` | **nó chạy được không** |
+| | `/review-code`, `/review-code-adr` | **nó tốt không** |
+| | `/bdd-verify`, `/test-report` | phủ kịch bản, coverage |
+| [6] GIAO | `/git-workflow` → `/sync-pr` → `/backend-release` | |
+| META | `/skill-creator`, `/review-skill`, `/self-evolve` | |
+
+Khung câu hỏi nghiệp vụ của giai đoạn HIỂU chính là phương pháp 8 pha, nằm trong
+`references/methodology.md`:
+
+```
+  Cau hoi nghiep vu (muc 5a)      Pha tuong ung
+  --------------------------      ----------------------------------
+  Van de la gi?               -&gt;  Phase 1: Goal &amp; Purpose
+  Yeu to chi phoi?            -&gt;  Phase 2: Principles &amp; Constraints
+  Ben tham gia, vai tro,
+  ky nang, metric?            -&gt;  Phase 3: Roles &amp; Skills Needed
+  Du lieu du chua?            -&gt;  Phase 4: Information Ready
+  The nao la xong?            -&gt;  Phase 5: Definition of Done
+  Tinh huong bien?            -&gt;  Phase 6: Use Cases &amp; Edge Scenarios
+  Test kieu gi?               -&gt;  Phase 7: How to Test When Done
+  Kien truc / danh doi?       -&gt;  Phase 8: Architecture &amp; Decisions
+```
+
+---
+
+## 18. Cây 2 cho dự án ví dụ — domain skills
+
+```
+   DOMAIN (cay 2)
+        |
+        +-- RUNTIME / FRAMEWORK
+        |     +-- your-project-backend-fastapi-python  (phan tang, DI, repo)
+        |     +-- your-project-fastapi-transactions    (session, atomic())
+        |     +-- your-project-unit-test-skill         (dat ten, mocking)
+        |
+        +-- DATA
+        |     +-- your-project-db-query                (PostgreSQL noi bo)
+        |     +-- your-project-pb-mysql                (DB doi tac)
+        |
+        +-- BUILD / OPS
+        |     +-- your-project-infra                   (Terraform)
+        |     +-- your-project-deployment              (blue-green, rollback)
+        |     +-- your-project-monitor                 (CloudWatch, Telegram)
+        |     +-- your-project-aws-cloudwatch-query    (Logs Insights)
+        |     +-- docker
+        |
+        +-- EXTERNAL PROVIDER
+        |     +-- your-project-admin-api
+        |     +-- agent-browser
+        |
+        +-- TRINH BAY
+        |     +-- frontend-design
+        |     +-- custom-admin-site
+        |
+        +-- TESTING HARNESS
+              +-- e2e-test          (khung chung)
+              +-- your-project-e2e     (wrapper: DB doi tac, threshold, seed)
+```
+
+Cặp `e2e-test` / `your-project-e2e` là mẫu **wrapper**: khung chung
+không bị fork, phần riêng của dự án nằm ở lớp bọc ngoài.
+
+---
+
+## 19. Đi xuyên một yêu cầu
+
+Yêu cầu nghiệp vụ: *"Khách hàng cần xem lịch sử giao dịch tiền trong app."*
+
+```
+ [1] HIEU
+ /your-project-ticket-business-review TICKET-123
+   |
+   +--&gt; keo xuong /your-project-db-query  : bang nao dang luu giao dich?
+   +--&gt; keo xuong /your-project-pb-mysql  : he doi tac co san du lieu khong?
+   |
+   KET LUAN: payment_transactions chua he expose ra API.
+             /me/usage-history la du lieu SU DUNG, KHONG phai tien.
+             =&gt; Can endpoint MOI, khong phai mo rong cai cu.
+
+ [2] QUYET
+ /discuss  -&gt; mo rong endpoint cu hay tao moi?
+ /doc-adr  -&gt; chot: tao /v1/me/transactions (kho dao nguoc -&gt; ghi ADR)
+
+ [3] DAC TA
+ /bdd -&gt; Given khach co 3 giao dich / When goi API / Then tra ve ...
+
+ [4] LAM
+ /cook
+   |
+   +--&gt; keo xuong /your-project-backend-fastapi-python : tang nao, DI ra sao
+   +--&gt; keo xuong /your-project-fastapi-transactions   : dung session the nao
+   +--&gt; keo xuong /your-project-unit-test-skill        : dat ten test ra sao
+
+ [5] KIEM
+ /test            -&gt; chay that, lay bang chung
+ /bdd-verify      -&gt; tung kich ban BDD da co test chua
+ /review-code-adr -&gt; code tot? co quyet dinh nao chua ghi ADR?
+
+ [6] GIAO
+ /git-workflow -&gt; /sync-pr-adr -&gt; /backend-release
+```
+
+**Điểm mấu chốt của cả tài liệu nằm ở bước [4]** — và cần tách rõ đâu là
+nguyên lý, đâu là chi tiết của riêng dự án này:
+
+```
+   NGUYEN LY -- dung cho moi du an
+   Skill workflow KHONG chua mot dong nao ve stack ky thuat.
+   No chi biet: implement -&gt; verify -&gt; review -&gt; next.
+
+   VI DU -- chi tiet cua rieng du an backend nay
+   Stack o day tinh co la FastAPI. Tri thuc FastAPI duoc KEO VAO
+   dung luc buoc [4] chay, roi bien mat khoi context o buoc [5].
+   Du an cua ban thay FastAPI bang stack cua chinh minh.
+
+   HE QUA
+   Doi du an: skill workflow giu nguyen.
+   Chi thay ba domain skill duoc keo xuong.
+```
+
+---
+
+## 20. Chỗ mô hình bị rò rỉ ở ví dụ này
+
+Ngay trong ví dụ này đã có bốn skill lai — hình dạng workflow, nhưng nội dung
+trói vào công cụ của team:
+
+| Skill lai | Phần dùng lại được | Phần trói vào công cụ |
+|---|---|---|
+| `your-project-ticket-business-review` | phương pháp 8 pha | board Jira |
+| `your-project-tech-design` | cấu trúc design doc | Confluence space |
+| `backend-release` | quy trình cắt release | tag `BE-vX.Y.Z`, `ops.sh` |
+| `jira-epic-planner` | cách chẻ epic | schema Jira của team |
+
+Trong 4 cái trên, `your-project-ticket-business-review` tách đúng nhất:
+phương pháp nằm trọn trong `references/methodology.md`, `SKILL.md` chỉ là
+lớp nối vào Jira. Mang sang dự án khác thì giữ được file phương pháp.
+
+Ba cái còn lại chưa tách — đó là nợ kỹ thuật đã biết, chưa trả.
+</code></pre></div>
+  </div>
+
+  <footer class="end">
+    <span>Phần I &rarr; mang sang dự án khác</span>
+    <span>Phần II &rarr; chỉ để đối chiếu</span>
+    <span>Glossary &rarr; cuối trang</span>
+  </footer>
+</div>
+<script>
+(function(){
+  var root=document.documentElement;
+
+  /* tabs */
+  var tabs=[document.getElementById('t-doc'),document.getElementById('t-md')];
+  var panels=[document.getElementById('p-doc'),document.getElementById('p-md')];
+  function show(k){
+    tabs.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});
+    panels.forEach(function(p,j){p.hidden=(j!==k);});
+  }
+  tabs.forEach(function(t,k){t.addEventListener('click',function(){show(k);});});
+
+  /* principles-only */
+  var btn=document.getElementById('tg');
+  document.querySelectorAll('nav.toc a').forEach(function(a){
+    var t=null;
+    try{ t=document.querySelector(a.getAttribute('href')); }catch(e){}
+    if(t && t.closest('[data-example]')) a.classList.add('is-example');
+  });
+  function set(on){
+    root.classList.toggle('only-principles',on);
+    btn.setAttribute('aria-pressed',on?'true':'false');
+    btn.textContent=on?'Hiện lại ví dụ':'Chỉ nguyên lý';
+    try{ localStorage.setItem('op',on?'1':'0'); }catch(e){}
+  }
+  try{ if(localStorage.getItem('op')==='1') set(true); }catch(e){}
+  btn.addEventListener('click',function(){ set(!root.classList.contains('only-principles')); });
+
+  /* copy markdown */
+  var cp=document.getElementById('cp'), src=document.getElementById('mdcode');
+  function flash(msg){ var o=cp.textContent; cp.textContent=msg;
+    setTimeout(function(){ cp.textContent=o; },1800); }
+  cp.addEventListener('click',function(){
+    var txt=src.textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ flash('Đã copy'); },
+        function(){ selectAll(); });
+    } else { selectAll(); }
+  });
+  function selectAll(){
+    try{
+      var r=document.createRange(); r.selectNodeContents(src);
+      var s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+      flash(ok?'Đã copy':'Đã bôi đen — nhấn Cmd/Ctrl+C');
+    }catch(e){ flash('Bôi đen thủ công để copy'); }
+  }
+})();
+</script>
+</body>
+</html>

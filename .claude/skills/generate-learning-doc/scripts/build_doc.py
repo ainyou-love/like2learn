@@ -2,9 +2,10 @@
 """Fill assets/template.html with a notebook entry and validate the result.
 
 Usage:
-  python3 build_doc.py --meta meta.json --sections sections.html --out-dir resources [--force]
+  python3 build_doc.py --meta meta.json --sections sections.html --out-dir resources/<folder> [--force]
 
-meta.json keys: no, title, year, kicker, subtitle, pills (list), source
+meta.json keys: no, title, year, kicker, subtitle, pills (list), source; optional chapter ("1", "4–5")
+Entry numbers are unique across every folder under resources/, because /NN short links resolve by number.
 sections.html: consecutive <section class="entry" id="sN" data-toc="..."> blocks.
 """
 import argparse
@@ -89,6 +90,7 @@ def main():
     if missing:
         sys.exit(f"ERROR meta.json missing: {', '.join(missing)}")
     no = f"{int(meta['no']):02d}"
+    chapter = str(meta.get("chapter", "")).strip()
 
     blocks, leftover = split_sections(Path(args.sections).read_text(encoding="utf-8"))
     errors, warnings = [], []
@@ -113,6 +115,7 @@ def main():
     out = TEMPLATE.read_text(encoding="utf-8")
     replacements = {
         "{{NO}}": no,
+        "{{TAB_TITLE}}": esc(f"Chương {chapter}: {meta['title']}" if chapter else meta["title"], quote=False),
         "{{TITLE}}": esc(meta["title"], quote=False),
         "{{YEAR}}": esc(str(meta["year"])),
         "{{KICKER}}": esc(meta["kicker"], quote=False),
@@ -128,10 +131,14 @@ def main():
         sys.exit("ERROR unfilled placeholder left in output")
 
     out_dir = Path(args.out_dir)
-    existing = [p for p in out_dir.glob(f"{no}-*.html")]
-    target = out_dir / f"{no}-{slugify(meta['title'])}.html"
+    resources_root = next((p for p in [out_dir, *out_dir.parents] if p.name == "resources"), out_dir)
+    existing = sorted(resources_root.rglob(f"{no}-*.html"))
+    chapter_slug = "-".join(f"{int(n):02d}" for n in re.findall(r"\d+", chapter))
+    name = f"{no}-chuong-{chapter_slug}-{slugify(meta['title'])}" if chapter_slug else f"{no}-{slugify(meta['title'])}"
+    target = out_dir / f"{name}.html"
     if existing and not args.force:
         sys.exit(f"ERROR entry No.{no} already exists: {existing[0]} (rerun with --force to overwrite)")
+    out_dir.mkdir(parents=True, exist_ok=True)
     target.write_text(out, encoding="utf-8")
 
     for w in warnings:

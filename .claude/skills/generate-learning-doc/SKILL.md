@@ -1,17 +1,17 @@
 ---
 name: generate-learning-doc
-description: "Turn a raw Vietnamese YouTube transcript (pasted text, a .txt/.md/.docx/.pdf file, or just the YouTube link — the transcript is fetched automatically) into a numbered 'Sổ ghi chép · No.NN' learning notebook HTML page in resources/, using the fixed sổ tiết kiệm passbook template. Runs two sequential subagents: Fable summarizes the script part by part, keeping verbatim quotes, numbers, names and concrete actions; then Opus writes the sections and line-art SVGs and builds the page. Use whenever the user pastes a transcript/script/sub/phụ đề, a lecture/podcast/book-talk text, or a YouTube URL of one, and asks to ghi chú, tóm tắt thành sổ, tạo file html ghi chú, làm entry/số tiếp theo, or 'gen learning doc' — even if they only say 'đây là script, số 13' without mentioning HTML. Do NOT use for editing CSS/JS of an existing entry, the Jekyll index.html, or a plain one-paragraph summary in chat."
+description: "Turn a raw Vietnamese YouTube transcript (pasted text, a .txt/.md/.docx/.pdf file, or just the YouTube link — the transcript is fetched automatically) into a numbered 'Sổ ghi chép · No.NN' learning notebook HTML page in a resources/ subfolder, using the fixed sổ tiết kiệm passbook template. Runs two sequential subagents: Fable summarizes the script part by part, keeping verbatim quotes, numbers, names and concrete actions; then Opus writes the sections and line-art SVGs and builds the page. Use whenever the user pastes a transcript/script/sub/phụ đề, a lecture/podcast/book-talk text, or a YouTube URL of one, and asks to ghi chú, tóm tắt thành sổ, tạo file html ghi chú, làm entry/số tiếp theo, or 'gen learning doc' — even if they only say 'đây là script, số 13' without mentioning HTML. Do NOT use for editing CSS/JS of an existing entry, the Jekyll index.html, or a plain one-paragraph summary in chat."
 argument-hint: "<raw text | file path | YouTube URL> [số thứ tự]"
 ---
 
 # Generate learning doc
 
-Raw Vietnamese transcript (or a YouTube link to one) → `resources/NN-<slug>.html`, a notebook entry that looks the same as No.12.
+Raw Vietnamese transcript (or a YouTube link to one) → `resources/<folder>/NN-<slug>.html`, a notebook entry that looks the same as No.12.
 
 This is a pipeline you coordinate. It runs in two stages, one after the other, with a check after each. You don't write the notes or the HTML yourself: separate subagents keep the summary faithful to the script, and keep the page faithful to the summary.
 
 ```
-raw script ──► [1] Fable: sectioned notes ──► quote check ──► [2] Opus: meta.json + sections.html ──► build_doc.py ──► resources/NN-slug.html
+raw script ──► [1] Fable: sectioned notes ──► quote check ──► [2] Opus: meta.json + sections.html ──► build_doc.py ──► resources/<folder>/NN-slug.html
 ```
 
 | File | Used by | Contains |
@@ -27,10 +27,16 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
 
 ## 0. Gather inputs
 
-1. **Raw content.** YouTube URL: fetch it in item 4 (below). Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
-2. **Entry number.** Use the number the user gave. If they gave none, list `resources/*.html`, take the highest `NN` + 1, and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). If `resources/NN-*.html` already exists, ask before overwriting — that's a published entry.
-3. **Time.** Run `date +%Y%m%d%H%M%S` and `date +%Y` in Bash. Don't trust your own sense of today's date.
-4. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
+1. **Raw content.** YouTube URL: fetch it in item 5 (below). Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
+2. **Entry number.** Use the number the user gave. If they gave none, find the highest `NN` across all folders (`find resources -name '[0-9][0-9]-*.html'`), add 1, and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). Numbers are unique across the whole tree because `404.html` turns `/NN` short links into the file by number. If `resources/**/NN-*.html` already exists, ask before overwriting — that's a published entry.
+3. **Folder.** `index.html` shows `resources/` as a folder tree, so pick where the entry belongs:
+   - one chapter (or a few) of a book → `resources/ebooks/<Author>/<Book>/`, e.g. `ebooks/Donald-Trump/Nghe-thuat-dam-phan/`, and note the chapter number for step 2
+   - a standalone video or talk → `resources/Custom-Post/`
+   - anything else → an existing folder under `resources/topics/`, or a new one
+
+   If the source doesn't make the folder obvious, ask with AskUserQuestion and list the existing folders (`find resources -type d`). Folder names use ASCII with hyphens, like the existing ones.
+4. **Time.** Run `date +%Y%m%d%H%M%S` and `date +%Y` in Bash. Don't trust your own sense of today's date.
+5. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
 
    For a YouTube URL, let the script write `raw.txt`. It needs `uv`, which installs the library on first run:
 
@@ -79,8 +85,9 @@ Spawn with the Agent tool, `model: "opus"`, `subagent_type: "general-purpose"`:
 Read <skill-dir>/references/page-content.md — it is your full instruction set.
 Notes (only content source): <work>/notes.md
 Entry number: <NN>   Year: <YYYY>
+Book chapter: <e.g. 4–5, or "none">
 Write meta.json and sections.html into: <work>/
-Build into: resources
+Build into: resources/<folder>
 Do not edit assets/template.html, do not read raw.txt, do not pass --force.
 ```
 
@@ -96,4 +103,4 @@ Do not edit assets/template.html, do not read raw.txt, do not pass --force.
   - the quote-check result (e.g. "18/18 quotes verbatim", or which ones you fixed)
   - where `notes.md` is, so they can proofread the summary
 
-Don't start a dev server or open a browser; the user previews the page themselves. `index.html` lists `resources/` automatically, so there's nothing to register.
+Don't start a dev server or open a browser; the user previews the page themselves. `index.html` lists every HTML file under `resources/` as a folder tree automatically, so there's nothing to register.
