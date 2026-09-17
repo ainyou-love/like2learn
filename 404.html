@@ -28,9 +28,11 @@ const resources = {
 };
 
 const key = location.pathname.replace(/^\/+|\/+$/g, "");
+const legacyNote = key.match(/^resources\/(\d+)-[^/]+$/);
+const target = resources[key] || (legacyNote && resources[legacyNote[1]]);
 
-if (resources[key]) {
-  location.replace(resources[key]);
+if (target) {
+  location.replace(target);
 } else {
   document.body.innerHTML = `
     <h1>404</h1>
