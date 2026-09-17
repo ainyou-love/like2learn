@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.15 — Thời kỳ trưởng thành: sự hình thành một cá tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.15</span>
+      <div class="title">Thời kỳ trưởng thành: sự hình thành một cá tính</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Bố tôi</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Khung nhà để xe 50 đô</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Elizabeth Trump &amp; Son</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Gia đình truyền thống</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Maryanne, Elizabeth, Freddy</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Khối vuông của Robert</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Học viện Quân sự</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Học nghề ở công trường</span><span class="num">08</span></a></li>
+        <li><a href="#s9"><span class="t">Shore Haven</span><span class="num">09</span></a></li>
+        <li><a href="#s10"><span class="t">Fordham rồi Wharton</span><span class="num">10</span></a></li>
+        <li><a href="#s11"><span class="t">Vì sao tôi rời đi</span><span class="num">11</span></a></li>
+        <li><a href="#s12"><span class="t">Mẹ và bố</span><span class="num">12</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay kinh doanh · Nghệ thuật đàm phán</p>
+      <h1>Thời kỳ trưởng thành: sự hình thành một cá tính</h1>
+      <p class="subtitle">Từ cậu bé mất cha năm 11 tuổi thành chủ đất lớn nhất ngoại ô New York, Fred Trump cùng gia đình, trường quân sự, công trường và Wharton đã nhào nặn cá tính Donald Trump — và lý do ông rời lối làm ăn của bố để ghi dấu ấn riêng ở Manhattan.</p>
+      <div class="meta">
+        <span class="pill">12 phần</span>
+        <span class="pill">Nguồn · The Art of the Deal</span>
+        <span class="pill">Ghi chú · No.15</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Bố tôi">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Bố tôi · Người ảnh hưởng lớn nhất</h2>
+      <p class="summary-line">Học hết bài học của bố, nhưng chọn con đường riêng ở Manhattan.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M24 108 H136"/>
+        <path d="M80 108 V30"/>
+        <path d="M80 36 H122 L132 46 L122 56 H80"/>
+        <path d="M80 64 H38 L28 74 L38 84 H80"/>
+        <path class="b" d="M104 46 H116"/>
+        <path d="M48 74 H60"/>
+        <circle class="s" cx="80" cy="24" r="5"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bố tôi, <strong>Fred Trump</strong>, <em>"là người có ảnh hưởng quan trọng nhất trong thời gian tôi trưởng thành"</em>: sự cứng rắn, cách động viên người khác, khả năng làm việc và <strong>tính hiệu quả</strong> — <em>"hãy tham gia, bắt tay vào việc, làm tốt công việc và cho mọi người thấy được kết quả"</em>.</li>
+    <li>Nhưng tôi sớm biết <strong>không muốn theo nghề bố</strong> — xây nhà cho thuê ở Queens và Brooklyn <em>"là một cách kiếm tiền khó khăn"</em>. Tôi muốn <em>"nổi tiếng nhiều hơn chứ không chỉ là con trai của ông Fred Trump"</em>.</li>
+    <li>Bố hài lòng với những gì ông đã làm, nên tôi được <strong>tự do tạo dấu ấn ở Manhattan</strong> — nhưng <em>"không bao giờ quên những bài học có được từ bố tôi"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Tiếp thu cái hay của người đi trước, rồi tự chọn con đường để tạo dấu ấn riêng.</p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Khung nhà để xe 50 đô">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Fred Trump · Từ khung nhà để xe 50 đô la</h2>
+      <p class="summary-line">Mồ côi cha năm 11 tuổi, 16 tuổi đã xây công trình đầu tiên.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 104 H142"/>
+        <path d="M28 104 V56 L70 30 L112 56 V104"/>
+        <path d="M44 104 V46 M58 104 V38 M82 104 V38 M96 104 V46"/>
+        <path d="M28 70 H112"/>
+        <path class="b" d="M122 56 L138 40"/>
+        <rect class="b" x="130" y="30" width="14" height="10" transform="rotate(45 137 35)"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bố sinh <strong>năm 1905</strong> ở New Jersey. Ông nội di cư từ Thụy Điển, chủ một nhà hàng khá thành công, nghiện rượu nặng, xơ gan, mất năm bố <strong>11 tuổi</strong>. Bà nội Elizabeth làm thợ may nuôi ba con: chị Elizabeth 16 tuổi, bố, em John 9 tuổi. Là con trai đầu, bố thành trụ cột: giao hàng cho cửa hiệu trái cây, đánh giày, khuân gỗ ở công trường.</li>
+    <li>Học lớp buổi tối về nghề mộc, đọc bản vẽ, lập dự toán. Năm <strong>16 tuổi</strong> xây công trình đầu tiên: khung nhà để xe hai xe hơi cho hàng xóm; trung lưu mới bắt đầu mua xe nên ông có ngay nghề xây <em>"nhà để xe tiền chế với giá 50 đô la một căn"</em>.</li>
+    <li>Tốt nghiệp trung học năm 1922, nghỉ học làm <strong>thợ mộc ở Queens</strong>; cộng nhẩm được con số hàng chục ngàn, chỉ thợ khác cách <em>"gác những cây đòn tay bằng sắt vuông để lợp mái nhà"</em>. Đồng nghiệp thỏa mãn khi có việc, ông <em>"muốn làm việc tốt và vượt lên trên mọi người"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"điều quan trọng nhất trong cuộc sống là yêu thích công việc mình đang làm, vì đó là cách duy nhất giúp con thực sự làm tốt công việc đó"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Elizabeth Trump &amp; Son">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Elizabeth Trump &amp; Son · Bản năng kinh doanh luôn đúng</h2>
+      <p class="summary-line">Xây, bán, chuyển hướng khi suy thoái — và luôn ngửi thấy cơ hội.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 106 H142"/>
+        <path d="M24 106 V84 L38 72 L52 84 V106"/>
+        <path d="M60 106 V76 L76 62 L92 76 V106"/>
+        <path d="M100 106 V66 L118 50 L136 66 V106"/>
+        <rect x="112" y="84" width="12" height="22"/>
+        <path class="b" d="M26 56 L60 40 L82 46 L118 22"/>
+        <path class="b" d="M106 22 H118 V34"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Một năm sau khi rời trường, xây căn đầu tiên ở <strong>Woodhaven, Queens</strong>: chi phí dưới 5.000 đô la, bán 7.500 đô la. Lập công ty <em>"Elizabeth Trump and Son"</em> — chưa đủ tuổi nên <strong>bà nội đứng tên</strong> ký giấy tờ, hóa đơn.</li>
+    <li>Xây tiếp ở các khu lao động Woodhaven, Hollis, Queens Village: <em>"những ngôi nhà gạch kiểu bình dân với giá phải chăng"</em> cho người <em>"tay lấm chân bùn"</em> vốn ở căn hộ chật chội.</li>
+    <li>Năm 1929: <strong>nhà ba tầng</strong> kiểu Colonial, Tudor, Victorian cho thị trường giàu hơn, khu nay là Jamaica Estates; xây cả nhà cho gia đình ở đó.</li>
+    <li><strong>Suy thoái → chuyển hướng</strong>: mua ngân hàng thế chấp phá sản, bán lại một năm sau kiếm lời; mua siêu thị ở Woodhaven cho người bán thịt, thợ may, bác làm giày thuê chỗ; một năm sau bán cho King Kullen, lợi nhuận khá lớn.</li>
+    <li>Năm 1934 trở lại xây nhà giá thấp ở <strong>Flatbush, Brooklyn</strong> vì đất rẻ và <em>"ông ngửi thấy ở đó có nhiều cơ hội"</em>: bán <strong>78 căn trong ba tuần</strong>; 12 năm kế tiếp xây thêm 2.500 căn khắp Queens và Brooklyn.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Bám theo nơi có cơ hội và nhanh chóng chuyển hướng khi thị trường đổi chiều.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Gia đình truyền thống">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Gia đình truyền thống · Trụ cột và bà nội trợ hoàn hảo</h2>
+      <p class="summary-line">Nhà khá giả nhưng con cái được dạy giá trị đồng tiền và sự chăm chỉ.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M22 106 H138"/>
+        <path d="M36 106 V58 L80 22 L124 58 V106"/>
+        <path d="M104 42 V24 H114 V50"/>
+        <rect x="70" y="80" width="20" height="26"/>
+        <path class="s" d="M80 70 C66 60 62 50 70 44 C75 40 80 44 80 48 C80 44 85 40 90 44 C98 50 94 60 80 70 Z"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Năm 1936 bố lấy mẹ, bà <strong>Mary MacLeod</strong>. Ông giúp em trai học đại học: chú John Trump lấy Tiến sĩ Vật lý MIT, thành giáo sư, <em>"một trong những nhà khoa học lớn của Mỹ"</em>. Không có bằng đại học nên bố <em>"luôn kính nể những người có học vị cao"</em> dù nhiều người không đáng.</li>
+    <li>Bố là <strong>trụ cột</strong>, mẹ là <em>"bà nội trợ hoàn hảo"</em>: chăm năm anh chị em, nấu cơm, dọn nhà, may vá, làm từ thiện tại một bệnh viện.</li>
+    <li>Nhà lớn nhưng <em>"chưa bao giờ nghĩ rằng mình là những đứa trẻ con nhà giàu có"</em>; được dạy <strong>giá trị đồng tiền</strong> và làm việc chăm chỉ; anh chị em đến nay là bạn thân nhất của tôi.</li>
+    <li>Bố <strong>không khoe khoang</strong>: vẫn làm ở văn phòng nhỏ trong tòa nhà ông xây năm 1948 trên đại lộ Z, Sheepshead Bay, Brooklyn.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Giàu có không làm hỏng con cái khi gia đình dạy giá trị đồng tiền, sự chăm chỉ và lối sống không khoe khoang.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Maryanne, Elizabeth, Freddy">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Chị Maryanne, chị Elizabeth và anh Freddy</h2>
+      <p class="summary-line">Ba con đường khác nhau — và bi kịch của người không được làm điều mình thích.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <circle cx="42" cy="62" r="8"/>
+        <path d="M42 70 V94 M32 80 H52 M42 94 L34 108 M42 94 L50 108"/>
+        <circle cx="80" cy="70" r="7"/>
+        <path d="M80 77 V96 M71 85 H89 M80 96 L73 108 M80 96 L87 108"/>
+        <circle cx="118" cy="66" r="7"/>
+        <path d="M118 73 V94 M109 82 H127 M118 94 L111 108 M118 94 L125 108"/>
+        <path class="b" d="M92 30 H142 M124 30 L112 16 M124 30 L112 44 M96 30 L90 22"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><strong>Chị Maryanne</strong>: tốt nghiệp Mount Holyoke, lấy chồng, ở nhà nuôi con trai David; thừa hưởng tham vọng của bố, học Luật khi David vào trung học, tốt nghiệp loại ưu, làm hãng tư nhân rồi công tố viên liên bang 5 năm; năm 1983 thành <strong>thẩm phán liên bang</strong>.</li>
+    <li><strong>Chị Elizabeth</strong>: tốt, thông minh nhưng ít tham vọng hơn, làm ở ngân hàng Chase Manhattan.</li>
+    <li><strong>Anh Freddy</strong> hơn tôi tám tuổi, <em>"có lẽ đã có một khoảng thời gian khó khăn nhất"</em>: đẹp trai, thích tiệc tùng, <em>"chẳng có ai ghét anh được cả"</em>. Bố muốn con trai lớn nối nghiệp, nhưng Freddy đi làm miễn cưỡng, không thể <em>"tranh đấu trực diện với nhà thầu"</em>, thường phải làm theo ý bố.</li>
+    <li>Anh bỏ đi theo điều mình yêu thích: <strong>phi công TWA</strong> ở Florida, câu cá, đi thuyền — <em>"khoảng thời gian hạnh phúc nhất trong đời anh"</em>. Tôi từng nói: <em>"Freddy, anh muốn làm gì? Anh đang lãng phí thời gian của mình"</em> — giờ tôi tiếc; <em>"vấn đề là anh ấy thích những việc đó"</em>. Freddy chán nản, rượu chè, <strong>qua đời ở tuổi 43</strong> — <em>"chưa bao giờ tìm thấy được chính bản thân mình"</em>.</li>
+    <li>Tôi may mắn được hướng vào kinh doanh từ sớm, chưa bao giờ bị bố đè nẹt; tôi <strong>đối đầu với bố</strong> và ông đánh giá tốt — quan hệ <em>"gần giống như trong kinh doanh"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Mỗi người cần được làm điều mình yêu thích; ép theo khuôn người khác có thể khiến họ không bao giờ tìm thấy chính mình.</p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Khối vuông của Robert">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Tuổi thơ hung hãn · Chuyện khối vuông của Robert</h2>
+      <p class="summary-line">Từ nắm đấm thời tiểu học đến tòa nhà dán keo của cậu em trai.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <rect x="46" y="84" width="24" height="24"/>
+        <rect x="70" y="84" width="24" height="24"/>
+        <rect x="58" y="60" width="24" height="24"/>
+        <rect x="58" y="36" width="24" height="24"/>
+        <rect x="58" y="16" width="24" height="20"/>
+        <path class="b" d="M112 30 H128 V62 C128 70 112 70 112 62 Z"/>
+        <path class="b" d="M116 22 H124 V30"/>
+        <path class="s" d="M100 72 C96 80 104 82 100 72"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Từ tiểu học đã <em>"hung hãn và quyết đoán"</em>: lớp hai <strong>đấm thầy dạy nhạc</strong> bầm mắt <em>"vì cho rằng ông ta không hiểu gì về âm nhạc"</em>, suýt bị đuổi học. Giờ <em>"Tôi thích dùng cái đầu thay cho nắm đấm"</em>.</li>
+    <li>Luôn <strong>cầm đầu đám trẻ</strong> trong xóm; <em>"nhiều người hoặc rất thích hoặc rất ghét tôi"</em>. Thiếu niên bày trò để <em>"kiểm tra người khác"</em>: ném banh nước, bắn đạn giấy, náo động sân trường, tiệc sinh nhật — <em>"mạnh bạo nhưng không ác ý"</em>.</li>
+    <li>Em trai <strong>Robert</strong> nhỏ hơn hai tuổi, ít nói, dịu dàng hơn nhiều. Chơi xếp khối nhựa, tôi thiếu khối để xếp tòa nhà thật cao, hỏi mượn; Robert nói <em>"được, nhưng anh phải trả chúng lại cho em khi chơi xong"</em>. Xếp xong tòa nhà rất đẹp, tôi <em>"lấy keo dán dính toàn bộ thành một khối"</em> — <em>"thế là Robert mất hết cả những khối vuông của mình"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Tính hung hãn, quyết đoán lộ rõ từ nhỏ — về sau học cách dùng cái đầu thay cho nắm đấm.</p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Học viện Quân sự">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Học viện Quân sự New York · Thầy Theodore Dobias</h2>
+      <p class="summary-line">Kỷ luật biến sự năng nổ thành thành quả; dùng trí để thuyết phục kẻ mạnh.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 14 L120 26 V58 C120 84 102 100 80 110 C58 100 40 84 40 58 V26 Z"/>
+        <path class="b" d="M58 50 L80 38 L102 50"/>
+        <path class="b" d="M58 64 L80 52 L102 64"/>
+        <path class="b" d="M58 78 L80 66 L102 78"/>
+        <path class="thin" d="M66 92 H94"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><strong>13 tuổi</strong>, bố gửi tôi vào trường thiếu sinh quân — <em>"quyết định của ông là đúng"</em>. Đầu lớp 8 vào <strong>Học viện Quân sự New York</strong>, học kỷ luật và <em>"cách chuyển sự năng nổ của mình thành những thành quả lao động"</em>; năm sau được bầu đội trưởng.</li>
+    <li>Thầy <strong>Theodore Dobias</strong>, cựu trung sĩ huấn luyện thủy quân lục chiến, <em>"có thể đội mũ sắt lao tới đụng bể cột"</em>, không nể con nhà quyền thế; đứng lệch hàng là <em>"được Dobias tặng một cái bạt tai"</em>.</li>
+    <li>Vài học viên chọc giận ông, bị đánh nhừ tử; hầu hết không dám thách thức và thành thiếu tự tin. Tôi <em>"dùng trí để thuyết phục ông ta"</em>: tôi là đội trưởng bóng chày, ông là huấn luyện viên; tôi cho ông thấy <em>"tôi tôn trọng quyền lực của ông ta nếu ông ta không đe dọa tôi"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p>Người mạnh bạo tấn công vào điểm yếu nếu khám phá ra; nhưng <em>"nếu ông ta thấy bạn mạnh nhưng lại không cố làm hại ông ta thì ông ta sẽ đối xử đàng hoàng với bạn"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Học nghề ở công trường">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Học nghề ở công trường · Giữ chi phí thấp và sự tín nhiệm</h2>
+      <p class="summary-line">Biết giá của mọi thứ, trả sòng phẳng, đúng hẹn và luôn xong trước đối thủ.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M44 108 V22"/>
+        <path d="M36 108 L44 96 L52 108"/>
+        <path d="M44 22 H132 M44 34 L64 22"/>
+        <path d="M24 22 H44 M28 22 V32 H40 V22"/>
+        <path d="M112 22 V52"/>
+        <rect x="102" y="52" width="20" height="14"/>
+        <circle class="b" cx="88" cy="90" r="14"/>
+        <path class="b" d="M88 82 V98"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Từ nhỏ Robert và tôi <strong>theo bố ra công trường</strong>, lượm vỏ chai soda đổi tiền; mỗi hè theo bố làm việc với nhà thầu, thăm tòa nhà, thương lượng công trình mới.</li>
+    <li>Muốn có lời <em>"bạn phải giữ cho chi phí ở mức thấp"</em>. Bố thương lượng nhà cung cấp cây lau nhà, xi đánh sàn cứng rắn như với nhà thầu chính; <em>"ông biết giá của mọi cái"</em>. Ví dụ: cấp thoát nước khoảng <strong>400.000 đô la</strong> — không ép xuống 300.000 đô la vì họ sẽ từ chối, nhưng không để kêu lên 600.000 đô la.</li>
+    <li><strong>Sự tín nhiệm</strong>: đưa giá thấp nhưng nói với nhà thầu <em>"tôi sẽ thanh toán cho ông một cách sòng phẳng và đúng hẹn, với người khác liệu ông có được như thế không"</em>; hợp tác thì xong nhanh và <em>"sẽ có việc để làm tiếp nữa"</em> — ông luôn có nhiều công trình nên giữ đúng lời hứa.</li>
+    <li><strong>Đốc công khắt khe</strong>: mỗi sáng đến công trường lúc 6 giờ, thợ làm sai ý là sửa ngay.</li>
+    <li>Ở Flatbush, hai đối thủ xây kế cận; bố luôn <strong>xong trước</strong> <em>"đến ba bốn tháng"</em>, tiền sảnh thoáng hơn, phòng rộng hơn, cho thuê hết ngay; đối thủ phá sản trước khi xong và <em>"bố tôi sẽ nhảy vào mua lại nó"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Giữ chi phí thấp bằng cách biết giá thật, và giữ sự tín nhiệm bằng việc trả sòng phẳng, đúng hẹn.</p>
+  </div>
+</section>
+
+    <!-- SECTION 9 -->
+    <section class="entry" id="s9" data-toc="Shore Haven">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 09</span>
+      <h2>Shore Haven · Lợi nhuận trời cho</h2>
+      <p class="summary-line">Xong trước hạn, tiết kiệm gần 1 triệu đô la từ khoản vay FHA.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <rect x="26" y="58" width="32" height="50"/>
+        <rect x="64" y="44" width="32" height="64"/>
+        <rect x="102" y="58" width="32" height="50"/>
+        <path class="thin" d="M34 72 H50 M34 88 H50 M72 58 H88 M72 74 H88 M72 90 H88 M110 72 H126 M110 88 H126"/>
+        <circle class="b" cx="46" cy="24" r="7"/>
+        <circle class="b" cx="80" cy="16" r="6"/>
+        <circle class="b" cx="114" cy="28" r="7"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Năm 1949, khi tôi 3 tuổi, bố xây <strong>Shore Haven Apartments</strong> — khu phức hợp căn hộ đầu tiên — thành một trong những <strong>chủ đất lớn nhất</strong> ngoại ô New York.</li>
+    <li>Bố vay <strong>10,3 triệu đô la</strong> từ Ban quản lý nhà ở Liên bang (FHA), tính theo chi phí FHA ước tính, gồm cả 7,5 phần trăm lợi nhuận cho chủ đầu tư. Hối thúc nhà thầu, thương lượng thường xuyên với nhà cung cấp, ông xong trước hạn, <strong>tiết kiệm gần 1 triệu đô la</strong>.</li>
+    <li>Thuật ngữ <em>"windfall profit"</em> (lợi nhuận trời cho) ra đời để mô tả những gì bố và vài người kiếm được <em>"bằng sự chăm chỉ và năng lực"</em>; sau đó chính phủ không chấp nhận nữa.</li>
+    <li>Bố xây <strong>hàng ngàn căn hộ</strong> cho gia đình thu nhập trung bình và thấp; nay không ai xây như thế vì không có lời, hết trợ cấp. Các tòa nhà của ông <em>"được xem là những nơi có giá thuê hợp lý nhất ở New York"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Làm nhanh hơn và rẻ hơn ước tính biến sự chăm chỉ, năng lực thành lợi nhuận.</p>
+  </div>
+</section>
+
+    <!-- SECTION 10 -->
+    <section class="entry" id="s10" data-toc="Fordham rồi Wharton">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 10</span>
+      <h2>Fordham rồi Wharton · Đừng bị ấn tượng bởi học thuật</h2>
+      <p class="summary-line">Chọn địa ốc thay điện ảnh, thử sức với trường giỏi nhất.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M18 44 L70 24 L122 44 L70 64 Z"/>
+        <path d="M44 54 V76 C44 88 96 88 96 76 V54"/>
+        <path class="b" d="M122 44 V70"/>
+        <circle class="b" cx="122" cy="74" r="4"/>
+        <rect x="88" y="92" width="52" height="16" rx="8"/>
+        <path class="s" d="M110 92 V108"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Tốt nghiệp Học viện Quân sự New York năm 1964, thoáng muốn <strong>học điện ảnh</strong> ở Đại học Nam California — ngưỡng mộ Samuel Goldwyn, Darryl Zanuck, nhất là Louis B. Mayer — nhưng quyết định <em>"địa ốc là một ngành kinh doanh tốt hơn"</em>.</li>
+    <li>Vào <strong>Fordham</strong> (Bronx) cho gần nhà; hai năm sau <em>"thử sức mình với trường giỏi nhất"</em>: đậu <strong>Trường tài chính Wharton</strong>, Đại học Pennsylvania. Harvard đào tạo giám đốc điều hành, nhưng <em>"tất cả các doanh nhân địa ốc dường như đều xuất thân từ Wharton"</em> — Saul Steinberg, Leonard Lauder, Ron Perelman.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"đừng bị ấn tượng thái quá bởi chất lượng học thuật"</em> — bạn học <em>"không có gì là nổi trội đặc biệt hay ngoại lệ cả"</em>. Tấm bằng Wharton <em>"không chứng minh gì nhiều nhưng lại được trọng vọng bởi nhiều người mà tôi có quan hệ làm ăn"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 11 -->
+    <section class="entry" id="s11" data-toc="Vì sao tôi rời đi">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 11</span>
+      <h2>Làm việc với bố · Vì sao tôi rời đi</h2>
+      <p class="summary-line">Lợi nhuận thấp, gạch đỏ rẻ tiền — và giấc mơ lớn hơn ngoại ô.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <rect x="26" y="72" width="44" height="36"/>
+        <path class="thin" d="M26 84 H70 M26 96 H70 M40 72 V84 M56 84 V96 M40 96 V108"/>
+        <path d="M92 108 V30 L110 14 L128 30 V108"/>
+        <path d="M92 108 L128 30"/>
+        <path class="b" d="M98 60 L112 36 M104 84 L122 50 M112 104 L126 76"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Tốt nghiệp về làm với bố. <strong>Thứ nhất</strong>, lĩnh vực của bố không hợp sở thích: đi cùng người thu tiền thuê nhà, việc <em>"phải có một thân hình lực lưỡng"</em> vì <em>"cơ bắp có ý nghĩa quan trọng hơn cách ăn nói rất nhiều"</em>.</li>
+    <li>Bí quyết: <em>"đừng bao giờ đứng trước cửa nhà gõ cửa, bạn nên đứng tránh sang một bên"</em>. Người thu tiền giải thích: <em>"nếu anh đứng tránh sang một bên thì chỉ có bàn tay của anh là có thể bị nguy hiểm… Nếu gõ nhầm cửa không đúng lúc anh có thể bị bắn"</em>. Bố <strong>chưa bao giờ che chở tôi</strong>.</li>
+    <li>Người thuê ném rác qua cửa sổ thay vì đưa vào lò đốt rác; tôi lập <strong>chương trình dạy dùng lò đốt rác</strong> — đa số tuân thủ, vẫn có vài phần tử xấu, <em>"không đáng để mất thời gian"</em>.</li>
+    <li><strong>Thứ hai, lợi nhuận rất thấp</strong>; tòa nào cũng <em>"bốn bức tường, mặt tiền lát gạch thường và thẳng đứng"</em>; dùng gạch đỏ <em>"không phải vì họ thích nó mà vì nó rẻ hơn"</em>.</li>
+    <li>Bố thăm <strong>Trump Tower</strong> đang xây, mặt tiền toàn kính phản quang màu trà — loại đắt nhất. Ông ngắm hồi lâu rồi nói: <em>"sao con không bỏ loại kính đắt tiền này, dùng nó cho bốn năm tầng thôi, phần còn lại dùng gạch thường được rồi, không ai ngó lên cao để xem đâu"</em>. Bố <em>"đang cố tiết kiệm vài đô la giữa khu phố sang trọng và sầm uất này"</em> — tôi cảm động, hiểu ông xuất thân từ đâu, và đó là lý do tôi rời đi.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"tôi có những ước mơ và tầm nhìn cao hơn, không thể thực hiện những ước mơ ấy trong những khu ngoại ô được"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 12 -->
+    <section class="entry" id="s12" data-toc="Mẹ và bố">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 12</span>
+      <h2>Mẹ và bố · Hai thái cực trong tôi</h2>
+      <p class="summary-line">Óc phô diễn của mẹ và óc thực tế của bố cùng hòa trong một cá tính.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="30" y="36" width="100" height="66" rx="8"/>
+        <rect class="thin" x="40" y="46" width="64" height="46" rx="4"/>
+        <path d="M62 36 L48 16 M98 36 L112 16"/>
+        <path class="b" d="M56 80 L52 58 L64 68 L72 54 L80 68 L92 58 L88 80 Z"/>
+        <circle cx="117" cy="56" r="4"/>
+        <circle cx="117" cy="72" r="4"/>
+        <path class="thin" d="M50 102 L44 112 M110 102 L116 112"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Kỹ năng <strong>quảng cáo, thu hút chú ý</strong> của tôi là từ mẹ: bà <em>"cảm nhận một cách nhạy bén những điều gây ấn tượng và những điều vĩ đại"</em>.</li>
+    <li>Mẹ gốc Scotland ngồi xem <strong>lễ đăng quang Nữ hoàng Elizabeth</strong> suốt cả ngày, <em>"như bị mê hoặc bởi sự phô bày và những nghi thức long trọng"</em>. Bố đi tới đi lui sốt ruột: <em>"vì Chúa, Mary, đủ rồi, tắt nó đi, tất cả họ là những kẻ lừa dối"</em>. Mẹ <em>"không buồn ngước lên"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Mẹ thích sự lộng lẫy, hoành tráng; bố <em>"có óc xét đoán và thực tế, chỉ chú trọng đến năng lực và tính hiệu quả"</em>.</p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Sách nói Nghệ thuật đàm phán (The Art of the Deal) — Donald J. Trump &amp; Tony Schwartz, NXB Trẻ, Fonos · Chương 3 · YouTube: https://www.youtube.com/watch?v=gbjG8IZyX9k · Ghi chú No.15 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
