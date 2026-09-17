@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.16 — Thương vụ Cincinnati và bước vào Manhattan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.16</span>
+      <div class="title">Thương vụ Cincinnati và bước vào Manhattan</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Swifton Village</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Canh chừng rơ-moóc</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Sạch sẽ là đầu tư</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Irving, tên bịp bợm</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Người dạy sư tử</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Lời khuyên người bán thịt</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Bán cho Prudent</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Chuyển đến Manhattan</span><span class="num">08</span></a></li>
+        <li><a href="#s9"><span class="t">Le Club</span><span class="num">09</span></a></li>
+        <li><a href="#s10"><span class="t">Roy Cohn</span><span class="num">10</span></a></li>
+        <li><a href="#s11"><span class="t">Khủng hoảng 1973–1974</span><span class="num">11</span></a></li>
+        <li><a href="#s12"><span class="t">Bãi đường sắt Penn Central</span><span class="num">12</span></a></li>
+        <li><a href="#s13"><span class="t">Quyền mua 62 triệu</span><span class="num">13</span></a></li>
+        <li><a href="#s14"><span class="t">Kế hoạch nhà ở sụp đổ</span><span class="num">14</span></a></li>
+        <li><a href="#s15"><span class="t">Điều kỳ diệu đường 34</span><span class="num">15</span></a></li>
+        <li><a href="#s16"><span class="t">Chiến thắng 1978</span><span class="num">16</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay kinh doanh · Nghệ thuật đàm phán</p>
+      <h1>Thương vụ Cincinnati và bước vào Manhattan</h1>
+      <p class="subtitle">Thương vụ lớn đầu tiên ở Cincinnati — mua khu nhà bị tịch biên không bỏ vốn, hồi phục rồi bán lời gần 6 triệu Mỹ Kim — và những năm đầu ở Manhattan từ 1971: Le Club, luật sư Roy Cohn, quyền mua hai khu đất Penn Central giá 62 triệu không trả trước, cùng 4 năm vận động để West 34 thành trung tâm hội nghị.</p>
+      <div class="meta">
+        <span class="pill">16 phần</span>
+        <span class="pill">Nguồn · The Art of the Deal</span>
+        <span class="pill">Ghi chú · No.16</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Swifton Village">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Swifton Village · Mua dự án bị tịch biên mà không bỏ vốn</h2>
+      <p class="summary-line">Thương vụ lớn đầu tiên: 1.200 căn hộ ở Cincinnati, không bỏ đồng vốn nào.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 106 H140"/>
+        <rect x="30" y="40" width="64" height="66"/>
+        <path d="M42 54 H52 M72 54 H82 M42 72 H52 M72 72 H82"/>
+        <path d="M56 106 V88 H68 V106"/>
+        <path d="M104 50 H132 L140 62 L132 74 H104 Z"/>
+        <circle class="b" cx="113" cy="62" r="3"/>
+        <path class="s" d="M120 30 L136 14 M120 14 L136 30"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Thời đại học, <em>"trong khi các bạn đọc truyện tranh và tin thể thao trên báo, tôi đọc danh sách những nhà bị FHA tịch biên"</em> — nhờ vậy biết về <strong>Swifton Village</strong>, mua cùng bố khi còn học đại học: <em>"thương vụ lớn đầu tiên của tôi"</em>.</li>
+    <li>Dự án <strong>1.200 căn hộ</strong> ở Cincinnati, Ohio; 800 căn không có người thuê; nhà đầu tư mất khả năng trả lãi nên chính phủ tịch biên. Với bất động sản bị tịch biên, cơ quan nhà nước <em>"thường muốn bán nó đi càng nhanh càng tốt"</em>; ở đây mọi thứ xuống cấp nặng đến nỗi không ai khác muốn mua.</li>
+    <li>Liên hệ hiện tại: vùng <strong>Sun Belt</strong> xây ồ ạt thời bùng nổ dầu khí, nay tỉ lệ thuê chỉ 60 đến 70 phần trăm, nhiều nhà đầu tư tự tử vì ngân hàng siết nợ — <em>"một cơ hội tốt cho một người mua thông minh"</em>.</li>
+    <li>Mua với giá gần <strong>6 triệu Mỹ Kim</strong>, thế chấp ngay với ngân hàng để vay lại khoản này cộng thêm khoảng 100.000 Mỹ Kim sửa chữa — <em>"có được dự án này mà không phải bỏ ra đồng vốn nào cả"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"quản lý 1200 căn nhà cũng tốn công sức như là với 50 căn nhà nhưng thanh thế của bạn sẽ lớn hơn rất nhiều"</em>; sau khi mua xong, <em>"thành công chỉ còn là vấn đề về quản lý và tiếp thị"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Canh chừng rơ-moóc">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Loại bỏ người thuê xấu · Canh chừng rơ-moóc</h2>
+      <p class="summary-line">Muốn nâng cấp, trước hết phải làm sạch danh sách người thuê.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 104 H142"/>
+        <rect x="46" y="54" width="80" height="40" rx="6"/>
+        <circle cx="70" cy="98" r="6"/>
+        <circle cx="104" cy="98" r="6"/>
+        <path d="M46 86 H24"/>
+        <path d="M60 66 H78 V78 H60 Z"/>
+        <path class="s" d="M36 18 A14 14 0 1 0 50 36 A11 11 0 0 1 36 18 Z"/>
+        <path class="b" d="M112 20 L136 34 M112 20 L128 44"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Thách thức: làm sao cho nhà được thuê bởi <em>"những người tốt"</em>. Người đang thuê phần lớn xuất thân từ trang trại ở Kentucky, rất nghèo, <strong>bảy tám đứa con</strong>, chen chúc trong căn hộ một hai phòng, trẻ con lang thang ngoài đường, căn hộ bị hủy hoại.</li>
+    <li>Họ không gìn giữ căn hộ, <strong>không muốn trả tiền thuê</strong>; <em>"nếu bị thúc ép họ sẽ dọn đi mất tăm mất dạng"</em>.</li>
+    <li>Mánh trốn tiền thuê: mướn một <strong>rơ-moóc</strong> dùng làm nhà ở, kéo về đậu trước cửa một hai ngày rồi <em>"biến mất trong đêm cùng với mọi vật dụng cá nhân"</em> — nên phải có người <strong>đi tuần suốt ngày đêm</strong> để canh chừng sự xuất hiện của rơ-moóc.</li>
+    <li>Sau khi <strong>loại bỏ hoàn toàn</strong> người thuê xấu nết mới bắt đầu nâng cấp.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Loại bỏ hoàn toàn người thuê xấu trước, rồi mới đầu tư nâng cấp.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Sạch sẽ là đầu tư">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Sạch sẽ là một cách đầu tư · Đầy nhà trong một năm</h2>
+      <p class="summary-line">Cửa chớp trắng, hành lang sạch, quảng cáo — một năm là kín căn hộ.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 108 H140"/>
+        <rect x="56" y="36" width="44" height="52"/>
+        <path d="M78 36 V88 M56 62 H100"/>
+        <path d="M40 36 H54 V88 H40 Z"/>
+        <path d="M102 36 H116 V88 H102 Z"/>
+        <path d="M44 48 H50 M44 60 H50 M44 72 H50 M106 48 H112 M106 60 H112 M106 72 H112"/>
+        <path class="b" d="M130 18 V34 M122 26 H138"/>
+        <path class="b" d="M26 16 V26 M21 21 H31"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nâng cấp với chi phí khoảng <strong>800.000 Mỹ Kim</strong> — số tiền lớn thời đó <em>"nhưng nó xứng đáng"</em>. Luật New York cấm tăng giá thuê dù có đầu tư nâng cấp; ở Cincinnati thì được, nên tăng giá thuê ngay và khá cao.</li>
+    <li>Việc đầu tiên: lắp <strong>cửa sổ chớp màu trắng</strong>, mỗi căn hộ 8 đến 10 cửa sổ, tốn kém nhưng <em>"mang lại cảm giác ấm cúng cho những tòa nhà gạch đỏ lạnh lẽo"</em>; thay cửa chính bằng nhôm rẻ tiền xấu xí bằng cửa gỗ đẹp màu trắng.</li>
+    <li>Ví dụ xe hơi: <em>"Hãy bỏ ra 5 đô la rửa và đánh bóng nó và chịu khó lau chùi dọn dẹp nội thất của xe, bạn sẽ có thể bán với giá cao hơn dự tính đến 400 đô la"</em>. Địa ốc cũng vậy: <em>"một tòa nhà được bảo dưỡng tốt bao giờ cũng có giá trị hơn"</em>. Cơn sốt địa ốc New York vài năm qua khiến người ta mua bất kể tình trạng — <em>"đó là một sai lầm, thị trường luôn luôn biến động"</em>, khi giá giảm <strong>sự sạch sẽ</strong> lại thành yếu tố quan trọng.</li>
+    <li>Sơn lại hành lang, chùi rửa sàn, làm đẹp phong cảnh, giữ căn hộ trống luôn sạch; <strong>quảng cáo trên báo</strong> khi ít ai ở Cincinnati làm thế; <em>"tiếng tốt đồn xa, trong vòng một năm toàn bộ các căn hộ đều có người thuê"</em>.</li>
+    <li>Thay đến <strong>sáu người quản lý</strong>: <em>"có người thật thà nhưng quá ít nói, có người thì thông minh lanh lợi nhưng lại không biết điều hành công việc"</em>; may là <em>"tôi đánh giá con người khá nhanh"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Bảo dưỡng và giữ sạch là khoản đầu tư: <em>"một tòa nhà được bảo dưỡng tốt bao giờ cũng có giá trị hơn"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Irving, tên bịp bợm">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Irving · Tên bịp bợm làm 1 giờ bằng người khác 12 giờ</h2>
+      <p class="summary-line">Quản lý giỏi nhưng không đáng tin — dùng, và giám sát thật chặt.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="62" cy="62" r="40"/>
+        <path d="M62 62 V34"/>
+        <path d="M62 62 L80 70"/>
+        <path class="thin" d="M62 26 V30 M98 62 H94 M62 98 V94 M26 62 H30"/>
+        <circle class="b" cx="62" cy="62" r="3"/>
+        <circle cx="114" cy="84" r="14"/>
+        <path class="s" d="M124 94 L140 110"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Cuối cùng thuê được <strong>Irving, 65 tuổi</strong>, <em>"một trong những người thích nói chuyện nhảm nhí nhất mà tôi đã từng gặp"</em>, nhưng là nhà quản lý giỏi: <em>"ông ta làm việc 1 giờ bằng người khác làm việc đến 12 giờ"</em>.</li>
+    <li>Vấn đề: <strong>không đáng tin</strong>. Chưa ký hợp đồng chính thức, một đại lý bảo hiểm gọi điện sau khi kiểm tra: <em>"Anh đang đùa ấy à, gã này là một tên bịp bợm"</em> — hồ sơ cho thấy Irving nhiều vụ lừa đảo, thường gặp rắc rối với pháp luật.</li>
+    <li>Triết lý: <em>"nếu đã từng bắt gặp một tên ăn cắp, tôi sẽ theo dõi hắn sát sao cho dù việc đó có thể tốn kém nhiều hơn món đồ hắn ăn cắp đến 10 lần"</em>. Với Irving là <em>"tiến thoái lưỡng nan"</em>: giỏi hơn hẳn mọi quản lý lương thiện trước đó, và <em>"không ai dưới quyền ông ta dám ăn cắp"</em> — nên phải <strong>giám sát chặt</strong>.</li>
+    <li>Nói đùa khiến Irving khó chịu: <em>"chúng tôi trả lương cho ông ta 50.000 đô la và tất cả những gì ông ta có thể ăn cắp"</em>. Giả sử ông ta ăn cắp ít nhất <strong>50.000 Mỹ Kim</strong> một năm, <em>"tôi có thể vẫn có lợi"</em>.</li>
+    <li>Một cô gái làm ở đó khóc: <strong>quỹ mua hoa viếng đám ma</strong> của nhân viên gom được khoảng 80 đô la bị Irving lấy hết. Hỏi <em>"Irving, ông ăn cắp tiền của họ à?"</em> — ông chối phăng, phàn nàn giận dữ nửa giờ; <em>"tôi luôn cho rằng các cô gái nói thật"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"thời gian ở trong văn phòng không là gì cả, điều quan trọng là người ta làm được gì trong khoảng thời gian đó"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Người dạy sư tử">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Người dạy sư tử · Không được sợ hãi</h2>
+      <p class="summary-line">Người dạy thú 70 kg vẫn khiến sư tử 400 kg vâng lời.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M34 108 L42 78 H78 L86 108"/>
+        <path d="M38 78 H82"/>
+        <path d="M50 78 L46 108 M70 78 L74 108"/>
+        <path d="M100 100 L112 70"/>
+        <path class="b" d="M112 70 C120 44 144 40 136 22 C130 12 112 18 118 30"/>
+        <circle class="s" cx="60" cy="44" r="22"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Cách Irving thu tiền thuê: bấm chuông, người bước ra là <em>"lập tức lớn tiếng la lối"</em> — chỉ là <strong>tỏ vẻ giận dữ</strong> nhưng rất hiệu quả, người ta trả ngay.</li>
+    <li>Một lần đứa trẻ độ 10 tuổi ra mở cửa, Irving vẫn diễn; mẹ đứa bé là phụ nữ đẹp, Irving <em>"rất yếu đuối trước phụ nữ"</em>, mời bà đi ăn tối, bị từ chối.</li>
+    <li>Khoảng 1 giờ sau, chồng bà — <em>"vạm vỡ, có lẽ nặng cả trăm kí"</em> — hầm hầm vào văn phòng, mắt long sòng sọc. Irving quát: <em>"anh ra khỏi văn phòng của tôi ngay lập tức, tôi sẽ giết anh, đôi tay này là vũ khí giết người, chúng có trong hồ sơ của cảnh sát đấy"</em>, vừa nói vừa giơ hai tay chém vào không khí. Gã kia: <em>"anh đi ra ngoài, tôi sẽ đánh anh không còn một manh giáp"</em>. Irving: <em>"tôi sẽ đánh nhau với anh bất kỳ khi nào anh muốn, dù đánh nhau là bất hợp pháp đối với tôi"</em>.</li>
+    <li>Ẩn dụ <strong>người dạy thú</strong> chỉ khoảng 70 kg bình thản bước vào chuồng sư tử nặng cỡ 400 kg: <em>"Nếu con thú đó nhận ra bất kỳ điểm yếu hay sự sợ hãi của người dạy thú nó sẽ xé xác họ trong nháy mắt"</em> — nhưng người dạy thú quất roi bước tới và sư tử vâng lời; <em>"chiếc roi của người dạy thú là cái miệng của Irving"</em>. Gã kia giận dữ nhưng chịu rời đi.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"bạn không thể sợ hãi, bạn làm việc của bạn, giữ vững lập trường và dũng cảm đương đầu trước mọi tình huống"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Lời khuyên người bán thịt">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Lời khuyên của người bán thịt · Bản năng bảo bán</h2>
+      <p class="summary-line">Nghe người mình kính trọng, tự đi xem, rồi theo bản năng mà bán.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M100 108 V40"/>
+        <rect x="80" y="46" width="52" height="28"/>
+        <path class="b" d="M90 56 H122 M90 64 H112"/>
+        <path d="M22 26 H70 V56 H40 L30 66 V56 H22 Z"/>
+        <path class="thin" d="M32 36 H60 M32 46 H52"/>
+        <path class="s" d="M44 90 L56 78 L68 90 L80 78"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Khi Irving điều hành tốt, tôi ngày càng ít đến. Có người bạn thuê nhà ở Swifton: <strong>người Do Thái</strong> từng sống trong trại tập trung ở Ba Lan, di cư sang Mỹ làm nghề bán thịt, hai vợ chồng thuê hai căn hộ liền nhau; khi quen nhau anh đã có <strong>14 cửa hàng thịt</strong> — <em>"tôi rất kính trọng anh ta vì anh ta có nhiều kinh nghiệm sống"</em>.</li>
+    <li>Nhiều năm sau, anh kéo tôi ra một bên thì thầm: <em>"Donald, anh là bạn tôi nên tôi thấy cần phải bảo anh bán chỗ này đi"</em>. Lý do: <em>"khu này đang ngày càng tệ đi, không phải là việc quản lý thuê nhà mà là vì xung quanh khu vực này đang có nhiều người xấu đến ở, họ có thể cắt cổ anh bỏ đi mà không cần suy nghĩ gì cả"</em>.</li>
+    <li><em>"Tôi thường lắng nghe những người mà tôi kính trọng"</em>: bỏ ra <strong>hai ngày đi lòng vòng</strong> trong khu vực, thấy các khu phố quanh đấy đang trở nên hung dữ. <em>"Một lần nữa bản năng chứ không liên quan gì đến nghiên cứu thị trường cả"</em> bảo tôi nghe theo.</li>
+    <li>Rao bán, có người mua ngay: khoản vay còn lại rất ít, tổng tiền cho thuê đã lên <strong>700.000 Mỹ Kim một năm</strong>. Vấn đề là lấy tiền nhanh.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lắng nghe người mình kính trọng, tự đi kiểm chứng tận nơi, rồi tin vào bản năng.</p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Bán cho Prudent">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Bán cho Prudent · Bữa trưa 3 tiếng và cái giá của sự thận trọng</h2>
+      <p class="summary-line">Người mua lo ăn trưa, người bán lo điều khoản — lời gần 6 triệu.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 104 H142"/>
+        <ellipse cx="80" cy="82" rx="36" ry="14"/>
+        <ellipse class="thin" cx="80" cy="82" rx="20" ry="7"/>
+        <path d="M30 60 V96 M24 60 V70 C24 76 36 76 36 70 V60"/>
+        <path d="M130 60 V96 M130 60 C138 66 138 78 130 80"/>
+        <path class="s" d="M46 36 C40 36 38 26 46 24 C48 14 62 14 64 22 C72 18 80 26 74 34 C74 38 70 38 66 38 H46 Z"/>
+        <path class="s" d="M92 30 C88 30 86 22 94 20 C98 12 108 14 110 20 C116 18 122 24 118 30 Z"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bên mua: quỹ <strong>Prudent Real Estate Investment Trust</strong>. Thời kinh tế Mỹ phát triển, đầu tư địa ốc rất nóng, ngân hàng sẵn sàng cho các quỹ vay; nhưng nhiều nhà điều hành quỹ thiếu chuyên môn — <em>"họ tung tiền vào một dự án mà không để mắt đến dự án đó, rồi khám phá ra rằng tòa nhà mà họ mua chưa bao giờ được xây dựng"</em>.</li>
+    <li>Prudent cử một người đàn ông trẻ trạc tuổi tôi đến thẩm định; điều anh ta quan tâm nhất là <em>"ăn trưa ở đâu"</em> — nghe nói nhà hàng <strong>Maisonette</strong> ở trung tâm Cincinnati là một trong năm nhà hàng ngon nhất nước Mỹ, yêu cầu tôi đặt bàn trước. Xem Swifton lúc đã cho thuê toàn bộ, anh ta không quan tâm gì hơn; mất khoảng 30 phút đi đến nhà hàng, <strong>ăn trưa suốt ba tiếng</strong>, gần 4 giờ chiều ra phi trường.</li>
+    <li>Đối lập với cách làm của tôi: <em>"nếu tôi chỉ có một ngày để xem xét một thương vụ lớn, chắc chắn rằng tôi sẽ không ăn trưa và dồn thời gian để tìm hiểu mọi vấn đề liên quan đến khu nhà"</em>.</li>
+    <li>Được ăn ngon và chiêu đãi ân cần, anh ta nói tốt với sếp; họ chấp nhận giá <strong>12 triệu Mỹ Kim</strong> — lời gần 6 triệu Mỹ Kim, <em>"một khoản lợi nhuận khổng lồ cho một dự án đầu tư ngắn hạn"</em>.</li>
+    <li>Khi ký, tôi đã thấy <em>"nhiều đám mây đen xuất hiện phía chân trời"</em>: hợp đồng thuê của nhiều người sắp hết hạn và họ không muốn gia hạn. Nên đưa điều khoản: mọi trình bày trong hợp đồng <strong>tính đến thời điểm ký</strong> chứ không tính đến thời điểm thanh lý (3 đến 4 tháng sau) — tuyên bố tòa nhà đã cho thuê toàn bộ lúc ký nhưng <em>"không hứa sẽ giữ tỉ lệ cho thuê đó"</em>.</li>
+    <li>Điều khoản thứ hai: họ <strong>phải bảo đảm mua</strong>, nếu không bị phạt nặng — bất thường vì thông thường người mua chỉ đặt cọc 10 phần trăm và bỏ mua thì mất cọc. Prudent lẽ ra phải thận trọng hơn, nhưng các quỹ đang hăm hở rót tiền và muốn nhanh — <em>"dục tốc bất đạt"</em>: khi thanh lý hợp đồng, hàng chục căn hộ ở Swifton Village không có người thuê.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Chỉ có một ngày thẩm định thì dồn hết thời gian vào thương vụ — người mua hăm hở, thiếu thận trọng sẽ trả giá.</p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Chuyển đến Manhattan">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Chuyển đến Manhattan · Căn hộ trên tầng mái 1971</h2>
+      <p class="summary-line">Từ đứa trẻ Queens thành người thành phố ở Upper East Side.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M16 108 H144"/>
+        <rect x="24" y="52" width="26" height="56"/>
+        <rect x="56" y="30" width="30" height="78"/>
+        <rect x="92" y="60" width="24" height="48"/>
+        <path d="M122 108 V74 H142 V108"/>
+        <path d="M112 34 H136 V50 H112 Z M114 50 L110 60 M134 50 L138 60"/>
+        <path class="b" d="M108 34 L124 22 L140 34"/>
+        <rect class="s" x="74" y="38" width="8" height="8"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Chú ý đến Manhattan từ hồi học <strong>Wharton năm 1968</strong>, nhưng thị trường đang nóng, giá cao, không kiếm được chỗ ưng ý với giá chấp nhận được. Bố kinh doanh tốt nhưng <em>"không tin tưởng khi giao những khoản tiền lớn cho con cái đầu tư"</em>; tốt nghiệp có khoảng <strong>200.000 Mỹ Kim</strong> nhưng phần lớn nằm trong các tòa nhà ở Brooklyn và Queens — phải đợi, phụ giúp bố và dành thời gian trống theo dõi thị trường Manhattan.</li>
+    <li><strong>Năm 1971</strong> là bước ngoặt: thuê căn hộ studio trên đại lộ số 3 và đường số 75, trông xuống bồn nước trong sân tòa nhà kế cận; gọi đùa là <em>"căn hộ sang trọng trên tầng mái"</em> vì ở gần tầng trên cùng; vẫn tối tăm dơ bẩn nhưng <em>"tôi vẫn thích nó"</em> — thú vị hơn cả khi dọn về ba tầng trên cùng của Trump Tower ngó xuống Công viên Trung tâm 15 năm sau.</li>
+    <li><em>"Tôi là đứa trẻ lớn lên ở Queens, đi làm ở Brooklyn… đùng một cái tôi có một căn hộ ở Upper East Side"</em>. Bắt đầu đi trên đường phố Manhattan <em>"như là một người sống ở đó chứ không phải chỉ đến thăm hay giải quyết công việc"</em>, biết tất cả bất động sản tốt, <em>"trở thành người thành phố, không còn là đứa trẻ vùng ngoại ô nữa"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Sống ngay trong thị trường mình nhắm tới để hiểu nó như người trong cuộc, không phải khách ghé thăm.</p>
+  </div>
+</section>
+
+    <!-- SECTION 9 -->
+    <section class="entry" id="s9" data-toc="Le Club">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 09</span>
+      <h2>Le Club · Gia nhập bằng cách gọi điện ba ngày liền</h2>
+      <p class="summary-line">Kiên trì gọi, nói chuyện, bắt đầu lại — và được nhận vào câu lạc bộ khó nhất.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M30 40 C30 30 40 24 48 30 L54 40 L46 48 C50 60 58 70 70 76 L78 68 L88 74 C94 82 88 92 78 92 C50 90 30 66 30 40 Z"/>
+        <path class="thin" d="M84 88 C100 104 118 84 132 100"/>
+        <path d="M104 20 C112 28 112 40 104 48"/>
+        <path d="M94 28 C98 32 98 36 94 40"/>
+        <path class="b" d="M118 58 V78 M128 58 V78 M138 58 V78"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><strong>Le Club</strong> trên đường East 54, câu lạc bộ nổi tiếng nhất và khó gia nhập nhất New York thời đó (như Studio 54 thời đỉnh cao): thành viên là <em>"những người đàn ông thành công nhất và những phụ nữ đẹp nhất trên thế giới"</em>, nơi có thể thấy <em>"một ông già 75 tuổi nhưng giàu có đi với ba cô gái Thụy Điển tóc vàng"</em>.</li>
+    <li><strong>Ngày 1</strong> gọi điện: <em>"tôi là Donald Trump và tôi muốn gia nhập câu lạc bộ của anh"</em> — đầu dây cười: <em>"anh đang đùa đấy à"</em>. <strong>Ngày 2</strong> xin danh sách thành viên để xem có quen ai không — <em>"rất tiếc chúng tôi không thể cho được"</em>, gác máy. <strong>Ngày 3</strong> nói cần gặp Chủ tịch để <em>"gửi cho ông ta một món đồ"</em> — được cho tên và số điện thoại.</li>
+    <li>Gọi chủ tịch: <em>"Anh có bạn bè hay người thân nào trong câu lạc bộ hay không?"</em> — <em>"Không"</em>. <em>"Điều gì làm anh nghĩ là anh phải gia nhập câu lạc bộ?"</em> — <em>"tôi phải cố gắng nói và nói để duy trì cuộc đối thoại"</em>. Cuối cùng: <em>"anh dường như là một anh bạn trẻ dễ thương và có lẽ cũng tốt cho câu lạc bộ khi có một vài thành viên trẻ tuổi, vậy tại sao anh không gặp tôi tại quán 21 tối hôm sau"</em>.</li>
+    <li>Ở <strong>quán 21</strong>: tôi không uống rượu, không thích ngồi cà kê; chủ tịch và cô bạn uống suốt hai tiếng; hỏi <em>"tôi có thể giúp đưa các ông về nhà hay không?"</em> — <em>"không, chúng ta hãy uống thêm một chai nữa"</em>. Bố tôi <em>"luôn về nhà lúc 7 giờ tối, ăn cơm, đọc báo và xem tivi"</em>; tôi tự hỏi người thành công ở Manhattan có đều thích uống rượu không — <em>"nếu đó là sự thật thì tôi sẽ có một lợi thế lớn"</em>. Khoảng 20 giờ tiệc tàn.</li>
+    <li>Hai tuần không tin tức; gọi lại thì ông ta <em>"thậm chí không nhớ tôi là ai"</em> — <strong>bắt đầu lại từ đầu</strong>, gặp lại ở quán 21, lần này ông uống ít, đồng ý nhận. Nghi ngờ duy nhất: tôi trẻ và đẹp trai, nhiều thành viên lớn tuổi có vợ trẻ đẹp, ông yêu cầu hứa không tán tỉnh vợ họ — <em>"tôi không thể tin vào những điều mình vừa nghe"</em>: bố mẹ tôi vừa kỷ niệm 50 năm ngày cưới. Dù sao tôi cũng hứa.</li>
+    <li>Đến hầu như mỗi đêm, gặp nhiều phụ nữ trẻ đẹp nhưng chưa quan hệ nghiêm túc với ai: <em>"một số quá kiêu ngạo, một số lại phóng túng hay ngu xuẩn và nhiều người không thành thực"</em>; không thể đưa họ về căn hộ vì theo tiêu chuẩn của họ <em>"vẻ bề ngoài là tất cả"</em>. Khi cưới vợ <em>"sẽ lấy một phụ nữ rất đẹp nhưng cũng cứng rắn như bố mẹ tôi"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Giải trí buổi tối <em>"cũng là một cách làm việc"</em> — biết New York hoạt động thế nào, gặp những người sau này làm ăn cùng, những người giàu Âu Châu và Nam Mỹ sau này mua các căn hộ đắt nhất ở Trump Tower và Trump Plaza.</p>
+  </div>
+</section>
+
+    <!-- SECTION 10 -->
+    <section class="entry" id="s10" data-toc="Roy Cohn">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 10</span>
+      <h2>Roy Cohn · Luật sư thích chiến đấu hơn dàn xếp</h2>
+      <p class="summary-line">Không hòa giải, buộc bên kiện chứng minh — và thắng.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M40 108 H120"/>
+        <path d="M80 108 V24"/>
+        <path d="M34 36 H126"/>
+        <path d="M34 36 L20 68 M34 36 L48 68"/>
+        <path d="M126 36 L112 68 M126 36 L140 68"/>
+        <path d="M20 68 C24 80 44 80 48 68 Z"/>
+        <path d="M112 68 C116 80 136 80 140 68 Z"/>
+        <circle class="b" cx="80" cy="20" r="5"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Gặp <strong>Roy Cohn</strong> lần đầu tại Le Club, ngồi cạnh tình cờ; <em>"tôi thích kiểm tra mọi người"</em> nên thử thách ông: <em>"tôi không thích luật sư, tôi nghĩ tất cả những gì họ làm là trì hoãn những thương vụ chứ không thực hiện chúng… họ luôn tìm cách dàn xếp chứ không chiến đấu"</em>. Roy đồng ý. Tôi tiếp: <em>"tôi thích chiến đấu hơn là chịu khuất phục bởi vì ngay khi anh chịu thua một lần anh sẽ bị mang tiếng là kẻ đầu hàng"</em>.</li>
+    <li>Roy hỏi <em>"đây chỉ là một câu chuyện mang tính nghiên cứu phải không?"</em> — Không: chính phủ kiện công ty tôi và nhiều công ty khác theo <strong>đạo luật dân quyền</strong> vì phân biệt chủng tộc với người da đen. Trưa hôm đó luật sư một hãng danh tiếng ở phố Wall khuyên hòa giải — cách đa số doanh nhân làm để tránh tiếng xấu — <em>"ý tưởng hòa giải khiến tôi muốn điên lên được"</em>.</li>
+    <li>Sự thật: nhiều người da đen thuê nhà của chúng tôi; tiêu chí chỉ là trả tiền thuê, ngăn nắp sạch sẽ, quan hệ tốt với hàng xóm, <em>"thu nhập ít nhất gấp bốn lần tiền thuê nhà"</em>.</li>
+    <li>Roy: <em>"quan điểm của tôi là khi kiện, buộc họ chứng minh rằng anh đã phân biệt đối xử… tôi không nghĩ anh có bổn phận phải cho những người da trắng cũng như da đen có khả năng gây ra rắc rối phiền phức thuê nhà, và chính phủ không có quyền điều hành việc kinh doanh của anh"</em>. Tôi quyết định Roy xử lý vụ này; chính phủ không chứng minh được, <strong>thắng kiện</strong>, và đồng ý đăng quảng cáo căn hộ trống <em>"với cơ hội bình đẳng cho mọi người"</em> trên báo địa phương.</li>
+    <li>Roy xem hồ sơ không cần ghi chú, nhớ mọi chi tiết, tranh luận ngay từ trong đầu; <em>"rất thông minh và hầu như không thể đánh bại được"</em> khi đã sẵn sàng — nhưng không phải lúc nào cũng chuẩn bị, khi đó <em>"có thể là một thảm họa"</em>, nên tôi <strong>luôn hỏi Roy trước phiên tòa</strong>, chưa sẵn sàng thì xin hoãn.</li>
+    <li>Roy <em>"rất rất cứng rắn"</em>; bạn bè đều biết ông đồng tính nhưng ông không bao giờ đề cập, cho rằng với người bình thường <em>"đồng tính hầu như đồng nghĩa với yếu đuối, nhút nhát"</em>, và luôn là người đầu tiên phản đối khi quyền người đồng tính được đưa ra.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Điều tôi thích nhất là lòng trung thành — <em>"bạn có thể tin tưởng vào sự giúp đỡ của ông ta cho dù ông ta không đồng quan điểm với bạn"</em>; <em>"ông ta chưa bao giờ là người hai mặt"</em>, khác hàng trăm người khoe liêm chính nhưng <em>"sẵn sàng nói xấu sau lưng bạn bè nếu người bạn ấy gặp khó khăn rắc rối"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 11 -->
+    <section class="entry" id="s11" data-toc="Khủng hoảng 1973–1974">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 11</span>
+      <h2>New York khủng hoảng 1973–1974 · Khó khăn là cơ hội</h2>
+      <p class="summary-line">Thị trường chạy theo chu kỳ; khó khăn của thành phố là cơ hội lớn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 104 H140"/>
+        <path class="thin" d="M20 104 V16"/>
+        <path d="M24 60 C40 20 56 20 72 60 C86 96 102 96 116 60"/>
+        <circle class="s" cx="94" cy="87" r="4"/>
+        <path class="b" d="M116 60 L132 28"/>
+        <path class="b" d="M120 30 L132 28 L136 40"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Vẫn chưa tìm được khu đất giá chấp nhận được thì Manhattan xấu đi từ <strong>năm 1973</strong>. <em>"Tôi luôn nghĩ rằng thị trường sẽ giảm nhiệt bởi vì mọi việc đều vận hành theo chu kỳ, có nóng có lạnh, lên cao xuống thấp"</em> — nhưng không ngờ tệ đến thế.</li>
+    <li>Nguyên nhân kết hợp: chính quyền liên bang tạm ngưng chương trình trợ cấp nhà ở; lãi suất tăng sau thời gian dài ổn định; lạm phát, nhất là chi phí xây dựng; lớn nhất là <strong>nợ thành phố</strong> — lần đầu người ta nói đến khả năng New York phá sản, <em>"khủng hoảng lòng tin"</em>.</li>
+    <li>9 tháng đầu năm 1974 chỉ khoảng <strong>6.000 căn hộ</strong> và nhà một gia đình mới được cấp phép ở năm quận, giảm mạnh so với 15.000 cùng kỳ năm trước.</li>
+    <li><em>"Tôi là một người lạc quan… tôi xem những khó khăn của thành phố như là những cơ hội lớn cho tôi"</em>: tin (có lẽ hơi phi lý) rằng <em>"Manhattan sẽ luôn là một nơi tốt nhất để sống, là một trung tâm của thế giới"</em>, mọi khó khăn chỉ là <strong>ngắn hạn</strong>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Mọi thị trường đều có chu kỳ — người lạc quan xem khó khăn ngắn hạn là cơ hội lớn.</p>
+  </div>
+</section>
+
+    <!-- SECTION 12 -->
+    <section class="entry" id="s12" data-toc="Bãi đường sắt Penn Central">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 12</span>
+      <h2>Bãi đường sắt Penn Central · Thuyết phục Victor Palmieri ở tuổi 27</h2>
+      <p class="summary-line">Không có thành tích, thuyết phục bằng năng lực và sự nhiệt tình.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M44 110 L74 30"/>
+        <path d="M116 110 L86 30"/>
+        <path d="M46 98 H114 M54 78 H106 M61 60 H99 M67 44 H93"/>
+        <path class="thin" d="M16 100 C22 94 28 106 34 100"/>
+        <path class="thin" d="M126 100 C132 94 138 106 144 100"/>
+        <path class="b" d="M80 12 V24"/>
+        <path class="b" d="M70 16 L74 22 M90 16 L86 22"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bất động sản luôn quyến rũ tôi: <strong>nhà ga bỏ hoang dọc sông Hudson</strong> từ đường số 59 đến đường số 72; mỗi lần lái xe trên xa lộ West Side đều mơ về nó — <em>"không cần phải là một thiên tài mới nhận thấy rằng 40 ha đất chưa phát triển dọc theo bờ sông này ở Manhattan có một tiềm năng to lớn"</em>, nhưng phát triển giữa khủng hoảng tài chính <em>"lại là một câu chuyện khác"</em>.</li>
+    <li><em>"Tôi không tin rằng bạn có thể từng đau lòng khi mua một khu đất có vị thế tốt với một giá hời"</em>. Nhiều khu West Side bị xem là nguy hiểm — thất nghiệp, trợ cấp, ma túy tràn lan trong công viên; New York Times đăng loạt bài về khu giữa Central Park West và Columbus ở đường số 84 — nhưng ngay đó có những tòa nhà đá nâu nguy nga cách Công viên Trung tâm vài bước chân; trên Central Park West và Riverside Drive có căn hộ rộng, cảnh đẹp — <em>"việc khám phá ra giá trị này chỉ còn là vấn đề về thời gian"</em>.</li>
+    <li><strong>Mùa hè 1973</strong> đọc bài báo: công ty hỏa xa Penn Central làm thủ tục phá sản, bên ủy thác thuê công ty của <strong>Victor Palmieri</strong> bán tài sản, gồm hai lô đất bỏ hoang ở West 60s và West 30s, ăn hoa hồng mỗi món. Chưa từng nghe tên Victor nhưng <em>"ông ta là người tôi muốn biết"</em>. Gọi cho đại diện: <em>"tôi là Donald Trump, tôi muốn mua lô đất ở khu West 60s"</em> — <em>"cách đơn giản nhất thường là cách hiệu quả nhất"</em>.</li>
+    <li><em>"Tôi chưa xây dựng tòa nhà nào nhưng cái mà tôi có là sự sốt sắng theo đuổi những điều mà những người ở vị thế tốt hơn tôi có lẽ đã không xem xét đến"</em>. Victor là người Ý dịu dàng, quyến rũ. Ba điều tôi nói: (1) khu đất đường số 60 xấu, khu phố lân cận nhiều vấn đề, thành phố khó khăn, <em>"có lẽ tôi điên nên mới quan tâm đến nó"</em> — <em>"nếu muốn mua một thứ gì đó, dĩ nhiên là bạn sẽ cố gắng thuyết phục người bán rằng thứ đó không có nhiều giá trị"</em>; (2) xin quy hoạch cho khu đất lớn chưa phát triển là rất khó, ủy ban cộng đồng sẽ chống, thuyết minh với Ủy ban quy hoạch và ban thẩm định kéo dài; (3) quan trọng nhất: không thể thuyết phục bằng kinh nghiệm hay thành tích, <em>"tôi phải thuyết phục bằng năng lực và sự nhiệt tình"</em>.</li>
+    <li>Kết thúc, Victor đề nghị tôi phát triển <strong>cả khu đường số 60 lẫn khu West 34</strong>. Lúc đó tôi mới 27 tuổi, chưa xây gì ở Manhattan, bố cũng vậy. Công ty chưa có tên chính thức nên tôi gọi là <strong>Trump Organization</strong> — <em>"từ Organization nghe cũng có vẻ lớn hơn từ Company"</em>; ít ai biết nó hoạt động trong hai căn phòng nhỏ trên đại lộ Z ở Brooklyn.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"cách đơn giản nhất thường là cách hiệu quả nhất"</em> — chưa có thành tích thì thuyết phục bằng năng lực và sự nhiệt tình.</p>
+  </div>
+</section>
+
+    <!-- SECTION 13 -->
+    <section class="entry" id="s13" data-toc="Quyền mua 62 triệu">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 13</span>
+      <h2>Beame, Koch và quyền mua 62 triệu không trả tiền trước</h2>
+      <p class="summary-line">Quan hệ, báo chí và một thỏa thuận mà người bán còn trả phí cho người mua.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M34 16 H96 L110 30 V106 H34 Z"/>
+        <path d="M96 16 V30 H110"/>
+        <path class="thin" d="M46 42 H96 M46 54 H96 M46 66 H84"/>
+        <path d="M46 88 C54 80 60 94 68 86"/>
+        <circle class="s" cx="92" cy="88" r="10"/>
+        <path class="b" d="M144 40 L112 82 L108 94 L118 88 L148 46 Z"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Quan hệ với chính khách như <strong>Abraham Beame</strong>, thị trưởng mới đắc cử tháng 11 năm 1973: bố cùng câu lạc bộ đảng viên Dân chủ với Beame; như mọi nhà phát triển địa ốc, chúng tôi đóng góp tranh cử cho Beame và các chính khách khác — <em>"tất cả đều đóng góp như nhau"</em>, nhưng có lẽ vì quen biết cá nhân nên Beame đối xử đặc biệt hơn.</li>
+    <li>Bỏ phần lớn <strong>4 năm nhiệm kỳ Beame</strong> vận động xây trung tâm hội nghị trên đường West 34; nhưng Beame chưa bao giờ đứng ra ủng hộ cho đến trước khi hết nhiệm kỳ vài tuần và không có chấp thuận chính thức nào — chính <strong>Ed Koch</strong>, người kế vị, mới quyết định chọn khu đất; <em>"không có ai… đã từng nghĩ rằng Ed Koch và tôi là đôi bạn thân"</em>.</li>
+    <li>Nhờ quan hệ khăng khít với Victor: thỏa thuận cho <strong>quyền mua</strong> các lô đất đường số 60 và số 30 mà chưa phải trả tiền, chờ quy hoạch và tòa án phá sản chấp thuận; Penn Central còn chịu chi phí phát triển cho tôi — <em>"người bán trả phí tổn cho người mua có tiềm năng"</em>. So với ngày nay <em>"giống như một thương vụ ngu xuẩn"</em>, nhưng thời đó <em>"không có ai muốn xây dựng thứ gì cả và thành phố đang chết dần"</em>.</li>
+    <li>Victor giúp tạo uy tín với báo giới; trả lời phóng viên tờ <strong>Barron's</strong> vì sao chọn tôi: <em>"những bất động sản đó không là gì cả ngoại trừ sự rủi ro không xác định được, chúng tôi đã phỏng vấn tất cả những người quan tâm đến chúng và không ai có được một động lực, sự hậu thuẫn và trí tưởng tượng cần thiết… cho đến khi Trump xuất hiện. Anh ta là hình ảnh của một người vận động cho sự phát triển của thế kỷ 19"</em>.</li>
+    <li>Khi tôi thổi phồng kế hoạch với báo chí mà dự án chưa đi tới đâu, một nhà địa ốc lớn nói với bạn tôi: <em>"Trump chỉ khoác lác thôi. Thế tòa nhà đó ở đâu?"</em> — tôi tức giận, không nói chuyện với người đó hơn một năm; giờ nghĩ lại <em>"ông ta đúng"</em>. Nếu không thuyết phục được thành phố chọn West 34 làm trung tâm hội nghị rồi phát triển khách sạn Grand Hyatt, <em>"tôi giờ đây có lẽ chỉ là một người đi thu tiền thuê nhà ở Brooklyn"</em>.</li>
+    <li><strong>Ngày 29 tháng 7 năm 1974</strong>: tuyên bố Trump Organization đạt quyền mua hai khu đất bờ sông — West 59 đến West 72 (khu West 60s) và West 34 đến West 39 (khu West 30s) — của Penn Central với giá <strong>62 triệu Mỹ Kim</strong> mà không phải trả tiền trước; lên trang nhất New York Times.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lúc không ai muốn xây, người dám nhảy vào giành được điều khoản cực tốt — nhưng kế hoạch thổi phồng với báo chí phải thành tòa nhà thật.</p>
+  </div>
+</section>
+
+    <!-- SECTION 14 -->
+    <section class="entry" id="s14" data-toc="Kế hoạch nhà ở sụp đổ">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 14</span>
+      <h2>Kế hoạch nhà ở sụp đổ · Starrett trả 150 triệu và thành phố cạn tiền</h2>
+      <p class="summary-line">Giữ được thương vụ trước đối thủ, rồi trợ cấp nhà ở biến mất.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M30 108 V40 L58 24 L86 40 V108"/>
+        <path d="M42 56 H52 M64 56 H74 M42 76 H52 M64 76 H74"/>
+        <path class="s" d="M58 24 L52 50 L64 66 L54 88 L60 108"/>
+        <path d="M106 30 H128 M106 30 V60"/>
+        <path class="b" d="M117 44 V98"/>
+        <path class="b" d="M106 86 L117 100 L128 86"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Ý tưởng ban đầu: nhà cho người thu nhập trung bình thuê giá <strong>110 đến 125 đô la</strong> (khá cao thời đó), tài trợ từ chương trình <strong>Mitchell-Lama</strong> — trợ giá của chính phủ, cho nhà đầu tư thế chấp dài hạn lãi suất thấp và giảm thuế.</li>
+    <li>Một tháng trước khi công bố, Victor và tôi gặp Abraham Beame trình bày; ông khuyến khích nhưng từ chối bày tỏ ý kiến cho đến khi Ủy ban quy hoạch, ban thẩm định và các ủy ban cộng đồng xem xét — <em>"ông ta là một chính trị gia cho nên ông ta muốn xem gió thổi chiều nào để chọn một thế đứng cho mình"</em>.</li>
+    <li>Ngay sau công bố, nhiều nhà thầu xuất đầu lộ diện: <strong>Starrett Housing</strong> (từng hợp tác ở Brooklyn) đề nghị 150 triệu Mỹ Kim kèm điều kiện về tài chính và chấp thuận của thành phố. <em>"Tôi là một người rất tranh đua và tôi sẽ làm bất cứ điều gì có thể được trong phạm vi pháp luật cho phép để chiến thắng"</em>: tôi không tin Starrett nghiêm túc — <em>"bất kỳ ai cũng có thể đưa ra một mức giá để đấu thầu, đặc biệt là khi có kèm theo nhiều điều kiện phụ thuộc"</em>; bỏ nhiều thời gian thuyết phục người của Palmieri rằng <strong>giá 62 triệu của tôi đáng tin hơn</strong> — và thành công.</li>
+    <li>Trớ trêu: chưa đầy một năm sau, <strong>tháng 2 năm 1975</strong> Công ty Phát triển Đô thị (công ty nhà nước) vỡ nợ hơn 100 triệu Mỹ Kim trái phiếu; tháng 9 năm 1975 Beame hoãn tài trợ hầu hết dự án nhà ở mới; tháng 11 năm 1975 tiểu bang New York tuyên bố tương tự cho chương trình nhà ở thu nhập trung bình và thấp trong vòng 5 năm, kể cả dự án đã được chấp thuận sơ bộ.</li>
+    <li>Mỗi sáng đọc báo về khủng hoảng tài chính thành phố: <em>"tôi không nghĩ rằng những tin tức đó thật sự làm tôi lo sợ"</em>; khi rõ ràng không có trợ cấp nhà ở, <em>"tôi quyết định thử một chiến lược mới"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Một giá đấu kèm nhiều điều kiện chưa phải giá thật; khi kế hoạch cũ sụp đổ, không hoảng sợ mà chuyển sang chiến lược mới.</p>
+  </div>
+</section>
+
+    <!-- SECTION 15 -->
+    <section class="entry" id="s15" data-toc="Điều kỳ diệu đường 34">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 15</span>
+      <h2>Điều kỳ diệu trên đường số 34 · Vận động trung tâm hội nghị</h2>
+      <p class="summary-line">Đánh bóng tên tuổi, lập luận bằng chi phí và vị trí, chấp nhận đấu khẩu.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M24 108 V20 M136 108 V20"/>
+        <path d="M24 26 C60 34 100 18 136 26 V52 C100 44 60 60 24 52 Z"/>
+        <path class="b" d="M44 40 H116"/>
+        <path d="M58 90 L90 74 V106 L58 92 Z"/>
+        <path d="M58 86 H48 V96 H58"/>
+        <path class="s" d="M100 82 C106 86 106 94 100 98"/>
+        <path class="thin" d="M112 76 C122 84 122 96 112 104"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Tôi luôn nghĩ khu West 34 hợp làm trung tâm hội nghị; hầu như không ai nghĩ thế. Thành phố đã bỏ hơn 3 năm phát triển khu đất khác dọc sông Hudson trên đường số 44, thừa nhận chi <strong>13 triệu Mỹ Kim</strong> riêng cho quy hoạch (người quen nói thực tế gần 30 triệu). Vài tuần sau khi ngưng tài trợ nhà ở, Beame tuyên bố ngưng chi cho khu đất đó — tôi mướn ngay <strong>Samuel Lindenbaum</strong>, luật sư giỏi về quy hoạch đang làm cho dự án ấy.</li>
+    <li>Người thứ hai: <strong>Louise Sunshine</strong>, quen rất nhiều chính khách, từng là giám đốc tài chính cho Hugh Carey tranh cử thống đốc năm 1974, thủ quỹ Đảng Dân chủ tiểu bang; đầu tiên làm cho tôi hầu như không lương, sau thành giám đốc điều hành trong công ty.</li>
+    <li>Thành phố và tiểu bang ngấm ngầm tính phương án khác: <strong>Battery Park City</strong> đối diện Trung tâm Thương mại Thế giới, phía Nam Manhattan. Cả West 44 lẫn Battery Park đều <em>"thua xa khu đất của tôi"</em>. Muốn vận động nhưng chưa ai biết đến — <em>"tôi phải đánh bóng tên tuổi của mình"</em>: mở họp báo; Louise và Howard Rubenstein (nổi tiếng ngành quan hệ công chúng) vận động chính khách có thế lực: Manfred Ohrenstein (lãnh tụ phe đa số ở Thượng viện) và Theodore Kheel (nhà hòa giải lao động). Kheel: <em>"Việc đặt một trung tâm hội nghị ở Battery Park chẳng khác nào mở một hộp đêm trong một nghĩa trang"</em>.</li>
+    <li>Treo biểu ngữ <em>"Điều kỳ diệu trên đường số 34"</em>; tuyên bố có thể xây trung tâm với chi phí khoảng <strong>110 triệu Mỹ Kim</strong>, thấp hơn ít nhất 150 triệu so với ước tính của thành phố cho West 44. Báo chí chú ý nhưng hầu như không chính trị gia nào chấp thuận — <em>"các chính khách không quan tâm nhiều đến chi phí, nó không phải là tiền của họ"</em>.</li>
+    <li>Nhiều người cho rằng khủng hoảng thì nên dẹp dự án — <em>"một ý kiến thiển cận"</em>: <em>"khi doanh thu bị sụt giảm hầu hết các công ty đều cắt giảm ngân sách quảng cáo nhưng thực ra bạn cần phải quảng cáo thật nhiều khi người ta không mua hàng của bạn"</em>; trung tâm hội nghị là <em>"thiết yếu để phục hồi hình ảnh của thành phố và… hồi sinh nền kinh tế của nó"</em>.</li>
+    <li>Lập luận: West 44 phải xây trên nền đất bồi đắp bờ sông (tốn kém, mất thời gian), quá nhỏ khó mở rộng, phải đi dưới xa lộ West Side để vào, cần giấy phép cấm tàu thuyền — phải được chính phủ liên bang chấp thuận và Quốc hội thông qua bằng đạo luật. Battery Park <em>"phi lý"</em>: cực Nam, xa trung tâm, khách sạn, giải trí, bất tiện giao thông công cộng; nghiên cứu của chính thành phố cho thấy phải tái thiết xa lộ West Side và xây thêm ít nhất 2.000 phòng khách sạn. Khu của tôi nằm phía đông xa lộ West Side, <strong>gần xe điện ngầm và xe buýt</strong>, chi phí thấp vì đất trống không người thuê, rất lớn nên mở rộng được.</li>
+    <li>Người chống: Abraham Beame (đã loại West 44 và để mắt Battery Park, mọi lý lẽ đều không lay chuyển) và phó thị trưởng <strong>John Zuccotti</strong>, đi nói xấu dự án khắp thành phố vì <em>"không muốn thừa nhận sự thất bại"</em> sau bao thời gian và hàng triệu Mỹ Kim công quỹ đổ vào West 44. Tôi cáo buộc ông ta <em>"là con người nhỏ nhen với những tính toán vụ lợi"</em>; cuộc đấu khẩu được truyền thông chú ý — <em>"đó là một điều tốt"</em> vì cũng là cách quảng bá khu đất.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lúc khó khăn càng phải quảng bá: <em>"bạn cần phải quảng cáo thật nhiều khi người ta không mua hàng của bạn"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 16 -->
+    <section class="entry" id="s16" data-toc="Chiến thắng 1978">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 16</span>
+      <h2>Chiến thắng 1978 · Từ chối 833 ngàn để lấy tên Trump, và một tai ương</h2>
+      <p class="summary-line">Khu đất được chọn, nhưng thành phố tự xây: trễ 4 năm, đội vốn 700 triệu.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 108 H142"/>
+        <path d="M40 22 H88 V42 C88 60 78 68 64 68 C50 68 40 60 40 42 Z"/>
+        <path d="M40 30 C26 30 26 50 42 52 M88 30 C102 30 102 50 86 52"/>
+        <path d="M64 68 V86"/>
+        <rect x="46" y="86" width="36" height="12"/>
+        <path class="b" d="M64 32 L67 40 H75 L69 45 L71 53 L64 48 L57 53 L59 45 L53 40 H61 Z"/>
+        <path class="s" d="M104 98 L116 82 L126 88 L140 60"/>
+        <path class="s" d="M130 60 H140 V70"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li><em>"Chúng tôi chưa bao giờ từ bỏ ý định của mình và những ý kiến chống đối cũng mất dần"</em>. Beame bổ nhiệm ủy ban khác năm 1977 xem xét nhiều vị trí; ủy ban kết luận khu đất của chúng tôi tốt nhất; Beame về cơ bản ủng hộ nhưng không ký vì hết nhiệm kỳ cuối năm đó. Tháng 1 năm 1978 Ed Koch nhận ghế thị trưởng, làm nghiên cứu riêng — tưởng phải về vạch xuất phát, nhưng khu đất lại đứng đầu. <strong>Tháng 4 năm 1978</strong> thành phố và tiểu bang công bố mua khu đất để xây trung tâm hội nghị.</li>
+    <li>Chiến thắng <em>"mang ý nghĩa tượng trưng nhiều hơn là về tài chính"</em>: theo thỏa thuận với Penn Central, tôi được bồi thường tổng cộng <strong>833 ngàn Mỹ Kim</strong> dựa trên giá 12 triệu Mỹ Kim thành phố mua khu đất. Đề nghị không nhận khoản này nếu thành phố <strong>lấy họ Trump đặt tên</strong> trung tâm — bị nhiều người chỉ trích, <em>"tôi không biện hộ gì cả"</em>.</li>
+    <li>Ed Koch quyết định (theo logic tôi không hiểu) không chọn tôi làm nhà thầu vì tôi đã giúp dàn xếp việc mua bán. Tôi đề nghị xây toàn bộ với chi phí <strong>không quá 200 triệu Mỹ Kim</strong>, vượt thì tự trang trải — <em>"một lời đề nghị thật buồn cười cho tôi vì không có ai muốn đặt mình vào một cái tròng như vậy"</em>. Thành phố và tiểu bang tự giám sát — kết quả <em>"có lẽ là những trì hoãn và chi tiêu vượt dự toán tệ hại nhất trong lịch sử ngành xây dựng"</em>.</li>
+    <li><strong>Richard Kahan</strong> làm giám đốc Công ty Phát triển Đô thị giám sát dự án — <em>"người tốt nhưng có những ý tưởng của một Robert Moses thứ hai"</em>; thuê <strong>I.M. Pei</strong> làm kiến trúc sư — nổi tiếng nhưng <em>"thường chọn giải pháp đắt tiền nhất"</em>; Pei thiết kế khung không gian, kết cấu mọi nhà xây dựng chuyên nghiệp cho là khó nhất và dễ vượt dự toán.</li>
+    <li>Tôi nói ngay từ đầu phải <strong>xây đồng thời bãi đậu xe</strong> và nộp đơn xin giấy phép ngay vì <em>"sự chấp thuận đó sẽ chỉ khó khăn hơn nếu các ông để sau này mới xin"</em> — họ không nghe, nay không có chỗ đậu xe, không thể xây thêm gì. Lối vào đặt phía đông đối diện đại lộ số 11 thay vì phía tây nhìn xuống sông Hudson.</li>
+    <li>Năm 1983 viết thư cho William Stern (kế nhiệm Kahan) lần thứ hai đề nghị giám sát để xong nhanh, không vượt dự toán — bị từ chối. Khánh thành năm 1986: <strong>trễ 4 năm</strong>, vượt dự toán ít nhất 250 triệu Mỹ Kim; tính cả lãi suất trong bốn năm, tổng chi phí khoảng <strong>1 tỷ Mỹ Kim</strong>, tức vượt 700 triệu — <em>"một sự hổ thẹn rất lớn"</em>; được mời dự khánh thành, tôi từ chối.</li>
+    <li>Khu đất đường số 60 còn khó hơn: cộng đồng phản đối mạnh hơn, quy hoạch phức tạp hơn, ngân hàng lưỡng lự cho vay dự án nhà ở khổng lồ trong thành phố <em>"vẫn còn chạng vạng trên bờ vực phá sản"</em>; năm 1979 tôi từ bỏ để tập trung thương vụ khác — vụ đầu tiên cũng lại với Palmieri và Penn Central: mua <strong>khách sạn Commodore</strong>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Không bao giờ từ bỏ ý định thì những ý kiến chống đối cũng mất dần — nhưng dự án thiếu người giám sát quyết liệt sẽ trễ hạn và vượt dự toán.</p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Sách nói Nghệ thuật đàm phán (The Art of the Deal) — Donald J. Trump &amp; Tony Schwartz, kênh Thư viện audiobook · Chương 4–5 · YouTube: https://www.youtube.com/watch?v=cLXe8k_TE1c · Ghi chú No.16 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>

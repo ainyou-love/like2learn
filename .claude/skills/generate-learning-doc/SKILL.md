@@ -1,12 +1,12 @@
 ---
 name: generate-learning-doc
-description: "Turn a raw Vietnamese YouTube transcript (pasted text or a .txt/.md/.docx/.pdf file) into a numbered 'Sổ ghi chép · No.NN' learning notebook HTML page in resources/, using the fixed sổ tiết kiệm passbook template. Runs two sequential subagents: Fable summarizes the script part by part, keeping verbatim quotes, numbers, names and concrete actions; then Opus writes the sections and line-art SVGs and builds the page. Use whenever the user pastes a transcript/script/sub/phụ đề or a lecture/podcast/book-talk text and asks to ghi chú, tóm tắt thành sổ, tạo file html ghi chú, làm entry/số tiếp theo, or 'gen learning doc' — even if they only say 'đây là script, số 13' without mentioning HTML. Do NOT use for editing CSS/JS of an existing entry, the Jekyll index.html, or a plain one-paragraph summary in chat."
-argument-hint: "<raw text | file path> [số thứ tự]"
+description: "Turn a raw Vietnamese YouTube transcript (pasted text, a .txt/.md/.docx/.pdf file, or just the YouTube link — the transcript is fetched automatically) into a numbered 'Sổ ghi chép · No.NN' learning notebook HTML page in resources/, using the fixed sổ tiết kiệm passbook template. Runs two sequential subagents: Fable summarizes the script part by part, keeping verbatim quotes, numbers, names and concrete actions; then Opus writes the sections and line-art SVGs and builds the page. Use whenever the user pastes a transcript/script/sub/phụ đề, a lecture/podcast/book-talk text, or a YouTube URL of one, and asks to ghi chú, tóm tắt thành sổ, tạo file html ghi chú, làm entry/số tiếp theo, or 'gen learning doc' — even if they only say 'đây là script, số 13' without mentioning HTML. Do NOT use for editing CSS/JS of an existing entry, the Jekyll index.html, or a plain one-paragraph summary in chat."
+argument-hint: "<raw text | file path | YouTube URL> [số thứ tự]"
 ---
 
 # Generate learning doc
 
-Raw Vietnamese transcript → `resources/NN-<slug>.html`, a notebook entry that looks the same as No.12.
+Raw Vietnamese transcript (or a YouTube link to one) → `resources/NN-<slug>.html`, a notebook entry that looks the same as No.12.
 
 This is a pipeline you coordinate. It runs in two stages, one after the other, with a check after each. You don't write the notes or the HTML yourself: separate subagents keep the summary faithful to the script, and keep the page faithful to the summary.
 
@@ -19,6 +19,7 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
 | `references/summary-rules.md` | step 1 subagent | Vietnamese context-keeping rules, notes format |
 | `references/page-content.md` | step 2 subagent | meta.json + section markup, callout/quote rules, SVG rules |
 | `assets/template.html` | build script | Fixed CSS/JS/layout copied from entry No.12 |
+| `scripts/fetch_transcript.py` | you | Downloads a YouTube video's transcript as plain text into `raw.txt` |
 | `scripts/check_quotes.py` | you | Flags quoted phrases in the notes that aren't word-for-word from the script |
 | `scripts/build_doc.py` | step 2 subagent | Fills template, generates TOC, validates, writes the file |
 
@@ -26,10 +27,25 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
 
 ## 0. Gather inputs
 
-1. **Raw content.** Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
+1. **Raw content.** YouTube URL: fetch it in item 4 (below). Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
 2. **Entry number.** Use the number the user gave. If they gave none, list `resources/*.html`, take the highest `NN` + 1, and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). If `resources/NN-*.html` already exists, ask before overwriting — that's a published entry.
 3. **Time.** Run `date +%Y%m%d%H%M%S` and `date +%Y` in Bash. Don't trust your own sense of today's date.
 4. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
+
+   For a YouTube URL, let the script write `raw.txt`. It needs `uv`, which installs the library on first run:
+
+   ```bash
+   uv run <skill-dir>/scripts/fetch_transcript.py "<url>" -l vi -o <work>/raw.txt
+   ```
+
+   On success it prints `SOURCE: <title> · <channel>` and then `OK`. `-l vi` already matches regional tracks like `vi-VN` and prefers uploaded captions over auto-generated ones. Use the `SOURCE` line plus the URL as the source context for step 1: the title and author are what let the notes fix misheard names. If it says `SOURCE: unknown`, ask the user for the title and author before step 1.
+
+   On failure it exits with `ERROR: <ErrorType>: <reason>`:
+   - `NoTranscriptFound`: the video has no Vietnamese track; the error lists the languages it does have. Ask the user whether to translate one (`-l <code> --translate vi`). Machine-translated text is weaker, so don't pick it silently.
+   - `IpBlocked` / `RequestBlocked`: YouTube is rate-limiting this IP. Don't loop on retries; ask the user to wait and retry, or to paste the text from downsub.com instead.
+   - Anything else (`TranscriptsDisabled`, `VideoUnavailable`, `AgeRestricted`, a network or timeout error, …): tell the user the reason and ask them to paste the transcript text instead.
+
+   Auto-generated captions have no punctuation and break lines mid-phrase. That's expected; step 1 handles it.
 
 ## 1. Notes — Fable subagent
 
@@ -38,7 +54,7 @@ Spawn with the Agent tool, `model: "fable"`, `subagent_type: "general-purpose"`:
 ```
 Read <skill-dir>/references/summary-rules.md — it is your full instruction set.
 Raw script: <work>/raw.txt
-Source context: <title / author / URL the user gave, or "unknown">
+Source context: <title / author / URL the user gave or the fetch script's SOURCE line, or "unknown">
 Entry number: No.<NN>
 Write the notes to: <work>/notes.md
 Do not write HTML and do not touch any file outside <work>/.
