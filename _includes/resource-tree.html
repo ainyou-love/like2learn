@@ -1,0 +1,103 @@
+{% assign resource_files = site.static_files
+  | where_exp: "file", "file.path contains '/resources/'"
+  | where_exp: "file", "file.extname == '.html'"
+  | sort: "path"
+%}
+<style>
+  body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 48rem; margin: 2rem auto; padding: 0 16px; }
+  .crumbs { margin: -0.5rem 0 1rem; }
+  .tree, .tree ul { list-style: none; margin: 0; padding-left: 1.25rem; }
+  .tree { padding-left: 0; }
+  .tree summary { cursor: pointer; font-weight: 600; }
+  .tree .count { font-weight: 400; opacity: .6; }
+  .tree a { overflow-wrap: anywhere; }
+</style>
+<script>
+const RESOURCE_ROOT = "resources";
+const RESOURCE_PATHS = [
+{% for file in resource_files %}  {{ file.path | jsonify }},
+{% endfor %}].filter((path) => path.startsWith(`/${RESOURCE_ROOT}/`));
+
+const resourceCollator = new Intl.Collator("vi", { numeric: true });
+
+function resourceTree() {
+  const root = { dirs: new Map(), files: [] };
+  for (const path of RESOURCE_PATHS) {
+    const parts = path.split("/").slice(2);
+    const name = parts.pop();
+    let node = root;
+    for (const dir of parts) {
+      if (!node.dirs.has(dir)) node.dirs.set(dir, { dirs: new Map(), files: [] });
+      node = node.dirs.get(dir);
+    }
+    node.files.push({ name, path });
+  }
+  return root;
+}
+
+function resourceShortLinks() {
+  const links = {};
+  for (const path of RESOURCE_PATHS) {
+    const number = path.split("/").pop().match(/^(\d+)-/);
+    if (number && Number(number[1]) > 0) links[number[1]] = path;
+  }
+  return links;
+}
+
+function countResourceFiles(node) {
+  return node.files.length + [...node.dirs.values()].reduce((sum, dir) => sum + countResourceFiles(dir), 0);
+}
+
+function resourceFileLabel(name) {
+  const base = name.normalize("NFC").replace(/\.html$/i, "");
+  const numbered = base.match(/^(\d+)-(.+)$/);
+  return numbered ? `${numbered[1]} — ${numbered[2].replace(/-/g, " ")}` : base.replace(/[-_]/g, " ");
+}
+
+function resourceFolderItem(name, node, open) {
+  const summary = document.createElement("summary");
+  const count = document.createElement("span");
+  count.className = "count";
+  count.textContent = ` (${countResourceFiles(node)})`;
+  summary.append(name, count);
+
+  const details = document.createElement("details");
+  details.open = open;
+  details.append(summary, resourceList(node));
+
+  const li = document.createElement("li");
+  li.append(details);
+  return li;
+}
+
+function resourceList(node) {
+  const ul = document.createElement("ul");
+  for (const name of [...node.dirs.keys()].sort(resourceCollator.compare)) {
+    ul.append(resourceFolderItem(name, node.dirs.get(name), false));
+  }
+  for (const { name, path } of node.files.sort((a, b) => resourceCollator.compare(a.name, b.name))) {
+    const link = document.createElement("a");
+    link.href = encodeURI(path);
+    link.textContent = resourceFileLabel(name);
+    const li = document.createElement("li");
+    li.append(link);
+    ul.append(li);
+  }
+  return ul;
+}
+
+function renderResourceTree(container, folder) {
+  const segments = folder.split("/").filter(Boolean);
+  if (segments.shift() !== RESOURCE_ROOT) return false;
+  let node = resourceTree();
+  for (const dir of segments) {
+    node = node.dirs.get(dir);
+    if (!node) return false;
+  }
+  const tree = document.createElement("ul");
+  tree.className = "tree";
+  tree.append(resourceFolderItem(segments.at(-1) || RESOURCE_ROOT, node, true));
+  container.append(tree);
+  return true;
+}
+</script>

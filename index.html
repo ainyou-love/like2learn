@@ -8,90 +8,16 @@ layout: null
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Like2Learn</title>
-  <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 48rem; margin: 2rem auto; padding: 0 16px; }
-    .tree, .tree ul { list-style: none; margin: 0; padding-left: 1.25rem; }
-    .tree { padding-left: 0; }
-    .tree summary { cursor: pointer; font-weight: 600; }
-    .tree .count { font-weight: 400; opacity: .6; }
-    .tree a { overflow-wrap: anywhere; }
-  </style>
+  {% include resource-tree.html %}
 </head>
 <body>
 
 <h1>Like2Learn</h1>
 
-{% assign resource_files = site.static_files
-  | where_exp: "file", "file.path contains '/resources/'"
-  | where_exp: "file", "file.extname == '.html'"
-  | sort: "path"
-%}
-
-<ul class="tree" id="tree"></ul>
+<div id="tree"></div>
 
 <script>
-const ROOT = "/resources/";
-const paths = [
-{% for file in resource_files %}  {{ file.path | jsonify }},
-{% endfor %}];
-
-const collator = new Intl.Collator("vi", { numeric: true });
-const root = { dirs: new Map(), files: [] };
-
-for (const path of paths) {
-  if (!path.startsWith(ROOT)) continue;
-  const parts = path.slice(ROOT.length).split("/");
-  const name = parts.pop();
-  let node = root;
-  for (const dir of parts) {
-    if (!node.dirs.has(dir)) node.dirs.set(dir, { dirs: new Map(), files: [] });
-    node = node.dirs.get(dir);
-  }
-  node.files.push({ name, path });
-}
-
-const countFiles = (node) =>
-  node.files.length + [...node.dirs.values()].reduce((sum, dir) => sum + countFiles(dir), 0);
-
-function fileLabel(name) {
-  const base = name.normalize("NFC").replace(/\.html$/i, "");
-  const numbered = base.match(/^(\d+)-(.+)$/);
-  return numbered ? `${numbered[1]} — ${numbered[2].replace(/-/g, " ")}` : base.replace(/[-_]/g, " ");
-}
-
-function folderItem(name, node, open) {
-  const summary = document.createElement("summary");
-  const count = document.createElement("span");
-  count.className = "count";
-  count.textContent = ` (${countFiles(node)})`;
-  summary.append(name, count);
-
-  const details = document.createElement("details");
-  details.open = open;
-  details.append(summary, listOf(node));
-
-  const li = document.createElement("li");
-  li.append(details);
-  return li;
-}
-
-function listOf(node) {
-  const ul = document.createElement("ul");
-  for (const name of [...node.dirs.keys()].sort(collator.compare)) {
-    ul.append(folderItem(name, node.dirs.get(name), false));
-  }
-  for (const { name, path } of node.files.sort((a, b) => collator.compare(a.name, b.name))) {
-    const link = document.createElement("a");
-    link.href = encodeURI(path);
-    link.textContent = fileLabel(name);
-    const li = document.createElement("li");
-    li.append(link);
-    ul.append(li);
-  }
-  return ul;
-}
-
-document.getElementById("tree").append(folderItem("resources", root, true));
+renderResourceTree(document.getElementById("tree"), RESOURCE_ROOT);
 </script>
 
 </body>

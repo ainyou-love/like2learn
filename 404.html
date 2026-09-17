@@ -6,39 +6,63 @@ layout: null
 <html lang="vi">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Redirecting...</title>
+  {% include resource-tree.html %}
 </head>
 <body>
 
-{% assign resource_files = site.static_files
-  | where_exp: "file", "file.path contains '/resources/'"
-  | where_exp: "file", "file.extname == '.html'"
-  | sort: "name"
-%}
-
 <script>
-const resources = {
-{% for file in resource_files %}
-  {% assign number = file.name | split: "-" | first %}
-  {% assign number_value = number | plus: 0 %}
-  {% if number_value > 0 %}
-  "{{ number }}": "{{ file.path }}",
-  {% endif %}
-{% endfor %}
-};
+function decodedPath() {
+  try { return decodeURIComponent(location.pathname); } catch (e) { return location.pathname; }
+}
 
-const key = location.pathname.replace(/^\/+|\/+$/g, "");
+function link(href, text) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.textContent = text;
+  return a;
+}
+
+function showFolder(key, tree) {
+  const parts = key.split("/");
+  const parent = parts.length > 1 ? `/${parts.slice(0, -1).join("/")}/` : "/";
+  document.title = `${parts.at(-1)} · Like2Learn`;
+
+  const heading = document.createElement("h1");
+  heading.append(link("/", "Like2Learn"));
+
+  const crumbs = document.createElement("nav");
+  crumbs.className = "crumbs";
+  crumbs.append(link("/", "← Trang chủ"));
+  if (parent !== "/") crumbs.append(" · ", link(encodeURI(parent), `↑ Lên thư mục cha (${parts.at(-2)})`));
+
+  document.body.append(heading, crumbs, tree);
+}
+
+function showNotFound(key) {
+  document.title = "404 · Like2Learn";
+  const heading = document.createElement("h1");
+  heading.textContent = "404";
+  const message = document.createElement("p");
+  message.textContent = `Không tìm thấy: ${key}`;
+  const back = document.createElement("p");
+  back.append(link("/", "← Trang chủ"));
+  document.body.append(heading, message, back);
+}
+
+const key = decodedPath().replace(/^\/+|\/+$/g, "");
+const shortLinks = resourceShortLinks();
 const legacyNote = key.match(/^resources\/(\d+)-[^/]+$/);
-const target = resources[key] || (legacyNote && resources[legacyNote[1]]);
+const target = shortLinks[key] || (legacyNote && shortLinks[legacyNote[1]]);
+const tree = document.createElement("div");
 
 if (target) {
   location.replace(target);
+} else if (renderResourceTree(tree, key)) {
+  showFolder(key, tree);
 } else {
-  document.body.innerHTML = `
-    <h1>404</h1>
-    <p>Không tìm thấy: ${key}</p>
-    <p><a href="/">← Trang chủ</a></p>
-  `;
+  showNotFound(key);
 }
 </script>
 
