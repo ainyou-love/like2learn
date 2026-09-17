@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.13 — Một tuần làm việc của Donald Trump</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.13</span>
+      <div class="title">Một tuần làm việc của Donald Trump</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Kinh doanh là nghệ thuật</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Thứ Hai · Nhiều lựa chọn</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Thứ Hai · Đúng thì phải kiện</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Thứ Hai · Làm ít, ý nghĩa</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Thứ Ba · Không phí thời gian</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Thứ Ba · Giữ chắc cái đã có</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Thứ Ba · Người giỏi việc</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Thứ Tư · Xúc bê tông</span><span class="num">08</span></a></li>
+        <li><a href="#s9"><span class="t">Thứ Tư · Mar-a-Lago</span><span class="num">09</span></a></li>
+        <li><a href="#s10"><span class="t">Thứ Tư · Lắng nghe trực giác</span><span class="num">10</span></a></li>
+        <li><a href="#s11"><span class="t">Thứ Năm · Người giỏi nhất</span><span class="num">11</span></a></li>
+        <li><a href="#s12"><span class="t">Thứ Năm · Mua tên tuổi</span><span class="num">12</span></a></li>
+        <li><a href="#s13"><span class="t">Thứ Sáu · Cứng rắn với nhà thầu</span><span class="num">13</span></a></li>
+        <li><a href="#s14"><span class="t">Kết · Không có gì để làm</span><span class="num">14</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay kinh doanh · Nghệ thuật đàm phán</p>
+      <h1>Một tuần làm việc của Donald Trump</h1>
+      <p class="subtitle">Nhật ký từng giờ từ Thứ Hai đến Thứ Sáu — cổ phiếu Holiday Inns, sân trượt Wollman, khu đất West Side, Mar-a-Lago, sòng bài Atlantic City — cho thấy cách Trump ra quyết định: giữ nhiều lựa chọn, không phí thời gian, thuê người giỏi nhất, cứng rắn với nhà thầu và tin trực giác.</p>
+      <div class="meta">
+        <span class="pill">14 phần</span>
+        <span class="pill">Nguồn · The Art of the Deal</span>
+        <span class="pill">Ghi chú · No.13</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Kinh doanh là nghệ thuật">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Giới thiệu sách · Kinh doanh là một hình thức nghệ thuật</h2>
+      <p class="summary-line">Kinh doanh không vì tiền mà vì thích giao dịch — như người khác vẽ tranh, làm thơ.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="46" y="18" width="68" height="54" rx="2"/>
+        <path d="M60 72 L48 110"/>
+        <path d="M100 72 L112 110"/>
+        <path class="thin" d="M80 72 V104"/>
+        <path class="thin" d="M40 84 H120"/>
+        <path class="b" d="M56 58 C66 40 74 62 84 44 C92 30 98 50 104 36"/>
+        <circle class="s" cx="66" cy="34" r="5"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Sách <em>"Nghệ thuật đàm phán"</em> (The Art of the Deal) của <strong>Donald Trump và Tony Schwartz</strong>, Nguyễn Đăng Kiểu (nghe không rõ) dịch, NXB Trẻ, sách nói độc quyền tại Fonos.</li>
+    <li>Phần <em>"Lời cảm ơn"</em> mở đầu: Trump cảm ơn vợ Ivana và ba đứa con đã <em>"rất cảm thông khi tôi dành nhiều ngày nghỉ cuối tuần cho việc viết"</em>; Tony Schwartz cảm ơn vợ, <em>"người biên tập đầu tiên, người bạn tốt nhất và 10 năm qua vẫn là tình yêu của cuộc đời ông"</em>.</li>
+    <li>Chương 1 mở đầu bằng <strong>tuyên ngôn</strong>: <em>"Tôi kinh doanh không phải vì tiền. Tôi đã có đủ, có nhiều hơn nhu cầu của mình là khác. Tôi kinh doanh chỉ vì tôi thích nó. Với tôi, kinh doanh là một hình thức nghệ thuật. Những người khác vẽ tranh hoặc làm thơ… tôi thích sự giao dịch, đặc biệt là những giao dịch lớn."</em></li>
+    <li><strong>Cách làm việc</strong>: <em>"rất thoải mái, không gò bó"</em>, <em>"không tập tành, không học hành quá nhiều, cửa phòng làm việc luôn rộng mở"</em>, <em>"thích đến công trình mỗi ngày chỉ để xem nó tiến triển như thế nào"</em>. <em>"Không có một tuần lễ nào gọi là tiêu biểu trong cuộc sống của tôi."</em></li>
+    <li><strong>Nhịp một ngày</strong>: dậy khoảng 6 giờ sáng, đọc báo khoảng 1 giờ, đến văn phòng khoảng 9 giờ và bắt đầu vào điện thoại; cú điện thoại xen giữa ít nhất 12 lần tiếp khách, <em>"chỉ có một số ít kéo dài hơn 15 phút"</em>.</li>
+    <li>Ông <em>"rất ít khi nghỉ để ăn trưa"</em>; rời văn phòng khoảng 6 giờ 30 chiều nhưng <strong>gọi điện ở nhà đến nửa đêm</strong>, cả cuối tuần.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"Tôi cố gắng rút tỉa kinh nghiệm từ những việc đã qua, hoạch định cho tương lai bằng cách tập trung cao độ với những gì đang xảy ra. Đó là niềm vui trong cuộc sống."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Thứ Hai · Nhiều lựa chọn">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Thứ Hai · Luôn giữ nhiều lựa chọn</h2>
+      <p class="summary-line">Holiday Inns với ba lối ra, một lời khuyên chính trị và cú điện thoại cứu nông trại.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 110 V20"/>
+        <path class="thin" d="M56 110 H104"/>
+        <path d="M84 26 H122 L132 34 L122 42 H84"/>
+        <path d="M76 50 H38 L28 58 L38 66 H76"/>
+        <path class="b" d="M84 74 H116 L126 82 L116 90 H84"/>
+        <circle class="s" cx="80" cy="16" r="3"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>9:00 — Gọi <strong>Alan Greenberg</strong>, tổng giám đốc ngân hàng đầu tư Bear Stearns, quan hệ 5 năm. Bắt đầu mua cổ phiếu <strong>Holiday Inns</strong> cách đây 2 tuần khi giá dao động khoảng 50 đô la; nay sở hữu hơn 1 triệu cổ phần (khoảng 4%); giá đóng cửa thứ Sáu tuần rồi là 65 đô la vì tin đồn Trump định nắm quyền điều hành.</li>
+    <li><strong>Ba lựa chọn</strong>: (1) bỏ ra gần 2 tỷ đô la để nắm quyền điều hành — riêng 3 khách sạn có sòng bài của Holiday Inn <em>"có thể trị giá gần như thế"</em>, chưa kể 300.000 phòng khách sạn khác; (2) nếu giá tăng đến mức chấp nhận được thì bán, lời khoảng 7 triệu đô la nếu bán hôm nay; (3) Holiday Inn đề nghị mua lại cổ phiếu của ông với giá cao hơn để ông không thể điều hành công ty — <em>"nếu giá của họ đủ cao thì tôi cũng sẽ bán"</em>.</li>
+    <li><em>"Tôi thích xem những nỗ lực của các nhà điều hành công ty để bảo tồn cái mà họ gọi là sự độc lập, khi nó thực sự là công việc của họ."</em></li>
+    <li>9:30 — <strong>Abe Hirschfeld</strong>, nhà phát triển địa ốc thành công nhưng <em>"muốn trở thành một chính khách"</em> và <em>"trời chính trị không phù hợp với ông"</em>. Ông tranh cử chức Phó thống đốc với Stan Lundine, ứng viên do Thống đốc Cuomo chọn; bị loại vì lý do kỹ thuật. Biết Trump quen thân với Thống đốc nên hỏi có nên chấp nhận thua hay tiếp tục làm đối thủ của Cuomo. Trump khuyên <em>"nên chấp nhận và làm việc tốt với người chiến thắng"</em>; hẹn gặp thứ Năm.</li>
+    <li>10:00 — Gọi cảm ơn <strong>Don Imus</strong>, chủ một trong những chương trình phát thanh thành công nhất nước Mỹ (đài WNBC), đang quyên góp cho <strong>quỹ Annabel Hill</strong>. Bà Hill ở Georgia sắp mất nông trại vì bị ngân hàng tịch biên; chồng bà, 67 tuổi, <em>"đã tự vẫn vài tuần trước đó với hi vọng rằng tiền bảo hiểm nhân thọ của ông có thể trả được món nợ ngân hàng"</em> — nhưng vẫn chưa đủ. <em>"Đó là những người cả đời làm lụng vất vả và lương thiện nhưng rồi phải chứng kiến tất cả tài sản của mình vượt khỏi tầm tay… điều đó dường như không đúng."</em></li>
+    <li>Trump liên lạc Frank Argenbright (người ở Georgia đang giúp bà Hill), rồi gọi <strong>Phó chủ tịch ngân hàng</strong> giữ khế ước thế chấp. Ông này nói <em>"mọi việc đã quá trễ, họ đang tiến hành đấu giá nông trại"</em>. Trump: <em>"Hãy nghe kỹ điều tôi nói. Nếu ông tịch biên tài sản của họ, cá nhân tôi sẽ kiện ông và ngân hàng của ông vì tội mưu sát, với lý do là ông đã luôn quấy rối chồng bà Hill cho đến chết."</em> Một giờ sau ông ta gọi lại: <em>"Xin ông đừng lo, chúng tôi sẽ giải quyết vụ này."</em></li>
+    <li>Chuyện lên hàng đầu các mạng thông tin; cuối tuần <strong>quyên được 40.000 đô la</strong>, riêng Imus gần 20.000 đô la từ thính giả; dự định làm lễ hủy khế ước thế chấp tại Trump Tower đêm trước Giáng sinh <em>"như một món quà Giáng sinh cho gia đình bà Hill"</em>; Trump hứa <em>"nếu chúng tôi không quyên góp đủ, tôi sẽ bao phần còn thiếu"</em>. Mời Imus đi xem giải quần vợt Mỹ mở rộng — Trump có một lô trên khán đài, <em>"trước đây hầu như mỗi ngày tôi đều đến đó"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Giữ nhiều lựa chọn cùng lúc và để thị trường (hoặc đối thủ) tự lộ ra lựa chọn tốt nhất.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Thứ Hai · Đúng thì phải kiện">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Thứ Hai · Nếu bạn đúng, bạn phải kiện</h2>
+      <p class="summary-line">Kháng cáo USFL, kiện nhà thầu kém, và thuê cả người từng thắng thua với mình.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 22 V104"/>
+        <path class="thin" d="M58 104 H102"/>
+        <path d="M36 32 H124"/>
+        <path class="thin" d="M44 32 L30 70 M44 32 L58 70"/>
+        <path class="thin" d="M116 32 L102 62 M116 32 L130 62"/>
+        <path d="M28 70 C32 82 56 82 60 70 Z"/>
+        <path d="M100 62 C104 74 128 74 132 62 Z"/>
+        <circle class="b" cx="80" cy="18" r="5"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>11:15 — <strong>Harry Usher</strong>, Chủ tịch Liên đoàn bóng bầu dục Mỹ USFL. Tháng trước bồi thẩm đoàn trong vụ kiện chống độc quyền với NFL phán quyết NFL độc quyền nhưng <em>"chúng tôi chỉ được bồi thường 1 đô la tượng trưng"</em>; <em>"tôi đã để các cầu thủ giỏi trong đội chúng tôi ký hợp đồng với NFL"</em> — <em>"phán quyết của tòa thật là không hay"</em>. Trump muốn <strong>tiếp tục kháng cáo</strong>; lo là <em>"không ai sẽ đủ sức để theo đuổi việc kháng cáo"</em>.</li>
+    <li>12:00 — <strong>Gerald (Jerry) Schoenfeld</strong>, Chủ tịch Shubert Organization (sở hữu các nhà hát Broadway), giới thiệu một phụ nữ vào làm quản trị văn phòng; Trump đồng ý gặp. Trump nói định đưa các con đi xem <em>"Cats"</em> lần thứ hai; Jerry hỏi có muốn lấy vé không: <em>"Chúng tôi có một nhân viên chuyên lo vé cho bạn bè của chúng tôi. Cứ gọi điện thoại, đừng ngại"</em> — <em>"một cử chỉ đẹp của một người rất tử tế"</em>.</li>
+    <li>1:15 — <strong>Tony Gliedman</strong> ghé văn phòng bàn dự án sân trượt băng Wollman. Tony từng là ủy viên đặc trách gia cư dưới thời thị trưởng Koch, hai bên <em>"đã phải đấu tranh dữ dội"</em> về một dự án và Trump thắng ông ta ở tòa, nhưng <em>"Tôi luôn nghĩ ông ta là một người thông minh, lanh lợi. Tôi không có thành kiến với những người đã chống lại tôi. Tôi chỉ cố gắng thuê những người tài năng nhất bất kể ở đâu khi tôi tìm thấy họ."</em></li>
+    <li><strong>Sân Wollman</strong> ở Công viên Trung tâm: thành phố không thể hoàn tất trong 7 năm; tháng 6/1986 Trump đề nghị đảm trách; nay đã <strong>đi trước tiến độ</strong>. Tony bố trí họp báo thứ Năm để đánh dấu bước đổ bê tông; Trump hỏi ai tham dự — <em>"ít nhất 12 cơ quan thông tin đã đăng ký, một con số khá nhiều"</em>.</li>
+    <li>2:00 — Cung cấp bằng chứng cho <strong>vụ kiện một nhà thầu</strong> ở Trump Plaza <em>"chúng tôi phải sa thải giữa chừng vì họ hoàn toàn không có khả năng"</em>. <em>"Tôi không thích việc kiện cáo, nhưng vấn đề là nếu bạn đúng, bạn phải kiện, nếu không người ta sẽ xâm hại đến quyền lợi của bạn."</em> <em>"Hiện nay nếu tên bạn là Trump, mọi người trên thế giới này dường như đều muốn kiện bạn."</em></li>
+    <li>3:00 — Nhờ <strong>Norma Foerderer</strong>, trợ lý điều hành <em>"người sắp xếp mọi việc cho tôi"</em>, mang một lon nước ép cà chua cho bữa trưa: <em>"Tôi hiếm khi ra ngoài ăn trưa vì nó lãng phí thời gian."</em></li>
+    <li>3:15 — Gọi <strong>Charles Goldstein</strong> (không có ở văn phòng, để lại tin nhắn): luật sư thành công nhưng <em>"không phải là một trong những người tôi thích"</em>; <em>"rất vênh váo, tự đắc và cách hành động như những người trong hoàng gia nên tôi gọi ông là Sir"</em>. Chuyện cũ: Trump từng giới thiệu ông ta cho một đối tác, <em>"sau đó tôi được biết chính Charles lại khuyên đối tác không nên làm bạn với tôi — tôi thật không thể tin nổi"</em>.</li>
+    <li>Nay <strong>Lee Iacocca</strong> thuê Charles làm đại diện để mua một bất động sản mà Lee và Trump dự tính hợp tác: hai chung cư cao tầng ở Palm Beach, Florida (gần Mar-a-Lago) — xây với giá 120 triệu đô la, một ngân hàng lớn ở New York vừa tịch biên để siết nợ, Trump đã <strong>thỏa thuận mua với giá 40 triệu đô la</strong>; William Fugazy (bạn chung) kết nối.</li>
+    <li>Trump quý Lee, <em>"ông ta đã làm những điều kỳ diệu trong việc khôi phục hãng Chrysler"</em>, nhưng <em>"tôi không chắc rằng Lee vẫn còn muốn tiếp tục nữa hay không"</em>; sẽ nói với Sir Charles khi ông ấy gọi lại.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Nếu bạn đúng, bạn phải kiện"</em> và thuê người giỏi bất kể trước đây họ từng chống lại mình.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Thứ Hai · Làm ít, ý nghĩa">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Thứ Hai · Làm ít nhưng nhiều ý nghĩa</h2>
+      <p class="summary-line">Một vòng hoa vàng thay cả rừng trang trí; NBC, Sydney và cú gọi của cậu con trai.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="80" cy="58" r="36"/>
+        <circle class="thin" cx="80" cy="58" r="22"/>
+        <path class="thin" d="M52 36 L60 44 M108 36 L100 44 M44 64 L56 62 M116 64 L104 62"/>
+        <path class="b" d="M80 94 L64 106 L66 92 Z"/>
+        <path class="b" d="M80 94 L96 106 L94 92 Z"/>
+        <circle class="s" cx="80" cy="94" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>3:30 — Gọi chị <strong>Maryanne Barry</strong>, thẩm phán tòa án liên bang ở New Jersey, chồng là John, <em>"một luật sư có tài"</em>, bàn một quyết định gần đây trong một vụ kiện mà họ sẽ kháng án. <em>"Chị có tin rằng họ đã phán quyết chống lại chúng ta không?"</em> — <em>"Chị ấy rất thông minh và hiển nhiên chị ấy hiểu biết về luật nhiều hơn tôi… chị cũng ngạc nhiên như tôi."</em> Trump gửi mọi giấy tờ vụ kiện cho John để xem xét kháng cáo.</li>
+    <li>4:00 — Xem các <strong>mẫu trang trí Giáng sinh</strong> cho đại sảnh Trump Tower: <em>"đại sảnh cao sáu tầng bằng đá hoa cương"</em> là điểm hấp dẫn du khách, <em>"hơn 100.000 người một tuần từ khắp nơi trên thế giới đến nhìn ngắm và mua sắm"</em>, <em>"biểu tượng của công ty Trump Organization"</em> — <em>"đó là lý do tại sao tôi vẫn còn quan tâm đến từng chi tiết"</em>.</li>
+    <li>Không thích phần lớn các mẫu; cuối cùng chọn <em>"một vòng hoa khổng lồ màu vàng thật lộng lẫy"</em> đặt ở lối vào: <em>"Đôi khi làm ít nhưng lại có nhiều ý nghĩa."</em></li>
+    <li>4:30 — <strong>Nick Ribis</strong>, luật sư ở New Jersey lo giấy phép hai sòng bài ở Atlantic City, báo sẽ đi Sydney, Australia lo một thương vụ: chính quyền New South Wales đang chọn công ty xây và điều hành <em>"sòng bài lớn nhất thế giới"</em>, <em>"chúng tôi đang là người dẫn đầu trong cuộc đua"</em>. Chuyến bay mất 24 giờ — <em>"những thương vụ này cũng đáng để bỏ công như vậy"</em>. Nick sẽ gọi về Trump Tower ngay khi có tin.</li>
+    <li>5:15 — Gọi <strong>Henry Kanegsberg</strong>, giám đốc điều hành NBC, người chọn địa điểm trụ sở mới. Trump theo đuổi hơn một năm để thuyết phục NBC chuyển đến <strong>khu đất West Side</strong> rộng hơn 30 hecta (nghe không rõ), nơi ông công bố sẽ xây <em>"tòa nhà cao nhất thế giới"</em>.</li>
+    <li>Tin mới: <strong>Bloomingdale's</strong> rất muốn làm cửa hàng bách hóa chính trong khu mua sắm — <em>"điều này sẽ mang lại ưu thế thật sự cho tòa nhà"</em>; thành phố <em>"có vẻ rất phấn khởi"</em>, hi vọng chấp thuận sơ bộ trong vài tháng. Trump đề nghị quảng cáo miễn phí cho việc NBC đặt văn phòng ở tòa nhà: <em>"Hãy suy nghĩ về điều đó. Nó là một biểu tượng tốt nhất."</em></li>
+    <li>5:45 — Con trai 9 tuổi <strong>Donny</strong> gọi hỏi khi nào bố về. <em>"Tôi luôn nghe điện thoại của các con khi làm bất kỳ việc gì."</em> Hai con nhỏ: Ivanka 6 tuổi và Eric 3 tuổi. <em>"Tôi yêu thương tất cả ba đứa nhưng tôi chưa bao giờ thấy thú vị khi chơi với những món đồ chơi và búp bê. Vì vậy Donny đang bắt đầu quan tâm đến địa ốc và thể thao, điều đó thật tuyệt vời."</em></li>
+    <li>Trả lời <em>"sẽ về nhà ngay khi có thể"</em> nhưng nó <em>"nhất định muốn biết rõ khi nào"</em> — <em>"nó có gen của tôi: không chấp nhận một câu trả lời phủ định"</em>.</li>
+    <li>6:30 — Sau nhiều cuộc gọi nữa, rời văn phòng, đi thang máy lên căn hộ ở Trump Tower; <em>"có thói quen gọi thêm một số cuộc điện thoại ở nhà"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Đôi khi làm ít nhưng lại có nhiều ý nghĩa."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Thứ Ba · Không phí thời gian">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Thứ Ba · Không bao giờ lãng phí thời gian</h2>
+      <p class="summary-line">Cuộc gọi 2 phút, nhà đậu xe đúng tiến độ và không để sở thích chi phối giá mua.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="80" cy="66" r="38"/>
+        <path d="M72 20 H88"/>
+        <path class="thin" d="M80 20 V28"/>
+        <path class="thin" d="M110 36 L116 30"/>
+        <path d="M80 66 V44"/>
+        <path class="s" d="M80 66 L96 74"/>
+        <path class="b" d="M80 38 A28 28 0 0 1 104 52"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>9:00 — Gọi <strong>Ivan Boesky</strong>, nhà buôn chứng khoán; vợ chồng ông sở hữu đa số <strong>khách sạn Beverly Hills</strong>. Trump vừa đọc được Boesky sẽ ra nhận tội giao dịch nội gián trước tòa trong hai tuần nữa, cần bán khách sạn để nộp phạt. Trump dự tính thuê Steve Rubell và Ian Schrager (chủ Studio 54 và Palladium) trông coi — <em>"người có tài tổ chức"</em>, sẽ làm khách sạn <em>"sáng chói trở lại"</em>. Boesky cho biết Morgan Stanley đang quản lý việc bán.</li>
+    <li><em>"Tôi thích Los Angeles, tôi có nhiều kỳ nghỉ cuối tuần ở đó trong thập niên 1970 và tôi luôn ở khách sạn Beverly Hills, nhưng tôi không để những ưa thích cá nhân ảnh hưởng đến sự đánh giá công việc… tôi chỉ quan tâm đến khách sạn này nếu tôi có thể mua nó rẻ hơn nhiều so với giá họ đòi."</em></li>
+    <li>9:30 — <strong>Alan Greenberg</strong>: đã mua thêm 100.000 cổ phiếu Holiday Inn; giá hôm nay tăng 1,5 điểm. Alan nghe cấp lãnh đạo Holiday <em>"đang hốt hoảng triệu tập một cuộc họp khẩn cấp"</em>, có thể áp dụng <em>"chiến lược viên thuốc độc"</em> để chống lại ý đồ mua công ty. <em>"Cuộc nói chuyện của chúng tôi kéo dài không quá 2 phút. Đó là điều làm tôi thích Alan, ông ta không bao giờ lãng phí thời gian."</em></li>
+    <li>10:00 — Gặp các nhà thầu xây <strong>nhà đậu xe 2.700 chỗ</strong>, trị giá 30 triệu đô la, gần Trump Plaza trên phố đi bộ Boardwalk ở Atlantic City; đúng tiến độ, sẽ đón khách vào đúng Ngày Chiến sĩ trận vong. <em>"Hiện giờ các bãi đậu xe hầu như không còn đủ chỗ nữa"</em>; nhà đậu xe nằm cuối đường chính dẫn vào và có lối đi thẳng đến sòng bài.</li>
+    <li>11:00 — Tiếp ông chủ một <strong>ngân hàng lớn ở New York</strong> muốn hợp tác. <em>"Thật là lạ, cả tuần các ngân hàng cứ đến hỏi tôi có quan tâm đến việc mượn tiền của họ hay không. Họ biết làm ăn với tôi là an toàn."</em></li>
+    <li>12:15 — Norma báo phải <strong>dời họp báo Wollman</strong> từ thứ Năm sang thứ Tư vì Henry Stern, ủy viên hội đồng thành phố phụ trách công viên, phải dự lễ khánh thành sân chơi ở Upper West Side với thị trưởng Koch vào thứ Năm. Vấn đề: <em>"chúng tôi không có cách gì dời ngày đổ bê tông được, đó là mục đích của cuộc họp báo"</em>, nhưng <em>"tôi không muốn Henry phải khó xử: tuần rồi nhân viên bảo vệ đã từ chối không cho ông ta vào Wollman Rink mà không có giấy phép của tôi. Họ làm tốt đấy nhưng hơi quá đáng. Ai có thể tưởng tượng Henry đã không hài lòng như thế nào."</em></li>
+    <li>12:45 — <strong>Jack Mitnick</strong>, kế toán, bàn tác động thuế của một thương vụ vừa rút khỏi. Trump hỏi luật thuế địa ốc mới của liên bang <em>"tệ hại đến mức nào vì nó cắt bỏ nhiều khoản giảm thuế địa ốc"</em>; Jack lại cho rằng luật mới <em>"hoàn toàn có lợi cho tôi"</em> vì phần lớn lợi tức đến từ sòng bài và căn hộ chung cư, mức thuế lợi tức cao nhất <strong>giảm từ 50% xuống 32%</strong>.</li>
+    <li><em>"Tuy nhiên tôi vẫn tin rằng luật thuế mới này không có lợi cho quốc gia: nó loại bỏ những ưu đãi trong đầu tư và xây dựng, đặc biệt ở những khu vực ít quan trọng, nơi sẽ không có tòa nhà mới nào mọc lên nữa nếu không có ưu đãi cho nhà đầu tư."</em></li>
+    <li>1:30 — Nhờ Norma gọi Thượng nghị sĩ <strong>John Danforth</strong>, đảng Cộng hòa bang Missouri, <em>"một trong số ít thượng nghị sĩ phản đối mạnh mẽ luật thuế mới"</em> — không quen, <em>"có lẽ đã quá trễ, nhưng tôi chỉ muốn chúc mừng ông ta vì đã kiên quyết bảo vệ quan điểm của mình dù cho nó có thể gây tổn hại đến sự nghiệp chính trị của ông"</em>. (2:15 chiều ông gọi lại, <em>"chúng tôi nói chuyện vui vẻ và tôi nói ông ta cứ tiếp tục giữ quan điểm của mình"</em>.)</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Không phí thời gian: cuộc gọi gọn trong 2 phút, ăn trưa tại bàn, và chỉ mua khi giá rẻ hơn nhiều — không để sở thích cá nhân chi phối đánh giá công việc.</p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Thứ Ba · Giữ chắc cái đã có">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Thứ Ba · Tiệc tùng, từ thiện và giữ chắc những gì đã có</h2>
+      <p class="summary-line">Từ chối bớt lời mời, chốt lời Holiday Inn và những người không làm mất thời gian.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <ellipse cx="60" cy="98" rx="30" ry="8"/>
+        <path d="M30 98 V86 M90 98 V86"/>
+        <ellipse cx="60" cy="86" rx="30" ry="8"/>
+        <path class="thin" d="M34 80 V70 M86 80 V70"/>
+        <ellipse class="thin" cx="60" cy="70" rx="26" ry="7"/>
+        <rect x="100" y="62" width="36" height="32" rx="4"/>
+        <path class="b" d="M108 62 V48 A10 10 0 0 1 128 48 V62"/>
+        <circle class="s" cx="118" cy="78" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>1:45 — Norma hỏi về <strong>các lời mời</strong>: một cầu thủ bóng chày (nghe: <em>"chép questel"</em>, đội nghe: <em>"nhiều giọt"</em>) mời làm chủ tọa dạ tiệc gây quỹ cho tổ chức chống lạm dụng ma túy. Tháng này Trump đã chủ tọa 2 dạ tiệc: United Cerebral Palsy (giúp người khuyết tật) và Police Athletic League.</li>
+    <li><em>"Tôi không tự lừa dối mình rằng tôi là một người vĩ đại để người ta thường mời tôi làm chủ tọa. Thật ra những người làm từ thiện biết rằng tôi có nhiều bạn bè giàu có và có thể nói họ chi tiền để đặt bàn."</em> <em>"Bạn có thể kêu gọi người ta tặng 10.000 đô la, nhưng chỉ nên làm như thế một vài lần thôi."</em> → Trả lời <em>"rất tiếc không nhận lời được"</em>.</li>
+    <li><strong>Young Presidents' Organization (YPO)</strong> — tổ chức phi lợi nhuận của các lãnh đạo trẻ dưới 40 tuổi — mời nói chuyện tại buổi ăn tối. <em>"Tôi đã bước qua tuổi 40 cách đây vài tháng, vì thế trong mắt họ tôi đoán rằng tôi được xem như là một đàn anh có kinh nghiệm."</em></li>
+    <li>Khoảng 6 lời mời dự tiệc, <strong>chỉ nhận 2</strong>: tiệc của Alice Mason, nhà môi giới địa ốc <em>"trở thành người có vai vế trong xã hội bằng việc mời những nhân vật được chú ý nhiều nhất đến dự các buổi tiệc của bà"</em>; và tiệc ra mắt của vợ chồng Barbara Walters (phóng viên đài ABC) và Merv Adelson (chủ tịch hãng Lorimar-Telepictures), cưới cách đây vài tháng.</li>
+    <li><em>"Thật mà nói, tôi không nổi bật lắm trong những buổi tiệc vì tôi không thích những cuộc nói chuyện qua loa… tôi luôn cố gắng ra về sớm. Thường thì tôi nhận lời nhiều tháng trước đó, cứ nghĩ rằng ngày ấy sẽ không bao giờ tới; nhưng khi nó đến tôi lại giận với chính mình vì đã nhận lời và lúc đó thì đã quá trễ để từ chối."</em></li>
+    <li>2:00 — Nảy ra ý và gọi Alan Greenberg: nếu mua phần lớn cổ phần để kiểm soát Holiday Inn thì phải có <strong>giấy phép điều hành sòng bài ở Nevada</strong> (họ có 2 sòng bài ở đó). Alan đề xuất: bán hết cổ phiếu Holiday ngay bây giờ, thu lời, rồi nghĩ lại việc kiểm soát sau khi được cấp phép — <em>"hãy giữ chắc những gì chúng tôi đã có bây giờ"</em>. Trump đồng ý: <em>"Tôi thích có càng nhiều chọn lựa càng tốt."</em></li>
+    <li>2:30 — Gọi lại một ông chủ khách sạn (tên nghe không rõ) sở hữu <em>"khu đất chưa phát triển có thể nói là tốt nhất ở Las Vegas"</em>; sẽ xem xét mua <em>"nếu được giá tốt"</em>. <em>"Tôi thích kinh doanh sòng bài vì chúng có quy mô lớn, sang trọng và trên hết là chúng mang lại nhiều tiền. Nếu biết công việc mình đang làm và điều hành nó tốt, bạn có thể kiếm được nhiều lợi nhuận. Nếu điều hành thật tốt, bạn sẽ kiếm được thật nhiều tiền."</em></li>
+    <li>2:45 — Em trai <strong>Robert</strong> và <strong>Harvey Freeman</strong> (cả hai là phó chủ tịch điều hành) báo cáo buổi làm việc với Con Edison và lãnh đạo NBC về khu West Side: Con Ed có nhà máy lớn phía Nam khu đất, họp để xem khói ống khói có tan hoàn toàn không nếu xây tòa nhà lớn kế bên.</li>
+    <li>Robert nhỏ hơn 2 tuổi, <em>"nhẹ nhàng và dễ tính"</em>, <em>"rất có năng khiếu và làm việc có hiệu quả"</em>; <em>"thật là khó khi có một người anh như tôi nhưng Robert chưa bao giờ nói gì về điều này"</em>; <em>"người duy nhất mà tôi gọi là cưng (honey)"</em>; <em>"anh ta có quan hệ thân thiện với hầu hết mọi người, điều này rất tốt đối với tôi vì đôi khi tôi phải cư xử như là một người khó chịu"</em>. Harvey <em>"đơn giản và thẳng thắn, chỉ chú ý đến những việc quan trọng và cần thiết"</em>.</li>
+    <li>Kết luận Con Ed: <strong>chiều cao tòa nhà NBC chẳng ảnh hưởng gì đến khói</strong>; nhưng trước khi được cấp phép phải lập báo cáo tác động môi trường.</li>
+    <li>3:00 — Gọi <strong>Herb Sturz</strong>, Chủ tịch Ủy ban quy hoạch thành phố (cơ quan đầu tiên có thẩm quyền chấp thuận hay bác bỏ dự án West Side); nhân viên của ông sẽ xem sơ bộ vào thứ Sáu; để lại tin nhắn sẽ gặp sáng thứ Sáu.</li>
+    <li>3:20 — <strong>Jerry Schrager</strong>, luật sư giỏi của Dreyer &amp; Traub (hãng luật địa ốc hàng đầu Mỹ), lo hầu như mọi thương vụ lớn từ khi Trump mua khách sạn Commodore năm 1974; <em>"ông ta là một cỗ máy kinh doanh hơn là một luật sư và có thể thấu hiểu rất nhanh thực chất của một vụ giao dịch"</em>. Bàn Holiday Inn và các thương vụ khác: <em>"giống như Alan Greenberg, Schrager không thích lãng phí thời gian — chúng tôi bàn thảo 6 vấn đề trong vòng chưa đến 10 phút"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Tôi thích có càng nhiều chọn lựa càng tốt"</em> — chốt lời để giữ vốn, không đóng cửa lựa chọn nào.</p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Thứ Ba · Người giỏi việc">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Thứ Ba · Ivana, những người giỏi việc và lá thư cho nhà phê bình</h2>
+      <p class="summary-line">Tin người đã làm tốt cho mình, và dám đáp trả nhà phê bình bằng một lá thư.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="24" y="40" width="84" height="58" rx="3"/>
+        <path d="M24 42 L66 74 L108 42"/>
+        <path class="thin" d="M24 98 L54 70 M108 98 L78 70"/>
+        <path class="b" d="M136 20 L104 84"/>
+        <path d="M136 20 L142 24 L110 88 L104 84"/>
+        <path class="s" d="M104 84 L100 96 L110 88"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>3:30 — Vợ <strong>Ivana</strong> ghé chào trước khi bay trực thăng đến Atlantic City; Trump đùa <em>"cô làm việc còn chăm chỉ hơn tôi"</em>. Khi mua sòng bài thứ hai từ tập đoàn Hilton và đổi tên là <strong>Trump's Castle</strong>, ông để Ivana tham gia điều hành: <em>"thật đáng kinh ngạc là cô ấy làm rất tốt, một nhà quản lý bẩm sinh"</em>.</li>
+    <li>Ivana lớn lên ở Tiệp Khắc, bố là kỹ sư điện và <em>"chơi thể thao rất giỏi"</em>, tập cho cô trượt tuyết từ năm 6 tuổi; năm 1972 được chọn vào đội tuyển quốc gia dự Thế vận hội mùa đông Sapporo, Nhật; sau khi tốt nghiệp Đại học Charles ở Praha, chuyển đến Montreal thành người mẫu nổi tiếng; gặp Trump tại Thế vận hội mùa hè Montreal tháng 8/1976 — <em>"tôi cũng đã quen biết nhiều cô gái nhưng chưa bao giờ quan tâm nhiều đến họ, nhưng với Ivana thì khác"</em>; kết hôn tháng 4/1977.</li>
+    <li>Ngay sau đó ông giao cô trang trí nội thất các dự án. <em>"Ivana có lẽ là người có đầu óc tổ chức nhất mà tôi đã từng gặp"</em>: nuôi ba đứa con, trông coi 3 căn nhà (căn hộ Trump Tower, Mar-a-Lago và một căn ở Greenwich, Connecticut), quản lý Trump's Castle với <strong>gần 4.000 nhân viên</strong>.</li>
+    <li>Trump muốn Ivana nỗ lực hơn vì Trump's Castle <em>"chưa phải là số 1"</em>: <em>"cô ấy đã có một cơ sở lớn nhất thành phố như thế, phải làm sao cho nó sinh lợi nhiều nhất"</em>. Ivana <em>"cũng có tinh thần cạnh tranh giống như tôi"</em>, nhất mực muốn <strong>xây thêm nhiều phòng suite</strong>, không quan tâm đến khoản 30 triệu đô la đầu tư — <em>"không xây thêm phòng thì khách sạn khó có thể trở thành số 1"</em>. <em>"Tôi không cá cược chống lại cô ấy."</em></li>
+    <li>3:45 — Phó chủ tịch tiếp thị bộ phận <strong>Cadillac của General Motors</strong> gọi theo đề nghị của John Grettenberger (chủ tịch bộ phận, quen ở Palm Beach): muốn hợp tác sản xuất một chiếc limousine loại mới tên <em>"Trump Golden Series"</em>. Trump thích ý tưởng; hẹn gặp hai tuần nữa.</li>
+    <li>4:00 — <strong>Daniel Lee</strong>, chuyên viên phân tích sòng bài của ngân hàng đầu tư Drexel Burnham, cùng đồng nghiệp đề nghị làm ngân hàng đầu tư cho một thương vụ mua lại công ty khách sạn. Michael Milken (người <em>"phát minh"</em> ra cách đầu tư bằng trái phiếu lãi suất cao) đã gọi Trump <em>"chẳng biết bao nhiêu lần"</em> để thuyết phục hợp tác với Drexel.</li>
+    <li><em>"Tôi không nghĩ là Drexel sẽ vướng vào vụ tai tiếng về giao dịch nội gián đang làm thị trường chứng khoán New York xôn xao… tôi cũng nghĩ Milken là một người rất thông minh. Tuy nhiên Alan Greenberg là người rất tốt và tôi luôn chọn những người đã từng làm việc tốt cho tôi."</em> Lắng nghe hết nhưng <em>"nó không hấp dẫn tôi nhiều"</em>; sẽ gọi lại.</li>
+    <li>5:00 — <strong>Larry Csonka</strong> (cựu cầu thủ bóng bầu dục của Miami Dolphins; nghe không rõ) có sáng kiến cứu USFL bằng cách kết hợp với Liên đoàn bóng bầu dục Canada (CFL): <em>"người thông minh, tử tế và rất nhiệt tình nhưng ông ta không thuyết phục được tôi. Nếu như USFL không thể thành công với những cầu thủ nổi tiếng như Herschel Walker và Jim Kelly thì làm sao CFL với những cầu thủ ít tên tuổi lại có thể giúp được nó. Nó phải thắng kiện để phá thế độc quyền của NFL."</em></li>
+    <li>5:30 — Gọi chúc mừng nhà thiết kế <strong>Calvin Klein</strong>: khi Trump Tower khánh thành, ông thuê một tầng văn phòng để giới thiệu dòng nước hoa mới <em>"Obsession"</em>; chỉ trong một năm mở rộng lên tầng hai, <em>"bây giờ ông thuê luôn cả tầng ba"</em>. <em>"Không những là một nhà thiết kế tài ba, ông còn là một doanh nhân rất giỏi, và sự kết hợp những đức tính đó đã mang lại cho ông nhiều thành công."</em></li>
+    <li>6:00 — Viết thư cho <strong>Paul Goldberger</strong>, nhà phê bình kiến trúc tờ New York Times. Tuần trước trên số Chủ nhật ông có bài khen thiết kế Battery Park City (khu phát triển mới ở phía dưới Manhattan) là <em>"một sự đối nghịch tuyệt vời"</em> so với dự án Television City ở West Side — <em>"nói cách khác, ông ta đã giết chúng tôi"</em>. Điểm bất lợi: dự án đang trong giai đoạn thiết kế, <em>"không một ai, kể cả Goldberger, thấy kế hoạch mới của chúng tôi; ông ta đã đánh vào một thiết kế mà ông chưa từng nhìn thấy"</em>.</li>
+    <li>Trong thư: bài báo <em>"rõ ràng là một sự chuẩn bị cho bài viết phê phán mà ông muốn nhắm vào Television City"</em>, <em>"nếu chỉ trích đủ mạnh — và tôi chắc rằng ông sẽ làm như thế — thì ông có thể giúp thuyết phục NBC chuyển đến New York"</em> (nghe vậy; có thể là New Jersey). <em>"Những người của tôi bảo rằng tôi không nên viết những lá thư như thế cho những nhà phê bình. Nhưng tôi thấy rằng họ muốn nói gì về công việc của tôi thì nói, thế thì tại sao tôi không thể nói cái gì tôi muốn về công việc của họ."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Tôi luôn chọn những người đã từng làm việc tốt cho tôi."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Thứ Tư · Xúc bê tông">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Thứ Tư · Hai người đàn ông mặc veston xúc bê tông</h2>
+      <p class="summary-line">Họp báo Wollman vượt tiến độ, và không bao giờ đóng cửa trước người trả giá cao.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M24 64 H92 L82 88 H34 Z"/>
+        <circle cx="46" cy="98" r="10"/>
+        <path d="M92 64 L118 52"/>
+        <path class="thin" d="M16 108 H80"/>
+        <path d="M126 18 V78"/>
+        <path class="thin" d="M118 18 H134"/>
+        <path class="b" d="M116 78 H136 L132 100 C128 106 124 106 120 100 Z"/>
+        <path class="s" d="M44 64 C50 54 64 54 70 64"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>9:00 — Ivana và Trump đi xem một <strong>trường mẫu giáo cho con gái</strong>. <em>"Nếu cách đây 5 năm bạn nói rằng tôi sẽ phải bỏ vài buổi sáng để tham quan các lớp học mẫu giáo thì tôi đã cười cho là chuyện đùa."</em></li>
+    <li>11:00 — <strong>Họp báo tại sân trượt băng Wollman</strong>: <em>"thật ngạc nhiên, đã có ít nhất 20 phóng viên và nhiếp ảnh gia ở đó"</em>. Henry Stern phát biểu trước, <em>"rất cả nể tôi"</em>: nếu thành phố tự làm thì đến giờ <em>"chúng tôi sẽ còn phải chờ sự chấp thuận từ ban thẩm định, so với những gì mà Trump đã làm xong rồi"</em>.</li>
+    <li>Trump: đã lắp đặt và kiểm tra hơn 35 km đường ống <em>"không có một lỗ rò rỉ"</em>; dự án <strong>hoàn thành trước kế hoạch một tháng</strong>, tiết kiệm ngân sách khoảng 400.000 đô la; lễ khánh thành sân trượt ngày 13 tháng 11 với <em>"buổi biểu diễn của hầu hết các nhà trượt băng danh tiếng trên thế giới"</em>.</li>
+    <li>Sau phần hỏi đáp, Henry và Trump bước xuống sân; 12 công nhân đẩy một xe rùa đầy bê tông, hai người <strong>xúc vài xẻng</strong> đổ trên đường ống cho nhiếp ảnh gia chụp. <em>"Phải nói rằng mỗi lần làm như thế tôi đều thấy một chút ngớ ngẩn — hãy xem hai người đàn ông mặc bộ veston đang xúc bê tông — nhưng… nếu họ muốn chụp ảnh, tôi sẽ giúp."</em></li>
+    <li>12:45 — Về văn phòng gọi lại những người đã gọi đến; muốn gọi càng nhiều càng tốt vì phải đi sớm dự tiệc tối chiêu đãi một thành viên Ủy ban kiểm soát sòng bài New Jersey sắp nghỉ hưu. Người đầu tiên: chủ tịch một tập đoàn giải trí (tên nghe không rõ) mà Davis (nghe: <em>"in my Davis"</em>), chủ tịch hội đồng quản trị, là bạn Trump — gọi để trả lời lá thư Trump gửi hai tuần trước.</li>
+    <li>Trong thư: vừa mua một khu đất tốt, dự định xây tòa nhà có <strong>18 rạp chiếu phim</strong>, <em>"Như anh đã biết, tôi không thích hợp tác với ai khác ngoài anh"</em> — <em>"và đúng như vậy vì ông ta là một người thật sự có tài, nhưng tôi biết cũng có nhiều công ty khác rất muốn có được những rạp chiếu phim đó. Nói cách khác, nếu không thể làm ăn với ông ta, tôi cũng có nhiều chọn lựa khác."</em> Hẹn gặp tuần tới.</li>
+    <li>1:30 — Gọi <strong>Arthur Sonnenblick</strong>, một trong những nhà môi giới hàng đầu thành phố: cách đây 3 tuần ông báo có vài khách nước ngoài (không cho biết tên, <em>"rất nghiêm túc"</em>) muốn mua khu West Side, <em>"sẵn sàng trả nhiều hơn rất nhiều số tiền 100 triệu đô la mà tôi đã bỏ ra để mua khu này hồi năm ngoái"</em>. Trump <em>"không quá thích thú"</em> nhưng nói <em>"tôi có thể quan tâm nếu họ trả cao hơn"</em>.</li>
+    <li><em>"Tôi thực sự không muốn bán khu đất này dù bất kỳ giá nào — với tôi, mảnh đất ngay cạnh sông Hudson là khu đất chưa phát triển tốt nhất trên thế giới. Mặt khác tôi cũng không muốn nói rằng điều gì đó không có khả năng xảy ra."</em> Arthur nói khách vẫn rất quan tâm, có thể lên giá chút đỉnh; Trump: <em>"Cứ để họ trả cao hơn nữa."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Không bao giờ nói <em>"không thể xảy ra"</em> — cứ để người mua tự nâng giá.</p>
+  </div>
+</section>
+
+    <!-- SECTION 9 -->
+    <section class="entry" id="s9" data-toc="Thứ Tư · Mar-a-Lago">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 09</span>
+      <h2>Thứ Tư · Mar-a-Lago · Quyết định nhanh, dứt khoát, đúng thời điểm</h2>
+      <p class="summary-line">Từ 25 triệu rao bán xuống 5 triệu cộng 3 triệu nội thất: giá hời nhờ đúng lúc.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M16 104 H144"/>
+        <rect x="58" y="60" width="72" height="44"/>
+        <path d="M52 62 L94 34 L136 62"/>
+        <path d="M86 104 V82 H102 V104"/>
+        <rect class="b" x="98" y="20" width="10" height="24"/>
+        <path d="M36 104 C34 84 38 64 34 42"/>
+        <path d="M34 42 C24 34 18 38 16 46 M34 42 C44 32 52 36 54 44 M34 42 C30 30 36 22 44 22"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>2:00 — <strong>Nhà thầu xây hồ bơi ở Mar-a-Lago</strong> gọi. <em>"Dù bận nhưng lúc nào tôi cũng nghe điện thoại"</em>: hồ bơi phải phù hợp thiết kế nguyên thủy của tòa nhà và ông muốn <em>"chắc rằng mọi chi tiết đều đúng"</em>. <em>"Mua Mar-a-Lago là một thương vụ lớn mặc dù tôi mua nó để ở chứ không kinh doanh."</em></li>
+    <li><strong>Lịch sử Mar-a-Lago</strong>: Marjorie Merriweather Post xây đầu thập niên 1920; rộng trên 10.000 mét (vuông), hai mặt tiền hướng ra hồ Worth và Đại Tây Dương; 118 phòng, xây trong 4 năm; tường ngoài bằng đá Dorian nhập từ Ý; sàn lót 36.000 viên đá lát Tây Ban Nha có niên đại thế kỷ 15. Khi bà Post qua đời, bà cho chính quyền liên bang tòa nhà để làm nơi nghỉ dưỡng của tổng thống; sau đó chính phủ trả lại cho Post Foundation, tổ chức này <strong>rao bán 25 triệu đô la</strong>.</li>
+    <li><strong>Cuộc mua</strong>: lần đầu thấy Mar-a-Lago năm 1982 khi nghỉ ở Palm Beach, <em>"ngay lập tức tôi trả giá 15 triệu đô la nhưng bị từ chối"</em>. Vài năm sau đó tổ chức này ký nhiều hợp đồng với người mua khác giá cao hơn nhưng đều không thành; <em>"mỗi một lần như thế tôi lại đưa ra một mức giá, nhưng luôn thấp hơn mức giá trước đó"</em>.</li>
+    <li>Cuối năm 1985 đề nghị <strong>5 triệu đô la cộng 3 triệu đô la</strong> cho vật dụng nội thất; <em>"mệt mỏi với những cuộc thương thảo bất thành"</em>, Post Foundation chấp nhận. Ngày công bố, tờ Palm Beach Daily News chạy bài dài trang nhất: <em>"Mar-a-Lago Bargain Price Shocks Community"</em> (giá hời Mar-a-Lago gây rúng động cả cộng đồng). Chẳng bao lâu sau, nhiều bất động sản nhỏ hơn nhiều được bán trên 18 triệu đô la; <em>"chỉ riêng vật dụng trong nhà ở Mar-a-Lago cũng đáng giá hơn khoản tiền tôi đã bỏ ra"</em>.</li>
+    <li><em>"Điều đó cho thấy bạn phải ra quyết định một cách nhanh chóng, dứt khoát, vào đúng thời điểm."</em> <strong>Mặt trái</strong>: <em>"việc bảo dưỡng tòa nhà không rẻ tiền chút nào — với chi phí hàng năm cho nó bạn có thể mua một ngôi nhà đẹp hầu như ở mọi nơi"</em>.</li>
+    <li>Đó là lý do phải nhận cú điện thoại về <em>"sự phù hợp của những viên đá Dorian dùng cho khoảng sân xung quanh hồ"</em>: nói chuyện chỉ 2 phút <em>"nhưng có thể nó sẽ tiết kiệm được 2 ngày làm việc và chắc chắn rằng những viên đá lát sẽ không bị gỡ bỏ và làm lại"</em>.</li>
+    <li>2:30 — Một doanh nhân nổi tiếng với nhiều vụ làm ăn với Liên Xô báo tin về <strong>dự án xây dựng ở Moscow</strong>. Ý tưởng xuất phát từ bữa tiệc trưa do Leonard Lauder (con trai nhà mỹ phẩm Estée Lauder) tổ chức: Trump ngồi cạnh đại sứ Liên Xô Yuri Dubinin, con gái ông <em>"biết rõ về tòa nhà Trump Tower"</em>; câu chuyện đi đến việc Trump hợp tác với chính phủ Xô viết xây <em>"một khách sạn lớn, đắt tiền đối diện với điện Kremlin"</em>; dự định đến Moscow vào tháng 7 tới.</li>
+    <li>3:00 — Robert ghé bàn về <strong>Wollman và West Side</strong>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Bạn phải ra quyết định một cách nhanh chóng, dứt khoát, vào đúng thời điểm."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 10 -->
+    <section class="entry" id="s10" data-toc="Thứ Tư · Lắng nghe trực giác">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 10</span>
+      <h2>Thứ Tư · Lắng nghe trực giác · Đầu tư tốt nhất đôi khi là không đầu tư</h2>
+      <p class="summary-line">Rút khỏi vụ dầu 50 triệu vì một cảm giác không ổn — và giữ được cả tiền lẫn bạn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M34 108 L58 20 L82 108"/>
+        <path class="thin" d="M42 80 H74 M48 56 H68"/>
+        <path d="M46 70 L70 90 M70 70 L46 90"/>
+        <path class="thin" d="M20 108 H96"/>
+        <path d="M102 34 L118 58 L130 50 L142 92"/>
+        <path class="s" d="M132 88 L142 92 L146 82"/>
+        <circle class="b" cx="58" cy="16" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>3:30 — <strong>Một người bạn ở Texas</strong> gọi kể một thương vụ đang thực hiện: <em>"rất quyến rũ, đẹp trai, quần áo hợp thời trang, giọng nói chậm rãi kéo dài của người Texas"</em>; <em>"anh ta gọi tôi là Donny, cái tên tôi rất ghét… nhưng không hiểu sao tôi vẫn thích anh ta"</em>.</li>
+    <li>Chuyện cũ cách đây 2 năm: anh ta gom tiền từ người giàu để mua lại một <strong>công ty dầu nhỏ</strong>. <em>"Donny, tôi muốn anh đầu tư 50 triệu đô la. Đây là một vụ không sợ lỗ, anh sẽ kiếm được gấp đôi gấp ba số tiền đó trong vài tháng."</em> Mọi chi tiết <em>"nghe có vẻ rất tốt"</em>, Trump đã chuẩn bị xúc tiến. <em>"Nhưng rồi một buổi sáng thức dậy tôi cảm thấy vụ này không ổn lắm."</em></li>
+    <li>Gọi lại: <em>"Có cái gì đó trong vụ này khiến tôi lo lắng. Có lẽ đó là vì dầu ở dưới mặt đất, tôi không thấy nó, hoặc không có gì mới lạ với nó. Dù gì đi nữa tôi cũng không muốn tham gia nữa."</em> Bạn đáp: <em>"Được rồi Donny, điều đó do anh quyết định, nhưng anh sẽ mất một cơ hội lớn."</em> <strong>Kết cục</strong>: giá dầu rớt mạnh, vài tháng sau công ty phá sản, các nhà đầu tư của bạn ông <em>"mất trắng"</em>.</li>
+    <li><strong>Ba bài học</strong> từ vụ đó: <em>"Một là lắng nghe sự nhạy cảm của bạn cho dù mọi thứ đều rõ ràng. Hai là bạn sẽ hài lòng hơn nếu hành động kiên định với những gì mình biết. Và thứ ba là sự đầu tư tốt nhất của bạn đôi khi lại là không đầu tư vào cái gì cả."</em></li>
+    <li>Nhờ dứt ra sớm, <em>"tôi giữ được 50 triệu đô la và tình bạn giữa hai chúng tôi"</em>. Lần này <strong>không bác bỏ thẳng thừng</strong>, bảo anh ta gửi giấy tờ — <em>"thực ra thì tôi cũng không hẳn không thích dính vào chuyện đó"</em>.</li>
+    <li>4:00 — Gọi lại <strong>Judith Krantz</strong>, nữ văn sĩ có ba tiểu thuyết lãng mạn liên tiếp bán chạy nhất thị trường Mỹ. Trump Tower là bối cảnh cuốn mới nhất <em>"I'll Take Manhattan"</em> và Trump là một nhân vật trong đó; theo yêu cầu của bà, ông đóng vai chính mình trong một cảnh của bộ phim truyền hình nhiều tập quay ngay tại Trump Tower, với nữ diễn viên Valerie Bertinelli — cảnh quay diễn ra tốt. <em>"Nó là một cách tốt để quảng cáo Trump Tower trên kênh truyền hình quốc gia trong một bộ phim được chiếu vào giờ vàng."</em></li>
+    <li>4:30 — Cuộc gọi cuối: một đối tác ở Bear Stearns (tên nghe không rõ) đang quản lý 550 triệu đô la từ đợt phát hành trái phiếu thành công cho hai sòng bài ở Atlantic City năm 1985. Bàn lập <strong>quỹ Trump (Trump Fund)</strong> để mua bất động sản đang gặp khó khăn và bị tịch biên, <em>"đặc biệt ở miền Tây Nam"</em>, với giá hời; ông ta đang lập bản cáo bạch, tin <em>"có khả năng huy động được khoảng 500 triệu đô la một cách dễ dàng trong một lần phát hành"</em>.</li>
+    <li>Điểm thích: <em>"tôi sẽ giữ được một lượng lớn vốn về chứng khoán trong bất kỳ cuộc mua bán nào… nhưng sẽ không phải một mình chịu mọi rủi ro nếu có thương vụ nào xấu đi"</em>. Điểm không thích: <em>"phải cạnh tranh với chính mình — điều gì sẽ xảy ra nếu tôi thấy một bất động sản đang gặp khó khăn và muốn mua nó bằng tiền của chính mình, nhưng quỹ này cũng để mắt đến nó?"</em> Sẽ <strong>nghiên cứu bản cáo bạch</strong>.</li>
+    <li>5:00 — Đến bãi đậu trực thăng ở đường số 60, bay đi dự tiệc lúc 5:30.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Sự đầu tư tốt nhất của bạn đôi khi lại là không đầu tư vào cái gì cả."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 11 -->
+    <section class="entry" id="s11" data-toc="Thứ Năm · Người giỏi nhất">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 11</span>
+      <h2>Thứ Năm · Muốn người giỏi nhất trong những người giỏi nhất</h2>
+      <p class="summary-line">Kéo Steve Hyde về Trump Plaza, lợi nhuận gần gấp ba; báo chí là công cụ làm ăn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M58 14 L70 50 M102 14 L90 50"/>
+        <path class="thin" d="M70 14 L80 44 L90 14"/>
+        <circle cx="80" cy="76" r="30"/>
+        <circle class="thin" cx="80" cy="76" r="22"/>
+        <path class="b" d="M80 60 L85 71 L96 72 L88 80 L90 91 L80 85 L70 91 L72 80 L64 72 L75 71 Z"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>9:00 — Ngồi với <strong>Abe Hirschfeld</strong>, <em>"cảm thấy tổn thương"</em> khi Thống đốc Cuomo tác động loại ông khỏi cuộc tranh cử Phó thống đốc. Trump: <em>"tôi cảm thông với ông ta, nhưng Thống đốc là một người tốt, và dù ở tình huống nào, chuyển sang Đảng Cộng hòa bây giờ cũng là một điều khôi hài"</em>; Cuomo sẽ tái đắc cử với số phiếu áp đảo, <em>"sát cánh với người chiến thắng sẽ tốt hơn là đi với kẻ thua"</em>.</li>
+    <li>Abe <em>"khá cứng đầu"</em> nhưng cuối cùng hỏi: <em>"Tại sao anh không nói Thống đốc gọi cho tôi?"</em> — <em>"Tôi nói là tôi đã làm hết sức mình."</em> <em>"Abe luôn được xem là người khó tính nhưng tôi thích ông và gia đình ông."</em></li>
+    <li>10:15 — <strong>Alan Greenberg</strong>: thị trường giảm 25 điểm sau một giờ mở cửa, hầu hết cổ phiếu xuống <em>"ngoại trừ Holiday Inn"</em>. <em>"Tôi không biết nên vui hay buồn: một đằng tôi muốn Holiday rớt giá để có thể mua thêm với giá mềm hơn; mặt khác tôi lại muốn giá của nó lên vì như vậy tôi kiếm được nhiều tiền một cách dễ dàng."</em></li>
+    <li>10:30 — <strong>Harvey Myerson</strong>, luật sư vụ kiện chống độc quyền của USFL: <em>"một luật sư rất giỏi, ông ta nhận vụ kiện mà không ai nghĩ rằng chúng tôi sẽ thắng, nhưng rồi ông ta đã thành công — cho dù chúng tôi chỉ đạt được một thắng lợi chiếu lệ"</em>. Trump tự hỏi có phải Harvey <em>"hơi gay gắt với một vài người trong bồi thẩm đoàn"</em>, nhưng <em>"vẫn tin rằng ông ta sẽ giúp chúng tôi thắng trong phiên tòa kháng cáo"</em>.</li>
+    <li>11:30 — <strong>Steve Hyde</strong> gọi. Sau khi mua lại cổ phần của Holiday Inn trong khách sạn-sòng bài Trump Plaza ở Atlantic City và nắm quyền kiểm soát vào tháng 6, Trump muốn Steve — khi đó là phó chủ tịch ở Golden Nugget của Steve Wynn, <em>"một trong những người giỏi nhất trong giới kinh doanh sòng bài"</em> — về điều hành: <em>"suy nghĩ của tôi là muốn người tốt nhất trong những người tốt nhất"</em>. Sau thương lượng dài, Hyde đồng ý về với <em>"một công việc tốt hơn và tiền lương cao hơn"</em>.</li>
+    <li>Wynn <em>"rất giỏi nhưng cũng là một người kỳ lạ"</em>: tuần trước gọi báo <em>"Tôi chỉ muốn báo cho anh là vợ chồng tôi sẽ ly dị… Đừng lo, chúng tôi vẫn còn yêu nhau, chỉ có điều là chúng tôi không muốn lấy nhau nữa. Cô ấy đang ở ngay bên cạnh tôi, anh có muốn nói chuyện với cô ấy không?"</em> — <em>"Tôi lịch sự từ chối."</em></li>
+    <li><strong>Kết quả Plaza tháng 8</strong>: tổng lợi nhuận trên 9.038.000 đô la so với 3.438.000 đô la cùng kỳ năm ngoái khi Holiday Inn còn điều hành. Trump: <em>"Không tệ lắm, nhưng hãy tính đến chuyện chúng ta vẫn còn chưa có bãi đậu xe. Bây giờ tất cả những gì anh phải làm là giữ cho khách sạn còn như mới. Tôi rất thích sự sạch sẽ và đã không hài lòng khi đến thăm khách sạn lần vừa rồi."</em></li>
+    <li>12:00 — Đi bộ đến Wollman Rink <strong>xem đổ bê tông</strong>; <em>"tất cả các tờ báo sáng nay đều có bài về cuộc họp báo"</em>. Đoàn xe trộn bê tông <em>"như thể đang có một cuộc hành quân"</em>; công ty xây dựng (nghe: <em>"Atlas"</em>) sắp xếp rất tốt; <em>"hàng tấn bê tông tươi đổ xuống sân trượt khổng lồ này trông giống như một chiếc bánh lớn nhất thế giới đang đông lại thành đá"</em>. Dù hôm qua đã họp báo, hôm nay vẫn có nhiều nhiếp ảnh gia và đoàn quay phim — <em>"một sự kiện mà mọi người đều muốn chứng kiến"</em>.</li>
+    <li>1:30 — <strong>Tạp chí Fortune</strong> cử phóng viên phỏng vấn cho bài về địa ốc và luật thuế mới. <em>"Không như nhiều người khác, tôi không thích được báo chí chú ý. Tôi đã bị hỏi hàng triệu lần với cùng một câu hỏi và đặc biệt không thích nói về đời sống cá nhân của mình. Tuy nhiên tôi biết rằng báo chí rất hữu ích trong việc thực hiện các thương vụ."</em></li>
+    <li>Phỏng vấn <strong>không đầy 20 phút</strong>; <em>"hàng tuần Norma phải hủy bỏ 20 yêu cầu tiếp xúc từ khắp nơi trên thế giới… nếu không hạn chế, có lẽ tôi phải bỏ rất nhiều thời gian tiếp chuyện với báo giới"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Muốn người tốt nhất trong những người tốt nhất"</em> — và trả giá để có họ.</p>
+  </div>
+</section>
+
+    <!-- SECTION 12 -->
+    <section class="entry" id="s12" data-toc="Thứ Năm · Mua tên tuổi">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 12</span>
+      <h2>Thứ Năm · 25.000 đô la trước bữa ăn trưa</h2>
+      <p class="summary-line">Bức tranh 2 phút, bản quy hoạch West Side và bữa tối với Đức Hồng y.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M24 48 L56 30 L74 62 L42 80 Z"/>
+        <ellipse cx="65" cy="46" rx="18" ry="6" transform="rotate(-30 65 46)"/>
+        <path class="thin" d="M16 104 H144"/>
+        <path class="b" d="M72 58 C90 70 96 92 120 96 C132 98 140 90 136 82"/>
+        <circle class="s" cx="104" cy="74" r="4"/>
+        <circle class="thin" cx="126" cy="70" r="3"/>
+        <path class="thin" d="M86 100 C96 94 108 106 118 100"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>2:45 — Một <strong>người bạn họa sĩ</strong> <em>"rất nổi tiếng và thành công"</em> mời dự khai mạc triển lãm. <em>"Tôi rất thích ông ta vì, không giống như những họa sĩ tôi đã gặp, ông ta rất khiêm tốn."</em> Vài tháng trước tại phòng tranh, ông bất ngờ hỏi: <em>"Anh có muốn thấy tôi kiếm được 25.000 đô la trước bữa ăn trưa không?"</em> — <em>"Muốn chứ."</em></li>
+    <li>Ông lấy một xô sơn lớn, bắn ít sơn lên tấm vải trải trên sàn, rồi lần lượt ba xô màu khác; <em>"tất cả diễn ra trong khoảng 2 phút"</em>. Ông quay sang: <em>"Xong rồi. Tôi vừa kiếm được 25.000 đô la. Bây giờ chúng ta đi ăn trưa."</em></li>
+    <li><strong>Quan điểm của họa sĩ</strong>: <em>"nhiều nhà sưu tập không biết sự khác biệt giữa bức tranh ông vẽ nguệch ngoạc trong 2 phút đó với những tác phẩm mà ông thực sự chăm chút; họ chỉ quan tâm đến việc mua tên tuổi của ông mà thôi"</em>.</li>
+    <li>Trump: <em>"Tôi luôn cảm thấy rằng phần lớn nghệ thuật đương đại là một trò lừa bịp, và hầu hết những họa sĩ thành công nhất thường là những người bán hàng giỏi nhất."</em> <em>"Đôi khi tôi tự hỏi điều gì sẽ xảy ra nếu những nhà sưu tập biết về nguồn gốc bức tranh kể trên… thế giới nghệ thuật lạ đến nỗi sự phát hiện đó có thể làm cho những họa phẩm của bạn tôi có giá trị hơn."</em></li>
+    <li>4:00 — Họp tại phòng hội nghị <strong>xem lại lần chót bản kế hoạch dự án West Side</strong> (Television City) trước khi trình chính quyền thành phố sáng mai. Herb Sturz bận nhưng nhân viên chủ chốt của ông sẽ có mặt. Khoảng 15 người dự, kể cả Robert, Harvey Freeman, Alexander Cooper và đội của ông.</li>
+    <li><strong>Alexander Cooper</strong> là nhà hoạch định kiến trúc đô thị, được thuê 2 tháng trước để trông coi thiết kế sau khi kiến trúc sư Helmut Jahn từ chối làm việc với thành phố — <em>"tôi không rõ nguyên do: vì tính cách người Đức của Jahn, vì ông ta ở Chicago chứ không phải ở New York, hay chỉ vì ông ta muốn né tránh; nhưng tôi biết rõ rằng Jahn sẽ không làm việc với Ủy ban quy hoạch"</em>. Ngược lại Cooper <em>"rất nổi tiếng trong Ủy ban"</em>, là người thiết kế Battery Park City được báo chí khen nhiều; <em>"về mặt quản lý, ông ta là một lựa chọn tốt hơn — và tôi là một người rất thực tế"</em>.</li>
+    <li>Họp mỗi tuần trong 2 tháng qua, <em>"mổ xẻ mọi vấn đề, kể cả việc định vị các khu dân cư cho đến đường xá, công viên và trung tâm mua sắm"</em>. <strong>Bản vẽ hôm nay</strong>: đài truyền hình NBC gần tòa nhà cao nhất thế giới; phía Bắc là các tòa căn hộ; phía Đông là một đại lộ; phía Tây là trung tâm mua sắm gồm 8 tòa nhà hướng ra sông Hudson; <em>"mọi căn hộ đều có một góc nhìn đẹp, điều mà tôi tin là một yếu tố quan trọng"</em>.</li>
+    <li><em>"Tôi rất vui với bản thiết kế mới, Alex cũng vậy… nhưng tôi cũng có kinh nghiệm về quy hoạch: cuối cùng tôi biết chúng tôi sẽ phải nhượng bộ vài điểm. Nếu thành phố không phê chuẩn, tôi sẽ chờ — giá trị của khu vực này chỉ có tăng mà thôi."</em></li>
+    <li>6:00 — Ivana và Trump được <strong>Đức Hồng y John O'Connor</strong> mời dùng cơm tối tại Nhà thờ St. Patrick lúc 7 giờ tối cùng 6 giám mục và tu sĩ hàng đầu của giáo phận — <em>"với những ai đã tiếp xúc với đủ hạng người trong đời, việc dùng bữa tối này cũng là một điều vinh hạnh"</em>. Nói chuyện về chính trị thành phố, địa ốc và nhiều vấn đề khác. Trên xe về, Trump nói với Ivana: <em>"Ông ta không chỉ là một người rất thân thiện mà còn là một nhà kinh doanh với những bản năng chính trị tuyệt vời."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Người ta mua tên tuổi — người bán hàng giỏi nhất thường là người thành công nhất.</p>
+  </div>
+</section>
+
+    <!-- SECTION 13 -->
+    <section class="entry" id="s13" data-toc="Thứ Sáu · Cứng rắn với nhà thầu">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 13</span>
+      <h2>Thứ Sáu · Cứng rắn với nhà thầu</h2>
+      <p class="summary-line">Gọi thẳng người làm, chặn chi phí phát sinh, và soi đến màu khung cửa sổ.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M22 78 C22 44 42 28 66 28 C90 28 110 44 110 78"/>
+        <path d="M14 78 H118 V88 H14 Z"/>
+        <path class="b" d="M66 28 V78"/>
+        <path class="thin" d="M50 32 V76 M82 32 V76"/>
+        <path d="M122 40 C132 36 142 44 138 52 L132 58 L140 72 L146 70 C150 80 142 92 132 90"/>
+        <path class="s" d="M118 104 L146 104"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>6:30 sáng — Đọc lướt New York Times: một <strong>bức ảnh lớn cảnh đổ bê tông</strong> ở Wollman Rink trên trang nhất phần hai — <em>"bài báo này không thể tốt hơn"</em>.</li>
+    <li>9:00 — Họp với <strong>bốn viên chức Ủy ban quy hoạch thành phố</strong>, gồm Herb Sturz và Con Howe (người thẩm định dự án West Side). Alex Cooper trình bày rất tốt, <em>"nhấn mạnh vào những điều mà chúng tôi biết là các viên chức thành phố sẽ thích: những công viên công cộng, những lối đi ra bờ sông một cách dễ dàng, những hướng lưu thông ra vào khu vực"</em>. Về chiều cao các tòa nhà, Alex chỉ nói <em>"chúng tôi đang tính toán"</em>. Kết thúc, <em>"tất cả chúng tôi đều đồng ý là mọi việc đã diễn tiến rất tốt đẹp"</em>.</li>
+    <li>10:30 — Họp về tiến trình xây dựng <strong>Trump Parc</strong>, tòa chung cư xây trên khung sườn thép của khách sạn Barbizon-Plaza ở Central Park South — <em>"một vị trí lý tưởng và tòa nhà mà chúng tôi xây lại sẽ là một thành công lớn"</em>. Dự họp: Frank Williams (kiến trúc sư, <em>"giỏi và ôn tồn"</em>), Andy Weiss (quản lý dự án) và Blanche Sprague (Phó chủ tịch phụ trách kinh doanh, <em>"một người tao nhã, có kiểu ăn nói nên làm rất tốt công việc kinh doanh"</em>).</li>
+    <li>Gần nửa giờ bàn <strong>màu khung cửa sổ</strong> — <em>"những chi tiết giống như thế này sẽ tạo nên sự khác biệt về hình thái và phong cách của một tòa nhà"</em>; chốt màu nâu vàng nhạt hài hòa với màu đá: <em>"tôi thích tông màu đất, chúng mạnh mẽ, đẹp và hấp dẫn hơn những mẫu nguyên thủy"</em>.</li>
+    <li>11:00 — Andy báo việc phá bỏ công trình cũ chưa xong và nhà thầu ra giá <strong>175.000 đô la cho những việc phát sinh</strong>. <em>"Nhà thầu thường tính thêm chi phí khi bạn yêu cầu thay đổi một cái gì đó trong kế hoạch mà bạn đã thỏa thuận với họ ngay từ ban đầu. Bạn phải rất mạnh bạo và cứng rắn đối với hầu hết các nhà thầu, nếu không họ sẽ lấn lướt bạn."</em></li>
+    <li><strong>Gọi thẳng người phụ trách tháo gỡ</strong>: <em>"Tôi là Donald Trump. Hãy lắng nghe, anh phải làm nhanh lên để hoàn tất công việc, anh đã chậm tiến độ rồi. Tôi muốn anh trực tiếp điều động trong công việc này."</em> Ông ta bắt đầu giải thích, Trump cắt ngang: <em>"Tôi không muốn biết, tôi chỉ muốn anh làm xong công việc. Và nghe này: anh sẽ giết tôi bằng những chi phí phát sinh này. Tôi không muốn anh làm việc với Andy về những khoản phát sinh này nữa, tôi muốn anh làm việc thẳng với tôi. Nếu anh muốn lừa tôi trong việc này, anh sẽ không có một cơ hội thứ hai — tôi sẽ không thuê anh nữa."</em></li>
+    <li>Mối quan tâm thứ hai: <strong>sửa chữa sàn các tầng lầu</strong>. Hỏi Andy số công nhân rồi nói <em>"nửa đùa nửa thật"</em>: <em>"Tôi sẽ liều một phen. Những người làm bê tông có thể rất láu cá, tôi cũng sẽ chẳng thua kém họ."</em> Gọi trưởng nhóm: <em>"Ông chủ của anh rất muốn công việc này. Tôi đã quyết định giao nó cho người khác nhưng ông ta nói ông ta sẽ làm tốt. Hôm qua tôi đến công trường thấy các miếng vá của anh không bằng phẳng với nền bê tông, có chỗ chênh nhau cả nửa phân."</em></li>
+    <li>Ông ta im lặng; Trump tiếp: <em>"Không ai có thể giao công việc cho anh nhiều hơn tôi. Tôi vẫn sẽ xây dựng khi những người khác bị phá sản, vì vậy hãy làm tốt công việc này đi."</em> Trả lời: <em>"Những người thợ ở đây đều là dân chuyên nghiệp cả, chúng tôi đã làm hết sức mình, thưa ông."</em> — <em>"Được. Phải điện thoại cho tôi biết anh đang làm như thế nào."</em></li>
+    <li>12:00 — <strong>Alan Greenberg</strong>: Holiday đã ra tay với chiêu <em>"viên thuốc độc"</em> — gia tăng các khoản nợ của công ty để kém hấp dẫn với nhà đầu tư. <em>"Tôi không lo. Không có viên thuốc độc nào ngăn cản được việc tôi theo đuổi mua lại Holiday Inn nếu đó là điều tôi muốn làm."</em> Thị trường hôm qua giảm 80 điểm, hôm nay giảm thêm 25 điểm, nhưng Holiday Inn đứng vững; đã mua <strong>gần 5% cổ phần</strong> công ty.</li>
+    <li>12:15 — Blanche ở lại trình <strong>6 mẫu quảng cáo</strong> trên báo cho Trump Parc: dùng đường nét thể hiện tòa nhà và tầm nhìn xuống Central Park. Trump không thích mẫu nào: <em>"Tôi thích ý tưởng sử dụng một bức vẽ gồm các đường nét, nhưng tôi không thích những mẫu này. Tôi muốn một bản vẽ cho thấy tòa nhà nhiều hơn. Central Park rất đẹp, nhưng tôi không bán công viên — tôi bán một tòa nhà và những căn hộ."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Bạn phải rất mạnh bạo và cứng rắn đối với hầu hết các nhà thầu, nếu không họ sẽ lấn lướt bạn."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 14 -->
+    <section class="entry" id="s14" data-toc="Kết · Không có gì để làm">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 14</span>
+      <h2>Kết · Tuyệt đối không có gì để làm cả</h2>
+      <p class="summary-line">Chiều thứ Sáu vẫn kín cuộc gọi — và một câu đùa trước ống kính David Letterman.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="34" y="34" width="62" height="38" rx="4"/>
+        <path d="M96 44 L124 32 V74 L96 62"/>
+        <circle cx="50" cy="24" r="10"/>
+        <circle class="thin" cx="78" cy="24" r="10"/>
+        <path d="M64 72 L42 110 M64 72 L86 110"/>
+        <path class="thin" d="M64 72 V108"/>
+        <circle class="s" cx="46" cy="46" r="3"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>12:30 — Norma mang chồng <strong>hồ sơ xin giấy phép kinh doanh sòng bài ở Nevada</strong>; hỏi nhờ ai viết thư giới thiệu. Trump chọn: tướng Pete Dawkins (bạn tốt, đang là chủ một ngân hàng đầu tư), Benjamin Holloway (chủ tịch kiêm tổng giám đốc Equitable Real Estate; nghe không rõ), tổng giám đốc ngân hàng Chase Manhattan (tên nghe không rõ) và Đức Hồng y O'Connor.</li>
+    <li>12:45 — <strong>Ivana</strong> gọi, đang ở văn phòng, muốn Trump cùng đi xem một trường mẫu giáo khác cho con gái học vào mùa thu tới. <em>"Đi nào,"</em> cô nói, <em>"anh không còn việc gì khác để làm."</em> — <em>"Đôi khi tôi nghĩ cô ấy thực sự tin như thế."</em> <em>"Em yêu, bây giờ anh đang bận việc một chút."</em> Câu nói <em>"không có hiệu lực gì cả"</em>: 3 phút sau Ivana đã có mặt trong phòng làm việc, hối thúc ký cho xong các mẫu đơn để đi với cô.</li>
+    <li>2:30 — <strong>Bill Fugazy</strong> gọi; Trump thích gọi ông là <em>"Willie the Fug"</em> dù <em>"dường như ông ta không thích nó"</em>. Công việc là cho thuê xe limousine <em>"nhưng thực ra ông ta đáng lẽ phải là một nhà môi giới: ông biết mọi người"</em>, là một trong những bạn thân nhất của Lee Iacocca và là người giới thiệu Trump với Đức Hồng y. Hỏi thăm bữa tối ở St. Patrick — <em>"thật tuyệt vời"</em>; hẹn đánh golf cuối tuần.</li>
+    <li>2:45 — John, quản lý việc <strong>sửa chữa căn hộ 3 tầng</strong> của Trump ở Trump Tower, ghé bàn bản vẽ: bỏ hết mọi thứ trong căn hộ trừ tầng thứ ba của các con và mái nhà; mở rộng bằng cách lấy thêm căn hộ kế bên để có <em>"một chỗ ở rộng rãi, tiện nghi, mọi thứ ngăn nắp, trật tự"</em>.</li>
+    <li>Ví dụ: thuê những thợ thủ công giỏi nhất ở Ý <strong>chạm tay 27 cột đá</strong> cho phòng khách — <em>"họ đã đến hôm qua và những cây cột thật đẹp"</em>. <em>"Tôi có đủ sức để thuê những người thợ có tay nghề cao, và đối với căn hộ của mình tôi tự hỏi tại sao lại phải tiết kiệm. Tôi muốn những thứ tốt nhất bằng bất cứ giá nào."</em> Đánh dấu vài chỗ thay đổi; <em>"Được rồi, làm nhanh lên đi John."</em></li>
+    <li>3:30 — Giám đốc một <strong>hãng tàu biển lớn của Hy Lạp</strong> gọi, có thương vụ muốn bàn nhưng không nói cụ thể: <em>"đối với một vài người, bạn đừng hỏi nó là gì — nếu nó không là một thương vụ lớn thì tôi nghĩ rằng ông ta chẳng làm mất thời gian của tôi"</em>; hẹn gặp.</li>
+    <li>4:00 — Người chuyên bán và cho thuê máy bay gọi: Trump đang xem xét mua một chiếc <strong>phản lực G4</strong> nhưng <em>"thật sự muốn loại Boeing 727 hơn"</em>.</li>
+    <li>4:30 — <strong>Nick Ribis</strong> gọi từ Australia: thương thảo để được chọn làm nhà thầu và điều hành sòng bài lớn nhất thế giới <em>"đang diễn ra rất tốt đẹp"</em>, sẽ biết nhiều hơn vào thứ Hai tuần tới; <em>"hãy gọi cho tôi trước khi anh quay về đây"</em>.</li>
+    <li>4:45 — Ivana báo <strong>David Letterman</strong> đang ở đại sảnh Trump Tower quay phim về một ngày của hai du khách từ xa đến và muốn gặp. <em>"Tôi không muốn ở lại trễ để xem lại màn quay phim, nhưng tôi biết ông ta chỉ quay vài phút."</em> Letterman vào cùng người quay phim và cặp vợ chồng <em>"rất đẹp đôi"</em> đến từ Louisville. Trump đùa: <em>"Tôi nghĩ Louisville là một thị trấn rất tuyệt vời, có lẽ tất cả chúng tôi phải cùng đến đó làm ăn."</em></li>
+    <li>Letterman hỏi giá một căn hộ; Trump: <em>"ông có khả năng lấy một căn hộ 1 phòng ngủ với giá 1 triệu"</em>. <em>"Hãy cho tôi biết giá thật,"</em> ông ta nói. Sau vài câu đối giỡn, Letterman chốt: <em>"Bây giờ là chiều thứ Sáu, chúng tôi điện thoại cho ông mà không báo trước và ông nói chúng tôi có thể lên đây. Bây giờ ông đang đứng đây nói chuyện với chúng tôi, nghĩa là ông không bận việc gì cả, phải không?"</em> — <em>"Anh nói đúng. Tuyệt đối không có gì để làm cả."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Cửa luôn rộng mở đến tận chiều thứ Sáu: vẫn nghe mọi cuộc gọi, tiếp khách không báo trước, và <em>"Tôi muốn những thứ tốt nhất bằng bất cứ giá nào."</em></p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Sách nói Nghệ thuật đàm phán (The Art of the Deal) — Donald J. Trump &amp; Tony Schwartz, NXB Trẻ, Fonos · Chương 1 · YouTube: https://www.youtube.com/watch?v=6AONeCSJR4s · Ghi chú No.13 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
