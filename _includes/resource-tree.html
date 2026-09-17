@@ -14,6 +14,7 @@
 </style>
 <script>
 const RESOURCE_ROOT = "resources";
+const SHORT_LINK_FOLDER = "/resources/Custom-Post/";
 const RESOURCE_PATHS = [
 {% for file in resource_files %}  {{ file.path | jsonify }},
 {% endfor %}].filter((path) => path.startsWith(`/${RESOURCE_ROOT}/`));
@@ -37,7 +38,7 @@ function resourceTree() {
 
 function resourceShortLinks() {
   const links = {};
-  for (const path of RESOURCE_PATHS) {
+  for (const path of RESOURCE_PATHS.filter((p) => p.startsWith(SHORT_LINK_FOLDER))) {
     const number = path.split("/").pop().match(/^(\d+)-/);
     if (number && Number(number[1]) > 0) links[number[1]] = path;
   }

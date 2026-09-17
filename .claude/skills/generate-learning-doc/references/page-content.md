@@ -92,6 +92,6 @@ One inline SVG per section: a simple visual metaphor for that section's idea (se
 python3 <skill-dir>/scripts/build_doc.py --meta <work>/meta.json --sections <work>/sections.html --out-dir <output dir>
 ```
 
-The script generates the TOC, fills the template, checks structure and verbatim-quote wrapping, and writes `<output dir>/NN-<slug>.html` (the slug has no diacritics; `NN-chuong-XX-<slug>.html` when `chapter` is set). `ERROR` lines mean nothing was written: fix `sections.html`/`meta.json` and rerun. `WARN` lines are advisory; fix them if the fix is quick. Never pass `--force` unless the orchestrator says so — an existing file with that number anywhere under `resources/` is someone's earlier entry.
+The script generates the TOC, fills the template, checks structure and verbatim-quote wrapping, and writes `<output dir>/NN-<slug>.html` (the slug has no diacritics; `NN-chuong-XX-<slug>.html` when `chapter` is set). `ERROR` lines mean nothing was written: fix `sections.html`/`meta.json` and rerun. `WARN` lines are advisory; fix them if the fix is quick. Never pass `--force` unless the orchestrator says so — an existing file with that number in the output folder is someone's earlier entry.
 
 When done, reply with the output path, the section count, and any remaining WARN lines.

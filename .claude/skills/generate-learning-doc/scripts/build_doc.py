@@ -5,7 +5,7 @@ Usage:
   python3 build_doc.py --meta meta.json --sections sections.html --out-dir resources/<folder> [--force]
 
 meta.json keys: no, title, year, kicker, subtitle, pills (list), source; optional chapter ("1", "4–5")
-Entry numbers are unique across every folder under resources/, because /NN short links resolve by number.
+Entry numbers are unique within a folder: each folder (Custom-Post, one book, one topic) keeps its own sequence.
 sections.html: consecutive <section class="entry" id="sN" data-toc="..."> blocks.
 """
 import argparse
@@ -131,8 +131,7 @@ def main():
         sys.exit("ERROR unfilled placeholder left in output")
 
     out_dir = Path(args.out_dir)
-    resources_root = next((p for p in [out_dir, *out_dir.parents] if p.name == "resources"), out_dir)
-    existing = sorted(resources_root.rglob(f"{no}-*.html"))
+    existing = sorted(out_dir.glob(f"{no}-*.html"))
     chapter_slug = "-".join(f"{int(n):02d}" for n in re.findall(r"\d+", chapter))
     name = f"{no}-chuong-{chapter_slug}-{slugify(meta['title'])}" if chapter_slug else f"{no}-{slugify(meta['title'])}"
     target = out_dir / f"{name}.html"

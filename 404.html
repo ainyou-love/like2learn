@@ -51,10 +51,23 @@ function showNotFound(key) {
   document.body.append(heading, message, back);
 }
 
+// The Nghệ thuật đàm phán notes were published as No.13–16 before the book folder restarted at 01.
+const OLD_BOOK_FOLDER = "resources/ebooks/Donald-Trump/Nghe-thuat-dam-phan/";
+const OLD_BOOK_NUMBERS = { "13": "01", "14": "02", "15": "03", "16": "04" };
+
+function oldBookNote(number) {
+  const renumbered = OLD_BOOK_NUMBERS[number];
+  return renumbered && RESOURCE_PATHS.find((path) =>
+    path.startsWith(`/${OLD_BOOK_FOLDER}`) && path.split("/").pop().startsWith(`${renumbered}-`));
+}
+
 const key = decodedPath().replace(/^\/+|\/+$/g, "");
 const shortLinks = resourceShortLinks();
-const legacyNote = key.match(/^resources\/(\d+)-[^/]+$/);
-const target = shortLinks[key] || (legacyNote && shortLinks[legacyNote[1]]);
+const flatNote = key.match(/^resources\/(\d+)-[^/]+$/);
+const oldBookPath = key.startsWith(OLD_BOOK_FOLDER) && key.match(/\/(\d+)-[^/]+$/);
+const target = shortLinks[key] || oldBookNote(key)
+  || (flatNote && (oldBookNote(flatNote[1]) || shortLinks[flatNote[1]]))
+  || (oldBookPath && oldBookNote(oldBookPath[1]));
 const tree = document.createElement("div");
 
 if (target) {
