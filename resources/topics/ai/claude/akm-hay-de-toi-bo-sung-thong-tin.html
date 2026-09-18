@@ -3,33 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AKM — Hay để tôi bổ sung thông tin</title>
-<meta name="description" content="AKM lưu lập luận thành đồ thị trên Neo4j và đẩy ngữ cảnh vào phiên làm việc mà agent không phải gọi. Kiến trúc, bề mặt dùng được, và phần bên trong.">
+<title>AKM — skill giữ lại lý do, không chỉ giữ kết luận</title>
+<meta name="description" content="Một skill Claude Code mỏng đứng trước cả một sản phẩm: vì sao nó tồn tại, nó được dựng ra sao, và khi nào skill của bạn nên có hình dạng đó.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
-<style>:root{
-  --ground:#F4F2EE; --surface:#FFFFFF; --panel:#EDEAE4; --line:#D8D3CA; --line-soft:#E6E2DB;
-  --ink:#1A1916; --muted:#5E5A52; --faint:#8A857B;
-  --trace:#2C5F63; --trace-soft:#DFEBEB;
-  --est:#2F6B4F;  --hyp:#9A6414;  --unv:#5E5A52;  --asm:#7A4E86;
-  --alarm:#8E2F26; --alarm-soft:#F6E5E2;
+<style>/* Single-file doc site. Palette carries the subject: one accent for the reasoning
+   path, and a separate ladder for epistemic status -- established, hypothesis,
+   unverified, assumption -- so colour says how sure a claim is, not decoration. */
+:root{
+  --ground:#F2F1EC; --surface:#FFFFFF; --panel:#E9E7E0; --line:#D5D1C7; --line-soft:#E3E0D8;
+  --ink:#171A21; --muted:#575B63; --faint:#878B92;
+  --trace:#2E4A8C; --trace-soft:#E2E8F5;
+  --est:#2A6A4A;  --hyp:#96600F;  --unv:#575B63;  --asm:#6E4288;
+  --alarm:#932B2B; --alarm-soft:#F7E3E1;
   --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
-  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
-  --trace:#7FBDBF; --trace-soft:#172A2B;
-  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
-  --alarm:#E0897E; --alarm-soft:#2C1B18;
+  --ground:#111318; --surface:#181B22; --panel:#1F232B; --line:#2E333D; --line-soft:#242832;
+  --ink:#E5E7EC; --muted:#979BA4; --faint:#787C85;
+  --trace:#8FAAE6; --trace-soft:#1A2237;
+  --est:#6FBE95;  --hyp:#DDAC5D;  --unv:#979BA4;  --asm:#BE9AD6;
+  --alarm:#E08B84; --alarm-soft:#2B1A19;
 }}
 :root[data-theme="dark"]{
-  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
-  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
-  --trace:#7FBDBF; --trace-soft:#172A2B;
-  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
-  --alarm:#E0897E; --alarm-soft:#2C1B18;
+  --ground:#111318; --surface:#181B22; --panel:#1F232B; --line:#2E333D; --line-soft:#242832;
+  --ink:#E5E7EC; --muted:#979BA4; --faint:#787C85;
+  --trace:#8FAAE6; --trace-soft:#1A2237;
+  --est:#6FBE95;  --hyp:#DDAC5D;  --unv:#979BA4;  --asm:#BE9AD6;
+  --alarm:#E08B84; --alarm-soft:#2B1A19;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -262,6 +265,23 @@ figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;li
 #mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
 footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
 footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+
+
+/* ── versus: two panels, one decision ─────────────────────── */
+.versus{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:760px){.versus{grid-template-columns:1fr 1fr}}
+.vs{padding:14px 15px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+.vs b{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.vs ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vs li{font-size:14px;color:var(--muted);padding-left:14px;position:relative}
+.vs li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
+  border-radius:50%;background:var(--faint)}
+.vs.thin b{color:var(--faint)}
+.vs.thin li::before{background:var(--faint)}
+.vs.full b{color:var(--trace)}
+.vs.full{border-color:var(--trace);background:var(--trace-soft)}
+.vs.full li::before{background:var(--trace)}
 </style>
 </head>
 <body>
@@ -299,446 +319,730 @@ footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
   </section>
 </div>
 
-<script type="text/plain" id="src"># AKM — Hay để tôi bổ sung thông tin
+<script type="text/plain" id="src"># AKM — skill giữ lại lý do, không chỉ giữ kết luận
 
-> Lập luận là phần đắt nhất của một phiên làm việc, và là phần bay hơi nhanh nhất. Kết luận sống sót trong commit message; còn bằng chứng, các giả thuyết đã bị loại, và câu hỏi thật sự đang được trả lời thì biến mất cùng phiên đó.
-> AKM là một workspace tri thức trên Neo4j, mở ra cho agent qua MCP, dựng để trả lời đúng một câu: có thể tái dựng **vì sao** hiểu biết hiện tại tồn tại, mà không cần lịch sử chat, hay không?
-
----
-
-# PHẦN 1 — Vấn đề, và quyết định thiết kế duy nhất đáng nhớ
-
-## Bốn câu hỏi, và một phép đo
-
-Hệ này không tự nhận là hữu ích. Nó chọn bốn câu hỏi cụ thể, bắt buộc phải trả lời được **từ đồ thị, qua MCP, không có lịch sử chat**, rồi đo xem trả lời được mấy câu.
-
-@fig:fourQ
-    1. Vì sao ProblemState này tồn tại?
-    2. Điều gì đã đổi so với state trước?
-    3. Bằng chứng nào gây ra thay đổi đó?
-    4. Câu hỏi nào đang được trả lời?
-
-    baseline:  0/4        sau slice này:  4/4
-@endfig
-
-Đây là **vertical slice về traceability**, không phải MVP đầy đủ. Phạm vi hẹp là cố ý: một câu hỏi, một phép đo, và một con số để đối chiếu.
-
-## Cạnh `NEXT_STATE` không mang theo lý do
-
-Spec cho đúng một cạnh giữa hai trạng thái — `ProblemState -[:NEXT_STATE]-> ProblemState` — và cạnh đó **không mang theo biện minh nào**.
-
-Hệ quả rất cụ thể. Giả sử một state làm nảy ra ba câu hỏi, và năm node Information trả lời chúng. Không có gì ghi lại rằng *cái nào trong số đó* thật sự biện minh cho state kế tiếp. Không gian câu hỏi và con đường lập luận thực sự đã đi bị gộp làm một — đúng thứ mà spec cấm gộp.
-
-Nên `ReasoningDelta` được **lưu thành node**, thay vì tan biến lúc commit, mang theo năm cạnh: `FROM_STATE`, `TO_STATE`, `ANSWERED`, `USED`, `INTRODUCED`.
-
-## Nó chịu lực — và điều đó được đo, không phải được lập luận
-
-Đây là chỗ đáng nhớ nhất của toàn bộ hệ. Lấy một chuỗi ba state đã hoàn chỉnh, xoá **chỉ** các node `ReasoningDelta`, giữ nguyên toàn bộ 13 node tri thức. Tri thức còn nguyên vẹn. Điểm rơi từ 4/4 xuống 0/4.
-
-@fig:deltaProof
-    chuỗi 3 state, 13 node tri thức, có ReasoningDelta   ->  4/4
-    chuỗi 3 state, 13 node tri thức, xoá ReasoningDelta  ->  0/4
-@endfig
-
-Tri thức sống sót. Lập luận thì không. Một kho chứa claim mà không giữ delta thì vẫn tra cứu được, nhưng không tái dựng được suy nghĩ — và tái dựng suy nghĩ mới là thứ đắt.
-
-## Bảy loại node, và các cạnh giữa chúng
-
-@fig:graph
-    Task --HAS_STATE--> ProblemState --NEXT_STATE--> ProblemState
-                             |  RAISES
-                             v
-                         Question <--ANSWERS-- Information --DERIVED_FROM--> Evidence --FROM--> Source
-                                                    |  SUPERSEDES
-                                                    v
-                                              Information (cũ)
-
-    ReasoningDelta --FROM_STATE--> ProblemState (trước)
-                   --TO_STATE----> ProblemState (sau)
-                   --ANSWERED----> Question
-                   --USED--------> Information (đã có)
-                   --INTRODUCED--> Information / Question (mới)
-@endfig
-
-Sáu cạnh đầu đến từ spec. Năm cạnh của delta là phần mở rộng — chính là phần làm bốn câu hỏi trả lời được. `SUPERSEDES` là phần mở rộng thứ hai: claim không bao giờ bị sửa tại chỗ, nên nếu không có cạnh này, người đọc sau gặp hai claim mâu thuẫn và không có gì nói cái nào còn hiệu lực.
-
-## Vòng lặp
-
-@fig:loop
-    find_information  ->  "thứ này đã biết chưa?"
-             |
-    open_task --+                                              |
-                +--> get_work_context -> điều tra -> submit_reasoning_delta --+
-    list_tasks -+            ^                                               |
-                             +-----------------------------------------------+
-@endfig
-
-Mỗi delta trả lời một câu hỏi và thường làm nảy ra câu tiếp theo. Đó là động cơ của hệ: một trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, câu trả lời sinh ra trạng thái mới.
-
-Điểm hay bị bỏ qua nằm ở `open_task`: trường `initial_understanding` là thứ bạn tin **trước khi** điều tra. Một câu "chưa rõ nguyên nhân; chỉ biết nó trùng với lần deploy hôm thứ Ba nhưng diff hôm đó không đụng tới đường truy vấn" là khởi điểm tốt hơn hẳn một phỏng đoán tự tin — vì toàn bộ giá trị nằm ở chỗ nhìn hiểu biết thay đổi.
+> Một cuộc điều tra kéo dài vài phiên làm việc. Khi nó xong, kết luận sống sót — còn lý do dẫn tới kết luận thì bốc hơi. AKM là skill dựng ra để giữ lại phần lý do đó.
+> Nó cũng là ví dụ rõ nhất trong bộ về một quyết định mà ai định tự dựng skill cũng sẽ gặp: khi nào skill là luật viết bằng lời, và khi nào nó chỉ là một file mỏng đứng trước một sản phẩm thật.
 
 ---
 
-# PHẦN 2 — Bề mặt dùng được
+# PHẦN 1 — Vấn đề, và thứ bạn cầm được khi xong
 
-## Bảy công cụ, hai mức bộc lộ
+## 1. Mục đích — cái gì biến mất khi phiên làm việc kết thúc
 
-Năm công cụ giữ ngữ cảnh nhỏ, hai công cụ trả về toàn văn khi một con trỏ nào đó cho thấy có thứ đáng đọc kỹ.
+Một cuộc điều tra nghiêm túc hiếm khi xong trong một lần ngồi. Hôm nay đọc log, mai đọc cấu hình, tuần sau mới có người bảo "à cái đó liên quan tới đợt đổi hạ tầng tháng trước". Trong lúc đó bạn thử vài giả thuyết, loại bớt, đổi ý một lần, rồi mới tới được câu trả lời.
 
-@fig:levels
-    MỨC 1 — giữ gói nhỏ
-      open_task            mở một hướng điều tra
-      list_tasks           cách duy nhất lấy lại task id của phiên trước
-      find_information     tìm toàn văn trong claim đã ghi
-      get_work_context     gói tối thiểu để đi tiếp
-      submit_reasoning_delta   đề xuất một bước
+Khi mọi thứ kết thúc, cái sống sót là **kết luận**: một dòng trong commit message, một đoạn trong báo cáo, một quyết định đã chốt. Cái biến mất là phần đắt nhất và khó dựng lại nhất:
 
-    MỨC 2 — toàn văn, khi con trỏ mức 1 chỉ tới
-      get_state            rationale đầy đủ của một bước
-      get_information      claim đầy đủ + bằng chứng + nguồn
-@endfig
+- những giả thuyết đã thử và đã bị loại — cùng lý do bị loại;
+- bằng chứng cụ thể đã khiến người ta đổi ý, chứ không phải bằng chứng được viện dẫn sau khi đã kết luận;
+- và **câu hỏi thật sự đang được trả lời** ở từng bước, thứ mà ngay cả người trong cuộc cũng quên sau một tuần.
 
-`get_work_context` cố tình **không** trả về toàn bộ lịch sử, toàn đồ thị, hay thân bằng chứng. Nó trả state hiện tại, câu hỏi đang mở, `key_information`, `provenance`, và `state_history` — một dòng cho mỗi bước.
+Ai trả giá cho chuyện đó?
 
-Có một cái bẫy đếm ở đây, đáng biết trước khi tin vào gói dữ liệu: khi gói bị cắt cho vừa trần, `truncated` bật lên và `truncated_lists` nói rõ danh sách nào mất bao nhiêu mục. Nhưng câu hỏi đang mở còn bị chặn bởi `default_top_k` **trước** khi việc cắt diễn ra, và chuyện đó chỉ lộ ra ở chỗ `active_questions_shown` nhỏ hơn `active_questions_total`. Nói cách khác: `truncated_lists` rỗng **không** có nghĩa là bạn đã thấy hết.
+- **Người nhặt lại việc**, hai tuần sau — thường là chính bạn. Đọc lại đúng những chỗ đã đọc, chạy lại đúng những phép thử đã chạy, và đôi khi thử lại đúng cái giả thuyết đã bị loại, vì không có chỗ nào ghi rằng nó đã bị loại.
+- **Người review**, khi hỏi "sao lại kết luận như vậy?" và câu trả lời trung thực duy nhất là "hồi đó thấy hợp lý".
+- Và tốn nhất: **việc làm sau đó**. Một kết luận được thừa kế mà không kèm xuất xứ sẽ dần được đối xử như sự thật. Người ta xây tiếp lên trên nó. Đến lúc phát hiện nó chỉ là một phỏng đoán, không còn ai biết phải lần ngược từ đâu.
 
-Tìm kiếm là toàn văn có stemming tiếng Anh, **không phải ngữ nghĩa**: "subagents" khớp "subagent", nhưng "pricing" sẽ không khớp một claim chỉ viết bằng chữ "cost". Thử vài cách diễn đạt trước khi kết luận là chưa ai ghi gì.
+Đó là toàn bộ lý do AKM tồn tại: giữ lại phần cấu trúc của suy luận, để phiên sau — hoặc người sau — đi ngược lại được.
 
-## Luật chứng cứ, được máy thực thi
+Nhưng phải nói ngay mặt còn lại, vì skill này nói thẳng ngay ở đầu: **ghi lại là có giá**. Mỗi bước được ghi tốn thời gian và tốn công viết. Rất nhiều việc không ghi gì vẫn đúng và vẫn xong. Nên câu hỏi để quyết định chỉ có một:
 
-Đây là ràng buộc nghiêm nhất của hệ. Mọi `Information` có kiểu thuộc nhóm factual — tức là mọi kiểu **trừ** `assumption` — phải thoả một trong bốn lối:
+> Sẽ có ai cần dựng lại xem kết luận này đã được rút ra như thế nào không?
 
-@fig:provenance
-    fact · rule · definition · constraint · observation · derived_fact
-                              |
-        +-----------+---------+---------+-------------------+
-        |           |                   |                   |
-    derived_from  human_asserted   system_observed   epistemic_status thuộc
-    -> Evidence     : true            : true         assumption/hypothesis/unverified
-        |           |                   |                   |
-        +-----------+---------+---------+-------------------+
-                              |
-                      không có lối nào -> server từ chối delta
-@endfig
+Nếu có, và để tới được kết luận cần hơn một lần nhìn — thì dùng. Nếu không, đừng. Một bản sửa lỗi đã biết cách sửa, một câu hỏi mà đọc một file là xong, một việc làm một lần rồi thôi: tất cả đều nằm ngoài vùng của nó. Và nó đặc biệt không phải chỗ đổ ghi chú lặt vặt.
 
-Lý do tồn tại của luật này được nói thẳng trong skill: thứ nguy hại nhất mà một hệ lập luận có thể làm là để output của model trở thành một sự thật không có xuất xứ, rồi việc sau xây tiếp lên đó. Khi bạn đang suy ra chứ không phải đang quan sát, hãy nói ra — `derived_fact` kèm bằng chứng đã suy từ đó, hoặc `assumption` khi thật sự không biết. **Một phỏng đoán được ghi đúng là phỏng đoán thì có ích; một phỏng đoán được ghi thành sự thật là một quả mìn.**
+## 2. Dùng lúc nào, và nhận lại được cái gì
 
-Bằng chứng **trỏ tới, không sao chép**. Một locator là `src/queue/worker.py:88-140`, một truy vấn log, một URL, một commit sha. Dán nội dung file vào đồ thị vừa phá mục đích vừa làm gói dữ liệu phình to.
+### Một tình huống cụ thể
 
-## Ghi một bước bằng template
+Hàng đêm có một job đối soát dữ liệu. Từ đầu tháng, nó bắt đầu ghi trùng bản ghi. Không ai biết vì sao, và nhìn qua một lượt thì không thấy gì bất thường — nghĩa là chuyện này sẽ kéo dài hơn một buổi.
 
-Viết delta bằng tay là phần đắt nhất của việc ghi: 28 delta thật đo ngày 14·09·2026 có trung vị khoảng **3.000 ký tự JSON**, mỗi cái do model tự viết ra. Lệnh `record` dựng delta từ một template cộng vài cờ.
+**Buổi một.** Mở một "việc" mới, và điều đầu tiên phải viết ra là **hiểu biết ban đầu** — thứ bạn tin *trước khi* điều tra: "chỉ đường chạy tự động bị trùng, đường chạy tay thì không; chưa rõ nguyên nhân". Một câu thú nhận chưa biết gì ở đây tốt hơn hẳn một phỏng đoán tự tin, vì cái đáng theo dõi chính là hiểu biết thay đổi ra sao. Sau đó bạn đọc cấu hình lịch chạy, thấy job được đăng ký hai lần, và ghi lại bước đó: đã làm gì, nó cho thấy gì, bằng chứng nằm ở đâu, và câu hỏi mới nảy ra là gì.
 
-Năm template: `observation`, `question`, `answer`, `hypothesis`, `correction`. Chỉ tự viết JSON khi bước đó cần thứ không template nào phủ.
+**Buổi hai, ba ngày sau.** Có thể là bạn, có thể là người khác, có thể là một phiên làm việc mới của trợ lý AI. Không ai nhớ id của việc hôm trước. Liệt kê những việc đang mở trong dự án này, mở lại cái cần, và nhận về đúng phần tối thiểu để đi tiếp.
 
-Trường không hợp lệ bị từ chối thẳng, nên gõ sai tên trường thì hỏng to tiếng, thay vì âm thầm làm rơi mất một liên kết.
+### Bạn cầm được cái gì
 
-## Push — ngữ cảnh không cần gọi
+Đầu ra của AKM **không phải một file**. Nó là dữ liệu nằm trong một cơ sở dữ liệu đồ thị chạy cục bộ, cộng với một gói văn bản nhỏ trả về mỗi khi bạn hỏi. Gói đó gồm:
 
-Đây là quan sát sắc nhất trong cả dự án. Agent **không chủ động đọc**. Tính trên mọi transcript từng chạm tới AKM, số lần đọc bằng số lần ghi; và phiên tiêu thụ duy nhất được đo đã ghi 14 lần, đọc 0 lần.
+- **hiểu biết hiện tại** — một đoạn văn tự đứng được, không cần đọc lịch sử mới hiểu;
+- **những câu hỏi đang mở**, kèm id để bước sau nói rõ nó đang đóng câu hỏi nào;
+- **các khẳng định** mà việc này đã dùng hoặc đã tạo ra, mỗi cái kèm loại, **tình trạng nhận thức** (đã kiểm chứng, mới là giả thuyết, hay chỉ là giả định), mức tin cậy và số bằng chứng đứng sau;
+- **xuất xứ của trạng thái hiện tại**: vì sao nó tồn tại, nó khác gì trạng thái trước, bằng chứng nào gây ra thay đổi, và câu hỏi nào đang được trả lời;
+- **quỹ đạo**: mỗi bước gần đây một dòng ngắn, theo thứ tự cũ trước — kể cả những khúc quanh sau đó đã bị sửa lại.
 
-Kết luận không phải là "dạy agent đọc nhiều hơn", mà là **đẩy ngữ cảnh tới nó**.
+Bốn câu hỏi này là thước đo mà cả sản phẩm được dựng ra để trả lời, và trả lời **chỉ bằng đồ thị**, không cần lịch sử hội thoại:
 
-@fig:pushHooks
-    SessionStart        -> luồng chính, lúc mở/khôi phục/clear/sau nén
-                           task đang mở trong scope, và task phiên đang gắn
-    UserPromptSubmit    -> luồng chính, mỗi prompt
-                           claim và câu hỏi khớp prompt, chưa có trong cửa sổ
-    PreToolUse on Agent -> subagent sắp được sinh ra
-                           claim khớp prompt uỷ nhiệm, nối vào prompt đó
-    SubagentStart       -> mỗi subagent, mỗi lượt teammate
-                           hiểu biết hiện tại + câu hỏi mở của task đang gắn
-    PostToolUse         -> không đẩy gì
-                           gắn phiên vào những task mà lệnh AKM của nó chạm tới
-@endfig
+1. Vì sao hiểu biết hiện tại tồn tại?
+2. Nó khác gì hiểu biết trước đó?
+3. Bằng chứng nào gây ra thay đổi?
+4. Lúc đó đang trả lời câu hỏi nào?
 
-Cách chia này đến từ một lần dò thực tế trên Claude Code: `PreToolUse` là nơi **duy nhất** nhìn thấy được nội dung việc giao cho subagent, còn `SubagentStart` bắn ra *trước khi* transcript của con tồn tại. Mọi block đều mở đầu bằng cùng một dòng header, nên đếm được từ transcript agent nào đã nhận ngữ cảnh và đã làm gì với nó.
-
-## Những cái van giữ cho push không thành rác
-
-@fig:gates
-    điểm tìm kiếm >= 3.0      chủ đề đã ghi chấm 3.5-9.7; không liên quan <= 2.3
-    không đẩy hai lần         trong cùng một cửa sổ ngữ cảnh
-    trần ký tự mỗi block      và ngân sách ký tự mỗi phiên
-    claim đã bị thay thế      không đẩy
-    prompt < 3 từ có nghĩa    không tìm kiếm
-    agent type bị cô lập      không nhận gì
-@endfig
-
-Cái van thứ năm có một ví dụ đắt: chính chuỗi "commit and push" từng kéo về hai claim không liên quan, trong đó một cái đã cũ. Prompt quá ngắn thì không đủ tín hiệu để tìm.
-
-Cái van thứ sáu là chỗ AKM gặp research-compose. Hai agent type không nhận gì: **reviewer** phải phán xét code mà không thừa hưởng lời kể của tác giả, và **research lens** chỉ được nhận đúng các input đã khai báo. Với reviewer đó là để tránh mồi sẵn kết luận; với lens đó là điều kiện để sáu góc nhìn thật sự độc lập.
-
-Còn một luật nữa giữ cho luồng chính không bị đẩy lại thứ nó vừa tự viết: những claim, câu hỏi và thay đổi trạng thái mà chính luồng chính tạo ra trong cửa sổ hiện tại sẽ không được đẩy ngược về nó — và hệ quên chúng đi khi cửa sổ không còn giữ chúng nữa, tức là lúc khởi động, lúc `/clear`, và sau khi nén ngữ cảnh.
+Xem trực tiếp thì có ba đường: trình duyệt đồ thị chạy ở địa chỉ cục bộ, dòng lệnh, hoặc — đường rẻ nhất — **tự động rơi vào cuộc hội thoại mà không ai phải gọi**. Phần 7 nói kỹ chỗ đó.
 
 ---
 
-# PHẦN 3 — Bên trong
+# PHẦN 2 — Skill được dựng ra sao
 
-## Cô lập: một server, nhiều hòn đảo
+## 3. Cấu trúc thư mục — hai cây, và khoảng trống giữa chúng
 
-Neo4j bản Community **không tạo được database** — `CREATE DATABASE` trả về `UnsupportedAdministrationCommand`, và chỉ tồn tại `neo4j` với `system`. Tách theo database hay theo schema vì thế nằm ngoài tầm nếu không mua Enterprise.
+Đây là chỗ AKM khác hẳn mọi skill khác trong bộ, nên nó cần **hai** cây thư mục chứ không phải một.
 
-Nên cô lập được làm bằng một thuộc tính `scope` đóng dấu lên **mọi node**, và mọi lượt đọc đều lọc theo nó. Scope lấy từ **tên repository git** của thư mục mà server được khởi động.
+### Cây A — thư mục skill
 
-@fig:islands
-    ~/projects/alpha   -> scope "alpha"    [ task, state, claim... ]
-    ~/projects/beta    -> scope "beta"     [ task, state, claim... ]
-    ngoài mọi repo     -> scope "un-git-repo"  (thùng chung, không bị từ chối)
+    ~/.dotfiles/.claude/skills/akm/
+    └── SKILL.md
 
-    AKM_SCOPE ghi đè cả hai — để nhiều checkout dùng chung một đồ thị
+Hết. Một file.
+
+Với người mới, cần biết một thư mục skill thường có những gì, để hiểu ở đây đang thiếu cái gì:
+
+- **Khối đầu file** (`name` và `description`) là phần **duy nhất luôn nằm trong bộ nhớ làm việc của trợ lý**, kể cả khi skill không chạy. Nó là *mặt kích hoạt*: nó quyết định skill có được chọn hay không. Vì thế nó được viết như một danh sách tình huống, không phải một câu tóm tắt.
+- **Phần thân `SKILL.md`** được đọc mỗi lần skill bật. Mọi chữ trong đó phải trả giá ở *mọi* lần chạy, nên chỗ này chỉ nên chứa quy trình và phán đoán, không chứa chi tiết.
+- **`references/`** chỉ được đọc khi quy trình dẫn tới. Chiều sâu nằm ở đây chính vì nó không phải lúc nào cũng bị tính tiền — đó là **tiết lộ dần**.
+- **`scripts/`** là phần việc giao cho code, vì code rẻ hơn và đáng tin hơn một đoạn hướng dẫn lặp lại bằng lời.
+- **`templates/`**, **`assets/`** là vật liệu để chép ra dùng, thay vì sinh lại mỗi lần.
+
+AKM **không có ba thứ cuối**. Sự vắng mặt đó không phải thiếu sót — nó nói rằng chiều sâu và phần việc thật **không nằm trong skill**:
+
+- Không có `references/` vì phần chi tiết đã có người khác kể: khi máy chủ được kết nối, chính nó mô tả từng công cụ của mình cho trợ lý. Chép lại phần mô tả đó vào skill là trả tiền hai lần cho cùng một thông tin — và tệ hơn, là tạo ra một bản sao sẽ lệch dần khỏi bản thật.
+- Không có `scripts/` vì việc không do một script skill mang theo làm, mà do **một tiến trình sống lâu, chạy riêng** làm.
+- Không có `templates/` — dù các khuôn mẫu *có tồn tại*. Chúng thuộc về sản phẩm, không thuộc về skill, và trợ lý nhận được chúng bằng cách hỏi sản phẩm.
+
+Vậy trong `SKILL.md` còn gì? Gần như chỉ còn **phán đoán**: đây có phải công cụ đúng không, cái gì đáng ghi và cái gì không, một bước ghi lại có hình dạng ra sao, và gặp từng loại kết quả trả về thì xử lý thế nào. Nó là **sách hướng dẫn vận hành cho một cỗ máy đặt ở nơi khác**.
+
+### Cây B — sản phẩm mà skill đứng trước
+
+    ~/.dotfiles/projects/akm/
+    ├── akm/
+    │   ├── model.py         nhãn nút, tên cạnh, các enum, sinh id
+    │   ├── schema.py        ràng buộc và chỉ mục, chạy lại vô hại
+    │   ├── delta.py         kiểm tra một bước ghi — thuần, không chạm CSDL
+    │   ├── commit.py        đường ghi nguyên tử và chốt chặn tranh chấp
+    │   ├── context.py       lắp gói ngữ cảnh nhỏ, và tiết lộ dần
+    │   ├── server.py        bảy công cụ phơi ra qua MCP — mỏng
+    │   ├── scope.py         tách dữ liệu theo dự án
+    │   ├── push.py          quyết định đẩy gì vào một phiên làm việc
+    │   ├── push_state.py    sổ sách từng phiên, nằm trên đĩa, không dùng CSDL
+    │   ├── serve.py         tiến trình sống lâu giữ sẵn kết nối
+    │   ├── serve_client.py  client chỉ dùng thư viện chuẩn
+    │   ├── cli.py           các lệnh dòng lệnh
+    │   ├── record.py        dựng một bước ghi từ khuôn mẫu
+    │   ├── transcript.py    đọc ngược một phiên làm việc
+    │   ├── session_view.py  hai lệnh chỉ-đọc xem lại phiên
+    │   ├── config.py        toàn bộ nút vặn; bí mật chỉ lấy từ môi trường
+    │   ├── driver.py        dựng kết nối CSDL
+    │   └── seed.py          một ví dụ mồi có thật
+    ├── templates/           năm khuôn mẫu cho năm dạng bước
+    ├── scripts/             điểm vào: dòng lệnh, hook, chạy máy chủ, mồi, đếm
+    ├── tests/               bộ kiểm thử
+    ├── docs/
+    ├── docker-compose.yml   dựng cơ sở dữ liệu đồ thị
+    └── pyproject.toml
+
+Một chỗ đáng để ý: `delta.py` và `commit.py` **cố tình tách đôi**. Kiểm tra phải xong hết và không có tác dụng phụ nào *trước khi* bước vào đường ghi. Một hàm vừa kiểm vừa ghi thì khi hỏng sẽ để lại nửa vời.
+
+### Phân công lao động mà cặp cây này minh hoạ
+
+@fig:haicay
+    CÂY A — skill                      CÂY B — sản phẩm
+    ---------------------------        ----------------------------------
+    SKILL.md                           mot codebase Python day du
+      . khoi dau file: kich hoat         . mo hinh do thi + rang buoc
+      . than: phan doan                  . may chu MCP
+                                         . dong lenh
+                                         . hook day nguoc vao phien
+                                         . bo kiem thu
+    KHONG references/                  chieu sau o day
+    KHONG scripts/                     viec that lam o day
+    KHONG templates/                   khuon mau o day
 @endfig
 
-Có một chi tiết tách đôi làm cho cơ chế này chạy được, và rất dễ bỏ sót: **credential lấy từ thư mục cài đặt, còn scope lấy từ thư mục làm việc của người gọi.**
+Cái skill này dạy không phải "làm thế nào", mà là "**khi nào thì đáng làm, và đọc kết quả ra sao**". Giá phải trả rất thật: skill không tự đứng được. Nó phụ thuộc cứng vào một cơ sở dữ liệu đang chạy và một máy chủ đã đăng ký. Cái mua được cũng rất thật: năng lực đó **kiểm thử được**, có phiên bản, và dùng được cả ở ngoài Claude Code — vì nó cũng là một công cụ dòng lệnh bình thường.
 
-Task ở scope khác thì vô hình và không ghi được. Quan trọng hơn: cơ chế khử trùng lặp **không** gộp một claim của dự án này vào một claim câu chữ y hệt của dự án khác — vì cùng một câu nói về một codebase khác là một claim khác.
+## 4. Luồng chạy — từ lúc kích hoạt tới lúc xong một bước
 
-Cái bẫy còn lại là hai repo trùng tên thư mục sẽ dùng chung một scope. Và mọi dự án nằm dưới một repo mà bản thân chúng không phải repo thì gộp chung scope của repo cha. Vì thế `list_tasks` và `open_task` báo `scope_spread`: có bao nhiêu thư mục làm việc đã ghi task vào scope này, kèm cảnh báo khi nhiều hơn một.
+Trước hết, mặt phơi ra cho trợ lý. Bảy công cụ, chia hai tầng tiết lộ: năm cái giữ cho ngữ cảnh nhỏ, hai cái dành cho lúc một con trỏ mách rằng chỗ đó có thứ đáng đọc đầy đủ.
 
-## Server ấm: vì sao có thêm một tiến trình
+@fig:tang
+    TANG 1 — giu ngu canh nho
+      open_task              mo mot viec moi
+      list_tasks             liet ke viec trong du an nay
+      find_information       tim xem da biet gi ve X chua
+      get_work_context       goi toi thieu de di tiep
+      submit_reasoning_delta de xuat mot buoc suy luan
 
-Một tiến trình Python mới tốn khoảng **234 ms** để import và khoảng **235 ms** cho truy vấn đầu tiên. Cùng truy vấn đó trong một tiến trình đã ấm mất **9–19 ms**.
-
-@fig:warm
-    tiến trình nguội   import 234ms  +  truy vấn đầu 235ms   ~ 469ms
-    tiến trình ấm      truy vấn                              9-19ms
-    pool mới, tiến trình ấm   kết nối                        10ms
+    TANG 2 — van ban day du
+      get_state              doc tron mot trang thai
+      get_information        doc tron mot khang dinh + xuat xu
 @endfig
 
-Mỗi lần hook bắn và mỗi lệnh CLI trước đây đều là một tiến trình mới như vậy — nên không cái nào từng được ấm, và một hook lúc tải nặng có thể quá hạn rồi **không đẩy được gì**.
+Vòng chạy thực tế:
 
-Lời giải là một tiến trình sống lâu giữ sẵn một driver Neo4j và pool kết nối của nó, chạy truy vấn đầu tiên **trước khi** nhận khách. Nó nói HTTP loopback trên `127.0.0.1`, ba đường: `/health`, `/hook`, `/cli`.
-
-Ba tính chất đáng nhớ. Nó **tự khởi động** khi hook hoặc CLI không thấy ai trả lời, với một "spawn claim" độc quyền để một loạt hook bắn cùng lúc không mỗi cái dựng một server. Nó **ấm trước rồi mới mở cổng**, nên trong lúc khởi động khách bị từ chối và rơi về đường chạy trực tiếp, thay vì xếp hàng chờ. Và nó **tự thoát khi rảnh** sau 30 phút không có request.
-
-Một điểm tinh tế về cấu hình: server được khởi động **không** kèm biến môi trường `AKM_*` của người gọi đầu tiên. Mỗi request mang theo thư mục làm việc và biến môi trường của **người gọi đó**, rồi server dựng scope và settings theo từng request. Request không có thư mục thật thì bị từ chối, chứ không được trả lời bằng thư mục của chính server.
-
-## Tương tranh: cái nào là bảo đảm?
-
-Có hai cơ chế, và phân biệt được cái nào là bảo đảm mới là điều quan trọng.
-
-@fig:guards
-    compare-and-swap trên Task.current_state_id
-      -> ĐƯỜNG NHANH. Sinh ra lời từ chối thân thiện, và trong bài test
-         tương tranh thì chính nó là cái loại người thua.
-
-    ràng buộc duy nhất trên (ProblemState.task_id, predecessor_id)
-      -> RANH GIỚI ĐÚNG ĐẮN. Neo4j mặc định read-committed và Cypher không
-         lấy write lock cho SET, nên vẫn tồn tại thứ tự đan xen lọt qua được
-         CAS. Ràng buộc làm cho một nhánh trạng thái rẽ đôi là bất khả, bất kể.
+@fig:vonglap
+    find_information ──> "cai nay biet roi chua?"
+                                │
+    open_task ─┐                ▼
+               ├─> get_work_context ─> dieu tra ─> submit_reasoning_delta ─┐
+    list_tasks ─┘        ▲                                                 │
+                         └─────────────────────────────────────────────────┘
 @endfig
 
-Vì CAS luôn thắng trong thực tế, ràng buộc được test **trực tiếp** — bằng cách đi vòng qua CAS và ghi tay một lineage rẽ đôi — chứ không dựa vào bài test tương tranh để chạm tới nó. Đây là một thói quen tốt nói chung: nếu đường nhanh luôn chắn trước, ranh giới đúng đắn phía sau nó sẽ không bao giờ được thực thi trong test, và ta sẽ tin vào một thứ chưa từng được kiểm.
+Đi từng bước:
 
-Hai chi tiết nhỏ mà đắt. State gốc dùng một giá trị canh `"ROOT"` thay cho `null`, bởi ràng buộc duy nhất của Neo4j **không áp dụng khi thuộc tính là null** — để null thì state gốc được miễn trừ một cách âm thầm. Và một lượt từ chối luôn **ném ra ngoài** transaction chứ không return, vì một hàm transaction được quản lý mà return bình thường thì coi như đã commit.
+1. **Kích hoạt.** Phần mô tả của skill bắt khi công việc là một cuộc điều tra trải nhiều bước hoặc nhiều phiên — và cũng bắt khi người dùng nói "ghi lại cái này", "tiếp tục việc hôm trước", "chúng ta đã xác định được gì về X rồi?".
+2. **Hỏi trước khi làm.** Có ai sẽ cần dựng lại đường đi tới kết luận này không? Không thì dừng ở đây.
+3. **Tìm trước khi điều tra.** Một lần tìm là rẻ, và nó chính là liều thuốc cho đúng cái bệnh mà cả hệ thống sinh ra để chữa: rút lại kết luận mà phiên trước đã rút rồi. Tìm ở đây là **tìm toàn văn có gốc từ** — "subagents" khớp "subagent" — nhưng **không phải tìm theo nghĩa**: gõ "giá" sẽ không ra một khẳng định chỉ nói "chi phí". Thử vài cách diễn đạt trước khi kết luận là chưa ai ghi.
+4. **Mở việc mới, hoặc lấy lại việc cũ.** Liệt kê là cách *duy nhất* lấy lại id của một việc mà phiên này không tạo ra.
+5. **Đọc gói ngữ cảnh.** Nó cố tình không trả về toàn bộ lịch sử, và cắt bớt văn bản dài để giữ gói nhỏ.
+6. **Điều tra.** AKM *lưu* suy luận, nó không *suy luận hộ*. Việc tìm nguyên nhân, việc giải thích, việc viết code là của các skill khác. AKM đi kèm bên cạnh chúng.
+7. **Ghi một bước.** Rẻ nhất là ghi từ khuôn mẫu bằng một dòng lệnh. Chỉ khi bước đó có hình dạng không khuôn mẫu nào phủ được mới phải tự viết cấu trúc đầy đủ.
+8. **Xử lý kết quả trả về.** Ba khả năng, và chúng khác nhau về bản chất:
+   - **Ghi thành công.** Trong phần trả lời có thể có mục "đã gộp trùng" — những câu bạn viết mà hệ thống thấy đã tồn tại y hệt, nên nó trỏ tới cái cũ thay vì chép thêm bản mới. Đây không phải lỗi; đây là tái dùng tri thức đang hoạt động đúng. Có thể có thêm **cảnh báo** cho những khẳng định chỉ thuật lại tình trạng — mã commit, "test xanh", "đã merge". Chúng vẫn được ghi, nhưng chúng đã có nhà khác rồi.
+   - **Bị từ chối vì trạng thái gốc đã cũ.** Ai đó đã đẩy việc này tiến lên trong lúc bạn đang viết. **Đây không phải lỗi.** Đọc lại gói, tự quyết định phát hiện của mình còn đứng vững trước hiểu biết mới không, rồi ghi lại trên trạng thái mới.
+   - **Lỗi thật.** Một tham chiếu trỏ vào hư không, hoặc một khẳng định mang tính sự thật mà không có xuất xứ. Sửa nội dung rồi gửi lại — đừng gửi lại y nguyên.
+9. **Vòng lặp.** Mỗi bước trả lời một câu hỏi và thường làm nảy ra câu tiếp theo. Đó là động cơ: trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, câu trả lời sinh ra trạng thái mới.
+10. **Đào sâu khi cần.** Một dòng trong quỹ đạo bị cắt ngang giữa câu là một tín hiệu, không phải một ý trọn vẹn. Nếu nó có vẻ đã làm đổi cả bức tranh, mở nó ra đọc đủ. Và luôn đọc đủ trước khi trích dẫn một khẳng định hay đặt quyết định lên nó: một câu bị cắt ở ký tự thứ 240 không phải một trích dẫn.
 
-## Delta bị từ chối không phải là lỗi
+## 5. Dữ liệu & trạng thái — cái gì được ghi, ghi ở đâu
 
-`submit_reasoning_delta` trả về một kết quả có cấu trúc thay vì ném lỗi, khi task đã đi tiếp:
+### Đồ thị
 
-    {"committed": false, "reason": "base_state_conflict", "current_state_id": "..."}
+Tri thức nằm trong một **đồ thị**: các **nút** (mẩu thông tin) nối với nhau bằng các **cạnh** có tên (quan hệ giữa chúng). Bảy loại nút:
 
-Trong một hệ có tương tranh, chuyện này là kết quả **được trông đợi**, và người gọi cần chính cái id đó để rebase: đọc lại ngữ cảnh, xem phát hiện của mình còn đứng vững trước state mới không, rồi gửi lại. Chỉ lỗi thật — một tham chiếu treo, một claim factual không có xuất xứ — mới ném ra.
+@fig:dothi
+    Task ─ ProblemState ─ Question ─ Information ─ Evidence ─ Source ─ ReasoningDelta
 
-## Không có trong slice này
+    Khung suy luan
+      Task            HAS_STATE        ProblemState
+      ProblemState    NEXT_STATE       ProblemState
+      Information     RAISES           Question
+      Information     ANSWERS          Question
+      Information     DERIVED_FROM     Evidence
+      Evidence        FROM             Source
 
-Sáu công cụ MVP còn lại; `InformationProfile` và `Artifact`; REST API, UI, vector DB, workflow engine, cluster, consensus, sinh báo cáo; hai chính sách tương tranh `branch` và `merge`; khử trùng lặp theo ngữ nghĩa; và việc di trú kho tài liệu sẵn có vào đồ thị.
+    Buoc suy luan duoc giu lai thanh nut
+      ReasoningDelta  FROM_STATE       ProblemState
+      ReasoningDelta  TO_STATE         ProblemState
+      ReasoningDelta  ANSWERED         Question
+      ReasoningDelta  USED             Information
+      ReasoningDelta  INTRODUCED       Information
 
-Danh sách này đáng đọc không phải để biết thiếu gì, mà để thấy một slice được cắt gọn thì trông ra sao: một câu hỏi, bốn tiêu chí, một phép đo, và một danh sách rõ ràng những thứ **cố ý** chưa làm.
+    Sua mot khang dinh cu
+      Information     SUPERSEDES       Information
+@endfig
+
+Đọc theo lời thường: một **việc** có các **trạng thái hiểu biết** nối tiếp nhau. **Khẳng định** làm nảy ra hoặc trả lời **câu hỏi**, và rút ra từ **bằng chứng**, mà bằng chứng thì trỏ về **nguồn**. Và **mỗi bước đi giữa hai trạng thái tự nó cũng là một nút**, chứ không phải một sợi dây trơn — phần 9 giải thích vì sao đó là quyết định quan trọng nhất của cả sản phẩm.
+
+Vài quy tắc về dữ liệu đáng nhớ:
+
+- **Bằng chứng trỏ, không chép.** Một "định vị" là `src/queue/worker.py:88-140`, một câu truy vấn log, một URL, một mã commit. Dán nguyên nội dung file vào đồ thị vừa phá mất mục đích vừa làm gói ngữ cảnh phình to.
+- **Khẳng định không bao giờ bị sửa.** Khi một khẳng định sau phủ nhận một khẳng định trước, nó được ghi là khẳng định *mới* kèm một cạnh nói rõ nó thay thế cái nào. Không có cạnh đó, người đọc sau sẽ thấy hai câu mâu thuẫn và không có gì cho biết câu nào còn hiệu lực.
+- **Trùng lặp được gộp, không được chép.** Hai bước viết ra đúng cùng một câu thì câu thứ hai trỏ về nút đã có. Nhưng nút đã có **giữ nguyên xuất xứ mà nó được ghi kèm lúc đầu** — thêm bằng chứng vào nó sẽ làm đổi câu trả lời của mọi truy vấn xuất xứ trước đó. Lịch sử không được viết lại.
+
+### Đảo dữ liệu theo dự án
+
+Mỗi nút được đóng dấu một **phạm vi**, và mọi lượt đọc đều lọc theo dấu đó. Phạm vi lấy từ **tên kho git của thư mục đang làm việc**; ngoài kho git thì tất cả rơi vào một thùng chung.
+
+@fig:dao
+    ~/work/checkout-api        →  checkout-api
+    ~/work/billing             →  billing
+    ~/tmp/scratch              →  un-git-repo
+    dat bien AKM_SCOPE         →  gia tri ban dat
+@endfig
+
+Hệ quả phải biết trước:
+
+- Một việc thuộc dự án khác đơn giản là **không nhìn thấy** — không phải lỗi, không cần tìm cách lách.
+- Việc gộp trùng **không bao giờ vượt ranh giới**: cùng một câu chữ nói về một hệ thống khác là một khẳng định khác.
+- Hai kho git trùng tên cơ sở sẽ **dùng chung một đảo**. Đó là hệ quả cố ý của việc chọn quy tắc "lấy tên kho" cho dễ hiểu; muốn tách thì đặt phạm vi thủ công.
+- Vì thư mục con của một kho vẫn thuộc kho đó, nhiều dự án nằm dưới cùng một kho sẽ dùng chung đảo. Hệ thống tự biết chuyện này và **báo ra** số thư mục làm việc đã ghi vào cùng một phạm vi, kèm cảnh báo khi nhiều hơn một.
+
+### Trạng thái nằm ngoài đồ thị
+
+Có một loại trạng thái không vào đồ thị mà nằm trên đĩa, một file cho mỗi phiên làm việc: **phiên này đang gắn với việc nào**, **đã tiêu bao nhiêu ký tự** trong ngân sách ngữ cảnh, và **những id nào đã được đưa vào rồi** để không đưa lại lần hai. Nó bị quên đi ở lúc khởi động, lúc xoá ngữ cảnh và lúc nén ngữ cảnh — đúng những thời điểm cửa sổ hội thoại không còn giữ những thứ đó nữa.
+
+Một phiên **tự gắn** vào một việc chỉ bằng cách chạm vào nó: mở, đọc ngữ cảnh, ghi một bước, hoặc nhắc id của nó trong câu lệnh. Không ai phải khai báo gì.
+
+### Một chỗ tách đôi đáng học
+
+Thông tin đăng nhập cơ sở dữ liệu đọc từ **thư mục cài đặt** của sản phẩm, theo đường dẫn tuyệt đối. Phạm vi cách ly thì lấy từ **thư mục làm việc của người gọi**. Chính cái tách đôi đó khiến **một máy chủ phục vụ được mọi dự án** mà tri thức của chúng vẫn nằm riêng.
+
+## 6. Đầu–cuối — một lượt chạy trọn vẹn
+
+Lấy lại vụ job đối soát ghi trùng ở phần 2.
+
+**Bước 0 — mở việc.**
+
+Mục tiêu: "tìm vì sao job đối soát hàng đêm ghi trùng bản ghi từ đầu tháng". Hiểu biết ban đầu: "chỉ đường chạy tự động bị trùng, đường chạy tay thì không; chưa rõ nguyên nhân". Nhận về id của việc và id của trạng thái đầu tiên. Cái id trạng thái đó là **trạng thái gốc** cho bước ghi đầu tiên.
+
+**Bước 1 — nhìn lần đầu và ghi lại.**
+
+Bạn đọc cấu hình lịch chạy, thấy job được đăng ký hai lần. Ghi bằng một dòng lệnh, từ khuôn mẫu "quan sát":
+
+    akm_cli.py record --task <id việc> --base-state <id trạng thái đang đọc> \
+        --template observation \
+        --why "đọc cấu hình lịch chạy đã triển khai, so với đường chạy tay" \
+        --state "job được đăng ký hai lần: một mục cũ và một mục mới thêm đầu tháng. Chưa xác lập được cả hai có thật sự chạy xong hay không." \
+        --claim "file lịch chạy đăng ký job đối soát hai lần" \
+        --evidence config_section:deploy/schedules.yaml:44-58 \
+        --question "cả hai mục có thật sự chạy, hay một cái thoát sớm?" \
+        --question-type verification
+
+Để ý **cái không được khẳng định**: rằng hai mục trùng *gây ra* bản ghi trùng. Đó là câu hỏi của bước sau, không phải kết luận của bước này. Sự kiềm chế đó chính là thứ làm cho đồ thị đáng tin.
+
+Dòng lệnh trên tự lo phần việc buồn tẻ: sinh các nhãn nội bộ, biến `--evidence TYPE:ĐỊNH_VỊ` thành một bằng chứng cộng một nguồn, gộp các bằng chứng trỏ cùng một file về chung một nguồn, và **buộc mỗi bằng chứng vào khẳng định viết ngay trước nó** (bằng chứng viết trước khẳng định đầu tiên thì đỡ cho mọi khẳng định).
+
+**Bước 2 — trả lời câu hỏi vừa nảy ra.**
+
+Đọc lại gói ngữ cảnh, lấy id câu hỏi đang mở. Bạn xem log thực thi, thấy hai lần chạy đều hoàn tất. Ghi bước thứ hai: trạng thái gốc là trạng thái vừa tạo ở bước 1, có khai rõ nó **đóng câu hỏi nào**, và khẳng định mới mang loại "sự thật suy ra" — vì nó là kết luận nhân quả rút ra từ bằng chứng log, không phải thứ quan sát trực tiếp.
+
+**Sau hai bước, đồ thị trả lời được:**
+
+    Vi sao trang thai hien tai ton tai?   → ly do cua buoc 2, nguyen van
+    No khac gi trang thai truoc?          → tom tat trang thai buoc 1
+    Bang chung nao gay ra thay doi?       → dinh vi doan log
+    Luc do dang tra loi cau hoi nao?      → "ca hai muc co that su chay?"
+
+**Bước 3 — ba ngày sau, một phiên khác.**
+
+Liệt kê việc đang mở, mở lại việc này, nhận đúng gói ngữ cảnh đó. Không cần đọc lại lịch sử hội thoại, vì lịch sử hội thoại không còn.
 
 ---
 
-Tài liệu này đọc trực tiếp từ mã nguồn và tài liệu của chính dự án AKM: README, skill hướng dẫn agent, mô hình đồ thị, tầng kiểm tra delta, và phần cấu hình. Các con số đo đạc giữ nguyên như dự án ghi lại, kèm ngày đo.
+# PHẦN 3 — Gắn vào đâu, và chặn cái gì
 
-Đường dẫn đã được rút gọn về dạng `~/` để không lộ thư mục máy cá nhân.
+## 7. Hook — chỗ tri thức tự tìm tới, không chờ ai gọi
+
+Phần lớn skill không gắn vào hook nào. AKM là ngoại lệ, và lý do rất thực dụng: **trợ lý không chủ động đi tra**. Trên toàn bộ lịch sử làm việc từng chạm tới AKM, số lượt ghi xấp xỉ số lượt đọc, và phiên duy nhất được đo kỹ thì ghi mười bốn lần và đọc không lần nào. Một kho tri thức không ai mở là một kho tri thức vô dụng.
+
+Nên sản phẩm đảo chiều: nó **đẩy** vào phiên làm việc.
+
+**Hook** là cơ chế của Claude Code cho phép chạy một lệnh ngoài tại những thời điểm cố định trong một phiên. AKM đăng ký đúng một script cho năm sự kiện:
+
+@fig:hooks
+    SessionStart      → luong chinh, luc bat dau / khoi phuc / xoa ngu canh / sau nen
+                        viec dang mo trong pham vi, va viec phien nay dang gan
+    UserPromptSubmit  → luong chinh, moi lan nguoi dung go mot cau
+                        khang dinh + cau hoi mo khop voi cau do, chua co trong cua so
+    PreToolUse(Agent) → dung tac vu con sap duoc sinh ra
+                        khang dinh khop voi de bai, noi them vao de bai do
+    SubagentStart     → moi tac vu con, va moi luot cua dong doi trong tien trinh
+                        hieu biet hien tai va cau hoi mo cua viec dang gan
+    PostToolUse       → khong day gi ca
+                        chi gan phien nay vao nhung viec ma cac lenh cua no vua cham
+@endfig
+
+Cách chia đó không tuỳ tiện: **chỗ duy nhất nhìn thấy đề bài của một tác vụ con là trước khi nó được sinh ra**, còn sự kiện "tác vụ con khởi động" thì bắn *trước khi* bản ghi hội thoại của đứa con tồn tại và không mang theo đề bài. Mỗi chỗ nhận được thứ nó có thể nhận.
+
+Một tác vụ con không có công cụ MCP và không tự nạp sẵn skill này. Nó có thể gọi skill, nhưng skill **không biết đường dẫn dòng lệnh của bản cài đặt này, cũng không biết phiên đang làm việc nào**. Nên khối được đẩy vào mang theo đúng hai thứ đó: đường dẫn tuyệt đối tới dòng lệnh, và id của việc kèm câu lệnh chạy được. Đó là cách một tác vụ con tự đọc tiếp và tự ghi bước của nó.
+
+**Hai loại tác vụ không bao giờ nhận gì.** Một tác vụ đi *review code* phải xét đoạn code mà không bị lời kể của tác giả neo trước; một "thấu kính" nghiên cứu chỉ được lấy đúng đầu vào đã khai báo. Với hai loại đó, không hook nào trả lời.
+
+**Hai luật giữ cho luồng chính không bị nhét lại thứ nó đã có.** Một câu lệnh có quá ít từ có nghĩa thì không được đem đi tìm — "commit and push" từng kéo về hai khẳng định lạc đề, một trong đó đã cũ. Và những khẳng định do chính luồng chính viết ra trong cửa sổ hiện tại thì không đẩy ngược lại cho nó; ghi của tác vụ con thì có, vì luồng chính chưa từng thấy.
+
+**Luôn hỏng theo kiểu im lặng.** Tắt công tắc, không có máy chủ, máy chủ khởi động chưa kịp hạn, đồ thị không với tới được — tất cả đều thoát êm và không in gì. Một script hook **không bao giờ được báo lỗi ở sự kiện nhận câu lệnh người dùng**, vì làm thế sẽ xoá mất câu lệnh đó.
+
+Việc đăng ký hook không làm bằng tay mà do một công cụ riêng ghi vào file cấu hình cục bộ của từng dự án, kèm sổ đánh dấu để gỡ ra sạch sẽ. Hook của dự án đi theo **thư mục mà phiên được mở**, chứ không theo gốc kho git, nên phải cài cho từng dự án muốn nhận.
+
+Một chỗ dễ nhầm, và skill nói thẳng ra: **một phạm vi chưa ghi gì sẽ đẩy ra khối rỗng, trông y hệt như hook chưa được cài.** Đừng suy ra gì từ sự im lặng — có lệnh chẩn đoán để hỏi cho chắc.
+
+## 8. Rào chắn — cái gì chặn người dùng làm sai
+
+### Luật xuất xứ, và nó được cưỡng chế
+
+Đây là rào chắn quan trọng nhất, và nó là lý do tồn tại của cả cách thiết kế. Mỗi khẳng định mang một **loại**. Sáu loại mang tính sự thật — sự thật, quy tắc, định nghĩa, ràng buộc, quan sát, sự thật suy ra — **bắt buộc** phải thoả ít nhất một trong bốn đường:
+
+@fig:xuatxu
+    Mot khang dinh mang tinh su that
+      dan tu bang chung     co canh tro toi mot Evidence cu the
+      nguoi noi             mot con nguoi da noi voi ban dieu do
+      he thong bao          he thong tu bao cao ra so lieu do
+      tu khai la chua chac  danh dau la gia dinh / gia thuyet / chua kiem chung
+    Khong duong nao → may chu tu choi ca buoc ghi
+@endfig
+
+Loại thứ bảy — **giả định** — là lối thoát hiểm duy nhất được miễn, vì tự cái tên nó đã khai rằng nó không được khẳng định như sự thật.
+
+Vì sao gắt đến thế? Vì điều tệ nhất một hệ thống ghi suy luận có thể làm là **để đầu ra của một mô hình trở thành một sự thật không có xuất xứ, rồi việc sau xây lên trên nó**. Một phỏng đoán được dán nhãn phỏng đoán thì có ích. Một phỏng đoán được ghi như sự thật là một quả mìn.
+
+### Những rào chắn khác, và cái gì hỏng nếu thiếu
+
+- **Trường lạ bị từ chối thẳng.** Gõ sai tên một quan hệ sẽ *báo lỗi to*, thay vì im lặng làm rơi mất liên kết đó.
+- **Mọi lỗi được báo cùng lúc.** Người gửi sửa xong một lượt, thay vì phát hiện từng lỗi một qua nhiều vòng.
+- **Tham chiếu phải đúng *loại* nút.** Một id tồn tại thật nhưng trỏ vào nguồn thay vì bằng chứng sẽ qua được phép kiểm tra "có tồn tại không", rồi lặng lẽ không tạo ra cạnh nào — và để lại đúng cái mà luật xuất xứ sinh ra để cấm. Phép kiểm tra này nằm **bên trong giao dịch ghi**, không phải trước đó, vì kiểm trước rồi ghi sau là một cuộc đua.
+- **Từ chối phải ném ra khỏi giao dịch, không được trả về bình thường.** Một hàm giao dịch trả về bình thường sẽ được coi là thành công và *ghi luôn* đúng những thay đổi mà nó đang chối bỏ.
+- **Hai cơ chế chống ghi đè, và phải biết cái nào mới là bảo đảm.**
+
+@fig:chan
+    DUONG NHANH — so-va-doi tren con tro trang thai hien tai
+    Cho ra loi tu choi than thien kem id trang thai moi de ghi lai. Trong
+    thuc te no la cai bat gan nhu moi truong hop. Nhung no KHONG phai bao dam.
+
+    BIEN CHUNG DUNG — rang buoc duy nhat tren (viec, trang thai cha)
+    CSDL mac dinh doc-da-commit va cau lenh ghi o day khong tu lay khoa, nen
+    ve ly thuyet hai ben cung lot qua duong nhanh. Rang buoc nay khien viec
+    re nhanh lich su la bat kha thi, khong phu thuoc vao khoa.
+@endfig
+
+Vì đường nhanh gần như luôn thắng, ràng buộc kia được kiểm thử **trực tiếp** — bằng cách cố tình đi vòng qua đường nhanh và ghi tay một lịch sử bị rẽ nhánh — chứ không dựa vào bài kiểm tra tranh chấp để tình cờ chạm tới nó.
+
+- **Trạng thái gốc dùng một giá trị đánh dấu, không dùng giá trị rỗng.** Ràng buộc duy nhất của cơ sở dữ liệu này *không áp dụng* khi một thuộc tính rỗng, nên để rỗng sẽ lặng lẽ miễn trừ đúng cái trạng thái đầu tiên.
+- **Bộ kiểm thử tự từ chối chạy ngoài phạm vi của riêng nó.** Nó kiểm tra điều đó trước khi động vào bất cứ thứ gì. Luật này có vì đã từng có một lần nó xoá mất một đồ thị thật.
+- **Gói ngữ cảnh có trần, và nói rõ khi đã cắt.** Khi bị cắt, nó liệt kê danh sách nào mất bao nhiêu mục; số câu hỏi mở còn có cách riêng để thấy bị cắt. Nghĩa là **im lặng không đồng nghĩa với đầy đủ** — và hệ thống nói ra điều đó thay vì để người đọc tự đoán.
+- **Khẳng định chỉ thuật lại tình trạng thì bị cảnh báo**, hoặc bị từ chối nếu chỉnh chính sách. Mã commit, test xanh, đã merge, review đã duyệt — git, CI và công cụ review đã giữ rồi.
+- **Máy chủ đẩy chỉ nghe ở địa chỉ nội bộ** và không làm được gì hơn dòng lệnh chạy tại chỗ, nên không có cơ chế xác thực nào — và cũng không cần.
+- **Tắt công tắc thì các công cụ vẫn gọi được và trả lời bằng một lời từ chối rõ ràng**, thay vì biến mất. Trợ lý xuống cấp thành làm việc không có đồ thị, chứ không coi đó là hỏng.
+
+---
+
+# PHẦN 4 — Bài học rút ra được
+
+## 9. Đặc trưng — những quyết định đáng học, và giá của từng cái
+
+**Giữ lại bước suy luận thành một nút riêng.** Bản đặc tả gốc chỉ cho đúng một sợi dây giữa hai trạng thái, và sợi dây đó không mang theo lời biện minh nào. Nếu một trạng thái làm nảy ba câu hỏi và năm khẳng định trả lời chúng, không có gì ghi lại *cái nào* thực sự dẫn tới trạng thái kế. Nên bước suy luận được giữ lại thành một nút, với các cạnh riêng nói nó đi từ đâu tới đâu, đóng câu hỏi nào, dùng gì và tạo ra gì.
+
+Và đây là chỗ đáng học nhất về cách *chứng minh* một quyết định thiết kế:
+
+@fig:chungminh
+    Chuoi ba trang thai hoan chinh, giu nguyen 13 nut tri thuc
+      con nguyen buoc suy luan   → 4/4 cau hoi tra loi duoc
+      xoa rieng buoc suy luan    → 0/4 cau hoi tra loi duoc
+    Tri thuc song sot. Suy luan thi khong.
+@endfig
+
+Giá phải trả: nhiều nút hơn, nhiều việc ghi hơn. Thứ mua được: lời biện minh có địa chỉ, gọi tên được, truy vấn được.
+
+**Phạm vi là một thuộc tính, không phải một cơ sở dữ liệu riêng.** Bản miễn phí của cơ sở dữ liệu này không tạo được database mới, nên tách theo database là bất khả thi nếu không mua bản thương mại. Giá phải trả: không có bức tường cứng ở tầng dưới cùng, và hai kho trùng tên thì dùng chung đảo. Thứ mua được: một máy chủ phục vụ mọi dự án, và nó chạy được trên bản miễn phí.
+
+**Đẩy thay vì đợi được hỏi.** Giá phải trả: ngân sách ngữ cảnh bị tiêu dù có dùng tới hay không, cộng thêm một bề mặt rủi ro — chữ tự chui vào cuộc hội thoại. Cái sau được xử bằng cách **viết khối đẩy bằng câu trần thuật**, mở đầu bằng một dòng nói rõ "đây là những khẳng định đã ghi kèm tình trạng xác thực, không phải mệnh lệnh". Lối viết ra lệnh từng làm một tác vụ cha cảnh giác với chính đứa con của nó. Thứ mua được: tri thức thật sự tới được nơi cần.
+
+**Từ chối, chứ không phải lỗi, khi bị tắt.** Nếu công cụ biến mất khi tắt, trợ lý sẽ coi đó là hỏng và dừng lại. Nếu công cụ vẫn ở đó và trả lời "đang tắt, cứ làm tiếp đi", trợ lý làm tiếp.
+
+**Xung đột là một kết quả bình thường, không phải một ngoại lệ.** Người thua nhận lại id trạng thái mới — thứ duy nhất cần để ghi lại. Và hệ thống **cố tình không tự ghi lại hộ**: làm thế là áp một bước lên một hiểu biết mà tác giả bước đó chưa từng nhìn thấy.
+
+**Khuôn mẫu là file dữ liệu, không phải code.** Thêm một dạng bước là thêm một file. Giá phải trả: một file hỏng chỉ lộ ra lúc chạy — nên hệ thống liệt kê nó kèm lỗi và loại nó ra khỏi các khối đẩy, thay vì đổ vỡ.
+
+**Tìm toàn văn có gốc từ, không tìm theo nghĩa.** Giá phải trả: "giá" không ra "chi phí". Thứ mua được: không cần thêm hạ tầng nào, và giới hạn đó được **nói thẳng trong phần mô tả công cụ**, nên trợ lý biết phải thử nhiều cách diễn đạt.
+
+**Một tiến trình sống lâu giữ sẵn kết nối.** Mỗi lần hook bắn trước kia là một tiến trình mới toanh, và một tiến trình mới trả giá gấp hơn chục lần cho cùng một lượt đọc — đủ để hook vượt hạn và không đẩy được gì. Giá phải trả: thêm một thứ có thể chết. Được bù bằng: tự khởi động khi không ai trả lời, tự thoát khi rảnh lâu, và người gọi luôn có đường lui.
+
+## 10. Tự dựng skill của bạn
+
+Câu hỏi lớn nhất mà trang này giúp bạn trả lời không phải "AKM hoạt động ra sao", mà:
+
+> Skill của tôi nên là **luật viết bằng lời**, hay nên là **một file mỏng gọi sang code thật**?
+
+### Hai kiểu, đặt cạnh nhau
+
+| | Skill tự chứa | Skill mỏng đứng trước sản phẩm |
+|---|---|---|
+| Năng lực nằm ở đâu | trong chính `SKILL.md`, `references/`, `scripts/` | trong một codebase riêng, có vòng đời riêng |
+| Skill dạy cái gì | **cách làm** | **khi nào đáng làm, và đọc kết quả ra sao** |
+| Kiểm chứng bằng gì | đọc, và thử vài lần | bộ kiểm thử của sản phẩm |
+| Tốn context mỗi lần chạy | mọi thứ phải đọc để làm được việc | chỉ phần phán đoán |
+| Cài đặt | không có | có thật: dựng dịch vụ, đăng ký, khai báo |
+| Hỏng thì hỏng kiểu gì | hướng dẫn sai, khó phát hiện | không kết nối được — lộ ngay |
+| Dùng ngoài trợ lý AI được không | không | được, vì nó vốn là công cụ bình thường |
+
+### Ba phép thử để chọn
+
+1. **Nó có giữ trạng thái sống lâu hơn một lần chạy không?** Lời văn không giữ được trạng thái. Nếu công việc cần một cơ sở dữ liệu, một định dạng file, một chỉ mục — đó là sản phẩm.
+2. **Có bất biến nào phải *từ chối*, chứ không phải *khuyên*?** Một luật mà bạn chỉ có thể *nhờ* trợ lý tuân theo là một luật sẽ bị vi phạm. Nếu vi phạm nó làm hỏng dữ liệu, nó phải được cưỡng chế bằng code biết nói không. Luật xuất xứ của AKM là ví dụ: nó không nằm trong skill, nó nằm trong máy chủ, và máy chủ từ chối.
+3. **Không có Claude Code thì năng lực này còn đáng có không?** Nếu có — nếu tồn tại một công cụ dòng lệnh mà người ta sẽ gõ tay — thì đó là sản phẩm, còn skill là sách hướng dẫn của nó.
+
+Ba câu đều "không" thì làm skill tự chứa: `references/` cho chiều sâu, `scripts/` cho phần cơ học lặp lại. Một câu "có" trở lên thì tách sản phẩm ra, và chấp nhận rằng skill của bạn sẽ **mỏng**.
+
+### Những quyết định vẫn là của bạn, kể cả khi có sản phẩm ở sau
+
+**Viết phần mô tả ở đầu file thế nào.** Đây là phần duy nhất luôn nằm trong bộ nhớ, và nó quyết định skill có được chọn hay không. Cách viết của AKM đáng chép lại: một danh sách **tình huống** (điều tra chưa rõ nguyên nhân, quyết định kiến trúc tích luỹ bằng chứng theo thời gian, nghiên cứu cần truy được nguồn), cộng một số **cách nói của người dùng** ("ghi lại phát hiện", "tiếp tục việc hôm trước"), cộng một **mục kích hoạt thuần vận hành** ("cũng dùng khi nhặt lại việc cũ, vì đó là cách duy nhất lấy lại id"), cộng một dòng **đừng dùng cho** liệt kê thẳng những thứ dễ bị nhầm. Mô tả *tóm tắt công cụ* thì bật theo chủ đề; mô tả *liệt kê tình huống* thì bật theo nhu cầu.
+
+**Cái gì được ở lại trong phần thân.** Quy tắc rút ra được từ AKM: **đừng viết vào `SKILL.md` thứ mà cỗ máy sẽ tự nói cho trợ lý nghe.** Máy chủ đã tự mô tả từng công cụ; chép lại vào skill là trả tiền hai lần và tạo ra một bản sao sẽ lệch dần. Cái ở lại là những thứ máy không nói được: đây có phải công cụ đúng không, cái gì đáng ghi, gặp từng loại kết quả thì làm gì.
+
+**Phần cài đặt có đáng nằm trong skill không.** AKM giữ nó, kèm cả **một câu lệnh sai mà người ta hay gõ** và mô tả đúng triệu chứng của nó. Lý do: cái hỏng đó **im lặng** — máy chủ trông như đã đăng ký mà không bao giờ trả lời. Quy tắc: một cách hỏng im lặng thì đáng cả một đoạn văn; một cách hỏng ồn ào thì không cần.
+
+**Skill cư xử ra sao khi cái ở sau nó chết.** Phải viết đường xuống cấp vào skill, nếu không trợ lý sẽ đứng chờ. AKM viết đúng một câu: nói thẳng là không kết nối được, rồi làm tiếp công việc thật mà không có nó. Mất dấu vết là một thiệt hại thật, nhưng nhỏ hơn nhiều so với đứng lại giữa cuộc điều tra.
+
+**Luật nào có vì đã từng có sự cố.** Đây là thứ làm cho luật đáng nhớ thay vì tuỳ tiện. Ở AKM: bộ kiểm thử tự kiểm tra phạm vi *vì đã từng xoá mất một đồ thị thật*; câu lệnh quá ngắn không được đem đi tìm *vì "commit and push" từng kéo về hai khẳng định lạc đề*; khối đẩy viết bằng câu trần thuật *vì lối viết ra lệnh từng làm một tác vụ cha cảnh giác với con nó*. Khi viết skill của bạn, mỗi lần bạn thêm một luật, hãy ghi luôn sự cố sinh ra nó.
+
+### Bắt đầu
+
+Tạo thư mục, và viết đúng một file:
+
+    .claude/skills/<ten-skill>/
+    └── SKILL.md
+
+Trong đó, theo thứ tự:
+
+1. khối đầu file — `name`, và `description` viết theo kiểu liệt kê tình huống, có dòng "đừng dùng cho";
+2. một đoạn mở nói **thứ gì bị mất nếu không có skill này** — không phải skill làm gì;
+3. mục "đây có phải công cụ đúng không", có bảng đối chiếu sang các skill khác;
+4. vòng chạy, ngắn;
+5. mỗi loại kết quả trả về và cách xử lý — nhất là loại *không phải lỗi* mà trông giống lỗi;
+6. cài đặt, nếu có cách hỏng im lặng;
+7. một đoạn về việc phải làm gì khi cái ở sau nó không với tới được.
+
+Nếu viết xong mà thấy mục 3 ngắn hơn mục 4 rất nhiều, nhiều khả năng bạn đang viết tài liệu tham khảo chứ chưa phải skill.
+
+## 11. Thuật ngữ
+
+Đây là skill nhiều thuật ngữ nhất trong bộ, nên danh sách này dài. Xếp theo A–Z.
+
+| Thuật ngữ | Nghĩa |
+|---|---|
+| **bằng chứng** (Evidence) | một con trỏ tới chỗ có thể kiểm chứng lại được: khoảng dòng trong file, câu truy vấn log, URL, mã commit. Nó **trỏ**, không chép nội dung. |
+| **bước suy luận** (delta) | một lần đẩy hiểu biết đi tới: đã làm gì, nó cho thấy gì, hiểu biết mới là gì. Ở AKM nó được giữ lại thành một nút riêng. |
+| **cạnh** (edge) | một mối quan hệ có tên giữa hai nút, ví dụ "khẳng định này rút ra từ bằng chứng kia". |
+| **câu hỏi** (Question) | một điều chưa biết, được ghi lại kèm loại (chẩn đoán, thăm dò, kiểm chứng, quyết định, làm rõ) và tình trạng mở hay đã trả lời. |
+| **cưỡng chế** | máy chủ **từ chối** ghi khi một luật bị vi phạm, thay vì chỉ khuyên. |
+| **đảo / phạm vi** (scope) | ranh giới tách dữ liệu giữa các dự án. Mỗi nút được đóng dấu, mọi lượt đọc lọc theo dấu. |
+| **đồ thị** (graph) | cách lưu dữ liệu bằng nút và cạnh, thay vì bằng bảng và dòng. |
+| **đồ thị tri thức** (knowledge graph) | một đồ thị mà các nút là mẩu tri thức và các cạnh là quan hệ giữa chúng — ở đây gồm cả quan hệ xuất xứ. |
+| **gói ngữ cảnh** (work packet) | phần tối thiểu trả về để đi tiếp một việc: hiểu biết hiện tại, câu hỏi mở, khẳng định chính, xuất xứ, quỹ đạo. Có trần kích thước. |
+| **gộp trùng** (dedup) | hai bước viết ra đúng cùng một câu thì câu sau trỏ về nút đã có, thay vì tạo bản sao. Không bao giờ vượt ranh giới đảo. |
+| **hiểu biết hiện tại / trạng thái** (ProblemState) | những gì được hiểu **ngay lúc này, dựa trên bằng chứng đang có**. Không phải một dòng nhật ký. |
+| **hook** | cơ chế của Claude Code cho phép chạy một lệnh ngoài tại những thời điểm cố định của phiên làm việc. |
+| **hỏng êm** (fail open) | khi có trục trặc thì im lặng cho qua, thay vì báo lỗi và chặn công việc. |
+| **khẳng định** (Information) | một câu tuyên bố điều gì đó đúng, kèm loại và tình trạng nhận thức. Không bao giờ bị sửa — chỉ bị thay thế. |
+| **khuôn mẫu** (template) | một bộ khung sẵn cho một dạng bước hay gặp, để ghi bằng vài tham số thay vì viết cấu trúc đầy đủ. Năm cái: quan sát, đặt câu hỏi, trả lời, giả thuyết, đính chính. |
+| **loại khẳng định** | sự thật, quy tắc, định nghĩa, ràng buộc, quan sát, sự thật suy ra, giả định. Sáu loại đầu bắt buộc có xuất xứ. |
+| **luồng chính** | cuộc hội thoại chính với người dùng, phân biệt với **tác vụ con** do nó sinh ra. |
+| **MCP** | một giao thức chuẩn để một chương trình ngoài phơi công cụ ra cho trợ lý AI gọi. |
+| **máy chủ MCP** | chương trình ngoài đó. Ở đây, nó là cửa duy nhất ra vào đồ thị khi làm việc trong trợ lý. |
+| **nút** (node) | một mẩu dữ liệu trong đồ thị. AKM có bảy loại nút. |
+| **nguồn** (Source) | nơi bằng chứng được lấy ra: một file, một URL, một phép đo. Nhiều bằng chứng trỏ cùng một file thì dùng chung một nguồn. |
+| **so-và-đổi** (compare-and-swap) | chỉ ghi đè một giá trị nếu nó vẫn đúng bằng cái vừa đọc. Ở đây là đường nhanh, không phải bảo đảm. |
+| **tác vụ con** (subagent) | một trợ lý phụ được sinh ra để làm một phần việc, với bộ nhớ làm việc riêng. |
+| **tiết lộ dần** (progressive disclosure) | chỉ đưa ra phần tối thiểu, và để người đọc tự đào sâu khi cần, để tiết kiệm bộ nhớ làm việc. |
+| **tìm toàn văn có gốc từ** | tìm theo từ khoá, có quy về gốc từ ("subagents" khớp "subagent"), nhưng **không** hiểu nghĩa gần. |
+| **tình trạng nhận thức** (epistemic status) | mức độ chắc chắn được khai báo của một khẳng định: giả định, giả thuyết, chưa kiểm chứng, đã xác lập. |
+| **trạng thái gốc** (base state) | trạng thái mà bước ghi của bạn xây lên trên. Nếu nó không còn là mới nhất, bước ghi bị trả về để làm lại. |
+| **thay thế** (supersede) | một khẳng định mới đính chính khẳng định cũ, ghi bằng một cạnh riêng. |
+| **việc** (Task) | một mạch điều tra được đặt tên, có mục tiêu, và có một chuỗi trạng thái hiểu biết nối tiếp. |
+| **xuất xứ** (provenance) | câu trả lời cho "vì sao ta tin điều này": bằng chứng nào, ai nói, hay đây chỉ là phỏng đoán. |
+| **ULID** | một dạng mã định danh duy nhất, sắp xếp được theo thời gian. Mọi nút đều mang một cái. |
+| **đẩy** (push) | tri thức đã ghi tự rơi vào phiên làm việc qua hook, không cần ai gọi. |
+
+### Những thứ bên ngoài mà AKM có nói chuyện
+
+| Cái gì | AKM đưa sang gì, nhận lại gì |
+|---|---|
+| **Neo4j** | cơ sở dữ liệu đồ thị. AKM gửi sang câu truy vấn và lệnh ghi có ràng buộc; nhận lại nút, cạnh và lỗi ràng buộc khi có tranh chấp. |
+| **Docker** | dùng để dựng cơ sở dữ liệu đó bằng một lệnh. AKM đưa sang một file khai báo dịch vụ; nhận lại một container đang chạy. |
+| **MCP** | giao thức. AKM khai báo bảy công cụ kèm mô tả và kiểu dữ liệu; nhận lại các lượt gọi công cụ từ trợ lý. |
+| **Claude Code** | nơi skill sống. AKM đăng ký năm hook và một máy chủ; nhận lại các sự kiện phiên làm việc và trả về đoạn văn bản được chèn vào ngữ cảnh. |
+
+---
+
+Trang này mô tả một skill và sản phẩm đứng sau nó tại thời điểm viết. Phần mô tả ở đầu file skill, các luật cưỡng chế và cách chia hook là những thứ ổn định nhất; các con số ngưỡng thì nằm trong cấu hình và có thể được chỉnh.
+
+Nếu bạn chỉ giữ lại một ý từ đây: một skill không bắt buộc phải tự làm được việc. Nó có thể chỉ là mặt trước — phần biết *khi nào* và biết *đọc kết quả ra sao* — của một năng lực được dựng, được kiểm thử và được bảo trì ở chỗ khác. Biết khi nào nên chọn hình dạng đó là quyết định kiến trúc lớn nhất khi dựng skill.
 </script>
 <script>/* ===================================================================
    LAYER 1 . DATA
-   No DOM, no logic. The markdown in #src is the single source of truth;
-   FIG holds only what a figure draws that prose cannot.
+   No DOM work, no logic. STATE is mutable view state; SRC is the single
+   source of truth for prose; FIG holds figure payloads keyed by the
+   directive id used in the markdown.
    =================================================================== */
 
 var STATE = { view: 'doc', nav: false };
 
-var SRC = document.getElementById('src').textContent;
-
 var I18N = {
-  kick: 'Ghi chép nội bộ . hạ tầng cho agent',
-  doc: 'Tài liệu',
-  md: 'Markdown',
-  copy: 'Copy markdown',
-  done: 'Đã copy',
+  kick: 'Skill Claude Code · tài liệu tìm hiểu',
+  navHead: 'Mục lục',
   contents: 'Mục lục',
-  navHead: 'Trong bài',
-  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+  doc: 'Xem bản tài liệu',
+  md: 'Xem bản markdown',
+  copy: 'Chép markdown',
+  done: 'Đã chép',
+  mdNote: 'Cùng một nội dung, dạng markdown thuần — chép về để dán vào repo hay chat.'
 };
 
-/* Figure payloads. `type` picks the renderer; everything else is its data. */
+var SRC = document.getElementById('src').textContent;
+
 var FIG = {
 
-  fourQ: {
-    type: 'questions',
-    items: [
-      'Vì sao ProblemState này tồn tại?',
-      'Điều gì đã đổi so với state trước nó?',
-      'Bằng chứng nào gây ra thay đổi đó?',
-      'Câu hỏi nào đang được trả lời?'
-    ],
-    scores: [
-      { n: '0/4', label: 'baseline, trước slice này', kind: 'bad' },
-      { n: '4/4', label: 'đo được sau slice', kind: 'good' }
-    ],
-    cap: 'Bốn câu hỏi phải trả lời được từ đồ thị qua MCP, không dùng lịch sử chat. Đặt ra tiêu chí đo được trước khi xây là cách một slice tự chứng minh nó có tác dụng, thay vì tự nhận.'
+  haicay: {
+    type: 'versus',
+    cap: 'Hai cây, và khoảng trống giữa chúng. Ba thư mục mà một skill thường có — ' +
+         '`references/`, `scripts/`, `templates/` — đều vắng mặt ở cây trái, vì cả ba ' +
+         'đã có nhà ở cây phải.',
+    left: {
+      tag: 'Cây A — thư mục skill',
+      thin: true,
+      rows: [
+        'Đúng một file: SKILL.md',
+        'Khối đầu file — mặt kích hoạt, luôn nằm trong bộ nhớ',
+        'Phần thân — chỉ chứa phán đoán',
+        'KHÔNG references/ — chiều sâu ở nơi khác',
+        'KHÔNG scripts/ — việc thật do nơi khác làm',
+        'KHÔNG templates/ — khuôn mẫu thuộc về sản phẩm'
+      ]
+    },
+    right: {
+      tag: 'Cây B — sản phẩm đứng sau',
+      rows: [
+        'Một codebase Python đầy đủ',
+        'Mô hình đồ thị, ràng buộc, chỉ mục',
+        'Máy chủ MCP phơi bảy công cụ',
+        'Công cụ dòng lệnh dùng được ngoài trợ lý',
+        'Hook tự đẩy tri thức ngược vào phiên',
+        'Bộ kiểm thử — chỗ mọi khẳng định được chốt'
+      ]
+    }
   },
 
-  deltaProof: {
+  tang: {
+    type: 'levels',
+    cap: 'Bảy công cụ, hai tầng tiết lộ. Tầng 1 giữ cho gói ngữ cảnh nhỏ; tầng 2 chỉ ' +
+         'dùng khi một con trỏ ở tầng 1 mách rằng chỗ đó đáng đọc đầy đủ.',
+    levels: [
+      { name: 'Tầng 1', note: 'giữ ngữ cảnh nhỏ — văn bản dài bị cắt bớt',
+        tools: [
+          ['open_task', 'mở một mạch điều tra mới, kèm hiểu biết ban đầu'],
+          ['list_tasks', 'việc trong dự án này, mới nhất trước — cách duy nhất lấy lại một id cũ'],
+          ['find_information', 'tìm xem đã có ai ghi gì về chuyện này chưa'],
+          ['get_work_context', 'gói tối thiểu để đi tiếp một việc'],
+          ['submit_reasoning_delta', 'đề xuất một bước suy luận']
+        ] },
+      { name: 'Tầng 2', note: 'văn bản đầy đủ, không cắt',
+        tools: [
+          ['get_state', 'đọc trọn một trạng thái: lý do, câu hỏi đã đóng, thứ đã tạo ra'],
+          ['get_information', 'đọc trọn một khẳng định, kèm bằng chứng và nguồn của nó']
+        ] }
+    ]
+  },
+
+  vonglap: {
+    type: 'loop',
+    cap: 'Động cơ của cả hệ thống: một trạng thái làm nảy câu hỏi, bằng chứng trả lời ' +
+         'một câu, và câu trả lời sinh ra trạng thái mới.',
+    steps: [
+      'Tìm trước đã — chuyện này đã có ai ghi chưa?',
+      'Mở việc mới, hoặc liệt kê để lấy lại một việc cũ',
+      'Đọc gói ngữ cảnh: hiểu biết hiện tại, câu hỏi mở, quỹ đạo',
+      'Điều tra — bằng skill khác, AKM không suy luận hộ',
+      'Ghi một bước: đã làm gì, thấy gì, giờ hiểu gì, bằng chứng ở đâu'
+    ],
+    back: 'bước vừa ghi làm nảy câu hỏi kế → quay lại đọc gói ngữ cảnh'
+  },
+
+  dothi: {
+    type: 'graph',
+    cap: 'Bảy loại nút và các cạnh giữa chúng. Nhóm giữa là phần mở rộng quan trọng ' +
+         'nhất: **bước suy luận được giữ lại thành một nút**, chứ không phải một sợi dây trơn.',
+    nodes: [
+      ['Task', false], ['ProblemState', false], ['Question', false],
+      ['Information', false], ['Evidence', false], ['Source', false],
+      ['ReasoningDelta', true]
+    ],
+    groups: [
+      { title: 'Khung suy luận',
+        edges: [
+          ['Task', 'HAS_STATE', 'ProblemState'],
+          ['ProblemState', 'NEXT_STATE', 'ProblemState'],
+          ['Information', 'RAISES', 'Question'],
+          ['Information', 'ANSWERS', 'Question'],
+          ['Information', 'DERIVED_FROM', 'Evidence'],
+          ['Evidence', 'FROM', 'Source']
+        ] },
+      { title: 'Bước suy luận, giữ lại thành nút',
+        edges: [
+          ['ReasoningDelta', 'FROM_STATE', 'ProblemState'],
+          ['ReasoningDelta', 'TO_STATE', 'ProblemState'],
+          ['ReasoningDelta', 'ANSWERED', 'Question'],
+          ['ReasoningDelta', 'USED', 'Information'],
+          ['ReasoningDelta', 'INTRODUCED', 'Information']
+        ] },
+      { title: 'Đính chính, không xoá',
+        edges: [
+          ['Information', 'SUPERSEDES', 'Information']
+        ] }
+    ]
+  },
+
+  dao: {
+    type: 'islands',
+    cap: 'Phạm vi lấy từ tên kho git của thư mục đang làm việc. Một việc thuộc đảo khác ' +
+         'đơn giản là không nhìn thấy — đó là thiết kế, không phải lỗi.',
+    rows: [
+      { where: '~/work/checkout-api', scope: 'checkout-api' },
+      { where: '~/work/billing', scope: 'billing' },
+      { where: '~/tmp/scratch (ngoài kho git)', scope: 'un-git-repo', shared: true },
+      { where: 'đặt biến môi trường AKM_SCOPE', scope: 'giá trị bạn đặt' }
+    ],
+    note: 'Hai kho trùng tên cơ sở sẽ dùng chung một đảo — hệ quả cố ý của quy tắc "lấy tên kho".'
+  },
+
+  hooks: {
+    type: 'hooks',
+    cap: 'Năm sự kiện, một script. Cách chia không tuỳ tiện: chỗ duy nhất nhìn thấy đề ' +
+         'bài của một tác vụ con là ngay trước khi nó được sinh ra.',
+    rows: [
+      { hook: 'SessionStart',
+        reaches: 'luồng chính — lúc bắt đầu, khôi phục, xoá ngữ cảnh, sau khi nén',
+        carries: 'việc đang mở trong phạm vi, và việc mà phiên này đang gắn vào' },
+      { hook: 'UserPromptSubmit',
+        reaches: 'luồng chính — mỗi lần người dùng gõ một câu',
+        carries: 'khẳng định và câu hỏi mở khớp với câu đó, nếu cửa sổ chưa có' },
+      { hook: 'PreToolUse (Agent)',
+        reaches: 'tác vụ con sắp được sinh ra',
+        carries: 'khẳng định khớp với đề bài, nối thêm vào chính đề bài đó' },
+      { hook: 'SubagentStart',
+        reaches: 'mỗi tác vụ con, và mỗi lượt của đồng đội trong tiến trình',
+        carries: 'hiểu biết hiện tại và câu hỏi mở của việc đang gắn' },
+      { hook: 'PostToolUse (Bash, công cụ AKM)',
+        reaches: 'không ai cả',
+        carries: 'không đẩy gì — chỉ gắn phiên vào những việc mà lệnh vừa chạm',
+        none: true }
+    ]
+  },
+
+  xuatxu: {
+    type: 'routes',
+    cap: 'Luật xuất xứ. Sáu loại khẳng định mang tính sự thật phải đi qua ít nhất một ' +
+         'trong bốn cửa này; loại thứ bảy — giả định — được miễn vì tên nó đã tự khai.',
+    top: 'Một khẳng định mang tính sự thật',
+    routes: [
+      ['dẫn từ bằng chứng', 'có cạnh trỏ tới một Evidence cụ thể — đường thường dùng nhất'],
+      ['người nói', 'một con người đã nói điều đó với bạn'],
+      ['hệ thống báo', 'hệ thống tự báo cáo ra số liệu đó'],
+      ['tự khai là chưa chắc', 'đánh dấu là giả định, giả thuyết, hoặc chưa kiểm chứng']
+    ],
+    bottom: 'Không đường nào → máy chủ từ chối cả bước ghi'
+  },
+
+  chan: {
+    type: 'guards',
+    cap: 'Hai cơ chế chống hai người cùng ghi đè. Cái bắt gần như mọi trường hợp **không** ' +
+         'phải cái bảo đảm tính đúng đắn — và biết phân biệt hai thứ đó là cả vấn đề.',
+    rows: [
+      { kind: 'fast', tag: 'Đường nhanh · so-và-đổi',
+        text: 'Chỉ ghi nếu con trỏ trạng thái hiện tại vẫn đúng bằng cái vừa đọc. Cho ra ' +
+              'lời từ chối thân thiện kèm id trạng thái mới để ghi lại. Trong thực tế đây ' +
+              'là cái bắt gần như mọi trường hợp. Nhưng nó không phải bảo đảm.' },
+      { kind: 'bound', tag: 'Biên chứng đúng · ràng buộc duy nhất',
+        text: 'Cặp (việc, trạng thái cha) phải là duy nhất. Cơ sở dữ liệu mặc định ở mức ' +
+              'đọc-đã-commit và câu lệnh ghi kia không tự lấy khoá, nên về lý thuyết hai bên ' +
+              'cùng lọt qua đường nhanh. Ràng buộc này khiến lịch sử bị rẽ nhánh là bất khả ' +
+              'thi, không phụ thuộc vào khoá.' }
+    ]
+  },
+
+  chungminh: {
     type: 'proof',
+    cap: 'Cùng một chuỗi ba trạng thái, đo hai lần, chỉ bỏ đi một biến. Đây là cách một ' +
+         'quyết định thiết kế được chứng minh thay vì được lập luận.',
     rows: [
       { kind: 'keep', n: '4/4',
-        what: 'Chuỗi ba state, **còn** node ReasoningDelta',
-        detail: '13 node tri thức + các delta' },
+        what: 'Giữ nguyên bước suy luận',
+        detail: 'đủ 13 nút tri thức, đủ các nút bước' },
       { kind: 'gone', n: '0/4',
-        what: 'Cùng chuỗi đó, **xoá riêng** node ReasoningDelta',
-        detail: '13 node tri thức vẫn nguyên vẹn' }
+        what: 'Xoá riêng các nút bước suy luận',
+        detail: 'vẫn đủ 13 nút tri thức, không còn nút bước' }
     ],
-    note: 'Tri thức sống sót. Lập luận thì không. Đây là toàn bộ lý lẽ cho việc lưu delta thành node — và nó là một phép đo, không phải một lập luận.',
-    cap: 'Cách kiểm chứng một thành phần có thật sự chịu lực hay không: bỏ riêng nó ra, giữ nguyên mọi thứ khác, rồi chạy lại đúng bộ tiêu chí cũ.'
-  },
-
-  graph: {
-    type: 'graph',
-    nodes: [ ['Task', 0], ['ProblemState', 1], ['Question', 0], ['Information', 1],
-             ['Evidence', 0], ['Source', 0], ['ReasoningDelta', 1] ],
-    groups: [
-      { title: 'Sáu cạnh đến từ spec', edges: [
-        ['Task', 'HAS_STATE', 'ProblemState'],
-        ['ProblemState', 'NEXT_STATE', 'ProblemState'],
-        ['ProblemState', 'RAISES', 'Question'],
-        ['Information', 'ANSWERS', 'Question'],
-        ['Information', 'DERIVED_FROM', 'Evidence'],
-        ['Evidence', 'FROM', 'Source']
-      ]},
-      { title: 'Năm cạnh của delta — phần mở rộng làm nên câu trả lời', edges: [
-        ['ReasoningDelta', 'FROM_STATE', 'ProblemState trước'],
-        ['ReasoningDelta', 'TO_STATE', 'ProblemState sau'],
-        ['ReasoningDelta', 'ANSWERED', 'Question'],
-        ['ReasoningDelta', 'USED', 'Information đã có'],
-        ['ReasoningDelta', 'INTRODUCED', 'Information / Question mới']
-      ]},
-      { title: 'Claim không bao giờ bị sửa tại chỗ', edges: [
-        ['Information', 'SUPERSEDES', 'Information cũ']
-      ]}
-    ],
-    cap: 'Bảy loại node. Ba node được tô đậm là ba thứ mang lập luận: trạng thái hiểu biết, claim, và bước đi giữa hai trạng thái.'
-  },
-
-  loop: {
-    type: 'loop',
-    steps: [
-      '`find_information` — thứ này đã có ai ghi chưa? Một lệnh, trước khi điều tra lại từ đầu.',
-      '`open_task` cho hướng mới, hoặc `list_tasks` để lấy lại task id của phiên trước.',
-      '`get_work_context` — gói tối thiểu để đi tiếp: state hiện tại, câu hỏi mở, provenance.',
-      'Điều tra thật: đọc code, chạy truy vấn, xem log, hỏi người.',
-      '`submit_reasoning_delta` — đề xuất một bước, kèm lý do và bằng chứng.'
-    ],
-    back: 'mỗi delta trả lời một câu hỏi, và thường làm nảy ra câu tiếp theo',
-    cap: 'Động cơ của hệ: một trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, câu trả lời sinh ra trạng thái mới.'
-  },
-
-  levels: {
-    type: 'levels',
-    levels: [
-      { name: 'Mức 1', note: 'giữ gói dữ liệu nhỏ',
-        tools: [
-          ['open_task', 'mở một hướng điều tra; `initial_understanding` là điều bạn tin **trước khi** điều tra'],
-          ['list_tasks', 'task trong project này; cách duy nhất lấy lại một task id của phiên cũ'],
-          ['find_information', 'tìm toàn văn trong claim đã ghi, không cần biết task id'],
-          ['get_work_context', 'state hiện tại, câu hỏi mở, key_information, provenance, state_history'],
-          ['submit_reasoning_delta', 'đề xuất một bước; trả kết quả có cấu trúc khi task đã đi tiếp']
-        ]},
-      { name: 'Mức 2', note: 'toàn văn, khi con trỏ ở mức 1 chỉ tới',
-        tools: [
-          ['get_state', 'rationale đầy đủ của một bước, không bị cắt'],
-          ['get_information', 'claim đầy đủ, cùng bằng chứng và nguồn đứng sau nó']
-        ]}
-    ],
-    cap: 'Bộc lộ dần theo hai mức. Gói mức 1 cố tình không mang theo toàn bộ lịch sử hay thân bằng chứng; nó mang **con trỏ**, và mức 2 là nơi con trỏ dẫn tới.'
-  },
-
-  provenance: {
-    type: 'routes',
-    top: 'fact . rule . definition . constraint . observation . derived_fact',
-    routes: [
-      ['derived_from', 'trỏ tới một Evidence cụ thể'],
-      ['human_asserted: true', 'một người đã nói điều đó'],
-      ['system_observed: true', 'hệ thống tự báo về'],
-      ['epistemic_status', 'assumption, hypothesis hoặc unverified']
-    ],
-    bottom: 'không đi được lối nào trong bốn lối trên  ->  server từ chối delta',
-    cap: 'Chỉ `assumption` được miễn. Mọi kiểu còn lại phải khai xuất xứ, hoặc phải tự khai rằng nó chưa được xác lập. Đây là ràng buộc được máy thực thi, không phải một quy ước.'
-  },
-
-  pushHooks: {
-    type: 'hooks',
-    rows: [
-      { hook: 'SessionStart', reaches: 'luồng chính',
-        carries: 'Task đang mở trong scope, và task mà phiên đang gắn vào. Bắn lúc mở phiên, khôi phục, `/clear`, và sau khi nén ngữ cảnh.' },
-      { hook: 'UserPromptSubmit', reaches: 'luồng chính, mỗi prompt',
-        carries: 'Claim và câu hỏi mở khớp với prompt mà cửa sổ hiện tại chưa có.' },
-      { hook: 'PreToolUse on Agent', reaches: 'subagent sắp sinh ra',
-        carries: 'Claim khớp với nội dung việc uỷ nhiệm, nối thẳng vào prompt đó. Đây là nơi **duy nhất** nhìn thấy được text giao việc.' },
-      { hook: 'SubagentStart', reaches: 'mỗi subagent, mỗi lượt teammate',
-        carries: 'Hiểu biết hiện tại và câu hỏi mở của task đang gắn. Bắn *trước khi* transcript của con tồn tại.' },
-      { hook: 'PostToolUse', reaches: 'không đẩy gì', none: true,
-        carries: 'Chỉ gắn phiên vào những task mà lệnh AKM của nó vừa chạm tới.' }
-    ],
-    cap: 'Agent không chủ động đọc — trên mọi transcript từng chạm AKM, số lần đọc bằng số lần ghi, và phiên tiêu thụ duy nhất được đo đã ghi 14 lần, đọc 0 lần. Kết luận rút ra không phải "dạy agent đọc nhiều hơn" mà là đẩy ngữ cảnh tới nó.'
-  },
-
-  gates: {
-    type: 'gates',
-    rows: [
-      ['điểm tìm kiếm >= 3.0', 'chủ đề đã ghi chấm 3.5–9.7; chủ đề không liên quan cao nhất 2.3'],
-      ['không đẩy hai lần', 'cùng một claim không vào lại một cửa sổ ngữ cảnh'],
-      ['trần ký tự mỗi block', 'và một ngân sách ký tự cho cả phiên'],
-      ['claim đã bị thay thế', 'có `SUPERSEDES` trỏ tới thì không đẩy nữa'],
-      ['prompt dưới 3 từ có nghĩa', 'không tìm kiếm — "commit and push" từng kéo về hai claim lạc đề'],
-      ['agent type bị cô lập', 'reviewer và research lens không nhận gì cả']
-    ],
-    cap: 'Sáu cái van. Không có chúng, push biến ngữ cảnh thành rác nhanh hơn là làm nó hữu ích.'
-  },
-
-  islands: {
-    type: 'islands',
-    rows: [
-      { where: '~/projects/alpha', scope: 'alpha' },
-      { where: '~/projects/beta', scope: 'beta' },
-      { where: 'ngoài mọi repo git', scope: 'un-git-repo', shared: true }
-    ],
-    note: 'AKM_SCOPE ghi đè cả hai — để nhiều checkout dùng chung một đồ thị, hoặc ghim scope trong CI.',
-    cap: 'Neo4j Community không tạo được database, nên cô lập là một thuộc tính `scope` đóng dấu lên mọi node và lọc ở mọi lượt đọc. Chi tiết dễ bỏ sót: credential lấy từ thư mục cài đặt, còn scope lấy từ thư mục làm việc của người gọi.'
-  },
-
-  warm: {
-    type: 'bars',
-    rows: [
-      { label: 'Tiến trình nguội — import', ms: 234, val: '~234 ms', cold: true },
-      { label: 'Tiến trình nguội — truy vấn đầu tiên', ms: 235, val: '~235 ms', cold: true },
-      { label: 'Tiến trình ấm — cùng truy vấn đó', ms: 19, val: '9–19 ms' },
-      { label: 'Pool mới trong tiến trình ấm — kết nối', ms: 10, val: '10 ms' }
-    ],
-    cap: 'Mỗi lần hook bắn và mỗi lệnh CLI trước đây đều là một tiến trình mới, nên không cái nào từng ấm — và một hook lúc tải nặng có thể quá hạn rồi không đẩy được gì.'
-  },
-
-  guards: {
-    type: 'guards',
-    rows: [
-      { kind: 'fast', tag: 'Đường nhanh',
-        text: 'Compare-and-swap trên `Task.current_state_id`. Nó sinh ra lời từ chối thân thiện, và trong bài test tương tranh thì chính nó là cái loại người thua.' },
-      { kind: 'bound', tag: 'Ranh giới đúng đắn',
-        text: 'Ràng buộc duy nhất trên `(ProblemState.task_id, predecessor_id)`. Neo4j mặc định read-committed và Cypher không lấy write lock cho `SET`, nên vẫn tồn tại thứ tự đan xen lọt qua được CAS. Ràng buộc làm cho một lineage rẽ đôi là bất khả, bất kể.' }
-    ],
-    cap: 'Vì đường nhanh luôn chắn trước, ranh giới phía sau nó được test **trực tiếp** — đi vòng qua CAS và ghi tay một lineage rẽ đôi — chứ không dựa vào bài test tương tranh để chạm tới.'
+    note: 'Tri thức sống sót. Suy luận thì không.'
   }
 };
 
@@ -921,18 +1225,21 @@ var MD = {
 
 
 /* -- figure renderers ---------------------------------------------- */
+/* Pure: one FIG entry in, DOM out. Must not read STATE. */
 
 var FIGURE = {
 
-  questions: function(f){
-    return el('div', null, [
-      el('ol', { class: 'qlist' }, f.items.map(function(t){
-        return el('li', { html: inline(t) }); })),
-      el('div', { class: 'score' }, f.scores.map(function(s){
-        return el('div', { class: 'sc ' + s.kind }, [
-          el('b', { text: s.n }), el('span', { text: s.label })
-        ]);
-      }))
+  versus: function(f){
+    function panel(side, extra){
+      return el('div', { class: 'vs ' + extra }, [
+        el('b', { text: side.tag }),
+        el('ul', null, side.rows.map(function(t){
+          return el('li', { html: inline(t) }); }))
+      ]);
+    }
+    return el('div', { class: 'versus' }, [
+      panel(f.left, f.left.thin ? 'thin' : 'full'),
+      panel(f.right, f.right.thin ? 'thin' : 'full')
     ]);
   },
 
@@ -1013,14 +1320,6 @@ var FIGURE = {
     }));
   },
 
-  gates: function(f){
-    return el('div', { class: 'gates' }, f.rows.map(function(r){
-      return el('div', { class: 'gt' }, [
-        el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
-      ]);
-    }));
-  },
-
   islands: function(f){
     var kids = f.rows.map(function(r){
       return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
@@ -1033,20 +1332,6 @@ var FIGURE = {
     return el('div', { class: 'isl' }, kids);
   },
 
-  bars: function(f){
-    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
-    return el('div', { class: 'bars' }, f.rows.map(function(r){
-      var pct = Math.max(2, Math.round(r.ms / max * 100));
-      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
-        el('b', { html: inline(r.label) }),
-        el('div', { class: 'br-track' }, [
-          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
-          el('span', { class: 'br-val', text: r.val })
-        ])
-      ]);
-    }));
-  },
-
   guards: function(f){
     return el('div', { class: 'guards' }, f.rows.map(function(r){
       return el('div', { class: 'gd ' + r.kind }, [
@@ -1056,7 +1341,6 @@ var FIGURE = {
     }));
   }
 };
-
 
 
 /* ===================================================================
