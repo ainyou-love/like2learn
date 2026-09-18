@@ -3,36 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ascii-diagram: đồ thị đơn giản được mà</title>
-<meta name="description" content="Ghi chép đọc mã một Claude Code skill: vì sao vẽ sơ đồ bằng ASCII lại cần luật, và bộ luật đó cứu được cái gì.">
+<title>ascii-diagram — sơ đồ không vỡ, và một skill được dựng ra sao</title>
+<meta name="description" content="Mổ xẻ skill ascii-diagram: vì sao sơ đồ vẽ bằng ký tự hỏng, thư mục của một skill gồm những gì, và cách tự dựng skill cho riêng mình.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
-<style>/* Single-file doc site: ascii-diagram.
-   Palette is ink on cool paper with a terminal blue, and colour carries exactly one
-   distinction: a rule that holds (--est) against one that slipped (--alarm).
-   Two families with different jobs -- a serif for the reading, a monospace for the
-   machine text, which on this subject IS the subject.
-   Six figure renderers are kept; the other five and their classes were deleted. */
+<style>/* Two colour families, and each carries a distinction the reader needs:
+   --trace is text that survives being moved, --alarm is text that broke on
+   the way. Nothing here is decorative. Type follows the same split: serif
+   for the argument, monospace for anything that is literally characters on
+   a grid -- which, on this subject, is most of the evidence.
+   Tokens are declared three times so an explicit theme wins in both
+   directions: :root, the guarded prefers-color-scheme block, [data-theme]. */
 :root{
-  --ground:#F1F2F4; --surface:#FFFFFF; --panel:#E6E8EC; --line:#CDD2DA; --line-soft:#DFE3E9;
-  --ink:#171A1F; --muted:#565D68; --faint:#848B96;
-  --trace:#2B4C7E; --trace-soft:#E1E8F2;
-  --est:#1F6047;  --hyp:#8A5A0E;  --alarm:#9B3A24; --alarm-soft:#F5E4DF;
+  --ground:#F4F2EC; --surface:#FFFDF8; --panel:#EAE7DE; --line:#D5D0C4; --line-soft:#E4E0D6;
+  --ink:#191813; --muted:#585349; --faint:#8A8476;
+  --trace:#1F5D4C; --trace-soft:#DDEAE3;
+  --alarm:#9B3024; --alarm-soft:#F6E4E0;
   --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#111318; --surface:#181B21; --panel:#1E222A; --line:#2C323C; --line-soft:#242832;
-  --ink:#E3E6EB; --muted:#98A0AC; --faint:#79808B;
-  --trace:#8FB4E6; --trace-soft:#152232;
-  --est:#6FC0A0;  --hyp:#D6A75A;  --alarm:#E08C77; --alarm-soft:#2B1A16;
+  --ground:#121410; --surface:#1A1D18; --panel:#20241D; --line:#31352B; --line-soft:#25291F;
+  --ink:#E9E7DD; --muted:#9C9A8E; --faint:#7C796D;
+  --trace:#6FBFA1; --trace-soft:#152A23;
+  --alarm:#E08C7E; --alarm-soft:#2E1B17;
 }}
 :root[data-theme="dark"]{
-  --ground:#111318; --surface:#181B21; --panel:#1E222A; --line:#2C323C; --line-soft:#242832;
-  --ink:#E3E6EB; --muted:#98A0AC; --faint:#79808B;
-  --trace:#8FB4E6; --trace-soft:#152232;
-  --est:#6FC0A0;  --hyp:#D6A75A;  --alarm:#E08C77; --alarm-soft:#2B1A16;
+  --ground:#121410; --surface:#1A1D18; --panel:#20241D; --line:#31352B; --line-soft:#25291F;
+  --ink:#E9E7DD; --muted:#9C9A8E; --faint:#7C796D;
+  --trace:#6FBFA1; --trace-soft:#152A23;
+  --alarm:#E08C7E; --alarm-soft:#2E1B17;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -126,19 +127,19 @@ figure{margin:0 0 28px}
 figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
 .fmono{font-family:var(--mono)}
 
-/* the boldness: delta proof */
-.proof{display:grid;gap:0}
-.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
-  padding:16px 0;border-bottom:1px solid var(--line-soft)}
-.proof-row:last-child{border-bottom:0}
-.proof-what{font-size:15.5px}
-.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
-  display:block;margin-top:4px}
-.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
-.proof-row.keep .proof-n{color:var(--est)}
-.proof-row.gone .proof-n{color:var(--alarm)}
-.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
-  font-size:13.5px;color:var(--muted)}
+/* breaks: cause -> what the reader gets */
+.brk{display:grid;gap:0}
+.bk{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.15fr);gap:12px;
+  align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.bk:last-child{border-bottom:0}
+.bk b{font-weight:400;font-size:14.5px;color:var(--ink)}
+.bk i{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.bk span{font-family:var(--mono);font-size:12.5px;line-height:1.55;color:var(--alarm)}
+@media (max-width:560px){
+  .bk{grid-template-columns:1fr;gap:5px}
+  .bk i{display:none}
+  .bk span{padding-left:14px;border-left:2px solid var(--alarm-soft)}
+}
 
 /* levels */
 .lvl{margin-bottom:17px}
@@ -146,13 +147,15 @@ figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;li
 .lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--trace);margin-bottom:10px}
 .lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
-.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
+.tool{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:12px;
   padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
 .tool:first-of-type{border-top:0}
-.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
+.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);
+  overflow-wrap:anywhere}
 .tool span{color:var(--muted)}
+@media (max-width:560px){.tool{grid-template-columns:1fr;gap:3px}}
 
-/* provenance routes */
+/* routes */
 .routes{display:grid;gap:10px;grid-template-columns:1fr}
 @media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
 .rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
@@ -163,36 +166,22 @@ figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;li
 .routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
 .routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
 
-/* islands */
-.isl{display:grid;gap:9px}
-.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
-  font-family:var(--mono);font-size:12px}
-.is s{text-decoration:none;color:var(--muted)}
-.is b{color:var(--trace);font-weight:500}
-.is i{font-style:normal;color:var(--faint);font-size:15px}
-.is.shared b{color:var(--hyp)}
-.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-
-/* warm bars */
-.bars{display:grid;gap:13px}
-.br b{display:block;font-size:13.5px;margin-bottom:6px}
-.br-track{display:flex;align-items:center;gap:10px}
-.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
-.br.cold .br-fill{background:var(--line);border:1px solid var(--faint)}
-.br.cold b{color:var(--muted)}
-.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
-/* guards */
-.guards{display:grid;gap:12px}
-.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
-.gd.fast{border-left-color:var(--hyp)}
-.gd.bound{border-left-color:var(--est)}
-.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
-  text-transform:uppercase;margin-bottom:7px}
-.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
-.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
-.gd p code{font-size:.9em}
+/* versus: two columns of one decision */
+.vs{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:620px){.vs{grid-template-columns:1fr 1fr}}
+.vs-col{padding:15px 16px;border-radius:3px;background:var(--panel);
+  border-top:3px solid var(--line)}
+.vs-col.a{border-top-color:var(--alarm)}
+.vs-col.b{border-top-color:var(--trace)}
+.vs-col b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:11px}
+.vs-col.a b{color:var(--alarm)}
+.vs-col.b b{color:var(--trace)}
+.vs-col p{margin:0 0 9px;padding-left:15px;position:relative;font-size:14px;
+  line-height:1.55;color:var(--muted);max-width:none}
+.vs-col p:last-child{margin-bottom:0}
+.vs-col p::before{content:"-";position:absolute;left:0;font-family:var(--mono);
+  color:var(--faint)}
 
 /* ── markdown view ───────────────────────────────────────── */
 #md{padding-top:26px}
@@ -242,368 +231,609 @@ footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
   </section>
 </div>
 
-<script type="text/plain" id="src"># ascii-diagram — Đồ thị đơn giản được mà
+<script type="text/plain" id="src"># ascii-diagram — sơ đồ không vỡ, và một skill được dựng ra sao
 
-> Vẽ một cái hộp bằng `+`, `-`, `|` thì có gì mà phải viết thành skill. Đúng — cho tới lúc cái hộp đó đi qua terminal, GitHub, Slack, email và một editor đặt tab bằng 4 space.
-> `ascii-diagram` là 5 file, 704 dòng, không một dòng code. Toàn bộ giá trị của nó nằm ở chỗ: nó tự chấm được chính mình theo luật nó đặt ra — 0 tab, 0 dòng sơ đồ vượt 80 cột, và 33 ký tự Unicode duy nhất trong cả bộ đều nằm đúng ở chỗ đang dạy cách xoá chúng đi.
+> Phần 1 — Sơ đồ vẽ bằng ký tự vỡ lúc nào, vì sao người vẽ không bao giờ thấy nó vỡ, và bạn cầm được gì khi skill này chạy xong.
+> Phần 2 — Bên trong: bốn file, không một dòng code, và vì sao cách chia đó có lý.
+> Phần 3 — Mang về: những quyết định thiết kế bạn sẽ phải tự đưa ra khi dựng skill của riêng mình.
 
 ---
 
-# PHẦN 1 — Vấn đề, và quyết định thiết kế duy nhất đáng nhớ
+# PHẦN 1 — Vấn đề và kết quả
 
-## Cái bẫy của câu "đồ thị đơn giản được mà"
+## 1. Mục đích
 
-Một sơ đồ ASCII không phải là hình vẽ. Nó là **văn bản giả vờ là hình vẽ**, và ảo giác đó chỉ đứng vững khi ba điều kiện cùng đúng: mọi ký tự render ra cùng một bề rộng, không ký tự nào bị font thay thế, và không có gì làm dịch cột.
+Bạn vẽ một sơ đồ kiến trúc bằng ký tự bàn phím — mấy cái hộp, mấy mũi tên. Trên
+máy bạn nó thẳng hàng, gọn gàng. Bạn dán vào README, đẩy lên, xong việc.
 
-Ba điều kiện đó hỏng rất dễ. Ký tự khung Unicode (`┌ ┐ └ ┘ │ ─`) trông đẹp trong editor của bạn nhưng có thể rơi vào fallback font trên máy khác và lệch nửa cột. Tab render bằng 8 space ở terminal, 4 space ở GitHub, và 2 space ở một số editor. Một dòng 92 ký tự bị wrap trong cửa sổ Slack và khung hộp gãy làm đôi.
+Rồi một đồng nghiệp mở đúng file đó trong terminal và thấy một đống dấu hỏi.
+Người thứ hai dán nó vào chat nhóm để hỏi lại, và các hộp lệch nhau một cách vô
+lý. Người thứ ba đọc trên điện thoại: mỗi dòng bị gấp làm đôi, cái hộp vỡ thành
+rác.
 
-Câu mở đầu của `SKILL.md` đặt vấn đề theo hướng ngược với trực giác thẩm mỹ:
+Chuyện tệ nhất ở đây không phải là sơ đồ vỡ. Là **bạn không bao giờ thấy nó vỡ**.
+Máy bạn có font đầy đủ, cửa sổ đủ rộng, trình soạn thảo của bạn quy tab ra đúng
+số cột bạn muốn. Mọi môi trường làm hỏng sơ đồ đều là môi trường của người khác,
+và phản hồi không bao giờ quay về. Bạn sẽ tiếp tục vẽ như cũ trong nhiều năm.
 
-> **Portability over aesthetics.** A diagram that breaks when pasted into Slack or a terminal is worse than no diagram.
+Thiệt hại nhỏ nhưng lặp lại: **một sơ đồ vỡ tệ hơn không có sơ đồ nào.** Không có
+sơ đồ, người đọc đi đọc chữ. Có sơ đồ vỡ, người đọc mất thời gian đoán xem ý đồ
+ban đầu là gì, thất bại, rồi kết luận rằng tài liệu này cẩu thả — và cái kết luận
+đó lan sang cả phần chữ bên cạnh.
 
-Sơ đồ hỏng tệ hơn không có sơ đồ — vì sơ đồ hỏng vẫn đòi người đọc tin nó. Đó là lý do tồn tại của toàn bộ 7 luật phía sau: không phải để hình đẹp hơn, mà để nó **tái lập được ở nơi khác**.
+Có bốn cách để một sơ đồ ký tự vỡ, và cả bốn đều là cùng một lỗi tư duy: cho rằng
+nơi người khác đọc giống nơi mình viết.
 
-## Phép đo: bộ skill có tự tuân luật của nó không
-
-Đây là chỗ đáng nhớ nhất, vì nó đo được chứ không phải lập luận. Lấy cả 5 file của skill, quét toàn bộ 39 khối sơ đồ trong đó, rồi chấm theo đúng checklist mà chính skill này in ra ở cuối `references/character-rules.md`.
-
-@fig:tuChamDiem
-    704 dòng, 5 file, 39 khối sơ đồ
-
-    ký tự tab (luật 3)                       ->  0
-    dòng sơ đồ vượt 80 cột (luật 4)          ->  0   (rộng nhất: 62)
-    khối khung hộp lệch cột (luật 7)         ->  2   trên 32
+@fig:vo
+    Nguyên nhân                     Người đọc nhận được
+    ---------------------------     -------------------------------
+    Ky tu ve hop cua Unicode        Hop thanh dau hoi hoac o trong
+    Thut dong bang tab              Cac cot lech nhau
+    Dong dai qua 80 cot             Cua so hep gap dong, hop bi cat
+    De hinh tran, ngoai khoi code   Khoang trang bi gop, hinh sap
 @endfig
 
-Hai con số đầu là trần: không phải "hầu hết", mà là **không có cái nào**. Dòng sơ đồ rộng nhất trong cả bộ là 62 ký tự — còn dư 18 cột so với giới hạn 80 mà skill tự đặt.
+`ascii-diagram` là tập luật chặn cả bốn. Nó không làm sơ đồ đẹp hơn — nó đánh đổi
+cái đẹp lấy cái chắc chắn: một sơ đồ trông hơi thô nhưng hiện y hệt nhau ở mọi
+nơi. Nguyên tắc gốc của nó nói thẳng điều đó: **tính di động đứng trên tính thẩm
+mỹ.**
 
-Con số thứ ba mới là chỗ đáng học. Trong 32 khối có khung hộp đầy đủ, 30 khối thẳng cột tuyệt đối. Hai khối lệch — và lệch **đúng một cột**:
+Ai được lợi? Người viết README, người viết mô tả pull request, người viết runbook,
+người phải trả lời "hệ thống chạy thế nào" ngay trong khung chat. Nói gọn: bất kỳ
+ai viết tài liệu kỹ thuật mà không kiểm soát được người đọc sẽ mở nó bằng cái gì.
 
-    references/layout-patterns.md:52   | Source  |----> ...   dài 41, khung dài 40
-    references/layout-patterns.md:114  |    Presentation   |   dài 45, khung dài 44
+## 2. Dùng lúc nào, và cầm được gì
 
-Một space thừa. Đó chính xác là kiểu lỗi mà mắt người không bắt được và rule 7 — *self-validate before output* — sinh ra để bắt. Nếu ngay cả file dạy cách căn cột cũng trượt một space, thì luật "tự kiểm tra trước khi xuất" không phải thủ tục thừa.
+Tình huống cụ thể: bạn đang viết README cho một service, và cần một hình cho biết
+request đi từ đâu tới đâu. Cái hình đó sẽ sống cùng lúc ở bốn chỗ mà bạn không
+chọn được — trang repo trên GitHub, terminal của người `cat` file ra đọc, khung
+chat khi ai đó dán lại để hỏi, và email khi nó bị chuyển tiếp cho một người không
+có tài khoản để mở repo.
 
-## Quyết định đáng nhớ: một skill về ASCII dành trọn một file để bảo bạn đừng dùng ASCII
+Skill này nhắm đúng tình huống đó, và nó **không tạo ra file nào**. Kết quả của
+nó là một đoạn văn bản nằm ngay trong tài liệu bạn đang viết, gồm đúng hai phần
+theo thứ tự cố định:
 
-Điều bất ngờ nhất khi đọc hết bộ này: `references/diagram-type-selector.md` — 114 dòng, dài hơn cả `SKILL.md` — tồn tại gần như chỉ để nói **khi nào ASCII là lựa chọn sai**.
+1. một đến ba câu giải thích, viết như văn xuôi bình thường, đặt ở ngoài;
+2. bên dưới là sơ đồ, nằm trong khối code ba dấu backtick.
 
-@fig:chonDinhDang
-    Cần vẽ một sơ đồ
+Đây là hình dạng chính xác của thứ bạn cầm được:
+
+    Request luôn đi qua gateway trước khi chạm service; gateway lo
+    xác thực và giới hạn tần suất.
+
+    ```
+    +--------+  HTTP   +---------+  gRPC   +---------+
+    | Client |-------->| Gateway |-------->| Service |
+    +--------+         +---------+         +---------+
+    ```
+
+Không ảnh, không file đính kèm, không phụ thuộc thư viện vẽ nào. Đoạn trên là chữ
+thuần; chép nó sang bất kỳ đâu dùng font đều, hình vẫn nguyên.
+
+Thứ tự "giải thích trước, hình sau" là một luật chứ không phải gợi ý. Một cái hình
+không tự nói được nó đang trả lời câu hỏi gì.
+
+### Những nơi sơ đồ phải sống được
+
+Skill này không điều khiển nơi nào trong số dưới đây. Nó chỉ đặt ra giả định về
+chúng, và mọi luật của nó sinh ra từ những giả định đó.
+
+| Nơi đến | Skill đòi hỏi gì ở nó |
+|---|---|
+| Terminal | Hiện được ASCII bằng font đều — skill không dùng gì hơn thế |
+| GitHub, markdown đã render | Giữ nguyên khoảng trắng bên trong khối code ba backtick |
+| Slack và các khung chat | Chép dán không đổi ký tự, và hiện khối code bằng font đều |
+| Email | Chữ thuần, không cần trình render nào cả |
+| Font đều (monospace) | Mọi ký tự rộng bằng nhau — đây là giả định duy nhất skill không tự kiểm được |
+| Mermaid | Định dạng skill chuyển sang khi ASCII hết hợp; cần một trình render, đổi lại được tự dàn trang |
+| C4 | Quy ước vẽ kiến trúc nhiều mức phóng; skill chỉ nêu tên như lối ra cho hệ thống lớn |
+
+---
+
+# PHẦN 2 — Bên trong
+
+## 3. Cấu trúc thư mục
+
+Đây là chỗ trang này thôi nói về một skill và bắt đầu nói về **skill nói chung**.
+Thư mục của `ascii-diagram` nhỏ đến mức bạn nhớ được sau một lần nhìn, mà vẫn đủ
+để thấy trọn cách một skill được tổ chức.
+
+    ascii-diagram/
+    |
+    +-- SKILL.md
+    |
+    +-- references/
+    |     +-- character-rules.md
+    |     +-- diagram-type-selector.md
+    |     +-- layout-patterns.md
+    |
+    +-- templates/
+          +-- common-patterns.txt
+
+Việc mà từng phần giữ:
+
+| Phần | Giữ việc gì |
+|---|---|
+| `SKILL.md`, khối đầu file | Tên skill và phần mô tả. Quyết định skill có được chọn hay không |
+| `SKILL.md`, phần thân | Bảy luật, danh sách ký tự được phép, nguyên tắc bố cục, bảng chọn định dạng, danh sách kiểu làm sai |
+| `references/character-rules.md` | Bảng đổi từng ký tự Unicode sang ASCII tương đương, các mẫu mũi tên, ký tự cấm, checklist kiểm cuối |
+| `references/layout-patterns.md` | Mẫu bố cục dựng sẵn — hộp, hộp lồng, luồng ngang, luồng dọc, rẽ nhánh, phân tầng, bảng, ranh giới tin cậy — kèm các cách xử lý khi hình quá rộng |
+| `references/diagram-type-selector.md` | Cây quyết định chọn ASCII hay định dạng khác, bảng so sánh, và các trường hợp ASCII **không** phải lựa chọn đúng |
+| `templates/common-patterns.txt` | Các khối dựng sẵn để chép thẳng ra dùng |
+
+### Ba tầng, ba mức giá
+
+Cách chia trên không tuỳ hứng. Nó theo một quy tắc mà mọi skill đều chịu: **thứ
+bạn đặt càng gần đầu thì càng được đọc nhiều lần, và càng tốn.**
+
+@fig:tang
+    Luon trong context
+      SKILL.md - khoi dau file : ten + mo ta, quyet dinh skill co duoc chon
+
+    Doc moi lan skill bat
+      SKILL.md - phan than     : bay luat, ky tu, bang chon dinh dang
+
+    Chi doc khi duoc dan toi
+      references/*.md          : bang tra, mau bo cuc, cay quyet dinh
+      templates/*.txt          : khoi dung san de chep
+@endfig
+
+Tên gọi của cách chia này là **lộ dần** — *progressive disclosure*. Ý tưởng gọn
+trong một câu: thứ luôn cần thì để ở chỗ luôn được đọc; thứ thỉnh thoảng mới cần
+thì để ra ngoài, và trong file luôn-được-đọc chỉ để lại một dòng chỉ đường.
+
+Nhìn `ascii-diagram` thì thấy rõ ranh giới nằm ở đâu. Bảy luật ở lại phần thân vì
+luật nào cũng áp dụng cho mọi sơ đồ, không trừ cái nào. Bảng đổi Unicode bị đẩy ra
+ngoài vì nó chỉ cần khi đang chuyển đổi một sơ đồ cũ — phần lớn lần chạy không
+đụng tới. Các mẫu bố cục cũng ra ngoài, vì mỗi lần vẽ chỉ dùng đúng một mẫu.
+
+### Và cái thư mục vắng mặt
+
+`ascii-diagram` **không có `scripts/`**. Đây là chi tiết đáng học nhất trong cả
+thư mục này.
+
+Một skill có `scripts/` khi có việc nên giao cho code: đổi kích thước hai trăm tấm
+ảnh, bóc dữ liệu từ một file log, gọi một API. Code làm những việc đó rẻ hơn và
+chắc tay hơn là viết hướng dẫn rồi nhờ agent làm bằng tay.
+
+Ở đây, việc cần ràng buộc lại là **soạn văn bản** — đúng cái việc agent vốn đang
+làm. Một script kiểm ký tự chỉ kiểm được *sau khi* sơ đồ đã viết xong, và phải có
+ai đó gọi nó, đọc kết quả, rồi quay lại sửa. Luật viết cho hay thì có tác dụng
+sớm hơn một nhịp: nó chặn ngay ở lúc tay đang chọn ký tự, chứ không bắt lỗi sau.
+
+Skill này chọn vế thứ hai, và trả giá đầy đủ cho lựa chọn đó: **không có gì chặn
+được một sơ đồ sai.** Luật chỉ nặng bằng đúng mức agent chịu đọc và chịu làm theo.
+
+Còn `templates/` để làm gì, khi `references/layout-patterns.md` cũng đầy ví dụ?
+Hai thứ khác nhau ở mục đích sử dụng, không phải ở nội dung. File trong
+`references/` là để **đọc và hiểu**: có tiêu đề, có giải thích, có ghi chú bên
+cạnh từng mẫu. File trong `templates/` là để **chép**: không giải thích, chỉ có
+khối dựng sẵn ngăn bằng dấu phân cách. Nó mang đuôi `.txt` chứ không phải `.md`
+chính là để báo điều đó — đây là nguyên liệu thô, không phải bài đọc.
+
+## 4. Luồng chạy
+
+Skill này không có tiến trình, không có script, không có gì để khởi động. "Luồng
+chạy" của nó là thứ tự các file được đọc và các luật được áp trong một lần agent
+soạn ra một sơ đồ. Nói thẳng: nó mỏng. Đó là sự thật về một skill thuần luật, chứ
+không phải chỗ thiếu sót.
+
+1. **Kích hoạt.** Phần mô tả ở khối đầu `SKILL.md` khớp với việc đang làm — ai đó
+   cần một sơ đồ kiến trúc, một sơ đồ luồng, một cái hình cho markdown hay
+   terminal. Không có lệnh nào được gõ ra.
+2. **Phần thân vào context.** Bảy luật, danh sách ký tự được phép, bảng chọn định
+   dạng, danh sách kiểu làm sai. Từ lúc này chúng nằm trong tầm mắt cho tới hết
+   việc.
+3. **Chọn định dạng trước, vẽ sau.** Bảng chọn trong phần thân xét hai thứ: sơ đồ
+   sẽ hiện ở đâu, và nó có bao nhiêu nút. Nếu trường hợp nằm ở ranh giới, bước
+   này mở `references/diagram-type-selector.md`.
+4. **Nếu kết luận không phải ASCII, skill dừng ở đây** — nó vừa tự loại mình, và
+   việc chuyển sang Mermaid hay C4 không còn thuộc phạm vi của nó nữa.
+5. **Chọn bố cục.** Hình này là luồng ngang, luồng dọc, rẽ nhánh, hộp lồng hay
+   phân tầng? Bước này mở `references/layout-patterns.md` để lấy khung, hoặc chép
+   thẳng một khối từ `templates/common-patterns.txt`.
+6. **Soạn.** Điền nhãn vào khung, canh các cột, rút gọn nhãn nếu hình sắp chạm
+   giới hạn chiều rộng.
+7. **Tự kiểm.** Luật số bảy bắt rà lại trước khi xuất: chỉ ký tự ASCII, không tab,
+   mọi dòng trong 80 cột, có khối code, các cột còn thẳng. Checklist chi tiết nằm
+   ở cuối `references/character-rules.md`.
+8. **Xuất.** Một đến ba câu giải thích, rồi mới tới khối code.
+
+@fig:chon
+    Can mot so do
       |
-      +-- terminal / Slack / email / code comment  --> ASCII
-      +-- markdown render, giải thích nhanh <10 node --> ASCII
-      +-- sequence diagram                          --> Mermaid
-      +-- >15 node, quan hệ chằng chịt              --> Mermaid hoặc C4
+      +--> ASCII        : terminal, chat, email, README; duoi ~15 nut
       |
-      v
-    ASCII becomes unreadable past ~15 nodes
+      +--> Mermaid      : tai lieu da render, so do tuan tu, nhieu nut
+      |
+      +--> C4           : nhieu he thong, nhieu muc phong
+      |
+      +--> O lai voi chu: hinh khong noi them gi so voi cau van
+
+    Neu mot cau noi xong roi thi cai hinh chi la nhieu.
 @endfig
 
-Skill đặt một ngưỡng cụ thể: **~15 node**. Quá ngưỡng đó, `SKILL.md` xếp "over-detailed ASCII" vào mục anti-pattern chứ không phải mục "cần cố gắng hơn". Bảng so sánh trong file selector nói thẳng trần của từng định dạng: ASCII ~15 node, Mermaid ~50, C4 ~100.
+Bước 3 là bước đáng chú ý nhất, vì nó đi trước mọi thứ khác. Một skill về sơ đồ
+ASCII mà việc đầu tiên nó làm là hỏi "trường hợp này có nên dùng ASCII không" —
+đó là một lựa chọn thiết kế, sẽ nói kỹ ở mục 9.
 
-Đây là một skill biết phạm vi của mình kết thúc ở đâu, và viết điều đó ra thành ngưỡng đếm được thay vì thành lời khuyên mềm. Với một skill được model tự gọi (xem Phần 3), ranh giới rõ ràng quan trọng hơn khả năng: nó quyết định khi nào skill **không** nên nói gì.
+## 5. Dữ liệu và trạng thái
+
+Mục này cũng mỏng, và cũng là sự thật chứ không phải chỗ bỏ trống.
+
+Skill **đọc**: ba file trong `references/` và một file trong `templates/`, mỗi
+file chỉ khi bước 3 hoặc bước 5 dẫn tới nó.
+
+Skill **ghi**: không gì cả. Không file tạm, không thư mục làm việc, không log,
+không biến môi trường, không bộ nhớ đệm.
+
+Skill **nhớ giữa các lần chạy**: không gì cả. Mỗi lần vẽ là một lần độc lập. Toàn
+bộ "trạng thái" chỉ là những gì đang nằm trong context của agent trong lúc soạn —
+tức là bảy luật đọc được ở bước 2, cộng thêm mẫu bố cục nào đó đọc được ở bước 5.
+
+Hệ quả thực tế thì dễ chịu: không có gì phải dọn, không có gì hỏng khi hai việc
+chạy song song, không có bản ghi nào cần xoay vòng. Hệ quả khó chịu thì cũng
+thẳng thắn: nếu một sơ đồ ra sai, không còn dấu vết nào để lần lại ngoài chính cái
+sơ đồ đó.
+
+## 6. Một lần chạy, từ đầu tới cuối
+
+Yêu cầu vào, nguyên văn:
+
+> Vẽ giúp kiến trúc: người dùng gọi vào API, API đọc ghi Postgres, và đẩy việc
+> nặng sang một worker qua hàng đợi. Cho vào README.
+
+**Bước 3 — chọn định dạng.** Đếm nút: người dùng, API, Postgres, hàng đợi, worker
+— năm nút. Đích đến là README trên GitHub. Bảng chọn xếp README vào ô ASCII: dưới
+mười lăm nút, và ở đây tính an toàn khi chép dán đáng giá hơn việc được tự dàn
+trang. Không cần mở `diagram-type-selector.md`, vì trường hợp này không nằm ở
+ranh giới.
+
+**Bước 5 — chọn bố cục.** Hình có một chỗ rẽ: từ API đi hai đường, một xuống
+Postgres, một ngang sang hàng đợi. Mẫu "rẽ nhánh" trong `layout-patterns.md` khớp
+đúng hình dạng đó; lấy khung của nó.
+
+**Bước 6 — soạn.** Nhãn `Postgres` giữ nguyên vì đã ngắn. `Background Worker` rút
+thành `Worker` cho khỏi đội chiều ngang. Các dấu `|` nối xuống được đặt thẳng cột
+với dấu `+` ở cạnh hộp phía trên.
+
+**Bước 7 — tự kiểm.** Rà lần lượt năm mục:
+
+| Mục kiểm | Kết quả |
+|---|---|
+| Chỉ ký tự ASCII | Chỉ có `+`, `-`, `v`, gạch đứng và chữ thường — đạt |
+| Không có tab | Toàn dấu cách — đạt |
+| Mọi dòng trong 80 cột | Dòng dài nhất 32 cột — đạt |
+| Nằm trong khối code | Có — đạt |
+| Các cột còn thẳng | Mỗi nét nối dọc nằm thẳng cột với `+` ở hộp trên — đạt |
+
+**Bước 8 — xuất.** Giải thích trước, hình sau:
+
+    Client gọi thẳng vào API. API đọc ghi Postgres đồng bộ, còn việc
+    nặng thì đẩy vào hàng đợi cho worker xử lý sau.
+
+    ```
+    +----------+
+    |  Client  |
+    +----+-----+
+         |
+         v
+    +----+-----+
+    |   API    |
+    +----+-----+
+         |
+         +------------------+
+         |                  |
+         v                  v
+    +----+-----+      +-----+------+
+    | Postgres |      |   Queue    |
+    +----------+      +-----+------+
+                            |
+                            v
+                      +-----+------+
+                      |   Worker   |
+                      +------------+
+    ```
+
+Đó là toàn bộ kết quả. Không file mới, không ảnh, không bước dựng, không thứ gì
+còn lại trên đĩa.
+
+## 7. Hook
+
+Skill này không gắn vào hook nào, và tên nó không xuất hiện trong bất kỳ file
+cấu hình nào — nó chỉ được chọn qua phần mô tả ở khối đầu `SKILL.md`. Nó cũng
+được đánh dấu là không gọi trực tiếp được, nên không có lệnh gạch chéo nào cho
+nó: hoặc ngữ cảnh khớp và nó bật, hoặc không có gì xảy ra.
+
+## 8. Rào chắn
+
+Mỗi luật ở đây là một cái rào. Đáng hỏi với từng cái: bỏ nó ra thì hỏng chuyện gì?
+
+| Rào | Bỏ ra thì hỏng gì |
+|---|---|
+| Danh sách trắng ký tự được phép | "Đừng dùng Unicode" là lời khuyên mơ hồ. Một danh sách trắng thì mọi ký tự không có tên trong đó đều bị loại, không cãi được |
+| Bảng đổi Unicode sang ASCII | "Đổi Unicode sang ASCII" là việc phải phán đoán. Cùng một dấu nối chữ T có thể thành `+` ở hình này và `-` ở hình kia, ngay trong một tài liệu |
+| Giới hạn 80 cột | Một con số cụ thể thì đo được bằng mắt trong hai giây. "Giữ cho nó đừng rộng quá" thì không |
+| Bắt buộc nằm trong khối code | Markdown gộp các khoảng trắng liền nhau. Ngoài khối code, cái hình sập thành một dòng chữ |
+| Cấm tab | Mỗi nơi quy tab ra một số cột khác nhau. Một ký tự tab lọt vào là cả hình lệch, mà nhìn trên máy người viết thì vẫn thẳng |
+| Ngưỡng bỏ ASCII khi hình quá lớn | Không có ngưỡng, skill sẽ đẩy ASCII vào cả những chỗ ASCII không làm nổi, và tự biến mình thành thứ gây hại |
+| Danh sách kiểu làm sai | Luật phát biểu xuôi dễ bị diễn giải lệch. Cùng luật đó phát biểu ngược — dưới dạng cái hỏng mà nó ngăn — thì khó lách hơn nhiều |
+| Bước tự kiểm trước khi xuất | Đây là điểm cưỡng chế duy nhất tồn tại. Không có nó, sáu luật kia chỉ là lời khuyên đọc xong rồi quên |
+
+Cần nói thẳng một điều: **tất cả những rào trên đều là rào bằng chữ.** Không có
+script nào chạy, không có test nào đỏ, không có hook nào chặn ở cửa ra. Một sơ đồ
+vi phạm cả bảy luật vẫn xuất được bình thường.
+
+Cái làm cho chúng có sức nặng là mức cụ thể. Một danh sách trắng ngắn, một con số
+cố định là 80, một checklist năm mục — tất cả đều kiểm được bằng mắt trong vài
+giây, nên bỏ qua chúng là một hành động có ý thức chứ không phải lơ đãng. Đem so
+với một luật kiểu "hãy giữ sơ đồ cho đơn giản": luật đó không thể bị vi phạm, vì
+nó không thể được kiểm. Đó là bài học mang đi được: **một luật thuần chữ chỉ có
+sức khi nó kiểm được bằng mắt trong vài giây.**
+
+## 9. Những quyết định đáng học
+
+Sáu lựa chọn thiết kế, và cái giá của từng lựa chọn.
+
+**Không có script.** Đã nói ở mục 3; đây là hai vế của nó đặt cạnh nhau.
+
+@fig:doi
+    Skill co scripts/                    Skill thuan luat
+    ----------------------------------   ----------------------------------
+    Chan duoc vi pham o cua ra           Khong chan duoc gi ca
+    Kiem sau khi so do da viet xong      Co tac dung ngay luc chon ky tu
+    Phai co ai do goi, doc, roi sua      Khong co buoc phu nao
+    Co code de bao tri va de hong        Chi co chu de sua
+@endfig
+
+**Skill tự chỉ ra lúc không nên dùng chính nó.** Một phần ba tài liệu tham chiếu
+của nó dành để nói "trường hợp này đừng dùng ASCII", và bước đầu tiên trong luồng
+chạy là bước có thể loại bỏ chính skill. Trả giá: phạm vi hẹp lại. Được lại: khi
+nó nói "dùng ASCII đi", câu đó đáng tin, vì các trường hợp khác đã bị loại trước.
+
+**Danh sách trắng thay vì danh sách đen.** Skill liệt kê ký tự nào được dùng,
+chứ không liệt kê ký tự nào bị cấm. Trả giá: cấm luôn vài ký tự vô hại — dấu sao
+bị loại khỏi cấu trúc sơ đồ dù nó là ASCII hợp lệ. Được lại: không còn vùng xám
+nào để tranh luận.
+
+**Bảng tra thay vì nguyên tắc.** "Đổi Unicode sang ASCII" là một nguyên tắc; một
+bảng liệt kê từng ký tự một với ký tự thay thế của nó là một chỗ để tra. Trả giá:
+dài, và phải bảo trì. Được lại: bỏ sạch phán đoán ở đúng chỗ mà phán đoán chỉ
+sinh ra khác biệt giữa hai lần vẽ.
+
+**Một luật không nói gì về ký tự.** Luật "giải thích trước, hình sau" là luật về
+người đọc chứ không về kỹ thuật. Nó nằm chung danh sách với sáu luật kỹ thuật kia
+vì nó chữa cùng một lỗi gốc: tác giả nhìn hình là hiểu ngay, nên tưởng người đọc
+cũng vậy.
+
+**Không gọi trực tiếp được.** Khối đầu file đánh dấu skill không cho gọi bằng
+lệnh. Trả giá: bạn không chủ động triệu nó lên được khi muốn. Được lại: nó không
+bao giờ trở thành một bước thừa mà người dùng phải nhớ — hoặc nó tự bật đúng lúc,
+hoặc nó nên im lặng.
 
 ---
 
-# PHẦN 2 — Bề mặt thực sự dùng
+# PHẦN 3 — Tự dựng skill của bạn
 
-## Bảy luật
+## 10. Năm quyết định, và chúng đã được trả lời ra sao ở đây
 
-`SKILL.md` gói toàn bộ chỉ dẫn hành vi vào 7 luật đánh số. Ba luật đầu nói về ký tự, hai luật giữa nói về hình dạng, hai luật cuối nói về quy trình.
+Trang này là một ví dụ đã làm xong. Phần dưới biến nó thành công thức: mỗi mục là
+một quyết định mà tác giả `ascii-diagram` đã phải đưa ra, và bạn sẽ phải đưa ra
+lại cho skill của mình.
 
-| # | Luật | Nó cứu điều gì |
-|---|---|---|
-| 1 | ASCII-only characters | Font fallback làm lệch cột trên máy khác |
-| 2 | Always in code blocks | Markdown render nuốt space thừa, sơ đồ sập |
-| 3 | Spaces only, no tabs | Tab = 8/4/2 space tuỳ nơi |
-| 4 | Giới hạn 80 ký tự mỗi dòng | Wrap không đoán trước được trong terminal hẹp và cửa sổ chat |
-| 5 | Khung hộp chỉ dùng ba ký tự góc–cạnh–tường; hộp lồng thụt 2 space từ tường cha | Cột giữ được khi lồng nhiều tầng |
-| 6 | Giải thích 1–3 câu **trước**, rồi mới tới sơ đồ | Sơ đồ không tự giải thích được chính nó |
-| 7 | Tự kiểm tra trước khi xuất, tự sửa vi phạm | Lỗi một space không ai nhìn thấy bằng mắt |
+### Quyết định 1 — Skill của bạn có cần `scripts/` không?
 
-Luật 6 là luật duy nhất không nói về kỹ thuật. Nó ép thứ tự trình bày: văn bản dẫn trước, hình sau — vì người đọc cần biết mình đang nhìn cái gì trước khi nhìn.
+Câu hỏi để tự trả lời: việc cần làm là *soạn văn bản*, hay là *xử lý dữ liệu*?
 
-## Bộ ký tự, và một chỗ vênh giữa hai file
+Nếu là thứ agent vốn đã làm bằng chữ — viết, chọn từ, canh dòng, phán đoán — thì
+luật viết cho hay là đủ, và rẻ hơn. Nếu là thứ code làm chính xác hơn hẳn — đếm,
+đổi định dạng, gọi API, đụng vào hàng trăm file — thì viết script, đừng viết
+hướng dẫn dài.
 
-Bộ ký tự được khai báo ở hai nơi, và hai nơi không khớp nhau hoàn toàn.
+Dấu hiệu bạn đang chọn sai: nếu bạn thấy mình đang viết một đoạn hướng dẫn agent
+làm tay một việc lặp đi lặp lại và dễ sai số, đó là một script đang chờ được viết.
 
-@fig:boKyTu
-    character-rules.md khai báo:
-      Structure:  + - | / \ _ = ~
-      Direction:  > < ^ v
-      Text:       Any printable ASCII (0x20-0x7E)
-      Spacing:    Space (0x20) only -- never tab
+### Quyết định 2 — Cái gì ở lại `SKILL.md`, cái gì ra `references/`?
 
-    SKILL.md khai báo:
-      + - | / \ _ > < =        (thiếu ~, ^, v)
+Một câu hỏi duy nhất: *lần chạy nào cũng cần cái này không?*
 
-    Cấm tuyệt đối:
-      *  (dùng - trong list)
-      emoji
-      { }  như phần tử cấu trúc
-@endfig
+Cần mọi lần thì ở lại phần thân. Chỉ cần đôi khi, hoặc chỉ cần trong một nhánh
+của công việc, thì ra ngoài — và trong phần thân để lại đúng một dòng chỉ đường
+tới nó, không hơn.
 
-`SKILL.md` liệt kê 9 ký tự; `references/character-rules.md` liệt kê 12. Ba ký tự vắng mặt ở bản tóm tắt là `~`, `^`, `v` — trong đó `^` và `v` vẫn được nhắc ở dòng ngay sau, phần arrow patterns, còn `~` thì không xuất hiện ở đâu trong `SKILL.md`.
+Dấu hiệu bạn đã nhét quá nhiều vào phần thân: đọc hết nó không còn vừa một màn
+hình, hoặc trong đó đã có mấy chục dòng bảng tra. Bảng tra hầu như luôn thuộc về
+`references/`.
 
-Chi tiết nhỏ nhưng đáng biết: `~` được khai báo là ký tự **cấu trúc**, nhưng trong toàn bộ 39 khối sơ đồ nó xuất hiện đúng 4 lần, và cả 4 lần đều mang nghĩa "xấp xỉ" — `~15 nodes`, `~50`, `~100`. Chưa lần nào nó thật sự vẽ cái gì.
+### Quyết định 3 — Viết phần mô tả sao cho nó bật đúng lúc
 
-Ngoại lệ được ghi rõ với `{ }`: cấm làm phần tử cấu trúc, nhưng chấp nhận được khi sơ đồ đang hiển thị JSON hay file config. Đây là loại ngoại lệ phân biệt một luật đã được dùng thật với một luật viết ra cho gọn.
+Phần mô tả ở khối đầu file là thứ duy nhất luôn nằm trong context, và nó là thứ
+quyết định skill có được chọn hay không. Viết nó như viết một lời tóm tắt là hỏng.
 
-## Bảng quy đổi Unicode: 27 dòng, và nghịch lý của nó
+Nhìn cách mô tả của skill này được viết: nó không tóm tắt skill làm gì, nó **liệt
+kê các tình huống** — khi vẽ sơ đồ kiến trúc, khi dựng sơ đồ luồng, khi cần một
+cái hình cho markdown hoặc cho terminal — rồi gọi tên thẳng các nơi đến. Người
+đọc nhận ra tình huống của mình trong một danh sách tình huống dễ hơn nhiều so
+với nhận ra nó trong một lời tóm tắt.
 
-`references/character-rules.md` chứa một bảng 27 dòng ánh xạ từng ký tự Unicode sang ASCII tương đương: 9 ký tự khung nét đơn, 11 ký tự khung nét đôi, 1 ellipsis, 4 mũi tên, 2 đường kẻ.
+Nếu skill của bạn có anh em dễ nhầm, thêm một câu ranh giới: đừng dùng cho X,
+dùng Y. Skill này không có câu đó, vì nó không có anh em nào dễ nhầm.
 
-    Unicode    ASCII    Name
-    -------    -----    ----
-    ┌          +        top-left corner
-    │          |        vertical line
-    ─          -        horizontal line
-    ╔          +        double top-left
-    →          ->       right arrow
-    ↓          v        down arrow
+### Quyết định 4 — Viết luật từ những lần đã hỏng
 
-Nghịch lý: đây là file duy nhất trong bộ **buộc phải** vi phạm luật 1 để dạy luật 1. Và nó là gần như toàn bộ lượng Unicode trong cả skill — 27 trên 33 ký tự. Sáu ký tự còn lại nằm ở một dòng duy nhất trong `SKILL.md`, dòng liệt kê anti-pattern `┌ ┐ └ ┘ │ ─`.
+Luật nào cũng đáng ngờ cho tới khi biết nó chặn cái gì. Cách làm ngược lại thì
+tốt hơn: liệt kê trước những kiểu làm sai bạn từng thấy, rồi mới viết luật chặn
+từng kiểu.
 
-Còn hai ký tự nữa, và chúng đáng nhắc vì rất dễ bỏ sót: **hai dấu gạch ngang dài (U+2014) nằm ngay bên trong khối code khai báo bộ ký tự cho phép** — chính khối viết "Any printable ASCII (0x20-0x7E)". Chúng là văn xuôi chú thích, không phải phần tử vẽ, nên không làm lệch cột. Nhưng một validator máy đọc khối đó sẽ báo lỗi, và đó là lời nhắc rằng "ASCII-only" trong skill này được hiểu theo phạm vi sơ đồ, không phải theo phạm vi file: bên ngoài khối code, 29 dấu gạch ngang dài khác được dùng thoải mái trong văn xuôi.
+Rồi giữ luôn danh sách kiểu làm sai ở lại trong file, đừng xoá. Ví dụ phản diện
+là thứ giữ cho luật khỏi bị diễn giải lệch, và nó cũng là lời giải thích ngắn nhất
+cho câu hỏi "vì sao lại có luật này".
 
-## Kho hình mẫu: 12 pattern và 14 khối dán được
+### Quyết định 5 — Nói rõ lúc nào đừng dùng skill của bạn
 
-Hai file mang phần "dùng ngay", với hai mục đích khác nhau.
+Skill nào cũng có vùng nó không làm nổi. Viết vùng đó ra, kèm chỗ nên đi thay thế,
+và làm cho nó thành một bước sớm trong quy trình chứ không phải một ghi chú ở
+cuối trang. Một skill nhận biết được giới hạn của mình thì đáng tin hơn hẳn ở
+trong giới hạn đó.
 
-`references/layout-patterns.md` — 252 dòng, **12 pattern có đánh số**, mỗi pattern là một tình huống bố cục kèm ví dụ đầy đủ:
+### Bắt đầu
 
-| # | Pattern | # | Pattern |
-|---|---|---|---|
-| 1 | Simple Box | 7 | Layered Architecture |
-| 2 | Nested Boxes | 8 | Side-by-Side Comparison |
-| 3 | Horizontal Flow | 9 | Table / Matrix |
-| 4 | Vertical Flow | 10 | Network Topology |
-| 5 | Branching Flow | 11 | Trust Boundary |
-| 6 | Bidirectional | 12 | Sequence (Simple) |
+Đủ để chạy được là thế này, không cần gì thêm:
 
-`templates/common-patterns.txt` — 152 dòng, **14 khối** không đánh số, không giải thích, viết để copy thẳng: `SINGLE BOX`, `BOX WITH CONTENT`, `TWO BOXES HORIZONTAL`, `THREE BOXES HORIZONTAL`, `VERTICAL CHAIN`, `BRANCH`, `NESTED`, `DEEP NESTED`, `LAYERS`, `BIDIRECTIONAL`, `SIMPLE SEQUENCE`, `TABLE`, `TRUST BOUNDARY`, `LEGEND`.
+    skill-cua-ban/
+    +-- SKILL.md
 
-Khác biệt giữa hai file không phải là trùng lặp. `layout-patterns.md` dạy *vì sao* bố cục đó đúng — ví dụ quy tắc lồng hộp thụt 2 space tính từ tường cha. `common-patterns.txt` bỏ hết lời, chỉ còn khung rỗng để điền nhãn vào. Một file để đọc, một file để dán.
+Trong `SKILL.md`: khối đầu file gồm tên và phần mô tả viết theo Quyết định 3; rồi
+phần thân gồm một câu nguyên tắc gốc, một danh sách luật có đánh số, và một danh
+sách kiểu làm sai.
 
-Pattern 12 tự giới hạn mình ngay trong tiêu đề: *"For simple sequences only. Use Mermaid for complex ones."* Skill lặp lại ranh giới của nó ở tận cấp pattern, không chỉ ở cấp tổng quan.
+Ba thư mục kia thêm sau, mỗi cái vào đúng ngày nó trở nên cần:
 
-## Khi chạm giới hạn 80 cột: bốn cách thoát
+- thêm `references/` vào ngày phần thân dài quá một màn hình;
+- thêm `templates/` vào ngày bạn chép lại cùng một khối tới lần thứ ba;
+- thêm `scripts/` vào ngày bạn viết hướng dẫn cho một việc mà code làm chắc hơn.
 
-Luật 4 là luật dễ đụng nhất trong thực tế, nên `layout-patterns.md` dành một mục riêng cho nó với 4 chiến lược, xếp theo thứ tự ít mất mát nhất trước:
+## 11. Từ điển
 
-1. **Rút gọn nhãn** — "Authentication Service" thành "Auth Svc", rồi thêm chú giải bên dưới
-2. **Xếp dọc** — đổi luồng ngang thành luồng dọc khi bề ngang căng
-3. **Tách nhiều sơ đồ** — tổng quan trước, rồi mới tới từng vùng chi tiết
-4. **Đánh số tham chiếu** — hộp chỉ chứa `[1]` `[2]` `[3]`, chú giải viết đầy đủ bên dưới
+**anti-pattern** — kiểu làm sai được ghi lại có chủ ý, để người đọc nhận ra nó
+trước khi phạm phải; ở đây là mặt trái của mỗi luật.
 
-Chiến lược 4 là cách duy nhất giữ được sơ đồ nhiều node mà không phá 80 cột, và nó cũng là khối `LEGEND` trong file template — luật và hình mẫu khớp nhau.
+**ASCII** — bảng ký tự cũ gồm 128 ký hiệu đầu tiên: chữ cái không dấu, chữ số, và
+các dấu trên bàn phím Mỹ. Mọi hệ thống đều hiển thị được, không cần font đặc biệt.
 
-@fig:chieuRong
-    Dòng sơ đồ rộng nhất trong từng file, so với trần 80 cột
+**C4** — một quy ước vẽ kiến trúc theo nhiều mức phóng, từ toàn cảnh hệ thống đến
+từng thành phần. Nêu tên ở đây như lối ra cho hệ thống lớn, không thuộc phạm vi
+skill.
 
-    character-rules.md          62   (6 khối)
-    diagram-type-selector.md    61   (3 khối)
-    common-patterns.txt         60   (14 khối)
-    layout-patterns.md          48   (16 khối)
-    SKILL.md                     0   (0 khối)
-    ------------------------------------------
-    tran                        80
-@endfig
+**danh sách trắng (whitelist)** — cách viết luật bằng cách liệt kê những gì được
+phép, ngầm cấm mọi thứ còn lại. Ngược với danh sách đen, vốn liệt kê cái bị cấm.
 
----
+**font đều (monospace)** — kiểu chữ mà mọi ký tự rộng bằng nhau. Sơ đồ ký tự chỉ
+thẳng hàng khi được hiển thị bằng loại font này.
 
-# PHẦN 3 — Bên trong: cách nó khởi động, và những gì bị cắt
+**frontmatter (khối đầu file)** — khối nằm ngay đầu `SKILL.md`, kẹp giữa hai dòng
+ba gạch ngang, chứa tên skill và phần mô tả. Là phần duy nhất luôn nằm trong
+context.
 
-## Toàn bộ bề mặt kích hoạt là 282 ký tự
+**khối code (code block)** — vùng văn bản trong markdown được bao bởi ba dấu
+backtick. Bên trong nó, khoảng trắng được giữ nguyên và chữ hiện bằng font đều.
 
-Frontmatter của skill có một dòng mà 25 skill khác trong cùng thư mục không có:
+**ký tự vẽ hộp (box-drawing characters)** — nhóm ký tự Unicode như `┌ ─ │ ┘` dành
+riêng để vẽ khung. Đẹp hơn ASCII, nhưng cần font có sẵn chúng, nên bị cấm ở đây.
 
-    ---
-    name: ascii-diagram
-    description: "ASCII-safe diagram generation for technical documentation. ..."
-    user-invocable: false
-    ---
+**lộ dần (progressive disclosure)** — cách tổ chức tài liệu sao cho phần luôn cần
+thì luôn có mặt, còn phần chi tiết chỉ được đọc khi có thứ dẫn tới nó.
 
-`user-invocable: false`. Không có slash command. Người dùng không gọi được skill này, và trong toàn bộ thư mục `.claude` của dự án không có một rule, agent hay config nào tham chiếu tới nó. Nghĩa là nó chỉ có đúng một cách để chạy: model tự nhận ra nên dùng, từ phần mô tả.
+**Mermaid** — một cú pháp mô tả sơ đồ bằng chữ, được trình render dựng thành hình.
+Tự dàn trang, chịu được nhiều nút, nhưng cần nơi hiển thị biết render nó.
 
-@fig:beMatKichHoat
-    description (282 ký tự, 3 câu)   -- luôn ở trong context
-      cái gì  : ASCII-safe diagram generation for technical documentation
-      khi nào : drawing architecture diagrams, creating system layouts,
-                building flow charts, or rendering any visual
-      vì sao  : copy-paste safety across terminals, GitHub, Slack, email
+**skill** — một thư mục hướng dẫn mà agent đọc khi gặp đúng loại việc; tối thiểu
+chỉ gồm một file `SKILL.md`.
 
-    SKILL.md (84 dòng)              -- nạp khi skill được kích hoạt
-    references/ + templates/ (620 dòng) -- nạp khi thật sự cần
-@endfig
-
-Ba câu, ba việc: câu một nói skill là gì, câu hai liệt kê các tình huống kích hoạt cụ thể, câu ba nói lợi ích. Đó là toàn bộ ngân sách. Nếu 282 ký tự này không khớp với việc đang làm, 620 dòng hướng dẫn phía sau không bao giờ được đọc tới.
-
-Hệ quả lên cách viết `SKILL.md` cũng rõ: nó **không chứa một sơ đồ nào**. Không một khối code nào trong 84 dòng. Toàn bộ 39 khối sơ đồ nằm trong `references/` và `templates/` — tầng chỉ được nạp khi model đã quyết định sẽ vẽ. Tầng luôn-tải chỉ mang luật, bảng, và ba con trỏ.
-
-## Không có script, không có test — cưỡng chế bằng chỉ dẫn
-
-Đây là giới hạn thật sự của skill, và cần nói thẳng: `find` toàn bộ thư mục trả về **5 file, không có file thực thi nào**. Không `scripts/`, không validator, không hook.
-
-Luật 7 viết "Before finalizing, verify: only ASCII chars, no tabs, line width within 80, inside code block, alignment preserved" và checklist 5 bước ở cuối `character-rules.md` liệt kê rất chính xác các dải cần chặn:
-
-    1. Không ký tự ngoài 0x20-0x7E
-    2. Không tab (0x09)
-    3. Không Unicode box-drawing (U+2500-U+257F, U+2550-U+256C)
-    4. Không Unicode arrows (U+2190-U+2199)
-    5. Không emoji (U+1F000+)
-
-Checklist này chính xác tới mức viết thành 10 dòng Python là chạy được. Nhưng nó không được viết thành code — nó là câu lệnh cho model tự chạy trong đầu. Cơ chế cưỡng chế duy nhất là sự tuân thủ chỉ dẫn.
-
-Và hai khối lệch một cột ở Phần 1 chính là số đo của độ tin cậy đó khi áp lên chính tác giả của nó. 30/32 là tỉ lệ tốt; nó không phải 32/32, và không có gì trong bộ này ngăn được con số đó trượt xuống.
-
-## Ba bản sao, và một bản thiếu ruột
-
-Skill này tồn tại ở nhiều nơi trên máy. Ba bản đáng quan tâm, và sự khác biệt giữa chúng không nằm ở nội dung `SKILL.md`.
-
-@fig:banSao
-    ~/.dotfiles/.claude/skills/ascii-diagram   -> SKILL.md + 3 references + 1 template
-    <project>/.claude/skills/ascii-diagram     -> y hệt, sha256 trùng từng file
-    ~/.../skills/synced/<uuid>/ascii-diagram   -> CHỈ có SKILL.md
-@endfig
-
-Cả ba bản `SKILL.md` giống hệt nhau tới từng byte — cùng sha256 `ecd02311…`. Bốn file còn lại của bản dotfiles và bản trong dự án cũng trùng hash từng cặp. Không có drift nội dung.
-
-Nhưng bản đồng bộ chỉ mang theo `SKILL.md`. Mà `SKILL.md` lại trỏ tới 3 file reference và 1 file template bằng đường dẫn tương đối, ở 7 chỗ khác nhau. Trên bản đó, cả 7 con trỏ đều rỗng: model đọc được 7 luật và bảng chọn định dạng, nhưng không lấy được bảng quy đổi 27 dòng, 12 pattern, hay 14 khối dán sẵn.
-
-Đây là đặc tính của kiến trúc progressive disclosure nói chung: `SKILL.md` gọn được là nhờ đẩy chi tiết xuống tầng dưới, nên một kênh phân phối chỉ chuyển tầng trên sẽ giao đúng phần tóm tắt và bỏ lại phần dùng được.
-
-## Đọc gì nếu chỉ có 5 phút
-
-| Cần gì | Đọc file nào | Dòng |
-|---|---|---|
-| Luật và ranh giới | `SKILL.md` | 84 |
-| Ký tự nào được, quy đổi Unicode, checklist | `references/character-rules.md` | 102 |
-| ASCII hay Mermaid hay C4 | `references/diagram-type-selector.md` | 114 |
-| 12 bố cục kèm giải thích | `references/layout-patterns.md` | 252 |
-| 14 khung rỗng để dán | `templates/common-patterns.txt` | 152 |
-
-Nếu chỉ đọc một file: `character-rules.md`. Nó là file duy nhất có thể dùng độc lập — bảng quy đổi và checklist 5 bước đủ để dọn một sơ đồ Unicode có sẵn thành ASCII mà không cần biết gì thêm về skill.
+**Unicode** — bảng ký tự lớn bao trùm gần như mọi chữ viết và ký hiệu. Vượt ra
+ngoài ASCII, nên hiển thị được hay không còn tuỳ font và tuỳ nơi.
 
 ---
 
-Tài liệu này dựng từ bản canonical tại `~/.dotfiles/.claude/skills/ascii-diagram`, đối chiếu với bản trong dự án và bản đồng bộ bằng `sha256` từng file.
+Trang này mô tả `ascii-diagram` như một ví dụ đã hoàn chỉnh về thiết kế skill: nhỏ,
+thuần luật, và biết tự nhận giới hạn của mình.
 
-Mọi con số trong bài đều đếm bằng script trên chính 5 file đó, không ước lượng: 704 dòng, 39 khối code, 32 khối có khung hộp đầy đủ, 33 ký tự ngoài ASCII, 0 tab, dòng sơ đồ rộng nhất 62 ký tự. Phép kiểm căn cột nhóm các dòng theo cột bắt đầu của ký tự khung đầu tiên rồi so chiều dài trong từng nhóm, nên các dòng nối (`|`, `v`, `+---+---+`) không bị tính nhầm thành lệch.
-
-Bản thân skill không có test hay script nào để chạy, nên không có hành vi runtime nào được kiểm chứng ở đây — mọi khẳng định về cách nó hoạt động đều đọc từ văn bản của skill, không phải từ một lần chạy thật.
+Thứ đáng mang đi không phải bảng đổi Unicode, mà là ba quyết định đứng sau nó — cái
+gì ở lại chỗ luôn được đọc, cái gì đẩy ra chỗ chỉ đọc khi cần, và lúc nào một luật
+viết cho hay thay được cho một đoạn code.
 </script>
 <script>/* ===================================================================
    LAYER 1 . DATA
-   No DOM, no logic. STATE, I18N, SRC, FIG.
+   No DOM work, no logic. STATE is mutable view state; SRC is the single
+   source of truth for prose; FIG holds figure payloads keyed by the
+   directive id used in the markdown.
    =================================================================== */
 
 var STATE = { view: 'doc', nav: false };
 
-var SRC = document.getElementById('src').textContent;
-
 var I18N = {
-  kick: 'Ghi chép: đọc kỹ một Claude Code skill',
-  doc: 'Tài liệu',
-  md: 'Markdown',
-  copy: 'Copy markdown',
-  done: 'Đã copy',
+  kick: 'Skill Claude Code · bản mổ xẻ',
+  navHead: 'Mục lục',
   contents: 'Mục lục',
-  navHead: 'Trong bài',
-  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+  doc: 'Xem bản tài liệu',
+  md: 'Xem bản markdown',
+  copy: 'Chép markdown',
+  done: 'Đã chép',
+  mdNote: 'Cùng một nội dung, dạng markdown thuần — chép về để dán vào repo hay chat.'
 };
 
-/* Figure payloads. `type` picks the renderer; everything else is its data. */
+var SRC = document.getElementById('src').textContent;
+
 var FIG = {
 
-  tuChamDiem: {
-    type: 'proof',
+  vo: {
+    type: 'breaks',
+    cap: 'Bốn cách một sơ đồ ký tự vỡ. Cột trái là thứ người vẽ làm; cột phải là ' +
+         'thứ người đọc nhận được — và người vẽ không bao giờ nhìn thấy cột phải.',
     rows: [
-      { kind: 'keep', n: '0',
-        what: 'ký tự tab trong cả 704 dòng',
-        detail: 'luật 3 — spaces only' },
-      { kind: 'keep', n: '0',
-        what: 'dòng sơ đồ vượt 80 cột',
-        detail: 'luật 4 — dòng rộng nhất đo được: 62' },
-      { kind: 'gone', n: '2',
-        what: 'khối khung hộp lệch cột, trên tổng 32',
-        detail: 'luật 7 — self-validate before output' }
-    ],
-    note: 'Đếm bằng script trên đúng 5 file của skill, 39 khối code. Hai khối lệch đều lệch **đúng một cột** — một space thừa trước tường phải.',
-    cap: 'Chấm chính bộ skill theo checklist 5 bước mà nó in ra ở cuối `references/character-rules.md`. Hai con số đầu là trần, không phải trung bình.'
+      { cause: 'Dùng ký tự vẽ hộp của Unicode',
+        seen: 'Font thiếu ký tự: hộp thành dấu hỏi hoặc ô trống' },
+      { cause: 'Thụt dòng bằng tab',
+        seen: 'Mỗi nơi quy tab ra số cột khác nhau: các cột lệch' },
+      { cause: 'Dòng dài quá 80 cột',
+        seen: 'Cửa sổ hẹp gấp dòng: hộp bị cắt làm đôi' },
+      { cause: 'Để hình trần, ngoài khối code',
+        seen: 'Khoảng trắng bị gộp: hình sập thành một dòng chữ' }
+    ]
   },
 
-  chonDinhDang: {
-    type: 'routes',
-    top: 'Cần vẽ một sơ đồ',
-    routes: [
-      ['ASCII', 'terminal, Slack, email, code comment — hoặc giải thích nhanh dưới 10 node'],
-      ['Mermaid', 'sequence diagram, flowchart có nhánh, ER, state machine — trần `~50` node'],
-      ['C4', 'system context, container diagram, kiến trúc nhiều hệ — trần `~100` node'],
-      ['ASCII rồi link', 'ASCII cho mental model tức thì, trỏ sang Mermaid cho bản đầy đủ']
-    ],
-    bottom: 'ASCII becomes unreadable past ~15 nodes',
-    cap: 'Ma trận quyết định trong `references/diagram-type-selector.md`. Ngưỡng `~15` node là chỗ skill tự nhận nó thua — và nói ra bằng một con số.'
-  },
-
-  boKyTu: {
+  tang: {
     type: 'levels',
+    cap: 'Ba tầng, ba mức giá. Càng gần đầu càng được đọc nhiều lần, nên chỗ đó ' +
+         'chỉ dành cho thứ lần chạy nào cũng cần.',
     levels: [
-      { name: 'ĐƯỢC DÙNG', note: 'references/character-rules.md — 12 ký tự',
-        tools: [
-          ['+ - | / \\ _ = ~', 'phần tử cấu trúc: góc, cạnh, tường'],
-          ['> < ^ v', 'chỉ hướng'],
-          ['0x20 – 0x7E', 'mọi ký tự ASCII in được, cho phần chữ'],
-          ['space (0x20)', 'cách thụt lề duy nhất — tuyệt đối không tab']
-        ] },
-      { name: 'BẢN TÓM TẮT', note: 'SKILL.md chỉ liệt kê 9 trong 12',
-        tools: [
-          ['+ - | / \\ _ > < =', 'vắng `~`, `^`, `v` — trong đó `^` và `v` được nhắc lại ở dòng arrow patterns ngay sau, còn `~` thì không xuất hiện ở đâu trong SKILL.md']
-        ] },
-      { name: 'CẤM', note: 'không bao giờ dùng làm phần tử vẽ',
-        tools: [
-          ['*', 'dùng `-` trong danh sách bên trong sơ đồ'],
-          ['emoji', 'không render đồng nhất, và chiếm bề rộng không đoán trước'],
-          ['{ }', 'chỉ cấm khi làm phần tử cấu trúc — vẫn dùng được khi sơ đồ đang hiển thị JSON hay config']
-        ] }
-    ],
-    cap: 'Bộ ký tự được khai báo ở hai nơi và hai nơi không khớp. Bản đầy đủ nằm ở `references/character-rules.md`; bản trong `SKILL.md` là tóm tắt, và thiếu ba ký tự.'
+      { name: 'Tầng 1', note: 'luôn nằm trong context, kể cả khi skill không chạy',
+        tools: [['SKILL.md · khối đầu file',
+                 'tên và phần mô tả; quyết định skill có được chọn hay không']] },
+      { name: 'Tầng 2', note: 'đọc mỗi lần skill bật, nên tốn ở mọi lần chạy',
+        tools: [['SKILL.md · phần thân',
+                 'bảy luật, ký tự được phép, bảng chọn định dạng, kiểu làm sai']] },
+      { name: 'Tầng 3', note: 'chỉ đọc khi có thứ dẫn tới, nên không tốn gì ở lần chạy không cần',
+        tools: [['references/character-rules.md', 'bảng đổi Unicode, checklist kiểm cuối'],
+                ['references/layout-patterns.md', 'mẫu bố cục dựng sẵn, cách xử lý hình quá rộng'],
+                ['references/diagram-type-selector.md', 'cây quyết định chọn định dạng'],
+                ['templates/common-patterns.txt', 'khối dựng sẵn để chép thẳng ra dùng']] }
+    ]
   },
 
-  chieuRong: {
-    type: 'bars',
-    rows: [
-      { label: 'trần skill tự đặt (luật 4)', ms: 80, val: '80 cột', cold: true },
-      { label: '`references/character-rules.md` · 6 khối', ms: 62, val: '62' },
-      { label: '`references/diagram-type-selector.md` · 3 khối', ms: 61, val: '61' },
-      { label: '`templates/common-patterns.txt` · 14 khối', ms: 60, val: '60' },
-      { label: '`references/layout-patterns.md` · 16 khối', ms: 48, val: '48' },
-      { label: '`SKILL.md` · 0 khối', ms: 0, val: '—' }
+  chon: {
+    type: 'routes',
+    cap: 'Bước đi trước mọi bước khác: quyết định xem trường hợp này có thuộc về ' +
+         'ASCII không. Một skill về sơ đồ ASCII mà bước đầu tiên có thể loại bỏ chính nó.',
+    top: 'Cần một sơ đồ',
+    routes: [
+      ['ASCII', 'terminal, chat, email, README — và dưới khoảng mười lăm nút'],
+      ['Mermaid', 'tài liệu đã render, sơ đồ tuần tự, hoặc nhiều nút hơn mức ASCII chịu nổi'],
+      ['C4', 'nhiều hệ thống, nhiều mức phóng, người đọc là các bên liên quan'],
+      ['Ở lại với chữ', 'hình không cho biết thêm điều gì so với câu văn bên cạnh']
     ],
-    cap: 'Dòng sơ đồ rộng nhất trong từng file. Thanh xám trên cùng là trần 80 cột, không phải một phép đo. `SKILL.md` không chứa khối code nào — mọi sơ đồ đều nằm ở tầng nạp-khi-cần.'
+    bottom: 'Nếu một câu nói xong rồi thì cái hình chỉ là nhiễu'
   },
 
-  beMatKichHoat: {
-    type: 'guards',
-    rows: [
-      { kind: 'fast', tag: 'luôn trong context · 282 ký tự',
-        text: '`description` — ba câu: skill là gì, những tình huống nào kích hoạt nó, và nó cứu điều gì. Vì `user-invocable: false` và không rule nào tham chiếu tới skill, đây là **toàn bộ** thứ quyết định nó có được gọi hay không.' },
-      { kind: 'bound', tag: 'nạp khi cần · 704 dòng',
-        text: '`SKILL.md` 84 dòng khi skill được kích hoạt; 620 dòng `references/` và `templates/` chỉ khi model thật sự cần bảng quy đổi, hình mẫu hay khối dán sẵn.' }
-    ],
-    cap: 'Hai tầng với hai ngân sách rất khác nhau. Tầng trên trả giá bằng context ở **mọi** phiên làm việc, nên nó được nén xuống ba câu; tầng dưới gần như miễn phí cho tới lúc dùng.'
-  },
-
-  banSao: {
-    type: 'islands',
-    rows: [
-      { where: '~/.dotfiles/.claude/skills/', scope: 'SKILL.md + 3 references + 1 template' },
-      { where: '<project>/.claude/skills/', scope: 'y hệt — sha256 trùng từng file' },
-      { where: '~/…/skills/synced/<uuid>/', scope: 'chỉ SKILL.md', shared: true }
-    ],
-    note: 'Cả ba bản SKILL.md cùng sha256 ecd02311… — không drift nội dung, chỉ khác phần đi kèm.',
-    cap: 'Bản đồng bộ mang đúng tầng tóm tắt. Bảy con trỏ tương đối trong `SKILL.md` trỏ vào hư không trên bản đó.'
+  doi: {
+    type: 'versus',
+    cap: 'Hai vế của cùng một quyết định. `ascii-diagram` chọn cột phải, và trả ' +
+         'đủ giá cho lựa chọn đó: không có gì chặn được một sơ đồ sai.',
+    left: {
+      tag: 'Skill có scripts/',
+      rows: ['Chặn được vi phạm ở cửa ra',
+             'Kiểm sau khi sơ đồ đã viết xong',
+             'Phải có ai đó gọi, rồi đọc kết quả, rồi sửa',
+             'Có code để bảo trì và để hỏng']
+    },
+    right: {
+      tag: 'Skill thuần luật',
+      rows: ['Không chặn được gì cả',
+             'Có tác dụng ngay lúc tay đang chọn ký tự',
+             'Không có bước phụ nào',
+             'Chỉ có chữ để sửa']
+    }
   }
 };
 
@@ -785,26 +1015,24 @@ var MD = {
 };
 
 
-/* -- figure renderers ------------------------------------------------
-   Six of the eleven in the catalog; the rest were deleted rather than
-   carried, along with their CSS. Pure: data in, DOM out, no STATE.
-   ------------------------------------------------------------------- */
+/* -- figure renderers ----------------------------------------------
+   Pure: one FIG entry in, DOM out. Never reads STATE, so each one can be
+   unit-tested by calling it with a literal object. Only the shapes this
+   document actually uses are kept.
+   ------------------------------------------------------------------ */
 
 var FIGURE = {
 
-  proof: function(f){
-    return el('div', null, [
-      el('div', { class: 'proof' }, f.rows.map(function(r){
-        return el('div', { class: 'proof-row ' + r.kind }, [
-          el('div', { class: 'proof-what' }, [
-            el('span', { html: inline(r.what) }),
-            el('em', { text: r.detail })
-          ]),
-          el('div', { class: 'proof-n', text: r.n })
-        ]);
-      })),
-      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
-    ]);
+  /* cause on the left, what the reader ends up seeing on the right --
+     the whole point of the figure is that the two columns never meet */
+  breaks: function(f){
+    return el('div', { class: 'brk' }, f.rows.map(function(r){
+      return el('div', { class: 'bk' }, [
+        el('b', { html: inline(r.cause) }),
+        el('i', { text: '-->' }),
+        el('span', { html: inline(r.seen) })
+      ]);
+    }));
   },
 
   levels: function(f){
@@ -834,39 +1062,19 @@ var FIGURE = {
     ]);
   },
 
-  islands: function(f){
-    var kids = f.rows.map(function(r){
-      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
-        el('s', { text: r.where }),
-        el('i', { text: '->' }),
-        el('b', { text: r.scope })
-      ]);
-    });
-    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
-    return el('div', { class: 'isl' }, kids);
-  },
-
-  bars: function(f){
-    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
-    return el('div', { class: 'bars' }, f.rows.map(function(r){
-      var pct = Math.max(2, Math.round(r.ms / max * 100));
-      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
-        el('b', { html: inline(r.label) }),
-        el('div', { class: 'br-track' }, [
-          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
-          el('span', { class: 'br-val', text: r.val })
-        ])
-      ]);
-    }));
-  },
-
-  guards: function(f){
-    return el('div', { class: 'guards' }, f.rows.map(function(r){
-      return el('div', { class: 'gd ' + r.kind }, [
-        el('b', { text: r.tag }),
-        el('p', { html: inline(r.text) })
-      ]);
-    }));
+  /* two columns of the same decision, so the trade is read across a row
+     rather than reconstructed from two separate lists */
+  versus: function(f){
+    function col(side, cls){
+      return el('div', { class: 'vs-col ' + cls }, [
+        el('b', { text: side.tag })
+      ].concat(side.rows.map(function(t){
+        return el('p', { html: inline(t) });
+      })));
+    }
+    return el('div', { class: 'vs' }, [
+      col(f.left, 'a'), col(f.right, 'b')
+    ]);
   }
 };
 
