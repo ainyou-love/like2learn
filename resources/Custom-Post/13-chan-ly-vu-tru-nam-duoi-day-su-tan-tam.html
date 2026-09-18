@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · No.13 — Chân lý vũ trụ nằm dưới đáy sự tận tâm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · No.13</span>
+      <div class="title">Chân lý vũ trụ nằm dưới đáy sự tận tâm</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Đêm trước lá đơn nghỉ việc</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Công việc là giá trị tồn tại</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Đi trốn không phải thiên đường</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Tự đánh lừa bộ não</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Đào một cái giếng thật sâu</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Cải tiến 1% mỗi ngày</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Công việc là lòng vị tha</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Ông trời không bạc đãi</span><span class="num">08</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay công việc · Inamori Kazuo</p>
+      <h1>Chân lý vũ trụ nằm dưới đáy sự tận tâm</h1>
+      <p class="subtitle">Không công việc nào sinh ra đã vĩ đại: Inamori Kazuo chỉ cách yêu lấy việc mình đang chán, đào sâu một nghề, cải tiến 1% mỗi ngày và làm việc bằng trái tim vị tha.</p>
+      <div class="meta">
+        <span class="pill">8 phần</span>
+        <span class="pill">Nguồn · Inamori Kazuo</span>
+        <span class="pill">Ghi chú · No.13</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Đêm trước lá đơn nghỉ việc">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Đêm trước khi nộp đơn nghỉ việc</h2>
+      <p class="summary-line">Một trang sách chặn lại lá đơn xin nghỉ đã viết xong.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M62 16 H108 V54 H62 Z"/>
+        <path class="thin" d="M70 28 H100"/>
+        <path class="thin" d="M70 38 H96"/>
+        <path class="b" d="M85 54 V64"/>
+        <path class="b" d="M78 57 L85 66 L92 57"/>
+        <rect x="28" y="70" width="104" height="36" rx="4"/>
+        <path class="thin" d="M28 84 H132"/>
+        <path class="s" d="M68 94 H92"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Người kể là <strong>sinh viên năm cuối trường công nghệ</strong>, lớn lên với khẩu hiệu <em>"hãy theo đuổi đam mê, hãy làm những điều vĩ đại"</em>. Vào công sở thì <em>"Không có dự án nào thay đổi thế giới cả"</em> — chỉ có hệ thống cũ kỹ, đồng nghiệp trẻ mà <em>"tâm hồn đã an phận thủ thường"</em>, hàng giờ sửa lỗi người khác đùn đẩy.</li>
+    <li>Tự thấy mình <em>"giống hệt một cỗ máy chạy bằng cơm"</em>, tự hỏi <em>"mình học hành đàng hoàng, tư duy hệ thống nhạy bén, cớ sao lại phải chôn vùi tuổi trẻ ở chốn khỉ ho cò gáy thế này?"</em> rồi <strong>quyết định viết đơn xin nghỉ</strong>.</li>
+    <li>Đêm trước khi nộp đơn, tình cờ đọc sách Inamori Kazuo và <em>"một cảm giác xấu hổ trào lên nghẹn đắng"</em>: mình ngồi phòng điều hòa gõ phím mà than khổ, còn <strong>Inamori thời trẻ kẹt trong xưởng gốm rách nát sắp phá sản</strong>, bị nợ lương, <em>"đôi bàn tay lấm lem bùn đất và hóa chất"</em>.</li>
+    <li>Thay vì bỏ việc, ông <em>"tự ám thị bản thân để yêu lấy đống bùn đất đó"</em> — sau này <strong>lập nên Kyocera và hai tập đoàn lọt top 500 thế giới</strong>.</li>
+    <li>Đúc kết của người kể: <em>"Không có công việc nào sinh ra đã là vĩ đại, chỉ có sự tận tâm đến mức cực đoan mới biến những thứ tầm thường trở thành kiệt xuất. Chân lý của vũ trụ không nằm ở những mộng tưởng xa xôi, nó nằm ngay lẩn khuất trong những công việc vặt vãnh mà tôi đang chán ghét mỗi ngày."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lời nhắn cho người nghe: <em>"Nếu bạn chuẩn bị nộp đơn nghỉ việc thì hãy tạm thời cất nó vào ngăn kéo."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Công việc là giá trị tồn tại">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Trúng số rồi thì sao?</h2>
+      <p class="summary-line">Tiền giải quyết cơm áo, nhưng chỉ công việc mới nuôi giá trị tồn tại.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="76" cy="70" r="28"/>
+        <circle cx="76" cy="70" r="9"/>
+        <path d="M76 42 V32"/>
+        <path d="M76 98 V108"/>
+        <path d="M48 70 H38"/>
+        <path d="M104 70 H114"/>
+        <path class="thin" d="M56 50 L50 44"/>
+        <path class="thin" d="M96 90 L102 96"/>
+        <rect class="b" x="98" y="14" width="46" height="24" rx="3"/>
+        <path class="b" d="M106 26 H136"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Câu cửa miệng ở Nhật và mọi nơi: <em>"Ước gì trúng tờ độc đắc để ngày mai nộp đơn xin nghỉ việc ngay lập tức"</em>, <em>"ráng cày cuốc kiếm một mớ rồi về hưu sớm, thả về quê trồng rau nuôi cá"</em>.</li>
+    <li>Inamori <strong>không giáo điều</strong>: lý do cơ bản của công việc là <em>"giải quyết bài toán cơm áo gạo tiền"</em> — trả tiền thuê nhà, mua bỉm sữa cho con, phụng dưỡng cha mẹ. Chính ông thời ở xưởng gốm mục nát cũng làm để <em>"gom góp chút đỉnh gửi về quê cho gia đình"</em>. <em>"Không có gì phải xấu hổ khi thừa nhận chúng ta làm việc vì tiền cả."</em></li>
+    <li><strong>Phép giả định trúng vé số hàng trăm tỷ đồng</strong>: tháng đầu là thiên đường — ngủ nướng, resort đắt đỏ, sơn hào hải vị, chơi game thâu đêm. Nhưng 1 tháng, 6 tháng, 1 năm sau, món ngon nhạt nhẽo, thú vui tẻ nhạt, bạn bè bận rộn đóng góp cho xã hội còn mình <em>"quanh quẩn ở nhà với một núi tiền lạnh ngắt"</em>; nhìn gương và nhận ra <em>"chẳng ai trên đời này thực sự cần đến mình nữa"</em>.</li>
+    <li><strong>Ẩn dụ cỗ máy sắt thép</strong>: vận hành mỗi ngày thì mòn chút nhưng <em>"luôn trơn tru và sáng bóng"</em>; vứt vào kho phủ bạt thì <em>"rỉ sét ăn mòn và trở thành đống sắt vụn vô dụng"</em>. <em>"Tâm hồn con người cũng vận hành chính xác theo cách như vậy."</em></li>
+    <li>Khoảnh khắc nấu <em>"một bát phở ngon khiến khách hàng húp cạn nước"</em> hay sửa xong đường ống nước cho một gia đình, được người khác nhìn với ánh mắt trân trọng và nói cảm ơn — <em>"đó chính là lúc tâm hồn bạn được tưới tắm"</em>. <em>"Việc thi thoảng nhàn rỗi là một phần thưởng ngọt ngào, nhưng nếu cả đời vô công rỗi nghề thì đó lại là một hình phạt của sự nhạt nhẽo."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Chỉ dùng <strong>cảm giác nghĩa vụ</strong> hay làm vì tiền để đối mặt với công việc kéo dài mấy chục năm thì sớm muộn sẽ kiệt sức. Phải <em>"học cách yêu lấy chính công việc mình đang làm"</em> — đó là <em>"lằn ranh quyết định cả một đời bạn sẽ sống trong hạnh phúc hay chìm trong nỗi bất hạnh"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Đi trốn không phải thiên đường">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Ai cũng từng muốn bỏ việc</h2>
+      <p class="summary-line">Đến ngày thứ ba của chuyến đi trốn, sự trống trải đã gọi bạn về.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M20 92 L56 42 L80 70 L100 48 L140 92 Z"/>
+        <path class="thin" d="M16 92 H144"/>
+        <path class="b" d="M58 92 L70 70 L82 92"/>
+        <path class="b" d="M70 70 V92"/>
+        <circle class="s" cx="116" cy="28" r="9"/>
+        <path class="thin" d="M30 104 C60 112 100 112 130 102"/>
+        <path class="thin" d="M124 96 L132 102 L124 108"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhiều người nghe đang nghĩ: <em>"Mình muốn nghỉ việc, chỗ này vất vả quá, áp lực quá, mình không chịu nổi nữa rồi."</em> Inamori bảo <strong>đừng tự trách</strong> — chính ông thời trẻ <em>"không biết bao nhiêu lần nhen nhóm ý định bỏ việc"</em>.</li>
+    <li>Tâm cảnh chán việc giống hệt những đêm thức trắng ôn thi đại học, bảo vệ đồ án: <em>"Ước gì bây giờ được vứt hết sách vở đi, nhảy lên một chuyến xe, đi thẳng lên núi hay về một vùng quê vắng vẻ nào đó"</em> — ngày nay gọi là <em>"đi chữa lành, đi trốn khỏi thế giới"</em>.</li>
+    <li>Nếu xách ba lô đi trốn thật: <strong>ngày 1</strong> thấy tự do nhẹ nhõm, <strong>ngày 2</strong> quen với rảnh rỗi, đến <strong>ngày 3, ngày 4</strong> <em>"một thứ cảm giác bứt rứt, trống trải sẽ dần dần xuất hiện"</em> và bạn lại khao khát được làm việc trở lại.</li>
+    <li>Thấy công việc vất vả vì bận rộn và vì <em>"ta đang gánh trên vai một trách nhiệm với vị trí mình đang đứng"</em> — nhưng chính trong sự vất vả và trách nhiệm ấy <em>"chúng ta mới thực sự cảm nhận được giá trị tồn tại của mình"</em>.</li>
+    <li>Nếu chỉ bám vào <strong>nghĩa vụ</strong> — <em>"mình phải ráng làm để cuối tháng lấy lương"</em>, <em>"mình làm vì sếp giao"</em> — thì vất vả nhân lên gấp bội, <em>"giống như một hòn đá tảng đè nặng lên ngực"</em>. <em>"Không một ai có thể dùng cảm giác nghĩa vụ ấy để chịu đựng nổi công việc kéo dài đến mấy chục năm trời."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Đi trốn chỉ đổi mệt mỏi lấy trống rỗng: giá trị tồn tại nằm ngay trong phần vất vả và trách nhiệm mà công việc đặt lên vai bạn.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Tự đánh lừa bộ não">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Bí quyết bướng bỉnh: ép mình yêu công việc</h2>
+      <p class="summary-line">Dẫn tâm hồn về phía ánh sáng đến khi say mê nảy mầm, vất vả tự bốc hơi.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="80" cy="62" r="32"/>
+        <path class="s" d="M80 78 C64 68 60 54 70 48 C76 45 80 52 80 56 C80 52 84 45 90 48 C100 54 96 68 80 78 Z"/>
+        <path class="b" d="M80 20 V28"/>
+        <path class="b" d="M44 32 L50 38"/>
+        <path class="b" d="M116 32 L110 38"/>
+        <path class="thin" d="M26 62 H34"/>
+        <path class="thin" d="M126 62 H134"/>
+        <path class="thin" d="M52 100 C64 108 96 108 108 100"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Triết lý Inamori áp dụng trong <strong>những ngày tuyệt vọng nhất ở xưởng gốm</strong>, <em>"thậm chí nghe có vẻ hơi ngu ngốc"</em>: <em>"tôi tự đánh lừa bộ não của chính mình"</em> — thay vì gào thét oán trách, ép bản thân phải yêu thích công việc.</li>
+    <li>Câu tự nhủ trước mẻ gốm hỏng và hóa chất bốc mùi: <em>"Chà, công việc này thú vị đấy chứ. Mình yêu công việc này."</em></li>
+    <li>Lúc đầu <em>"giống như một sự gượng ép nực cười"</em>, nhưng khi liên tục dẫn dắt tâm hồn về phía ánh sáng, <strong>thôi phàn nàn và chìm đắm vào giải quyết vấn đề</strong>, say mê sẽ nảy mầm — và khi đó <em>"sự vất vả bỗng chốc bốc hơi sạch sẽ"</em>.</li>
+    <li>Nông dân cần mẫn, vận động viên đỉnh cao, nhà khoa học kiệt xuất: người ngoài nhìn thấy <em>"hành xác"</em>, nhưng người trong cuộc <em>"ôm giữ một tâm thái hân hoan rực rỡ"</em>; quá trình nhọc nhằn về sau <em>"thậm chí còn chẳng đọng lại trong ký ức"</em>, chỉ nhớ <strong>niềm vui khi chinh phục đỉnh cao</strong>.</li>
+    <li>Dù là nông dân, kỹ sư, nhân viên bán hàng, thợ sửa xe hay giám đốc, chỉ người <em>"tìm thấy niềm vui vô hạn trong việc mình làm"</em> mới gặt hái thành công; còn nếu chất chứa chán ghét, <em>"bạn sẽ tuyệt đối không bao giờ chạm tay được tới thành công"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"Cái yêu thích chính là động lực duy nhất, là tấm khiên vững chắc nhất"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Đào một cái giếng thật sâu">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Đào một cái giếng thật sâu</h2>
+      <p class="summary-line">Đào sâu một chỗ thay vì mười cái hố nông, mạch nước thông ra biển lớn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M16 34 H144"/>
+        <path d="M58 34 V102"/>
+        <path d="M98 34 V102"/>
+        <path class="b" d="M58 90 C68 84 88 96 98 90"/>
+        <path class="b" d="M58 100 C68 94 88 106 98 100"/>
+        <path class="s" d="M22 34 C28 22 40 22 46 34"/>
+        <path d="M120 20 V56"/>
+        <path d="M112 56 H128 L124 72 H116 Z"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Lời phàn nàn quen thuộc của người trẻ: <em>"Ông Inamori ơi, tôi mang tấm bằng cử nhân đại học vào đây, thế mà ngày nào sếp cũng chỉ giao cho tôi mấy cái việc vặt vãnh vô vị… nhập liệu, sắp xếp giấy tờ, gọi điện chăm sóc khách hàng theo kịch bản có sẵn. Cứ làm mãi những việc thế này liệu có thui chột tài năng không?"</em> — và muốn xin chuyển bộ phận. Inamori lắc đầu: tâm thái <em>"đứng núi này trông núi nọ"</em> là <strong>hoàn toàn sai lầm</strong>.</li>
+    <li><strong>Căn bệnh của người trẻ</strong>: thích hào nhoáng bề ngoài, khao khát <em>"trải nghiệm đa dạng"</em>, làm mỗi việc một chút cho hồ sơ đẹp. Chân lý phũ phàng: <em>"hiểu biết rộng mà nông cạn thì cuối cùng cũng chẳng khác gì hoàn toàn không biết gì"</em>.</li>
+    <li><strong>Ẩn dụ đào giếng</strong>: đào 10 cái hố, mỗi hố sâu một gang tay thì <em>"chẳng bao giờ tìm thấy một giọt nước nào"</em>, chỉ nhận mệt mỏi và tay phồng rộp. Chọn đúng một chỗ, cắn răng chịu nhàm chán, đào xuống hàng chục, hàng trăm mét thì mạch nước ngầm tuôn trào — và nó <em>"thông thẳng ra biển lớn"</em>. <em>"Đào một cái giếng thật sâu, bạn sẽ tìm thấy cả đại dương."</em></li>
+    <li>Thợ mộc bào gỗ, thợ gốm nặn đất sét, <em>"ông lão bán phở đầu ngõ nhà bạn ngày ngày cần mẫn ninh từng nồi xương"</em> — <strong>rèn kỹ năng đến lão luyện</strong> thì không chỉ là thợ mà thành triết gia, <em>"tự nhiên sinh ra những kiến giải vô cùng sâu sắc và độc đáo về cuộc đời"</em>, nói chuyện lĩnh vực khác cũng thấu tình đạt lý, như bậc tu hành hay nghệ sĩ.</li>
+    <li>Lý do: <em>"ở tầng đáy sâu thẳm của mọi sự vật, sự việc hay mọi ngành nghề trên thế gian này đều tồn tại chung một chân lý cốt lõi. Chân lý của vũ trụ không nằm ở đâu xa xôi, nó nằm ngay dưới đáy của sự tận tâm."</em></li>
+    <li>Hành động cụ thể: <em>"Hãy làm việc vặt ấy bằng một thái độ vĩ đại."</em> Sắp xếp tài liệu thì nghĩ cách <strong>khoa học nhất, nhanh nhất</strong>, <em>"không ai trong công ty có thể làm tốt hơn bạn"</em>; nhập liệu thì gõ <em>"với một sự tập trung tuyệt đối để không sai một dấu phẩy"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Hãy ngừng phàn nàn, nắm lấy cái cuốc cái xẻng của mình và bắt đầu đào cái giếng dưới chân bạn cho thật sâu."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Cải tiến 1% mỗi ngày">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Kiên nhẫn không phải chịu đựng mù quáng</h2>
+      <p class="summary-line">Hôm nay nhất định phải khác hôm qua, dù chỉ 1%.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <polyline points="24,100 48,100 48,84 72,84 72,68 96,68 96,52 120,52 120,36 142,36"/>
+        <path class="thin" d="M16 106 H144"/>
+        <path class="thin" d="M24 100 V106"/>
+        <path class="thin" d="M72 84 V106"/>
+        <path class="b" d="M30 88 C60 82 104 54 130 28"/>
+        <path class="b" d="M118 26 L133 24 L131 39"/>
+        <circle class="s" cx="132" cy="26" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhiều người đánh đồng kiên nhẫn với <em>"chịu đựng mù quáng"</em> — hôm qua làm sao hôm nay y hệt, ngày mai dập khuôn. <strong>Lặp lại vô tâm</strong> thì <em>"không phải là một người thợ tận tâm mà… chỉ tự biến mình thành một cái máy"</em>, và <em>"đã là máy móc thì sớm muộn gì cũng sẽ bị một cái máy móc khác thay thế"</em>.</li>
+    <li>Con người có công cụ vĩ đại hơn mọi cỗ máy: <strong>tư duy</strong>. Ngay lúc vùi đầu làm lụng, bộ não vẫn phải hoạt động — <em>"tuyệt đối không dùng cùng một phương pháp, cùng một ý tưởng để làm những việc giống hệt như ngày hôm qua"</em>.</li>
+    <li>Sáng tạo không phải ứng dụng triệu đô hay chiến lược <em>"long trời lở đất"</em>; nó khởi nguồn từ <em>"hoài nghi tích cực"</em> và <strong>câu tự hỏi mỗi ngày</strong>: <em>"Làm thế này đã là tốt nhất chưa? Có cách nào làm nhanh hơn, chính xác hơn hay tiết kiệm hơn không?"</em></li>
+    <li><strong>Ví dụ lau xưởng</strong>: hôm qua mất một tiếng quét từ đầu đến cuối xưởng; hôm nay dừng lại tự hỏi <em>"Nếu mình đổi nước lau sàn này sang loại khác thì có sạch nhanh hơn không? Nếu mình đổi đường quét, gom rác từ hai góc lại một chỗ thì có tiết kiệm được 10 phút không?"</em></li>
+    <li><strong>Ví dụ nhập liệu</strong>: hôm qua gõ tay từng dòng; hôm nay tự hỏi <em>"làm sao để không phải gõ tay nữa"</em>, rồi mày mò học vài hàm Excel mới, viết một đoạn mã nhỏ để máy tự lọc dữ liệu. <em>"Đó là sáng tạo."</em> Sáng tạo <em>"không phải là một tiếng sét nổ ngang tai, biến bạn thành thiên tài trong một đêm"</em>.</li>
+    <li><strong>Phép màu tích lũy</strong>: mỗi ngày cải tiến tốt hơn hôm qua 1% — <em>"1% là con số bé xíu"</em> — nhưng lặp lại suốt một tháng, 1 năm rồi 10 năm sẽ tạo <em>"một bước nhảy vọt vượt bậc mà chính bạn cũng không thể ngờ tới"</em>. Người <em>"sống 10 năm như một ngày"</em> thì không thể tỏa sức hấp dẫn.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"Hãy đập tan cái tư duy làm cho xong việc. Ngày hôm nay của bạn nhất định phải mới mẻ hơn, thông minh hơn và xuất sắc hơn ngày hôm qua dù chỉ là 1%."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Công việc là lòng vị tha">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Làm việc nhiều hơn, vì công việc là lòng vị tha</h2>
+      <p class="summary-line">Việc thiện thiết thực nhất nằm ngay trong công việc bình dị mỗi ngày.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M30 80 C34 62 46 58 54 68 L66 80"/>
+        <path d="M130 80 C126 62 114 58 106 68 L94 80"/>
+        <path d="M40 82 C56 102 104 102 120 82"/>
+        <circle cx="80" cy="52" r="14"/>
+        <path class="b" d="M80 24 V32"/>
+        <path class="b" d="M54 32 L60 38"/>
+        <path class="b" d="M106 32 L100 38"/>
+        <path class="thin" d="M50 52 H40"/>
+        <path class="thin" d="M110 52 H120"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Trào lưu ở Nhật đề cao <em>"cân bằng cuộc sống"</em>: thu nhập tăng nhưng giờ làm rút ngắn, có thời gian du lịch, chữa lành vì <em>"đời người chỉ sống có một lần"</em>. Inamori hiểu đó là nhu cầu chính đáng nhưng lại <strong>đi ngược số đông</strong>: <em>"Chúng ta không nên làm việc ít đi. Ngược lại, mỗi người chúng ta cần nỗ lực làm việc nhiều hơn nữa."</em></li>
+    <li>Phản bác <em>"Ông định xúi giục chúng tôi làm những con thiêu thân bán mạng cho tư bản à?"</em> — không phải để làm giàu cho ông chủ nào, mà vì <strong>niềm tin thiêng liêng nhất đời ông</strong>: <em>"Trao đi tình yêu thương và lòng vị tha chính là phương thức sống cao thượng nhất của kiếp làm người."</em></li>
+    <li>Người trẻ nghĩ vị tha là phải đợi thành tỷ phú, kiếm hàng trăm tỷ rồi quyên góp xây trường, lập quỹ — <em>"lương ba cọc ba đồng… lấy đâu ra mà vị tha"</em>. Đó là hiểu lầm: <em>"việc thiện vĩ đại nhất, thiết thực nhất lại nằm ngay trong chính công việc bình dị mà các bạn đang làm mỗi ngày"</em>.</li>
+    <li>Lập trình viên <em>"cẩn thận viết ra một dòng mã không có lỗi"</em> giúp <strong>hàng nghìn người dùng tiết kiệm thời gian</strong>; thợ xây đặt <em>"mỗi viên gạch… thật ngay ngắn và vững chãi"</em> tạo mái ấm che chở một gia đình suốt mấy chục năm.</li>
+    <li>Tiền lương là <em>"kết tinh của mồ hôi, nước mắt"</em>; khi tiêu dùng và <strong>nộp thuế</strong>, đồng thuế ấy <em>"biến thành những viên gạch xây nên bệnh viện, trường học"</em>, thành <em>"con đường trải nhựa rẽ vào những vùng quê nghèo"</em>, thành ngân sách cứu trợ thiên tai bão lũ — <em>"chính những giọt mồ hôi rớt xuống từ trán của bạn… đang âm thầm và gián tiếp cứu rỗi những con người đáng thương ấy"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"Công việc… không bao giờ chỉ là công cụ để kiếm cơm. Công việc là một đạo lý cao đẹp. Làm việc chăm chỉ chính là hình thức tu hành vĩ đại nhất, là cách đơn giản nhất để một người bình thường tỏa ra ánh sáng của lòng từ bi."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Ông trời không bạc đãi">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Ông trời không bao giờ bạc đãi người tận tâm</h2>
+      <p class="summary-line">Yêu việc, chuyên tâm, mỗi ngày tốt hơn, và làm với trái tim vị tha.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle class="s" cx="80" cy="58" r="30"/>
+        <circle cx="80" cy="58" r="21"/>
+        <path class="b" d="M68 58 L77 68 L94 46"/>
+        <path d="M62 84 V110 L80 100 L98 110 V84"/>
+        <path class="thin" d="M34 30 L42 38"/>
+        <path class="thin" d="M126 30 L118 38"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Dù thế sự xoay vần, trong tim mỗi người <em>"vẫn luôn tồn tại khát khao được yêu thương và được cống hiến"</em> — đừng để <em>"cám dỗ của sự nhàn hạ nhất thời làm hoen ố đi viên ngọc quý giá ấy"</em>.</li>
+    <li><strong>Bốn lời nhắn cuối</strong>: <em>"Hãy yêu lấy công việc của mình. Hãy dốc lòng chuyên tâm như một con sâu đo cặm cụi. Hãy không ngừng tự hỏi để mỗi ngày làm việc tốt hơn ngày hôm qua. Và quan trọng nhất, hãy làm việc với một trái tim vị tha."</em></li>
+    <li>Làm việc với ý thức rằng <em>"mình đang đổ mồ hôi vì hạnh phúc của chính mình và của cả nhân loại"</em>.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Sống và làm việc với tâm thế ấy thì <strong>dù là ai, nghề gì, xuất phát điểm ra sao</strong> — <em>"Inamori Kazuo xin cúi đầu khẳng định với các bạn rằng ông trời tuyệt đối sẽ không bao giờ bạc đãi bạn và bạn chắc chắn sẽ có một cuộc đời tốt đẹp vô cùng."</em></p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Sách của Inamori Kazuo (người sáng lập Kyocera), review trên kênh ABooks · Ghi chú No.13 · 2026
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
