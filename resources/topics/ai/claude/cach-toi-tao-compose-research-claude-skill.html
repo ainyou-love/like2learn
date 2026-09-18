@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cách tôi tạo skill research-compose cho Claude Code</title>
+<meta name="description" content="Kiến trúc, workflow và interface của research-compose — một Claude Code skill chạy nhiều lăng kính phân tích song song rồi tổng hợp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>
+:root{
+  --ground:#F2F5F6; --surface:#FFFFFF; --tint:#E8EEF0; --panel:#F7F9FA;
+  --ink:#141C20; --muted:#55646B; --line:#D4DDE1; --line-soft:#E3EAEC;
+  --t1:#235C93; --t1-soft:#E4EEF7; --t2:#8C5210; --t2-soft:#F8EEDF;
+  --guard:#92302A; --code-ink:#243138;
+  --v-b1:#DCE7EE; --v-b2:#E9EFF2; --v-b3:#F3E3E0; --v-b4:#EDEFEF; --v-stroke:#8A9AA2;
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1316; --surface:#161D21; --tint:#1A2327; --panel:#121A1E;
+  --ink:#E2E9EC; --muted:#8B9FA7; --line:#273237; --line-soft:#1F292E;
+  --t1:#7EB6EA; --t1-soft:#152431; --t2:#E0A55E; --t2-soft:#272016;
+  --guard:#E58D86; --code-ink:#C4D2D8;
+  --v-b1:#1D2B34; --v-b2:#182126; --v-b3:#2C1E1D; --v-b4:#1A2124; --v-stroke:#6C808A;
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1316; --surface:#161D21; --tint:#1A2327; --panel:#121A1E;
+  --ink:#E2E9EC; --muted:#8B9FA7; --line:#273237; --line-soft:#1F292E;
+  --t1:#7EB6EA; --t1-soft:#152431; --t2:#E0A55E; --t2-soft:#272016;
+  --guard:#E58D86; --code-ink:#C4D2D8;
+  --v-b1:#1D2B34; --v-b2:#182126; --v-b3:#2C1E1D; --v-b4:#1A2124; --v-stroke:#6C808A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+  font-size:17px;line-height:1.68;-webkit-font-smoothing:antialiased}
+.shell{max-width:1200px;margin:0 auto;padding-inline:16px}
+html{scroll-behavior:smooth}
+:focus-visible{outline:2px solid var(--t1);outline-offset:2px;border-radius:2px}
+.hero{padding-block:42px 26px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px}
+.hero h1{font-family:var(--sans);font-weight:700;font-size:clamp(27px,5.1vw,43px);
+  line-height:1.12;letter-spacing:-.02em;margin:0 0 15px;text-wrap:balance;max-width:22ch}
+.lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--muted);margin:0;max-width:62ch}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-top:26px}
+.tabs button{font-family:var(--sans);font-weight:600;font-size:13.5px;padding:11px 17px;
+  background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);
+  cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--t1)}
+.tabs button:hover{color:var(--ink)}
+.wrap{display:grid;grid-template-columns:1fr}
+@media (min-width:1040px){.wrap{grid-template-columns:238px minmax(0,1fr);gap:54px;align-items:start}
+  nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);max-height:90vh;overflow-y:auto}}
+nav.toc{padding-block:24px;border-bottom:1px solid var(--line-soft)}
+@media (min-width:1040px){nav.toc{border-bottom:0}}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-family:var(--sans);
+  font-size:12.5px;line-height:1.4;padding:5px 0 5px 12px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--ink);border-left-color:var(--t1)}
+main{padding-block:10px 70px;min-width:0}
+.sec{padding-block:32px;border-top:1px solid var(--line-soft)}
+.sec:first-of-type{border-top:0}
+.sec>h2{font-family:var(--sans);font-weight:700;font-size:clamp(20px,3.1vw,26px);line-height:1.24;
+  letter-spacing:-.012em;margin:0 0 18px;display:flex;gap:13px;align-items:baseline;text-wrap:balance}
+.num{font-family:var(--mono);font-weight:500;font-size:.64em;color:var(--t1);flex:none;
+  font-variant-numeric:tabular-nums}
+h3{font-family:var(--sans);font-weight:600;font-size:16.5px;margin:32px 0 11px}
+p{margin:0 0 16px;max-width:68ch}
+ul,ol{margin:0 0 18px;padding-left:20px;max-width:68ch}
+li{margin-bottom:7px}
+li::marker{color:var(--t1)}
+strong{font-weight:600}
+del{opacity:.6}
+code{font-family:var(--mono);font-size:.84em;background:var(--panel);border:1px solid var(--line-soft);
+  border-radius:2px;padding:1px 4px;color:var(--code-ink);overflow-wrap:break-word}
+.table-wrap{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:430px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);text-align:left;font-weight:500;padding:10px 13px;
+  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.5}
+tr:last-child td{border-bottom:0}
+td code{font-size:.9em}
+.note{margin:0 0 24px;padding:14px 17px 1px;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--muted);border-radius:0 3px 3px 0}
+.note p{font-size:15.5px;margin-bottom:13px;color:var(--muted)}
+.viz{margin:0 0 28px}
+.viz-body{border:1px solid var(--line);border-radius:3px;background:var(--surface);
+  padding:18px 16px;overflow-x:auto}
+figure.viz figcaption{font-size:13.5px;color:var(--muted);margin-top:10px;max-width:66ch;
+  line-height:1.55;padding-left:1px}
+.svg-fit{display:block;width:100%;height:auto;max-width:100%;min-width:560px}
+.vt{font-family:var(--mono);fill:var(--ink)}
+.vt-h{font-size:14px;font-weight:600;letter-spacing:.02em}
+.vt-m{font-size:12.5px}
+.vt-s{font-size:11px;fill:var(--muted)}
+.md-panel{padding-block:24px 70px}
+.md-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px;
+  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.md-head p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 230px}
+button.copy{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;
+  padding:9px 14px;cursor:pointer;border:1px solid var(--t1);color:var(--t1);background:transparent;
+  border-radius:2px}
+button.copy:hover{background:var(--t1-soft)}
+#mdsrc{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+#mdsrc pre{margin:0;padding:15px 17px}
+#mdsrc code{font-family:var(--mono);font-size:12.5px;line-height:1.55;color:var(--code-ink);
+  background:none;border:0;padding:0;white-space:pre}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="hero">
+    <p class="kicker">Ghi chép nội bộ &middot; thiết kế skill</p>
+    <h1>Cách tôi tạo skill research-compose cho Claude Code</h1>
+    <p class="lede">Một skill chạy nhiều lăng kính phân tích <strong>song song</strong> rồi hợp nhất
+    kết quả thành một báo cáo. Tài liệu đi từ kiến trúc, qua workflow đầu-cuối, tới các biên
+    giao tiếp với sub-agent và với AKM &mdash; kèm cả phần đã hỏng và phần chưa kiểm được.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Chế độ xem">
+    <button role="tab" id="t-doc" aria-controls="p-doc" aria-selected="true">Tài liệu</button>
+    <button role="tab" id="t-md" aria-controls="p-md" aria-selected="false">Markdown &middot; copy</button>
+  </div>
+
+  <div id="p-doc" role="tabpanel" aria-labelledby="t-doc">
+    <div class="wrap">
+      <nav class="toc" aria-label="Mục lục"><a class="toc-sec" href="#s0">0. Bản đồ đọc</a><a class="toc-sec" href="#s1">1. Ý tưởng cốt lõi</a><a class="toc-sec" href="#s2">2. Kiến trúc</a><a class="toc-sec" href="#s3">3. Workflow</a><a class="toc-sec" href="#s4">4. Interface</a><a class="toc-sec" href="#s5">5. Invariants — phá là hỏng</a><a class="toc-sec" href="#s6">6. Mở rộng: thêm một lăng kính</a><a class="toc-sec" href="#s7">7. Nguồn</a></nav>
+      <main><aside class="note"><p>Study guide về <code>research-compose</code> — một Claude Code skill chạy nhiều lăng kính phân tích song song rồi hợp nhất kết quả. Mọi khẳng định được đọc trực tiếp từ file nguồn (danh sách ở mục 7), không lấy từ trí nhớ.</p><p>Đọc được theo hai kiểu: như <strong>tài liệu tham chiếu</strong> cho chính skill này, hoặc như một <strong>case study</strong> về cách dựng một hệ nhiều sub-agent sao cho kết quả còn kiểm được.</p><p>Nhãn trong sơ đồ để tiếng Anh vì quy ước ASCII-only (không dấu) cho diagram.</p></aside><section class="sec" id="s0"><h2><span class="num">0</span>Bản đồ đọc</h2><div class="table-wrap"><table><thead><tr><th>Muốn gì</th><th>Đọc mục</th></tr></thead><tbody><tr><td>Hiểu tại sao skill tồn tại</td><td>1</td></tr><tr><td>Sửa/thêm một lăng kính</td><td>2.3, 2.4, 6</td></tr><tr><td>Hiểu một run chạy ra sao</td><td>3</td></tr><tr><td>Viết code nói chuyện với skill hoặc AKM</td><td>4</td></tr><tr><td>Tránh phá vỡ hệ thống</td><td><strong>5</strong></td></tr><tr><td>Tra lại nguồn gốc từng khẳng định</td><td>7</td></tr></tbody></table></div></section><section class="sec" id="s1"><h2><span class="num">1</span>Ý tưởng cốt lõi</h2><p>Một chủ đề được soi bằng nhiều lăng kính phân tích <strong>độc lập</strong>, chạy <strong>song song</strong>, mỗi lăng kính trả về JSON có schema cố định; sau đó một bước tổng hợp <strong>hợp nhất các output đó</strong> thay vì phân tích lại từ đầu.</p><p>Đòn bẩy nằm ở chữ "hợp nhất". Nếu bước cuối phải tự suy luận lại thì fan-out chỉ tốn thêm tiền. Giá trị sinh ra vì bước tổng hợp nhận vào <strong>kết quả đã có cấu trúc</strong> của sáu góc nhìn khác nhau và chỉ còn việc đối chiếu — tìm điểm đồng thuận, chỉ ra mâu thuẫn, nêu khoảng trống.</p><p>Ba pattern được gọi đúng tên, không phải từ vựng tự chế:</p><div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Ở đây là</th><th>Nguồn</th></tr></thead><tbody><tr><td>orchestrator-workers</td><td>client điều phối, lăng kính là worker</td><td>Anthropic, <em>Building Effective Agents</em></td></tr><tr><td>parallelization</td><td>fan-out 6 lăng kính trong một message</td><td>nt</td></tr><tr><td>evaluator-optimizer</td><td>validate schema → retry với lỗi đính kèm</td><td>nt</td></tr><tr><td>typed signature <code>input -&gt; output</code></td><td><code>inputs</code> + <code>output_schema</code> của atom</td><td>DSPy "signatures"</td></tr><tr><td>atom thuần, không state ẩn</td><td>prompt-atom</td><td>Atomic Design, layer A</td></tr></tbody></table></div></section><section class="sec" id="s2"><h2><span class="num">2</span>Kiến trúc</h2><h3>2.1 Bố cục file</h3><p>Mỗi lăng kính luôn là <strong>một cặp</strong> <code>.md</code> + <code>.schema.json</code>. Đó là đơn vị nhỏ nhất, và là lý do thêm lăng kính không phải sửa code.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 452" role="img" aria-label="Bố cục file của skill"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="14" y="14" width="852" height="30" rx="3" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="26" y="34" text-anchor="start">research-compose/</text><rect x="40" y="50" width="826" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="52" y="70" text-anchor="start">SKILL.md</text><text class="vt vt-s" x="854" y="70" text-anchor="end">playbook 5 bước</text><rect x="40" y="86" width="826" height="30" rx="3" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="52" y="106" text-anchor="start">atoms/</text><text class="vt vt-s" x="854" y="106" text-anchor="end">L1 · 7 cặp .md + .schema.json</text><rect x="66" y="122" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="142" text-anchor="start">concept · irb · paccaya</text><text class="vt vt-s" x="854" y="142" text-anchor="end">lens</text><rect x="66" y="158" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="178" text-anchor="start">hara_naya · causality · inquiry</text><text class="vt vt-s" x="854" y="178" text-anchor="end">lens</text><rect x="66" y="194" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="214" text-anchor="start">synthesis</text><text class="vt vt-s" x="854" y="214" text-anchor="end">kind: synthesis</text><rect x="40" y="230" width="826" height="30" rx="3" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="52" y="250" text-anchor="start">references/</text><text class="vt vt-s" x="854" y="250" text-anchor="end">L2</text><rect x="66" y="266" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="286" text-anchor="start">prompt-atom-contract.md</text><text class="vt vt-s" x="854" y="286" text-anchor="end">4 luật của prompt-atom</text><rect x="40" y="302" width="826" height="30" rx="3" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="52" y="322" text-anchor="start">scripts/</text><text class="vt vt-s" x="854" y="322" text-anchor="end">L3</text><rect x="66" y="338" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="358" text-anchor="start">compose.py</text><text class="vt vt-s" x="854" y="358" text-anchor="end">control plane · 8 subcommand</text><rect x="66" y="374" width="800" height="30" rx="3" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="78" y="394" text-anchor="start">stop_hook.py</text><text class="vt vt-s" x="854" y="394" text-anchor="end">adapter Stop hook</text><rect x="14" y="410" width="852" height="30" rx="3" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="26" y="430" text-anchor="start">.claude/agents/research-lens.md</text><text class="vt vt-s" x="854" y="430" text-anchor="end">worker type — ngoài skill</text></svg></div><figcaption>Mỗi lăng kính là một cặp <code>.md</code> + <code>.schema.json</code> — đơn vị nhỏ nhất, và là lý do thêm lăng kính không phải sửa code.</figcaption></figure><h3>2.2 Ba lớp</h3><p>L1 là dữ liệu thuần (prompt), L2 là quy ước được viết thành văn, L3 là code tất định. Tính chất chịu lực: <strong>L3 không bao giờ hỏi model xem tiến độ tới đâu</strong> — nó đọc file trạng thái.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 400" role="img" aria-label="Ba lớp kiến trúc"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="40" y="14" width="800" height="116" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="53" y="35">L3 · CONTROL PLANE — scripts/compose.py + stop_hook.py</text><text class="vt vt-m" x="53" y="54">Tất định. Không bao giờ hỏi model xem tiến độ tới đâu.</text><text class="vt vt-m" x="53" y="71">init · mark · complete · abort · status · pending · runs · validate</text><text class="vt vt-s" x="53" y="88">state: $COMPOSE_HOME/runs/&lt;run_id&gt;.json — store chung máy,</text><text class="vt vt-s" x="53" y="105">nhưng pending chỉ chặn run của CHÍNH project đó</text><path d="M300 130 L300 166" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="312" y="152" text-anchor="start">bắt buộc hoàn tất</text><polyline points="580 166 580 130" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="592" y="152" text-anchor="start">báo tiến độ</text><rect x="40" y="166" width="800" height="94" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="53" y="187">L2 · CONTRACT — references/prompt-atom-contract.md</text><text class="vt vt-m" x="53" y="206">1 chỉ input tường minh      2 khai báo output, schema PHẲNG</text><text class="vt vt-m" x="53" y="223">3 tự chứa                   4 thay thế được</text><path d="M300 260 L300 296" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="312" y="282" text-anchor="start">chi phối</text><rect x="40" y="296" width="800" height="94" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="53" y="317">L1 · ATOMS — atoms/&lt;id&gt;.md + &lt;id&gt;.schema.json</text><text class="vt vt-m" x="53" y="336">6 lăng kính + 1 synthesis — prompt thuần, không state ẩn</text><text class="vt vt-m" x="53" y="353">thêm một cặp file = thêm lăng kính, không sửa code</text></svg></div><figcaption>L3 không bao giờ hỏi model xem tiến độ tới đâu; nó đọc file trạng thái. Đó là tính chất chịu lực của cả hệ.</figcaption></figure><h3>2.3 Bảy atom</h3><div class="table-wrap"><table><thead><tr><th>atom</th><th>kind</th><th>inputs</th><th>required fields (schema)</th></tr></thead><tbody><tr><td><code>concept</code></td><td>lens</td><td><code>topic</code></td><td><code>distilled</code>, <code>foundational</code>, <code>knowledge_tree</code>, <code>relationships</code></td></tr><tr><td><code>irb</code></td><td>lens</td><td><code>topic</code>, <code>goal</code>, <code>recursion_depth</code></td><td><code>overview</code>, <code>table_markdown</code>, <code>tree</code></td></tr><tr><td><code>paccaya</code></td><td>lens</td><td><code>topic</code></td><td><code>overview</code>, <code>conditions_markdown</code>, <code>key_solutions</code></td></tr><tr><td><code>causality</code></td><td>lens</td><td><code>topic</code></td><td><code>overview</code>, <code>relations_markdown</code>, <code>key_solutions</code></td></tr><tr><td><code>hara_naya</code></td><td>lens</td><td><code>topic</code></td><td><code>hara_markdown</code>, <code>naya_markdown</code>, <code>synthesis</code></td></tr><tr><td><code>inquiry</code></td><td>lens</td><td><code>topic</code></td><td><code>methods_markdown</code>, <code>strategies_markdown</code>, <code>synthesis</code></td></tr><tr><td><code>synthesis</code></td><td>synthesis</td><td><code>topic</code>, <code>goal</code>, <code>lens_outputs</code></td><td><code>context_structure</code>, <code>causal_approaches</code>, <code>recommendation</code></td></tr></tbody></table></div><p>Hai cặp sinh đôi: <code>paccaya</code>↔<code>causality</code> (24 duyên hệ Pāli ↔ bản thế tục hoá) và <code>hara_naya</code>↔<code>inquiry</code> (16 hārā + 5 nayā ↔ 16 phương pháp + 5 chiến lược). Mỗi cặp <strong>cùng <code>inputs</code></strong>, nên theo luật 4 chúng hoán đổi được trong cùng một slot — và sửa một cái thì phải cân nhắc cái kia.</p><p>Prompt của cả sáu lăng kính viết bằng tiếng Việt, và cả sáu đều có một dòng <em>"QUAN TRỌNG: viết SÚC TÍCH… mỗi mục CHỈ 1-2 câu"</em>. Dòng đó không phải văn phong — nó là ngân sách thời gian, vì <code>paccaya</code> và <code>causality</code> mỗi cái phải phủ 24 mục.</p><p>Đã kiểm cả 7 schema: <strong>tất cả đều phẳng</strong> — chỉ <code>string</code> và <code>array of string</code>. Bảng và cây nằm <em>bên trong</em> field string dưới dạng markdown/ASCII dựng sẵn.</p><h3>2.4 Prompt-atom contract</h3><p>Bốn luật, mỗi luật có một lý do vận hành cụ thể:</p><div class="table-wrap"><table><thead><tr><th>Luật</th><th>Nội dung</th><th>Vì sao</th></tr></thead><tbody><tr><td>1</td><td>Chỉ input tường minh, qua <code>$placeholder</code></td><td>atom chạy trong sub-agent cô lập, <strong>không thấy hội thoại cha</strong> — thứ gì không substitute vào thì không tồn tại</td></tr><tr><td>2</td><td>Khai báo output, schema <strong>phẳng</strong></td><td>schema lồng sâu là nơi structured-output hỏng nhiều nhất</td></tr><tr><td>3</td><td>Tự chứa — đọc mỗi file này là hiểu trọn việc</td><td>không có skill nào được load vào context của sub-agent</td></tr><tr><td>4</td><td>Thay thế được — cùng <code>inputs</code> thì hoán đổi được</td><td>đây là thứ làm cho composition trở nên cấu hình được</td></tr></tbody></table></div><p>Atom <code>kind: synthesis</code> nhận thêm <code>lens_outputs</code> và có nhiệm vụ <strong>kết hợp, không suy luận lại</strong>; prompt của nó bị ép ngắn (~200 từ/mục) vì input vào đã rất lớn.</p></section><section class="sec" id="s3"><h2><span class="num">3</span>Workflow</h2><h3>3.1 Toàn tuyến</h3><p>Bảy chặng. Chặng 0 và 6 là tuỳ chọn (chỉ khi kết quả sẽ dẫn dắt quyết định hoặc phiên sau); chặng 1–5 bắt buộc, và mỗi chặng để lại dấu vết trong file trạng thái.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 676" role="img" aria-label="Toàn tuyến bảy chặng"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="64" y="14" width="752" height="74" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)" stroke-dasharray="5 4"/><circle cx="92" cy="51" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="56" text-anchor="middle">0</text><text class="vt vt-h" x="120" y="41" text-anchor="start">PRE-FLIGHT</text><text class="vt vt-s" x="120" y="59" text-anchor="start">akm find "&lt;từ khoá chủ đề&gt;"</text><text class="vt vt-s" x="120" y="75" text-anchor="start">đã kết luận rồi? → thu hẹp chủ đề</text><path d="M440 88 L440 108" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="108" width="752" height="74" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><circle cx="92" cy="145" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="150" text-anchor="middle">1</text><text class="vt vt-h" x="120" y="135" text-anchor="start">INIT</text><text class="vt vt-s" x="120" y="153" text-anchor="start">run_id = date +%Y%m%d%H%M%S (lấy tươi)</text><text class="vt vt-s" x="120" y="169" text-anchor="start">compose.py init --topic --atoms …</text><text class="vt vt-s" x="120" y="185" text-anchor="start">→ mọi atom = pending</text><path d="M440 182 L440 202" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="202" width="752" height="74" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><circle cx="92" cy="239" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="244" text-anchor="middle">2</text><text class="vt vt-h" x="120" y="229" text-anchor="start">FAN-OUT</text><text class="vt vt-s" x="120" y="247" text-anchor="start">mark … running, rồi dispatch CẢ 6</text><text class="vt vt-s" x="120" y="263" text-anchor="start">trong MỘT message → song song</text><path d="M440 276 L440 296" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="296" width="752" height="74" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><circle cx="92" cy="333" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="338" text-anchor="middle">3</text><text class="vt vt-h" x="120" y="323" text-anchor="start">GATE</text><text class="vt vt-s" x="120" y="341" text-anchor="start">lưu &lt;id&gt;.json → validate</text><text class="vt vt-s" x="120" y="357" text-anchor="start">VALID → done · INVALID → 1 lần retry → error</text><path d="M440 370 L440 390" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="390" width="752" height="74" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><circle cx="92" cy="427" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="432" text-anchor="middle">4</text><text class="vt vt-h" x="120" y="417" text-anchor="start">SYNTHESIS</text><text class="vt vt-s" x="120" y="435" text-anchor="start">lens_outputs = ghép các lăng kính thành công</text><text class="vt vt-s" x="120" y="451" text-anchor="start">research-lens: synthesis(topic, goal, …)</text><path d="M440 464 L440 484" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="484" width="752" height="74" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><circle cx="92" cy="521" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="526" text-anchor="middle">5</text><text class="vt vt-h" x="120" y="511" text-anchor="start">COMPLETE</text><text class="vt vt-s" x="120" y="529" text-anchor="start">compose.py complete &lt;run_id&gt;</text><text class="vt vt-s" x="120" y="545" text-anchor="start">trình báo cáo cho người dùng</text><path d="M440 558 L440 578" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="64" y="578" width="752" height="74" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)" stroke-dasharray="5 4"/><circle cx="92" cy="615" r="15" fill="var(--surface)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="92" y="620" text-anchor="middle">6</text><text class="vt vt-h" x="120" y="605" text-anchor="start">RECORD</text><text class="vt vt-s" x="120" y="623" text-anchor="start">chỉ khi kết quả dẫn dắt quyết định/phiên sau</text><text class="vt vt-s" x="120" y="639" text-anchor="start">akm: hypothesis / question + evidence</text><text class="vt vt-s" x="830" y="54" text-anchor="end">tuỳ chọn</text><text class="vt vt-s" x="830" y="618" text-anchor="end">tuỳ chọn</text></svg></div><figcaption>Bảy chặng. Chặng 0 và 6 tuỳ chọn; 1–5 bắt buộc và mỗi chặng để lại dấu vết trong file trạng thái.</figcaption></figure><h3>3.2 Chặng 2–3: fan-out và cổng schema</h3><p>Song song <strong>chỉ xảy ra nếu cả sáu lời gọi nằm trong một message</strong>. Vòng retry là evaluator-optimizer: validator tất định chấm, model sửa.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 404" role="img" aria-label="Fan-out và cổng schema"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="300" y="12" width="280" height="40" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="313" y="33">MỘT message · 6 tool call</text><polyline points="440 52 440 68 76 68 76 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="18" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="31" y="105">concept</text><text class="vt vt-s" x="76" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="76 128 76 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 52 440 68 220 68 220 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="162" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="175" y="105">irb</text><text class="vt vt-s" x="220" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="220 128 220 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 52 440 68 364 68 364 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="306" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="319" y="105">paccaya</text><text class="vt vt-s" x="364" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="364 128 364 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 52 440 68 508 68 508 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="450" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="463" y="105">hara_naya</text><text class="vt vt-s" x="508" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="508 128 508 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 52 440 68 652 68 652 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="594" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="607" y="105">causality</text><text class="vt vt-s" x="652" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="652 128 652 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 52 440 68 796 68 796 84" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="738" y="84" width="116" height="44" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="751" y="105">inquiry</text><text class="vt vt-s" x="796" y="148" text-anchor="middle">&lt;id&gt;.json</text><polyline points="796 128 796 158 440 158 440 178" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="440" y="78" text-anchor="middle">research-lens · cô lập · song song</text><rect x="210" y="178" width="460" height="44" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="223" y="199">compose.py validate --schema atoms/&lt;id&gt;.schema.json</text><polyline points="440 222 440 244 232 244 232 264" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 222 440 244 648 244 648 264" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="120" y="264" width="224" height="58" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="133" y="285">VALID</text><text class="vt vt-m" x="133" y="304">mark &lt;id&gt; done</text><rect x="536" y="264" width="224" height="58" rx="4" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="549" y="285">INVALID: &lt;lỗi&gt;</text><text class="vt vt-m" x="549" y="304">dispatch lại ĐÚNG lăng kính đó,</text><text class="vt vt-m" x="549" y="321">đính kèm lỗi của validator</text><path d="M648 322 L648 348" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="456" y="348" width="384" height="48" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="469" y="369">hỏng lần 2 → mark error; run vẫn chạy tiếp</text><text class="vt vt-m" x="469" y="386">(một lăng kính chết KHÔNG được chặn phần còn lại)</text></svg></div><figcaption>Song song chỉ xảy ra nếu cả sáu lời gọi nằm trong một message. Vòng retry là evaluator-optimizer: validator tất định chấm, model sửa.</figcaption></figure><p>Một lăng kính chết <strong>không được</strong> chặn các lăng kính còn lại — sau lần hỏng thứ hai thì <code>mark error</code> và đi tiếp.</p><h3>3.3 <code>assemble_atom</code> — atom thành prompt sub-agent</h3><p>Ba nguồn ghép thành một prompt tự đủ.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 398" role="img" aria-label="assemble_atom"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="14" y="12" width="268" height="86" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="27" y="33">atoms/concept.md</text><text class="vt vt-m" x="27" y="52">thân sau frontmatter</text><text class="vt vt-m" x="27" y="69">chỉ dùng $topic $goal</text><text class="vt vt-m" x="27" y="86">$recursion_depth</text><rect x="306" y="12" width="268" height="86" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="319" y="33">input của run</text><text class="vt vt-m" x="319" y="52">topic = "…"</text><text class="vt vt-m" x="319" y="69">goal = "…"</text><text class="vt vt-m" x="319" y="86">recursion_depth = 2</text><rect x="598" y="12" width="268" height="86" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="611" y="33">concept.schema.json</text><text class="vt vt-m" x="611" y="52">required: […]</text><text class="vt vt-m" x="611" y="69">phẳng: string +</text><text class="vt vt-m" x="611" y="86">array of string</text><polyline points="148 98 148 124 440 124 440 146" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="440 98 440 146" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="732 98 732 124 440 124 440 146" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="250" y="146" width="380" height="42" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="263" y="167">thay mọi $var  +  "Return ONLY JSON …" + schema</text><path d="M440 188 L440 214" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="230" y="214" width="420" height="108" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="243" y="235">sub-agent  research-lens</text><text class="vt vt-m" x="243" y="254">tool: Read · Grep · Glob · WebSearch · WebFetch</text><text class="vt vt-m" x="243" y="271">không thấy hội thoại cha</text><text class="vt vt-m" x="243" y="288">akm-push được cấu hình BỎ QUA agent type này</text><text class="vt vt-m" x="243" y="305">không có tool Write — và không cần</text><path d="M440 322 L440 348" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="250" y="348" width="380" height="42" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="263" y="369">client ghi tmp/…/&lt;run_id&gt;/concept.json</text></svg></div><figcaption>Ba nguồn ghép thành một prompt tự đủ. File JSON do client ghi sau khi nhận — nên lăng kính không cần tool Write.</figcaption></figure><p>File <code>&lt;id&gt;.json</code> do <strong>client</strong> ghi sau khi nhận giá trị trả về, không phải lens ghi. Đó là lý do agent type này không có tool <code>Write</code> và không cần có.</p><h3>3.4 Máy trạng thái</h3><div class="table-wrap"><table><thead><tr><th>cấp</th><th>trạng thái</th><th>đặt bởi</th></tr></thead><tbody><tr><td>atom</td><td><code>pending</code></td><td><code>init</code>, mặc định</td></tr><tr><td>atom</td><td><code>running</code></td><td><code>mark … running</code>, ngay trước khi dispatch</td></tr><tr><td>atom</td><td><code>done</code></td><td><code>mark … done</code>, <strong>chỉ sau khi</strong> <code>validate</code> in <code>VALID</code></td></tr><tr><td>atom</td><td><code>error</code></td><td>hỏng lần thứ hai ở cổng schema</td></tr><tr><td>atom</td><td><code>skipped</code></td><td>được chọn nhưng không chạy, <strong>hoặc</strong> bị <code>abort</code> quét qua</td></tr><tr><td>run</td><td><code>active</code></td><td><code>init</code></td></tr><tr><td>run</td><td><code>complete</code></td><td><code>complete</code>, <strong>hoặc</strong> <code>abort</code></td></tr></tbody></table></div><p><code>abort &lt;run_id&gt; [--note]</code> là lối ra cho một run mà bạn quyết định không chạy tiếp: mọi atom chưa terminal thành <code>skipped</code>, run thành <code>complete</code> (kèm cờ <code>aborted: true</code>).</p><p><code>ATOM_DONE = {done, error, skipped}</code>. <strong><code>running</code> không thuộc tập terminal</strong> — nên mọi run đều phải kết thúc bằng <code>complete</code> hoặc <code>abort</code>.</p><h3>3.5 Bảo đảm hoàn tất</h3><p>Chạy khi agent định kết thúc lượt. Ba lớp chống kẹt đều dẫn về <code>exit 0</code>; đúng một nhánh tới <code>exit 2</code>.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 602" role="img" aria-label="Stop hook"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="276" y="12" width="328" height="40" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="289" y="33">agent định kết thúc lượt</text><path d="M440 52 L440 74" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="276" y="74" width="328" height="40" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="289" y="95">stop_hook.py  ← payload trên stdin</text><path d="M440 114 L440 140" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="236" y="140" width="408" height="38" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="249" y="161">stop_hook_active ?</text><polyline points="644 159 772 159 772 186" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="700" y="152" text-anchor="middle">có</text><rect x="684" y="186" width="180" height="36" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="697" y="207">exit 0 · cho dừng</text><path d="M440 178 L440 204" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="452" y="196" text-anchor="start">không</text><rect x="200" y="204" width="480" height="40" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="213" y="225">compose.py pending — đọc runs/*.json, CHỈ project này</text><rect x="200" y="254" width="440" height="32" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="213" y="275">run đã complete ?</text><polyline points="640 270 744 270" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="760" y="274" text-anchor="start">bỏ qua</text><rect x="200" y="292" width="440" height="32" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="213" y="313">run của project khác ?</text><polyline points="640 308 744 308" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="760" y="312" text-anchor="start">bỏ qua</text><rect x="200" y="330" width="440" height="32" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="213" y="351">updated_at &gt; 30 phút ?</text><polyline points="640 346 744 346" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="760" y="350" text-anchor="start">bỏ qua</text><rect x="200" y="368" width="440" height="32" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="213" y="389">nudge_count &gt;= 5 ?</text><polyline points="640 384 744 384" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="760" y="388" text-anchor="start">bỏ qua</text><path d="M420 406 L420 428" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="180" y="428" width="520" height="38" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="193" y="449">còn atom nào ngoài {done, error, skipped} ?</text><polyline points="700 447 770 447 770 480" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="724" y="440" text-anchor="middle">không</text><rect x="686" y="480" width="170" height="34" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="699" y="501">exit 0 · cho dừng</text><path d="M300 466 L300 492" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="312" y="484" text-anchor="start">còn</text><rect x="120" y="492" width="400" height="56" rx="4" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="133" y="513">nudge_count++ · exit 1 → exit 2 + stderr</text><text class="vt vt-m" x="133" y="530">LƯỢT BỊ CHẶN, model phải làm nốt</text><rect x="120" y="558" width="736" height="34" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)" stroke-dasharray="5 4"/><text class="vt vt-m" x="133" y="579">mọi lỗi bên trong hook → exit 0  (fail open, không bao giờ làm kẹt phiên)</text></svg></div><figcaption>Ba lớp chống kẹt đều dẫn về exit 0; đúng một nhánh tới exit 2 — hook chặn lượt và nói rõ còn thiếu gì.</figcaption></figure><p>Hook đăng ký ở <strong><code>~/.claude-&lt;config&gt;/settings.json</code></strong> (tầng config dir, <code>timeout: 15</code>), trỏ tới bản trong <code>~/.dotfiles/.claude/skills/research-compose/scripts/stop_hook.py</code>. Tìm ở <code>.claude/settings.json</code> của project sẽ <strong>không</strong> thấy — và sẽ dẫn tới kết luận sai rằng cơ chế này chưa được đấu dây.</p></section><section class="sec" id="s4"><h2><span class="num">4</span>Interface</h2><h3>4.1 Ba counterpart</h3><p>Ba phía, ba transport, ba vòng đời. Chênh lệch vòng đời ở dòng cuối chính là lý do SKILL.md dặn chỉ record vào AKM khi kết quả sẽ dẫn dắt việc về sau — workspace <code>tmp/</code> không sống lâu.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 286" role="img" aria-label="Ba counterpart"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="290" y="12" width="300" height="52" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="303" y="33">CLIENT = orchestrator</text><text class="vt vt-m" x="303" y="52">phiên đang chạy skill</text><polyline points="440 64 440 86 148 86 148 112" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="148" y="90" text-anchor="middle">Agent dispatch</text><text class="vt vt-s" x="148" y="104" text-anchor="middle">prompt → JSON</text><rect x="14" y="112" width="268" height="62" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="27" y="133">EXTERNAL LENS</text><text class="vt vt-m" x="27" y="152">research-lens ×6, cô lập</text><path d="M148 174 L148 200" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="14" y="200" width="268" height="40" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="27" y="221">&lt;id&gt;.json trong tmp/</text><text class="vt vt-s" x="148" y="268" text-anchor="middle">phút</text><polyline points="440 64 440 86 440 86 440 112" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="440" y="90" text-anchor="middle">Bash</text><text class="vt vt-s" x="440" y="104" text-anchor="middle">argv → JSON</text><rect x="306" y="112" width="268" height="62" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="319" y="133">compose.py</text><text class="vt vt-m" x="319" y="152">control plane, local</text><path d="M440 174 L440 200" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="306" y="200" width="268" height="40" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="319" y="221">runs/&lt;run_id&gt;.json</text><text class="vt vt-s" x="440" y="268" text-anchor="middle">tới khi abort</text><polyline points="440 64 440 86 732 86 732 112" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="732" y="90" text-anchor="middle">MCP tool / Bash</text><text class="vt vt-s" x="732" y="104" text-anchor="middle">+ push VÀO</text><rect x="598" y="112" width="268" height="62" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="611" y="133">AKM</text><text class="vt vt-m" x="611" y="152">serve.py + Neo4j</text><path d="M732 174 L732 200" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="598" y="200" width="268" height="40" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="611" y="221">đồ thị lập luận</text><text class="vt vt-s" x="732" y="268" text-anchor="middle">vô thời hạn</text><text class="vt vt-s" x="14" y="268" text-anchor="start">vòng đời:</text></svg></div><figcaption>Ba phía, ba transport, ba vòng đời. Chênh lệch ở hàng cuối là lý do chỉ record vào AKM khi kết quả dẫn dắt việc về sau.</figcaption></figure><h3>4.2 Biên với lăng kính</h3><p>Một chiều đi, một chiều về, <strong>không state chung</strong>. Quan trọng hơn cái gì đi qua là cái gì bị cấm đi qua — luật 1 của contract được thực thi ở tầng hạ tầng chứ không nhờ tác giả atom cẩn thận.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 396" role="img" aria-label="Biên với lăng kính"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="24" y="12" width="300" height="40" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="37" y="33">CLIENT</text><rect x="556" y="12" width="300" height="40" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="569" y="33">EXTERNAL LENS (sub-agent)</text><path d="M174 52 L174 396" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><path d="M706 52 L706 396" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><path d="M174 92 L706 92" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="440" y="84" text-anchor="middle">1 · prompt tự đủ: atom + $vars + schema</text><rect x="214" y="112" width="452" height="102" rx="4" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="227" y="133">KHÔNG ĐƯỢC ĐI QUA BIÊN NÀY</text><text class="vt vt-m" x="227" y="152">hội thoại cha</text><text class="vt vt-m" x="227" y="169">output của lăng kính khác</text><text class="vt vt-m" x="227" y="186">claim đã ghi trong AKM</text><polyline points="706 244 174 244" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="440" y="236" text-anchor="middle">2 · giá trị trả về = ĐÚNG MỘT JSON, không lời dẫn</text><path d="M174 244 L174 276" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="24" y="276" width="300" height="40" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="37" y="297">client ghi &lt;id&gt;.json</text><path d="M174 316 L174 342" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="24" y="342" width="420" height="40" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="37" y="363">compose.py validate → done / retry / error</text></svg></div><figcaption>Quan trọng hơn cái gì đi qua là cái gì bị cấm đi qua — luật 1 của contract được thực thi ở tầng hạ tầng.</figcaption></figure><h3>4.3 AKM — ba kênh, không phải một</h3><p>Hiểu nhầm phổ biến: coi AKM là một API. Thực tế là <strong>một kênh vào không cần gọi</strong> (push) cộng <strong>hai transport cho cùng một tập operation</strong> (MCP tools và CLI), ngữ nghĩa y hệt nhau.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 624" role="img" aria-label="Ba kênh AKM"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="140" y="12" width="600" height="92" rx="4" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="153" y="33">(a) PUSH — client KHÔNG gọi gì cả</text><text class="vt vt-m" x="153" y="52">block "Recorded in AKM" do rule akm-push chèn vào</text><text class="vt vt-m" x="153" y="69">đầu phiên → task đang mở · mỗi prompt → claim khớp</text><text class="vt vt-m" x="153" y="86">TRỪ research-lens và code-reviewer: không nhận gì</text><path d="M440 104 L440 130" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="140" y="130" width="600" height="42" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="153" y="151">CLIENT</text><polyline points="300 172 300 196" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="580 172 580 196" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="24" y="196" width="392" height="150" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="37" y="217">(b) MCP tools</text><text class="vt vt-m" x="37" y="236">find_information</text><text class="vt vt-m" x="37" y="253">list_tasks</text><text class="vt vt-m" x="37" y="270">open_task</text><text class="vt vt-m" x="37" y="287">get_work_context</text><text class="vt vt-m" x="37" y="304">get_state / get_information</text><text class="vt vt-m" x="37" y="321">submit_reasoning_delta</text><rect x="464" y="196" width="392" height="150" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="477" y="217">(c) CLI qua Bash</text><text class="vt vt-m" x="477" y="236">akm_cli.py find</text><text class="vt vt-m" x="477" y="253">akm_cli.py list</text><text class="vt vt-m" x="477" y="270">akm_cli.py open</text><text class="vt vt-m" x="477" y="287">akm_cli.py context</text><text class="vt vt-m" x="477" y="304">akm_cli.py state / info</text><text class="vt vt-m" x="477" y="321">akm_cli.py submit / record</text><text class="vt vt-s" x="440" y="372" text-anchor="middle">cùng một tập operation, hai transport · JSON ra stdout, exit≠0 khi bị từ chối</text><polyline points="220 346 220 390 440 390 440 412" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><polyline points="660 346 660 390 440 390 440 412" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="230" y="412" width="420" height="44" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="243" y="433">akm/serve.py — sống lâu, pool Neo4j ấm</text><path d="M440 456 L440 482" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="180" y="482" width="520" height="62" rx="4" fill="var(--v-b3)" stroke="var(--v-stroke)"/><text class="vt vt-h" x="193" y="503">server nhận nhưng không kịp trả lời?</text><text class="vt vt-m" x="193" y="522">read → chạy lại local     write → KHÔNG chạy lại (at-most-once)</text><path d="M440 544 L440 570" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><rect x="180" y="570" width="520" height="44" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="193" y="591">Neo4j · scope = tên repo git (AKM_SCOPE ghi đè)</text></svg></div><figcaption>Một kênh vào không cần gọi, cộng hai transport cho cùng một tập operation. Ngữ nghĩa fallback của write là at-most-once.</figcaption></figure><p>Chi tiết transport cần biết trước khi viết bất cứ thứ gì quanh AKM: khi server nhận request nhưng không kịp trả lời, <strong>read được chạy lại local, write thì không</strong> — write có ngữ nghĩa <em>at-most-once</em>, chấp nhận mất kết quả trả về hơn là ghi trùng.</p><h3>4.4 Cùng một run, nhìn theo trục thời gian</h3><p>AKM chỉ xuất hiện ở hai đầu; toàn bộ khúc giữa là compose.py và các lăng kính.</p><figure class="viz"><div class="viz-body"><svg class="svg-fit" viewBox="0 0 880 620" role="img" aria-label="Timeline một run"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--v-stroke)"/></marker></defs><rect x="4" y="12" width="172" height="36" rx="4" fill="var(--v-b1)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="17" y="33">CLIENT</text><path d="M90 48 L90 606" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><rect x="224" y="12" width="172" height="36" rx="4" fill="var(--v-b4)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="237" y="33">AKM</text><path d="M310 48 L310 606" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><rect x="444" y="12" width="172" height="36" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="457" y="33">compose.py</text><path d="M530 48 L530 606" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><rect x="674" y="12" width="172" height="36" rx="4" fill="var(--v-b2)" stroke="var(--v-stroke)"/><text class="vt vt-m" x="687" y="33">research-lens ×6</text><path d="M760 48 L760 606" stroke="var(--v-stroke)" stroke-dasharray="3 4"/><path d="M90 76 L310 76" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="69" text-anchor="middle">find — đã kết luận chưa?</text><path d="M310 104 L90 104" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="97" text-anchor="middle">claim trả về</text><path d="M90 136 L310 136" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="129" text-anchor="middle">(open) — nếu bắt đầu một task</text><path d="M310 164 L90 164" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="157" text-anchor="middle">task_id</text><path d="M90 196 L530 196" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="189" text-anchor="middle">init</text><path d="M530 224 L90 224" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="217" text-anchor="middle">file trạng thái</text><path d="M90 256 L530 256" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="249" text-anchor="middle">mark … running</text><path d="M90 288 L760 288" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="425.0" y="281" text-anchor="middle">dispatch ×6  (song song)</text><path d="M760 320 L90 320" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="425.0" y="313" text-anchor="middle">6 × JSON</text><path d="M90 352 L530 352" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="345" text-anchor="middle">validate</text><path d="M530 380 L90 380" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="373" text-anchor="middle">VALID / INVALID</text><path d="M90 408 L530 408" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="401" text-anchor="middle">mark done</text><path d="M90 440 L760 440" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="425.0" y="433" text-anchor="middle">synthesis</text><path d="M760 468 L90 468" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="425.0" y="461" text-anchor="middle">JSON</text><path d="M90 500 L530 500" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="310.0" y="493" text-anchor="middle">complete</text><path d="M90 540 L310 540" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="533" text-anchor="middle">record — hypothesis / question + evidence</text><path d="M310 568 L90 568" fill="none" stroke="var(--v-stroke)" stroke-width="1.4" marker-end="url(#ah)"/><text class="vt vt-s" x="200.0" y="561" text-anchor="middle">committed</text></svg></div><figcaption>AKM chỉ xuất hiện ở hai đầu; toàn bộ khúc giữa là compose.py và các lăng kính.</figcaption></figure><h3>4.5 Hợp đồng biên</h3><div class="table-wrap"><table><thead><tr><th>counterpart</th><th>transport</th><th>client gửi</th><th>nhận về</th><th><strong>cấm đi qua</strong></th></tr></thead><tbody><tr><td>external lens</td><td>Agent dispatch</td><td>prompt tự đủ: atom + <code>$vars</code> + schema</td><td>đúng một JSON</td><td>hội thoại cha, output lăng kính khác, claim AKM</td></tr><tr><td>compose.py</td><td>Bash, argv</td><td>subcommand + đường dẫn</td><td>JSON/text + exit code</td><td>— (local, đồng bộ)</td></tr><tr><td>AKM (a) push</td><td>không gọi</td><td>—</td><td>block "Recorded in AKM"</td><td>không bao giờ tới <code>research-lens</code></td></tr><tr><td>AKM (b)(c)</td><td>MCP tool / Bash</td><td>query, delta, template</td><td>JSON, exit≠0 khi bị từ chối</td><td>claim đã ghi <strong>không được</strong> dán vào input atom</td></tr></tbody></table></div></section><section class="sec" id="s5"><h2><span class="num">5</span>Invariants — phá là hỏng</h2><ol><li><strong>Sáu lời gọi phải nằm trong MỘT message.</strong> Tách ra là mất song song, tức mất toàn bộ lý do skill tồn tại.</li><li><strong>Không bao giờ dán claim AKM vào input của atom.</strong> SKILL.md nói thẳng: <em>"Never paste recorded claims into an atom's inputs to 'help' it."</em> Làm vậy là nhiễm kết luận có sẵn vào phân tích độc lập — đúng thứ fan-out sinh ra để tránh.</li><li><strong>Chỉ <code>mark done</code> sau khi <code>validate</code> in <code>VALID</code>.</strong> Đây là nghĩa vụ duy nhất của client để cơ chế bảo đảm hoàn tất còn đáng tin.</li><li><strong>Schema phải phẳng.</strong> Bảng/cây nhét vào string.</li><li><strong><code>run_id</code> lấy tươi bằng <code>date +%Y%m%d%H%M%S</code></strong>, không đoán.</li><li><strong>Một lăng kính sống ở hai nơi thì sửa cả hai</strong> — bản trong skill và bản trong web module <code>research_analyze.yaml</code>.</li><li><strong>Dispatch đúng agent type <code>research-lens</code>.</strong> Sub-agent loại khác sẽ bị <code>akm-push</code> chèn claim vào prompt — input mà atom chưa từng khai báo, phá luật 1.</li><li><strong>Mọi run phải kết thúc bằng <code>complete</code> hoặc <code>abort</code>.</strong> <code>running</code> không phải trạng thái terminal, nên một run bỏ lửng vẫn được tính là chưa xong.</li></ol><h3>Cổng schema kiểm gì — và không kiểm gì</h3><p><code>validate</code> có hai nhánh: dùng <code>Draft202012Validator</code> khi <code>jsonschema</code> cài sẵn, và tụt về kiểm required-keys nông khi không. Nhưng dù chạy nhánh đầy đủ, phạm vi của cổng vẫn hẹp hơn nhiều người mặc định, vì bản thân các schema được viết rộng rãi:</p><ul><li><strong>Không schema nào đặt <code>additionalProperties: false</code></strong> → lăng kính thêm key lạ vẫn <code>VALID</code>.</li><li><strong>Nhiều field prompt yêu cầu lại không nằm trong <code>required</code>.</strong> Ví dụ <code>concept.schema.json</code> chỉ bắt buộc 4 field; ba tầng <code>intermediate</code>, <code>advanced</code>, <code>edge_cases</code> là optional — lăng kính bỏ trắng cả ba vẫn qua cổng.</li></ul><p>Nói cách khác: cổng kiểm <strong>hình dạng của thứ có mặt</strong>, không kiểm <strong>độ đầy đủ so với prompt</strong>. <code>VALID</code> không có nghĩa là lăng kính đã làm đủ việc.</p></section><section class="sec" id="s6"><h2><span class="num">6</span>Mở rộng: thêm một lăng kính</h2><ol><li>Thả vào <code>atoms/</code> một cặp <code>&lt;id&gt;.md</code> + <code>&lt;id&gt;.schema.json</code> tuân thủ contract (mục 2.4).</li><li>Thêm <code>&lt;id&gt;</code> vào danh sách <code>--atoms</code> khi <code>init</code>, và vào vòng fan-out.</li><li>Hết. <strong>Không sửa dòng code nào</strong> — đó là phần trả công của atom thuần.</li></ol><p>Cân nhắc trước khi thêm: lăng kính mới có sinh ra góc nhìn <em>độc lập</em> không, hay chỉ lặp lại một lăng kính đã có? Fan-out chỉ có giá trị khi các nhánh thực sự khác nhau.</p><p>Cấu hình mặc định là lăng kính song song + một synthesis, nhưng cùng bộ atom đó ghép được thành đồ thị khác (chuỗi tuần tự chẳng hạn) vì atom không giữ state ẩn.</p></section><section class="sec" id="s7"><h2><span class="num">7</span>Nguồn</h2><p>Mỗi khẳng định trong tài liệu này truy được về một trong các file sau:</p><ul><li><code>&lt;skill&gt;/SKILL.md</code> — playbook 5 bước, mục "Completion guarantee", mục AKM</li><li><code>&lt;skill&gt;/references/prompt-atom-contract.md</code> — 4 luật của prompt-atom</li><li><code>&lt;skill&gt;/atoms/<em>.md</code> + <code></em>.schema.json</code> — cả 7 cặp</li><li><code>&lt;skill&gt;/scripts/compose.py</code> — <code>STALE_SECONDS</code>, <code>MAX_NUDGES</code>, <code>ATOM_DONE</code>, 8 subcommand</li><li><code>&lt;skill&gt;/scripts/stop_hook.py</code> — 3 guard, fail-open</li><li><code>.claude/agents/research-lens.md</code> — tool list, chỉ dẫn isolation</li><li><code>~/.claude-&lt;config&gt;/settings.json</code> — nơi Stop hook thật sự được đăng ký</li><li><code>.claude/skills/akm/SKILL.md</code> — tool MCP, template, <code>AKM_PUSH_ISOLATED_AGENT_TYPES</code></li><li><code>~/.dotfiles/projects/akm/scripts/akm_cli.py</code> — docstring liệt kê toàn bộ subcommand và ngữ nghĩa fallback của server</li><li><code>~/.dotfiles/projects/&lt;web-module&gt;/apps/api/&lt;web-module&gt;/modules/research_analyze.yaml</code> — nguồn canonical, <code>mode_order</code></li></ul><p><code>&lt;skill&gt;</code> = <code>.claude/skills/research-compose/</code>.</p></section></main>
+    </div>
+  </div>
+
+  <div id="p-md" role="tabpanel" aria-labelledby="t-md" class="md-panel" hidden>
+    <div class="md-head">
+      <p>Toàn bộ tài liệu ở dạng Markdown gốc &mdash; sơ đồ giữ nguyên bản ASCII, dán thẳng vào wiki, repo hay chat.</p>
+      <button class="copy" id="cp" type="button">Copy toàn bộ</button>
+    </div>
+    <div id="mdsrc"><pre><code id="mdcode"># research-compose — kiến trúc, workflow, interface
+
+&gt; Study guide về `research-compose` — một Claude Code skill chạy nhiều lăng kính phân tích
+&gt; song song rồi hợp nhất kết quả. Mọi khẳng định được đọc trực tiếp từ file nguồn (danh sách
+&gt; ở mục 7), không lấy từ trí nhớ.
+&gt;
+&gt; Đọc được theo hai kiểu: như **tài liệu tham chiếu** cho chính skill này, hoặc như một
+&gt; **case study** về cách dựng một hệ nhiều sub-agent sao cho kết quả còn kiểm được.
+&gt;
+&gt; Nhãn trong sơ đồ để tiếng Anh vì quy ước ASCII-only (không dấu) cho diagram.
+
+## 0. Bản đồ đọc
+
+| Muốn gì | Đọc mục |
+|---|---|
+| Hiểu tại sao skill tồn tại | 1 |
+| Sửa/thêm một lăng kính | 2.3, 2.4, 6 |
+| Hiểu một run chạy ra sao | 3 |
+| Viết code nói chuyện với skill hoặc AKM | 4 |
+| Tránh phá vỡ hệ thống | **5** |
+| Tra lại nguồn gốc từng khẳng định | 7 |
+
+---
+
+## 1. Ý tưởng cốt lõi
+
+Một chủ đề được soi bằng nhiều lăng kính phân tích **độc lập**, chạy **song song**, mỗi
+lăng kính trả về JSON có schema cố định; sau đó một bước tổng hợp **hợp nhất các output
+đó** thay vì phân tích lại từ đầu.
+
+Đòn bẩy nằm ở chữ "hợp nhất". Nếu bước cuối phải tự suy luận lại thì fan-out chỉ tốn thêm
+tiền. Giá trị sinh ra vì bước tổng hợp nhận vào **kết quả đã có cấu trúc** của sáu góc nhìn
+khác nhau và chỉ còn việc đối chiếu — tìm điểm đồng thuận, chỉ ra mâu thuẫn, nêu khoảng
+trống.
+
+Ba pattern được gọi đúng tên, không phải từ vựng tự chế:
+
+| Pattern | Ở đây là | Nguồn |
+|---|---|---|
+| orchestrator-workers | client điều phối, lăng kính là worker | Anthropic, *Building Effective Agents* |
+| parallelization | fan-out 6 lăng kính trong một message | nt |
+| evaluator-optimizer | validate schema → retry với lỗi đính kèm | nt |
+| typed signature `input -&gt; output` | `inputs` + `output_schema` của atom | DSPy "signatures" |
+| atom thuần, không state ẩn | prompt-atom | Atomic Design, layer A |
+
+---
+
+## 2. Kiến trúc
+
+### 2.1 Bố cục file
+
+Mỗi lăng kính luôn là **một cặp** `.md` + `.schema.json`. Đó là đơn vị nhỏ nhất, và là lý do
+thêm lăng kính không phải sửa code.
+
+```
+research-compose/
++-- SKILL.md                     orchestrator playbook, 5 steps
++-- atoms/                       L1: the composable units
+|   +-- concept.md    + concept.schema.json      lens
+|   +-- irb.md        + irb.schema.json          lens (topic+goal+depth)
+|   +-- paccaya.md    + paccaya.schema.json      lens
+|   +-- hara_naya.md  + hara_naya.schema.json    lens
+|   +-- causality.md  + causality.schema.json    lens
+|   +-- inquiry.md    + inquiry.schema.json      lens
+|   +-- synthesis.md  + synthesis.schema.json    synthesis
++-- references/
+|   +-- prompt-atom-contract.md  L2: the 4 prompt-atom rules
++-- scripts/
+    +-- compose.py               L3: control plane, 8 subcommands
+    +-- stop_hook.py             L3: Stop-hook adapter
+
+.claude/agents/research-lens.md  the worker type (outside the skill)
+```
+
+### 2.2 Ba lớp
+
+L1 là dữ liệu thuần (prompt), L2 là quy ước được viết thành văn, L3 là code tất định. Tính
+chất chịu lực: **L3 không bao giờ hỏi model xem tiến độ tới đâu** — nó đọc file trạng thái.
+
+```
++----------------------------------------------------------------+
+| L3  CONTROL PLANE      scripts/compose.py + stop_hook.py       |
+|     deterministic -- never asks the model to trust itself      |
+|     init | mark | complete | abort | status | pending | runs   |
+|     validate                                                   |
+|     state: $COMPOSE_HOME/runs/&lt;run_id&gt;.json                    |
+|            default ~/.claude-compose -- store machine-wide,    |
+|            but `pending` only blocks its OWN project           |
++----------------------------------------------------------------+
+      | enforces completion          ^ marks progress
+      v                                |
++----------------------------------------------------------------+
+| L2  CONTRACT           references/prompt-atom-contract.md      |
+|     1 explicit input only    2 declared output, FLAT schema    |
+|     3 self-contained         4 substitutable                   |
++----------------------------------------------------------------+
+      | governs
+      v
++----------------------------------------------------------------+
+| L1  ATOMS              atoms/&lt;id&gt;.md + &lt;id&gt;.schema.json        |
+|     6 lens + 1 synthesis -- pure prompt, zero hidden state     |
+|     add a file pair -&gt; new lens, no orchestration change       |
++----------------------------------------------------------------+
+```
+
+### 2.3 Bảy atom
+
+| atom | kind | inputs | required fields (schema) |
+|---|---|---|---|
+| `concept` | lens | `topic` | `distilled`, `foundational`, `knowledge_tree`, `relationships` |
+| `irb` | lens | `topic`, `goal`, `recursion_depth` | `overview`, `table_markdown`, `tree` |
+| `paccaya` | lens | `topic` | `overview`, `conditions_markdown`, `key_solutions` |
+| `causality` | lens | `topic` | `overview`, `relations_markdown`, `key_solutions` |
+| `hara_naya` | lens | `topic` | `hara_markdown`, `naya_markdown`, `synthesis` |
+| `inquiry` | lens | `topic` | `methods_markdown`, `strategies_markdown`, `synthesis` |
+| `synthesis` | synthesis | `topic`, `goal`, `lens_outputs` | `context_structure`, `causal_approaches`, `recommendation` |
+
+Hai cặp sinh đôi: `paccaya`↔`causality` (24 duyên hệ Pāli ↔ bản thế tục hoá) và
+`hara_naya`↔`inquiry` (16 hārā + 5 nayā ↔ 16 phương pháp + 5 chiến lược). Mỗi cặp **cùng
+`inputs`**, nên theo luật 4 chúng hoán đổi được trong cùng một slot — và sửa một cái thì
+phải cân nhắc cái kia.
+
+Prompt của cả sáu lăng kính viết bằng tiếng Việt, và cả sáu đều có một dòng
+*"QUAN TRỌNG: viết SÚC TÍCH… mỗi mục CHỈ 1-2 câu"*. Dòng đó không phải văn phong — nó là
+ngân sách thời gian, vì `paccaya` và `causality` mỗi cái phải phủ 24 mục.
+
+Đã kiểm cả 7 schema: **tất cả đều phẳng** — chỉ `string` và `array of string`. Bảng và cây
+nằm *bên trong* field string dưới dạng markdown/ASCII dựng sẵn.
+
+### 2.4 Prompt-atom contract
+
+Bốn luật, mỗi luật có một lý do vận hành cụ thể:
+
+| Luật | Nội dung | Vì sao |
+|---|---|---|
+| 1 | Chỉ input tường minh, qua `$placeholder` | atom chạy trong sub-agent cô lập, **không thấy hội thoại cha** — thứ gì không substitute vào thì không tồn tại |
+| 2 | Khai báo output, schema **phẳng** | schema lồng sâu là nơi structured-output hỏng nhiều nhất |
+| 3 | Tự chứa — đọc mỗi file này là hiểu trọn việc | không có skill nào được load vào context của sub-agent |
+| 4 | Thay thế được — cùng `inputs` thì hoán đổi được | đây là thứ làm cho composition trở nên cấu hình được |
+
+Atom `kind: synthesis` nhận thêm `lens_outputs` và có nhiệm vụ **kết hợp, không suy luận
+lại**; prompt của nó bị ép ngắn (~200 từ/mục) vì input vào đã rất lớn.
+
+---
+
+## 3. Workflow
+
+### 3.1 Toàn tuyến
+
+Bảy chặng. Chặng 0 và 6 là tuỳ chọn (chỉ khi kết quả sẽ dẫn dắt quyết định hoặc phiên sau);
+chặng 1–5 bắt buộc, và mỗi chặng để lại dấu vết trong file trạng thái.
+
+```
+USER: "deep dive on X" / /research-compose X
+   |
+   v
+[0] PRE-FLIGHT   akm find "&lt;topic words&gt;"
+    already concluded before? -&gt; tell user, narrow the topic
+   |
+   v
+[1] INIT         run_id = `date +%Y%m%d%H%M%S`   (fresh, never guessed)
+    compose.py init &lt;run_id&gt; --topic "X" --atoms concept,irb,...
+    =&gt; runs/&lt;run_id&gt;.json : status active, every atom = pending
+    =&gt; workspace tmp/research-compose/&lt;run_id&gt;/
+   |
+   v
+[2] FAN-OUT      mark each atom running, then dispatch ALL in ONE
+                 message -&gt; 6 research-lens sub-agents in parallel
+   |
+   v
+[3] GATE         per returned atom: save &lt;id&gt;.json -&gt; validate
+                 VALID -&gt; mark done | INVALID -&gt; 1 retry -&gt; mark error
+   |
+   v
+[4] SYNTHESIS    lens_outputs = concat of the successful lenses
+                 research-lens: synthesis(topic, goal, lens_outputs)
+                 validate -&gt; mark synthesis done
+   |
+   v
+[5] COMPLETE     compose.py complete &lt;run_id&gt;  =&gt; status complete
+                 present report, offer the per-lens reports
+   |
+   v
+[6] RECORD       only if it steers a decision or a later session
+                 akm: hypothesis / question + evidence -&gt; run files
+```
+
+### 3.2 Chặng 2–3: fan-out và cổng schema
+
+Song song **chỉ xảy ra nếu cả sáu lời gọi nằm trong một message**. Vòng retry là
+evaluator-optimizer: validator tất định chấm, model sửa.
+
+```
+                      ONE message, 6 tool calls
+                                 |
+     +-------------+-------------+-------------+-------------+
+     v             v             v             v             v
+  concept        irb         paccaya      hara_naya   causality + inquiry
+     |             |             |             |             |
+     |  each: research-lens sub-agent, isolated, no parent context
+     |             |             |             |             |
+     v             v             v             v             v
+  concept.json  irb.json    paccaya.json    ...           ...
+     |             |             |             |             |
+     +-------------+------+------+-------------+-------------+
+                          v
+              compose.py validate --schema atoms/&lt;id&gt;.schema.json
+                          |
+             +------------+------------+
+             v                         v
+          VALID                     INVALID: &lt;error&gt;
+             |                         |
+             v                    re-dispatch that ONE lens
+       mark &lt;id&gt; done             with the error appended
+                                       |
+                                  still bad? -&gt; mark &lt;id&gt; error
+                                  (a dead lens must NOT block the rest)
+```
+
+Một lăng kính chết **không được** chặn các lăng kính còn lại — sau lần hỏng thứ hai thì
+`mark error` và đi tiếp.
+
+### 3.3 `assemble_atom` — atom thành prompt sub-agent
+
+Ba nguồn ghép thành một prompt tự đủ.
+
+```
+  atoms/concept.md          run inputs            concept.schema.json
+  (body after frontmatter)  topic = "..."         {"required": [...]}
+  uses only $topic          goal  = "..."         flat: strings +
+  $goal $recursion_depth    recursion_depth = 2   arrays of strings
+          |                       |                       |
+          +-----------+-----------+                       |
+                      v                                   |
+             substitute every $var                        |
+                      |                                   |
+                      +-----------------+-----------------+
+                                        v
+                         + "Return ONLY JSON conforming
+                            to this schema:" + schema text
+                                        |
+                                        v
+                   +---------------------------------------+
+                   | sub-agent  research-lens              |
+                   | Read Grep Glob WebSearch WebFetch     |
+                   | no view of the parent conversation    |
+                   | akm-push is configured to SKIP it     |
+                   +---------------------------------------+
+                                        |
+                                        v
+                    tmp/research-compose/&lt;run_id&gt;/concept.json
+```
+
+File `&lt;id&gt;.json` do **client** ghi sau khi nhận giá trị trả về, không phải lens ghi. Đó là
+lý do agent type này không có tool `Write` và không cần có.
+
+### 3.4 Máy trạng thái
+
+| cấp | trạng thái | đặt bởi |
+|---|---|---|
+| atom | `pending` | `init`, mặc định |
+| atom | `running` | `mark … running`, ngay trước khi dispatch |
+| atom | `done` | `mark … done`, **chỉ sau khi** `validate` in `VALID` |
+| atom | `error` | hỏng lần thứ hai ở cổng schema |
+| atom | `skipped` | được chọn nhưng không chạy, **hoặc** bị `abort` quét qua |
+| run | `active` | `init` |
+| run | `complete` | `complete`, **hoặc** `abort` |
+
+`abort &lt;run_id&gt; [--note]` là lối ra cho một run mà bạn quyết định không chạy tiếp: mọi atom
+chưa terminal thành `skipped`, run thành `complete` (kèm cờ `aborted: true`).
+
+`ATOM_DONE = {done, error, skipped}`. **`running` không thuộc tập terminal** — nên mọi run
+đều phải kết thúc bằng `complete` hoặc `abort`.
+
+### 3.5 Bảo đảm hoàn tất
+
+Chạy khi agent định kết thúc lượt. Ba lớp chống kẹt đều dẫn về `exit 0`; đúng một nhánh tới
+`exit 2`.
+
+```
+  agent tries to end the turn
+            |
+            v
+     stop_hook.py   &lt;-- hook payload on stdin
+            |
+     stop_hook_active ? ------ yes ------&gt; exit 0   allow stop
+            | no                                    (loop breaker)
+            v
+     compose.py pending    reads runs/*.json, THIS project only
+            |
+            +--&gt; status complete ?        -&gt; skip
+            +--&gt; another project's run ?  -&gt; skip  (scoped)
+            +--&gt; updated_at &gt; 30 min ?    -&gt; skip  (stale)
+            +--&gt; nudge_count &gt;= 5 ?       -&gt; skip  (safety valve)
+            |
+            v
+     any atom not in {done, error, skipped}
+            |
+            +-- no --&gt; exit 0   allow stop
+            |
+            +-- yes -&gt; nudge_count++ , exit 1
+                            |
+                            v
+                  exit 2 + list on stderr -&gt; turn BLOCKED,
+                  model must finish the atoms and complete the run
+
+  any failure inside the hook -&gt; exit 0   (fail open, never wedge)
+```
+
+Hook đăng ký ở **`~/.claude-&lt;config&gt;/settings.json`** (tầng config dir, `timeout: 15`), trỏ tới
+bản trong `~/.dotfiles/.claude/skills/research-compose/scripts/stop_hook.py`. Tìm ở
+`.claude/settings.json` của project sẽ **không** thấy — và sẽ dẫn tới kết luận sai rằng cơ
+chế này chưa được đấu dây.
+
+---
+
+## 4. Interface
+
+### 4.1 Ba counterpart
+
+Ba phía, ba transport, ba vòng đời. Chênh lệch vòng đời ở dòng cuối chính là lý do SKILL.md
+dặn chỉ record vào AKM khi kết quả sẽ dẫn dắt việc về sau — workspace `tmp/` không sống lâu.
+
+```
+                   +---------------------------------+
+                   |  CLIENT = the orchestrator      |
+                   |  the session running the skill  |
+                   +---------------------------------+
+                     |             |              |
+      Agent dispatch |        Bash |              | MCP tools / Bash
+      prompt -&gt; JSON |  argv-&gt;JSON |              | + INBOUND push
+                     v             v              v
+        +----------------+  +--------------+  +-------------------+
+        | EXTERNAL LENS  |  | compose.py   |  | AKM               |
+        | research-lens  |  | control plane|  | serve.py + Neo4j  |
+        | x6, isolated   |  | local, sync  |  | cross-session     |
+        +----------------+  +--------------+  +-------------------+
+                |                   |                   |
+                v                   v                   v
+         &lt;id&gt;.json in         runs/&lt;run_id&gt;.json   reasoning graph
+         tmp/ workspace       project-scoped       scoped by repo
+         (this run only)      (survives session)   (survives all)
+
+  lifetime:   minutes           until aborted        indefinite
+```
+
+### 4.2 Biên với lăng kính
+
+Một chiều đi, một chiều về, **không state chung**. Quan trọng hơn cái gì đi qua là cái gì bị
+cấm đi qua — luật 1 của contract được thực thi ở tầng hạ tầng chứ không nhờ tác giả atom
+cẩn thận.
+
+```
+  CLIENT                                  EXTERNAL LENS (sub-agent)
+    |                                                   |
+    | 1. assemble_atom =                                |
+    |    atom body + substituted $vars + schema text    |
+    |----- Agent(subagent_type="research-lens") -------&gt;|
+    |                                                   |
+    |    DOES NOT CROSS THIS BOUNDARY:                  |
+    |      - the parent conversation                    |
+    |      - any other lens output                      |
+    |      - AKM pushed claims -- the type is listed    |
+    |        in AKM_PUSH_ISOLATED_AGENT_TYPES           |
+    |    lens tools: Read Grep Glob WebSearch WebFetch  |
+    |                                                   |
+    |            2. return value = JSON only, no prose  |
+    |&lt;--------------------------------------------------|
+    v
+  save tmp/research-compose/&lt;run_id&gt;/&lt;id&gt;.json
+    |
+    v
+  compose.py validate --schema atoms/&lt;id&gt;.schema.json --input &lt;f&gt;
+    |
+    +-- VALID ----&gt; mark &lt;id&gt; done
+    |
+    +-- INVALID --&gt; re-dispatch the SAME lens, validator text
+                    appended to the prompt; 2nd failure -&gt;
+                    mark &lt;id&gt; error and the run continues
+```
+
+### 4.3 AKM — ba kênh, không phải một
+
+Hiểu nhầm phổ biến: coi AKM là một API. Thực tế là **một kênh vào không cần gọi** (push) cộng
+**hai transport cho cùng một tập operation** (MCP tools và CLI), ngữ nghĩa y hệt nhau.
+
+```
+  (a) PUSH  -- inbound, the client makes NO call
+      "Recorded in AKM" blocks, injected by the akm-push rule
+        session start -&gt; open tasks
+        each prompt   -&gt; claims matching it
+        subagent      -&gt; matching claims + the bound task state
+      EXCEPT research-lens and code-reviewer: they get nothing
+                         |
+                         v
+  +-----------------------------------------------------------+
+  |                      CLIENT                                |
+  +-----------------------------------------------------------+
+       |                                        |
+  (b) MCP tools                            (c) CLI over Bash
+      find_information                         akm_cli.py find
+      list_tasks                               akm_cli.py list
+      open_task                                akm_cli.py open
+      get_work_context                         akm_cli.py context
+      get_state / get_information              akm_cli.py state / info
+      submit_reasoning_delta                   akm_cli.py submit
+                                               akm_cli.py record
+       |                                        |
+       |  same operations, two transports       | JSON on stdout,
+       |                                        | non-zero on refusal
+       +-------------------+--------------------+
+                           v
+                  akm/serve.py    long-lived, warm Neo4j pool
+                           |
+                  no answer in time?
+                    read  -&gt; re-run locally
+                    write -&gt; NOT re-run  (open/submit/record may
+                             already have been applied)
+                           |
+                           v
+                  Neo4j graph, scope = git repo name
+                  (AKM_SCOPE overrides; outside a repo -&gt; un-git-repo)
+```
+
+Chi tiết transport cần biết trước khi viết bất cứ thứ gì quanh AKM: khi server nhận request
+nhưng không kịp trả lời, **read được chạy lại local, write thì không** — write có ngữ nghĩa
+*at-most-once*, chấp nhận mất kết quả trả về hơn là ghi trùng.
+
+### 4.4 Cùng một run, nhìn theo trục thời gian
+
+AKM chỉ xuất hiện ở hai đầu; toàn bộ khúc giữa là compose.py và các lăng kính.
+
+```
+ CLIENT          AKM            compose.py        6x research-lens
+   |              |                 |                    |
+   |-- find -----&gt;|  "already concluded?"                |
+   |&lt;-- claims ---|                 |                    |
+   |              |                 |                    |
+   |-- (open) ---&gt;|  only if this research starts a task |
+   |&lt;-- task_id --|                 |                    |
+   |              |                 |                    |
+   |-------------------- init -----&gt;|                    |
+   |&lt;------------------- state file |                    |
+   |              |                 |                    |
+   |-------------------- mark run--&gt;|                    |
+   |------------------------------------- dispatch x6 --&gt;|
+   |                                                     | (parallel,
+   |&lt;------------------------------------ 6x JSON -------|  isolated)
+   |              |                 |                    |
+   |-------------------- validate -&gt;|                    |
+   |&lt;------------------- VALID/INV -|                    |
+   |-------------------- mark done-&gt;|                    |
+   |              |                 |                    |
+   |------------------------------------- synthesis ----&gt;|
+   |&lt;------------------------------------ JSON ----------|
+   |-------------------- complete -&gt;|                    |
+   |              |                 |                    |
+   |-- record ---&gt;|  hypothesis / question               |
+   |   --evidence research_report:tmp/.../&lt;id&gt;.json      |
+   |   --why "the workspace is temporary"                |
+   |&lt;-- committed |                 |                    |
+   v              v                 v                    v
+```
+
+### 4.5 Hợp đồng biên
+
+| counterpart | transport | client gửi | nhận về | **cấm đi qua** |
+|---|---|---|---|---|
+| external lens | Agent dispatch | prompt tự đủ: atom + `$vars` + schema | đúng một JSON | hội thoại cha, output lăng kính khác, claim AKM |
+| compose.py | Bash, argv | subcommand + đường dẫn | JSON/text + exit code | — (local, đồng bộ) |
+| AKM (a) push | không gọi | — | block "Recorded in AKM" | không bao giờ tới `research-lens` |
+| AKM (b)(c) | MCP tool / Bash | query, delta, template | JSON, exit≠0 khi bị từ chối | claim đã ghi **không được** dán vào input atom |
+
+---
+
+## 5. Invariants — phá là hỏng
+
+1. **Sáu lời gọi phải nằm trong MỘT message.** Tách ra là mất song song, tức mất toàn bộ lý
+   do skill tồn tại.
+2. **Không bao giờ dán claim AKM vào input của atom.** SKILL.md nói thẳng: *"Never paste
+   recorded claims into an atom's inputs to 'help' it."* Làm vậy là nhiễm kết luận có sẵn vào
+   phân tích độc lập — đúng thứ fan-out sinh ra để tránh.
+3. **Chỉ `mark done` sau khi `validate` in `VALID`.** Đây là nghĩa vụ duy nhất của client để
+   cơ chế bảo đảm hoàn tất còn đáng tin.
+4. **Schema phải phẳng.** Bảng/cây nhét vào string.
+5. **`run_id` lấy tươi bằng `date +%Y%m%d%H%M%S`**, không đoán.
+6. **Một lăng kính sống ở hai nơi thì sửa cả hai** — bản trong skill và bản trong web
+   module `research_analyze.yaml`.
+7. **Dispatch đúng agent type `research-lens`.** Sub-agent loại khác sẽ bị `akm-push` chèn
+   claim vào prompt — input mà atom chưa từng khai báo, phá luật 1.
+8. **Mọi run phải kết thúc bằng `complete` hoặc `abort`.** `running` không phải trạng thái
+   terminal, nên một run bỏ lửng vẫn được tính là chưa xong.
+
+### Cổng schema kiểm gì — và không kiểm gì
+
+`validate` có hai nhánh: dùng `Draft202012Validator` khi `jsonschema` cài sẵn, và tụt về
+kiểm required-keys nông khi không. Nhưng dù chạy nhánh đầy đủ, phạm vi của cổng vẫn hẹp hơn
+nhiều người mặc định, vì bản thân các schema được viết rộng rãi:
+
+- **Không schema nào đặt `additionalProperties: false`** → lăng kính thêm key lạ vẫn `VALID`.
+- **Nhiều field prompt yêu cầu lại không nằm trong `required`.** Ví dụ `concept.schema.json`
+  chỉ bắt buộc 4 field; ba tầng `intermediate`, `advanced`, `edge_cases` là optional — lăng
+  kính bỏ trắng cả ba vẫn qua cổng.
+
+Nói cách khác: cổng kiểm **hình dạng của thứ có mặt**, không kiểm **độ đầy đủ so với
+prompt**. `VALID` không có nghĩa là lăng kính đã làm đủ việc.
+
+---
+
+## 6. Mở rộng: thêm một lăng kính
+
+1. Thả vào `atoms/` một cặp `&lt;id&gt;.md` + `&lt;id&gt;.schema.json` tuân thủ contract (mục 2.4).
+2. Thêm `&lt;id&gt;` vào danh sách `--atoms` khi `init`, và vào vòng fan-out.
+3. Hết. **Không sửa dòng code nào** — đó là phần trả công của atom thuần.
+
+Cân nhắc trước khi thêm: lăng kính mới có sinh ra góc nhìn *độc lập* không, hay chỉ lặp lại
+một lăng kính đã có? Fan-out chỉ có giá trị khi các nhánh thực sự khác nhau.
+
+Cấu hình mặc định là lăng kính song song + một synthesis, nhưng cùng bộ atom đó ghép được
+thành đồ thị khác (chuỗi tuần tự chẳng hạn) vì atom không giữ state ẩn.
+
+---
+
+## 7. Nguồn
+
+Mỗi khẳng định trong tài liệu này truy được về một trong các file sau:
+
+- `&lt;skill&gt;/SKILL.md` — playbook 5 bước, mục "Completion guarantee", mục AKM
+- `&lt;skill&gt;/references/prompt-atom-contract.md` — 4 luật của prompt-atom
+- `&lt;skill&gt;/atoms/*.md` + `*.schema.json` — cả 7 cặp
+- `&lt;skill&gt;/scripts/compose.py` — `STALE_SECONDS`, `MAX_NUDGES`, `ATOM_DONE`, 8 subcommand
+- `&lt;skill&gt;/scripts/stop_hook.py` — 3 guard, fail-open
+- `.claude/agents/research-lens.md` — tool list, chỉ dẫn isolation
+- `~/.claude-&lt;config&gt;/settings.json` — nơi Stop hook thật sự được đăng ký
+- `.claude/skills/akm/SKILL.md` — tool MCP, template, `AKM_PUSH_ISOLATED_AGENT_TYPES`
+- `~/.dotfiles/projects/akm/scripts/akm_cli.py` — docstring liệt kê toàn bộ subcommand và
+  ngữ nghĩa fallback của server
+- `~/.dotfiles/projects/&lt;web-module&gt;/apps/api/&lt;web-module&gt;/modules/research_analyze.yaml` — nguồn
+  canonical, `mode_order`
+
+`&lt;skill&gt;` = `.claude/skills/research-compose/`.
+</code></pre></div>
+  </div>
+</div>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.tabs button'));
+  var panels=[document.getElementById('p-doc'),document.getElementById('p-md')];
+  function show(k){
+    tabs.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});
+    panels.forEach(function(p,j){p.hidden=(j!==k);});
+  }
+  tabs.forEach(function(t,k){t.addEventListener('click',function(){show(k);});});
+  var cp=document.getElementById('cp'), src=document.getElementById('mdcode');
+  function flash(m){var o=cp.textContent;cp.textContent=m;setTimeout(function(){cp.textContent=o;},1800);}
+  function selectAll(){
+    try{var r=document.createRange();r.selectNodeContents(src);
+      var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+      var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+      flash(ok?'Đã copy':'Đã bôi đen — nhấn Cmd/Ctrl+C');
+    }catch(e){flash('Bôi đen thủ công để copy');}
+  }
+  cp.addEventListener('click',function(){
+    var t=src.textContent;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){flash('Đã copy');},selectAll);
+    }else{selectAll();}
+  });
+})();
+</script>
+</body>
+</html>
