@@ -3,39 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>bash-cli-scaffold: bạn tạo tool cho agent như thế nào</title>
-<meta name="description" content="Nghiên cứu skill bash-cli-scaffold của Claude Code: bộ khung CLI bash được chưng cất từ hai dự án có thật, đo bằng diff.">
+<title>Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI</title>
+<meta name="description" content="Hai skill Claude Code dựng và nuôi lớn công cụ dòng lệnh bằng bash: cấu trúc thư mục, luồng chạy, và công thức để tự dựng skill của bạn.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
-<style>/* Structural base for a single-file doc site.
-   The PALETTE below is a placeholder: the playbook (section 7) asks you to ground
-   colour and type in the subject, not in a template. Replace the token VALUES and
-   keep the three-times structure (:root, prefers-color-scheme guarded, [data-theme]).
-   Figure classes at the bottom are a catalog -- keep the ones your figures use,
-   delete the rest, add your own. */
+<style>/* Palette. Two families with clearly different jobs: a serif carries the
+   argument, a monospace carries anything the machine would print --
+   filenames, flags, JSON. On a page about shell tools that pairing is the
+   subject, not decoration.
+
+   Three role colours, and they mean exactly one thing each:
+     --front  paid for on every turn / runs directly
+     --ref    read only on demand / only ever sourced
+     --tpl    material you copy and commit
+   Anything absent by design or generated per machine is drawn faint and
+   dashed instead of coloured, so nothing depends on colour alone. */
 :root{
-  --ground:#F1F3EF; --surface:#FBFCFA; --panel:#E4E8E0; --line:#CBD2C6; --line-soft:#DDE3D8;
-  --ink:#161A15; --muted:#525A4E; --faint:#7E8778;
-  --trace:#1F5D45; --trace-soft:#DCEAE1;
-  --est:#2A6A45;  --hyp:#8A6410;  --unv:#525A4E;  --asm:#5B4A8C;
-  --alarm:#8A3B22; --alarm-soft:#F5E6DF;
+  --ground:#F2F3F1; --surface:#FFFFFF; --panel:#E8EAE6; --line:#D1D6CE; --line-soft:#E1E4DE;
+  --ink:#15181A; --muted:#565B58; --faint:#848A86;
+  --trace:#1F5E4E; --trace-soft:#DEEAE5;
+  --front:#96560F; --ref:#2A5C79; --tpl:#1F5E4E;
+  --est:#1F5E4E;  --hyp:#96560F;  --unv:#565B58;  --asm:#6B4A83;
+  --alarm:#8E3024; --alarm-soft:#F6E4E1;
   --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#10130F; --surface:#181C16; --panel:#1F241C; --line:#2E3529; --line-soft:#242A20;
-  --ink:#E4E8DE; --muted:#979E90; --faint:#787F72;
-  --trace:#6FC29B; --trace-soft:#13291F;
-  --est:#74C297;  --hyp:#D9AE5C;  --unv:#979E90;  --asm:#AE9BD8;
-  --alarm:#DE8E6E; --alarm-soft:#2A1913;
+  --ground:#101311; --surface:#181C19; --panel:#1F2420; --line:#2E3430; --line-soft:#242A26;
+  --ink:#E6E9E4; --muted:#9BA29C; --faint:#7B827C;
+  --trace:#6FBFA2; --trace-soft:#142622;
+  --front:#DFA45E; --ref:#79B4D4; --tpl:#6FBFA2;
+  --est:#6FBFA2;  --hyp:#DFA45E;  --unv:#9BA29C;  --asm:#BC9AD4;
+  --alarm:#E28C80; --alarm-soft:#2A1A17;
 }}
 :root[data-theme="dark"]{
-  --ground:#10130F; --surface:#181C16; --panel:#1F241C; --line:#2E3529; --line-soft:#242A20;
-  --ink:#E4E8DE; --muted:#979E90; --faint:#787F72;
-  --trace:#6FC29B; --trace-soft:#13291F;
-  --est:#74C297;  --hyp:#D9AE5C;  --unv:#979E90;  --asm:#AE9BD8;
-  --alarm:#DE8E6E; --alarm-soft:#2A1913;
+  --ground:#101311; --surface:#181C19; --panel:#1F2420; --line:#2E3430; --line-soft:#242A26;
+  --ink:#E6E9E4; --muted:#9BA29C; --faint:#7B827C;
+  --trace:#6FBFA2; --trace-soft:#142622;
+  --front:#DFA45E; --ref:#79B4D4; --tpl:#6FBFA2;
+  --est:#6FBFA2;  --hyp:#DFA45E;  --unv:#9BA29C;  --asm:#BC9AD4;
+  --alarm:#E28C80; --alarm-soft:#2A1A17;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -129,133 +137,112 @@ figure{margin:0 0 28px}
 figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
 .fmono{font-family:var(--mono)}
 
-/* four questions + score */
-.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
-.qlist li{counter-increment:q;display:flex;gap:13px;margin:0 0 11px;font-size:16px}
-.qlist li::before{content:counter(q);font-family:var(--mono);font-size:11px;color:var(--trace);
-  border:1px solid var(--trace);border-radius:50%;width:21px;height:21px;flex:none;
-  display:grid;place-items:center;margin-top:3px}
-.score{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:15px;
-  border-top:1px solid var(--line-soft)}
-.sc{flex:1 1 150px;padding:11px 13px;border-radius:3px;background:var(--panel)}
-.sc b{display:block;font-family:var(--mono);font-size:26px;line-height:1;margin-bottom:5px}
-.sc span{font-size:12.5px;color:var(--muted)}
-.sc.good b{color:var(--est)} .sc.bad b{color:var(--alarm)}
-.sc.bad{background:var(--alarm-soft)}
 
-/* the boldness: delta proof */
-.proof{display:grid;gap:0}
-.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
-  padding:16px 0;border-bottom:1px solid var(--line-soft)}
-.proof-row:last-child{border-bottom:0}
-.proof-what{font-size:15.5px}
-.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
-  display:block;margin-top:4px}
-.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
-.proof-row.keep .proof-n{color:var(--est)}
-.proof-row.gone .proof-n{color:var(--alarm)}
-.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
-  font-size:13.5px;color:var(--muted)}
+/* Colour carries one distinction and only one: WHEN a thing is read, or
+   WHO may run it. Amber = paid for on every turn / runs directly.
+   Slate = read on demand / only ever sourced. Pine = material, committed.
+   Dashed + faint = absent on purpose, or generated per machine. */
 
-/* graph */
-.gnodes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
-.gn{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:3px;
-  border:1px solid var(--line);background:var(--panel)}
-.gn.core{border-color:var(--trace);color:var(--trace);background:var(--trace-soft)}
-.gedges{display:grid;gap:8px}
-.ge{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;
-  font-family:var(--mono);font-size:11.5px}
-.ge i{font-style:normal;color:var(--muted);text-align:right}
-.ge b{font-weight:500;color:var(--trace);white-space:nowrap;font-size:10.5px;letter-spacing:.04em}
-.ge s{text-decoration:none;color:var(--muted)}
-.gsplit{margin:15px 0 9px;padding-top:13px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+/* trees */
+.trees{display:grid;gap:18px}
+.tr-box{border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.tr-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;
+  padding:10px 13px;background:var(--panel);border-bottom:1px solid var(--line)}
+.tr-head b{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
+.tr-head span{font-size:12px;color:var(--faint)}
+.tr-rows{display:grid}
+.tr-row{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:6px 14px;
+  align-items:baseline;padding:7px 13px 7px 11px;border-bottom:1px solid var(--line-soft);
+  border-left:2px solid transparent}
+.tr-row:last-child{border-bottom:0}
+.tr-row code{background:none;padding:0;font-size:12.5px;color:var(--ink);white-space:nowrap}
+.tr-row span{font-size:13px;color:var(--muted);line-height:1.5}
+.tr-row.d1 code{padding-left:16px;color:var(--muted)}
+.tr-row.k-front,.tr-row.k-run{border-left-color:var(--front)}
+.tr-row.k-front code,.tr-row.k-run code{color:var(--front)}
+.tr-row.k-ref,.tr-row.k-lib{border-left-color:var(--ref)}
+.tr-row.k-ref.d0 code,.tr-row.k-lib.d0 code{color:var(--ref)}
+.tr-row.k-tpl,.tr-row.k-keep{border-left-color:var(--tpl)}
+.tr-row.k-tpl.d0 code,.tr-row.k-keep.d0 code{color:var(--tpl)}
+.tr-row.k-gone,.tr-row.k-gen{border-left:2px dashed var(--line);background:var(--panel)}
+.tr-row.k-gone code,.tr-row.k-gen code{color:var(--faint)}
+.tr-row.k-gone span,.tr-row.k-gen span{color:var(--faint)}
+@media (max-width:560px){
+  .tr-row{grid-template-columns:1fr}
+  .tr-row code{white-space:normal;overflow-wrap:break-word}
+}
 
-/* loop */
-.loop{display:grid;gap:9px}
-.lp{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:3px;
-  background:var(--panel)}
-.lp em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--trace);
-  flex:none;width:18px;padding-top:3px}
-.lp div{font-size:14.5px}
-.lp code{background:var(--surface)}
-.loop-back{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;
-  padding:8px;border:1px dashed var(--line);border-radius:3px}
+/* flow */
+.flow{display:grid;gap:2px}
+.fl-step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.fl-step:last-child{border-bottom:0}
+.fl-step>b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ground);
+  background:var(--trace);width:22px;height:22px;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
+.fl-body{display:grid;gap:3px}
+.fl-body strong{font-size:14.5px;font-weight:600}
+.fl-body span{font-size:13.5px;color:var(--muted);line-height:1.55}
+.fl-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);
+  font-size:12.5px;color:var(--muted)}
+
+/* swap */
+.sw-head{display:none}
+@media (min-width:640px){
+  .sw-head{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--faint);padding:0 0 8px;border-bottom:1px solid var(--line-soft);margin-bottom:4px}
+  .sw-head span:last-child{grid-column:3}
+}
+.swap{display:grid;gap:2px}
+.sw-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;
+  align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.sw-row:last-child{border-bottom:0}
+.sw-row code{background:none;padding:0;font-size:12.5px;overflow-wrap:break-word}
+.sw-row .sw-a{color:var(--muted)}
+.sw-row .sw-b{color:var(--tpl);font-weight:500}
+.sw-row i{font-style:normal;color:var(--faint);font-size:14px}
+.sw-row span{grid-column:1/-1;font-size:12.5px;color:var(--faint);line-height:1.5}
+@media (max-width:639px){
+  .sw-row{grid-template-columns:auto minmax(0,1fr)}
+  .sw-row .sw-a{grid-column:1/-1}
+}
 
 /* levels */
 .lvl{margin-bottom:17px}
 .lvl:last-child{margin-bottom:0}
 .lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--trace);margin-bottom:10px}
+  color:var(--trace);margin-bottom:7px}
 .lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
+.lvl:first-child .lvl-h{color:var(--front)}
+.lvl:last-child .lvl-h{color:var(--tpl)}
 .tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
-  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+  padding:9px 0;border-top:1px solid var(--line-soft);font-size:13.5px}
 .tool:first-of-type{border-top:0}
 .tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
 .tool span{color:var(--muted)}
+@media (max-width:560px){.tool{grid-template-columns:1fr;gap:3px}}
 
-/* provenance routes */
+/* routes */
 .routes{display:grid;gap:10px;grid-template-columns:1fr}
 @media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
 .rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
 .rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
 .rt span{font-size:13.5px;color:var(--muted)}
 .routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
-  padding:10px;border-radius:3px}
+  padding:9px 12px;border-radius:3px;line-height:1.5}
 .routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
 .routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
-
-/* push hooks */
-.hooks{display:grid;gap:0}
-.hk{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
-.hk:last-child{border-bottom:0}
-.hk b{font-family:var(--mono);font-size:12.5px;font-weight:500}
-.hk i{font-style:normal;font-size:12.5px;color:var(--trace);font-family:var(--mono)}
-.hk span{font-size:14px;color:var(--muted)}
-.hk.none b,.hk.none i{color:var(--faint)}
 
 /* gates */
 .gates{display:grid;gap:7px}
 .gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
-  padding:9px 12px;border-radius:3px;background:var(--panel);font-size:14px}
-.gt b{font-family:var(--mono);font-size:12px;font-weight:500}
+  padding:10px 12px;border-radius:3px;background:var(--panel);font-size:14px}
+.gt b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--tpl)}
 .gt span{color:var(--muted);font-size:13px}
+.gt b code{background:none;padding:0;color:inherit;font-size:1em}
+@media (max-width:560px){.gt{grid-template-columns:1fr;gap:5px}}
 
-/* islands */
-.isl{display:grid;gap:9px}
-.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
-  font-family:var(--mono);font-size:12px}
-.is s{text-decoration:none;color:var(--muted)}
-.is b{color:var(--trace);font-weight:500}
-.is i{font-style:normal;color:var(--faint);font-size:15px}
-.is.shared b{color:var(--hyp)}
-.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-
-/* warm bars */
-.bars{display:grid;gap:13px}
-.br b{display:block;font-size:13.5px;margin-bottom:6px}
-.br-track{display:flex;align-items:center;gap:10px}
-.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
-.br.cold .br-fill{background:var(--alarm)}
-.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
-/* guards */
-.guards{display:grid;gap:12px}
-.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
-.gd.fast{border-left-color:var(--hyp)}
-.gd.bound{border-left-color:var(--est)}
-.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
-  text-transform:uppercase;margin-bottom:7px}
-.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
-.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
-.gd p code{font-size:.9em}
-
-/* legend */
-.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding-top:13px;
-  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.legend i{width:10px;height:10px;border-radius:2px;flex:none;font-style:normal}
 
 /* ── markdown view ───────────────────────────────────────── */
 #md{padding-top:26px}
@@ -305,239 +292,546 @@ footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
   </section>
 </div>
 
-<script type="text/plain" id="src"># bash-cli-scaffold: bạn tạo tool cho agent như thế nào
+<script type="text/plain" id="src"># Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI
 
-> Phần 1 — Một skill không nghĩ ra bộ khung CLI. Nó chưng cất bộ khung đó từ hai công cụ đã chạy thật, và có thể đo được mức độ trung thành.
-> Phần 2 — Bảy câu hỏi đầu vào, mười bốn file đầu ra, ba lệnh chạy được ngay khi vừa sinh xong.
-> Phần 3 — Bên trong: bộ giải interpreter tự re-exec, cỗ máy `settings.json`, và những thứ bị cắt có chủ đích.
-
----
-
-# PHẦN 1 — Bằng chứng: 13 dòng, không một dòng logic
-
-## Vấn đề mà skill này giải
-
-Viết một công cụ bash nhiều file luôn bắt đầu bằng cùng một buổi chiều lãng phí. Bạn quyết định lại chỗ đặt `bin/` và `lib/`, viết lại `die`, viết lại `log_info`, viết lại cái hàm ghi file nguyên tử mà lần trước bạn đã viết đúng rồi. Rồi hai tháng sau, dự án thứ ba của bạn có một `atomic_write` khác với dự án thứ hai, và bạn không nhớ bản nào đúng.
-
-`bash-cli-scaffold` là một Claude Code skill dựng sẵn toàn bộ bộ khung đó. Nhưng điều đáng học không phải là "nó tạo file cho bạn" — bất kỳ template nào cũng làm được. Điều đáng học là **bộ khung ấy đến từ đâu**.
-
-## Nó không được tưởng tượng ra. Nó được đo.
-
-Skill này tự mô tả là dựng theo "v2 conventions" của hai dự án có thật trong cùng repo:
-
-- `scripts/bash/capture-cmd/` — bản lặp thứ nhất (v1), 21 file, 2.012 dòng shell và bats.
-- `claude-customization/claude-global-rules-bootstrap/` — bản lặp thứ hai (v2), 8 lib module, 17 file bats, 3.344 dòng.
-
-Cách thường thấy để kiểm chứng một câu như vậy là đọc lướt rồi gật đầu. Cách tốt hơn là đem template ra thay tên biến ngược lại rồi `diff` với file gốc. Kết quả:
-
-@fig:proof
-    lib/_bootstrap.sh   45/45   logic trùng khít với capture-cmd
-    lib/common.sh       13      dòng khác biệt — cả 13 đều là comment
-    lib/tools.sh        4/4     ánh xạ 1:1 từ capture-cmd/lib/_probe.sh
-    lib/settings.sh     5/6     giữ 5 hàm, bỏ cc_settings_get
-@endfig
-
-Đây là con số đáng nhớ nhất của cả trang này. Đem `templates/lib/common.sh` thay `__ns__` → `scp`, `__PKG__` → `SCP`, rồi `diff` với `lib/common.sh` thật trong `claude-global-rules-bootstrap`: **13 dòng lệch, và không một dòng nào trong đó là code.** Tám dòng là khối comment liệt kê hàm mà template thêm vào; năm dòng còn lại là comment được viết lại hoặc thêm bớt. Toàn bộ `require_bash_4`, bốn hàm log, `die`, `atomic_write`, `absolute_path`, `detect_os` — giống nhau từng ký tự.
-
-`lib/_bootstrap.sh` còn sạch hơn: 45 dòng, khác bản `capture-cmd` đúng ở chỗ biến cục bộ mang hai dấu gạch dưới thay vì một (`__cc_settings` so với `_cc_settings`) — hệ quả của quy ước đặt marker, không phải khác biệt hành vi.
-
-## Vì sao điều đó quan trọng hơn vẻ ngoài
-
-Một template được viết ra bằng trí nhớ sẽ chứa những đoạn code chưa bao giờ chạy. Một template được trích ra từ mã đang chạy thì mang theo cả những quyết định mà tác giả đã trả giá để học được: vì sao `_bootstrap.sh` phải an toàn với bash 3.2, vì sao `atomic_write` đọc stdin thay vì nhận chuỗi, vì sao `detect_os` có cửa hậu cho test.
-
-@fig:bars
-    claude-global-rules-bootstrap   3.344 dòng
-    capture-cmd                     2.012 dòng
-    bộ khung sinh ra                  567 dòng
-@endfig
-
-5.356 dòng shell đã chạy thật được nén xuống còn 567 dòng bộ khung. Phần bị bỏ lại chính là phần thuộc về từng bài toán riêng: `installer.sh`, `manifest.sh`, `state.sh`, `settings-merge.sh` của bootstrap; `_hooks.sh`, `_render.sh`, `_capture.sh` của capture-cmd. Phần giữ lại là bốn module mà **cả hai dự án đều có**.
-
-## Quyết định thiết kế đáng biết nhất: tách làm hai skill
-
-`bash-cli-scaffold` cố tình không biết cách sửa code. Nó có một skill anh em, `bash-cli-pattern` (7 file, 856 dòng), và phần mô tả của cả hai chỉ thẳng sang nhau:
-
-> Use this ONLY for new projects starting from an empty directory; for adding subcommands, lib modules, or other edits to existing projects, use `bash-cli-pattern` instead.
-
-Đây không phải sự phân chia tuỳ tiện. Hai việc có hình dạng khác nhau:
-
-- **Sinh mới** là một hàm: đầu vào là bảy câu trả lời, đầu ra là mười bốn file, không cần đọc gì trong thư mục đích vì thư mục đích đang rỗng.
-- **Sửa đổi** thì ngược lại: phải đọc code đang có trước, rồi bắt chước nó. `bash-cli-pattern` viết rõ điều này — thêm một subcommand thì "đọc 1-2 hàm `cmd_*` anh em trong cùng file, khớp cấu trúc của chúng".
-
-Gộp hai việc vào một skill sẽ tạo ra một skill lúc nào cũng phải hỏi "đây là dự án mới hay cũ?" trước khi làm bất cứ điều gì. Tách ra thì câu hỏi ấy biến mất — nó đã được trả lời ở bước chọn skill.
+> Phần 1 — Viết một tool shell nhiều file thì đau ở đâu, và cặp skill này trả lại cho bạn cái gì.
+> Phần 2 — Bên trong một skill có gì: thư mục, luồng chạy, dữ liệu. Đây là phần để bạn vẽ lại được từ trí nhớ.
+> Phần 3 — Một lần chạy đi hết từ câu hỏi đầu tiên tới file trên đĩa, cộng với những cái chặn bạn làm sai.
+> Phần 4 — Những quyết định thiết kế đáng lấy, và công thức để bạn tự dựng skill đầu tiên.
 
 ---
 
-# PHẦN 2 — Bề mặt bạn thật sự chạm vào
+# PHẦN 1 — Vấn đề và thành phẩm
 
-## Bảy câu hỏi, hỏi một lần
+## 1. Mục đích
 
-`SKILL.md` yêu cầu hỏi trọn bộ đầu vào trong **một** lượt — nguyên văn: "single AskUserQuestion batch — don't drip them out". Đây là chi tiết nhỏ nhưng nói nhiều về cách viết skill: nhỏ giọt câu hỏi biến một tác vụ ba mươi giây thành bảy lượt hội thoại.
+Bạn viết một script shell để tự động hoá một việc nhỏ. Nó chạy được, bạn giữ lại. Tháng sau nó cần thêm một lệnh nữa, bạn thêm vào. Tháng sau nữa nó cần một đoạn tiện ích mà script khác cũng cần, bạn copy sang. Đến lúc này nó không còn là một script, nó là một **dự án** — và không ai từng ngồi xuống quyết định dự án đó nên có hình dạng gì.
 
-| Đầu vào | Ví dụ | Dùng để làm gì |
+Hậu quả thì luôn giống nhau, và luôn đến muộn:
+
+- Tool chạy ngon trên máy bạn, hỏng trên máy đồng nghiệp — vì lệnh `date` trên macOS không nhận cờ mà bản GNU nhận.
+- Ai đó cho tool chạy tự động lúc 3 giờ sáng. Hệ thống chọn một phiên bản shell cũ hơn phiên bản bạn test, và một cú pháp bạn dùng hàng ngày báo lỗi cú pháp.
+- Dòng "kiểm tra xem công cụ X đã cài chưa" nằm rải rác ở đầu năm file khác nhau, mỗi chỗ một kiểu, và không chỗ nào nói cho người dùng biết phải làm gì tiếp.
+- Bạn thêm một lệnh con mới nhưng quên cập nhật màn hình trợ giúp. Sáu tháng sau chính bạn đọc `--help` và tưởng tool không làm được việc đó.
+- Một file cấu hình bị ghi dở giữa chừng vì máy tắt đúng lúc đó. Lần chạy sau tool đọc phải file hỏng.
+
+Không cái nào trong số đó là bài toán khó. Chúng chỉ là **những quyết định nhỏ bị quyết lại từ đầu mỗi lần** — và mỗi lần lại ra một đáp án hơi khác.
+
+Người đau nhất không phải người viết tool đầu tiên. Là người **sửa** nó: đồng nghiệp tiếp quản, hoặc chính bạn sáu tháng sau, hoặc — và đây là chỗ câu chuyện đổi màu — một **AI agent** được giao việc "thêm lệnh con vào tool này". Agent không nhớ gì về những lựa chọn cũ. Nó đọc file, đoán ra một kiểu, rồi viết theo kiểu đó. Lần sau nó đoán ra kiểu khác. Sau năm lần sửa, dự án có năm phong cách.
+
+Cặp skill trong tài liệu này là câu trả lời viết-ra-giấy cho đúng một câu hỏi: **một tool shell nhiều file thì nên có hình dạng nào?** Quyết một lần, ghi lại, rồi thôi không quyết nữa. Từ đó mọi tool trong bộ sưu tập của bạn trông giống nhau, nên đọc hiểu một cái là hiểu tất cả — và agent sửa cái nào cũng ra cùng một phong cách.
+
+Một trong hai skill nói thẳng ra ý định đó: nếu người dùng đang bắt đầu bất kỳ dự án shell nhiều file nào — kể cả khi họ không hề dùng chữ "khuôn mẫu" — thì cứ áp dụng, **để họ khỏi phải phát minh lại bố cục**.
+
+## 2. Tình huống dùng và thành phẩm
+
+Đây là **hai** skill chứ không phải một, và chúng chia nhau theo vòng đời của dự án:
+
+| Skill | Dùng khi | Điểm xuất phát |
 |---|---|---|
-| Tên dự án (kebab-case) | `pg-migrate` | tên thư mục, tên file `<name>.sh`, tiêu đề help |
-| Namespace hàm (2-3 ký tự) | `pgm` | tiền tố hàm: `pgm_settings_scan` |
-| Tiền tố biến môi trường | `PGM` | `PGM_PKG_DIR`, `PGM_LOG_LEVEL` |
-| Danh sách subcommand ban đầu | `apply`, `rollback` | nhánh dispatcher + hàm `cmd_*` rỗng |
-| Thư mục đích | `scripts/bash/pg-migrate/` | nơi ghi cây thư mục |
-| Tool ngoài cần dùng | `psql`, `jq` | mục khởi tạo trong `tools.json.example` |
-| Kiểu changelog | keep-a-changelog | định dạng `CHANGELOG.md` |
+| `bash-cli-scaffold` | **Tạo mới** một tool shell từ con số không | Thư mục rỗng |
+| `bash-cli-pattern` | **Nuôi lớn** tool đã có: thêm lệnh con, thêm module, sửa trợ giúp | Dự án đang chạy |
 
-Bốn thứ skill tự quyết, không hỏi: luôn dùng `#!/usr/bin/env bash`; luôn kèm `_bootstrap.sh`; **luôn có `init` và `doctor` kể cả khi bạn không liệt kê**; luôn có `.shellcheckrc`, `.editorconfig`, `VERSION` bắt đầu ở `0.1.0`.
+Hai skill trỏ sang nhau: mô tả của mỗi cái đều có một dòng "đừng dùng cái này cho việc kia — hãy dùng skill còn lại". Đó là ranh giới duy nhất bạn cần nhớ.
 
-## Mười bốn file đi ra
+### Nửa thứ nhất — tạo mới
 
-@fig:tree
-    entry     __NAME__.sh 168 dòng — 6 khối, dispatcher ở cuối
-    lib       _bootstrap.sh 45 · common.sh 152 · settings.sh 116 · tools.sh 86
-    config    tools.json.example · bootstrap.json
-    tests     helpers/load.bash 17 · unit/common.bats 46 — 7 @test
-    meta      VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig
+Bạn nói với agent: *"tạo cho tôi một bash CLI tên `pg-migrate` để chạy migration Postgres"*.
+
+Skill `bash-cli-scaffold` kích hoạt và hỏi bạn bảy thứ **trong một lượt** — không hỏi nhỏ giọt từng câu: tên dự án, tiền tố hàm, tiền tố biến môi trường, danh sách lệnh con, nơi đặt thư mục, công cụ ngoài mà tool sẽ cần, và kiểu changelog.
+
+Xong, bạn cầm trong tay **một thư mục hoàn chỉnh**, và ngay lập tức chạy được ba lệnh:
+
+    pg-migrate.sh --help      # màn hình trợ giúp hiện ra đầy đủ
+    pg-migrate.sh init        # quét máy bạn, ghi ra settings.json
+    pg-migrate.sh doctor      # so settings.json đã lưu với môi trường hiện tại
+
+Lệnh `apply` mà bạn đặt hàng thì **cố tình chưa làm gì**: nó thoát ra với thông báo "chưa cài đặt". Đó không phải thiếu sót — bộ khung dựng sẵn khung xương, phần thịt là việc của bạn.
+
+### Nửa thứ hai — nuôi lớn
+
+Hai tuần sau bạn nói: *"thêm lệnh con `rollback`"*. Lần này `bash-cli-pattern` kích hoạt, và nó không tạo file nào. Nó **đọc** dự án đang có: tìm bộ điều phối, đọc một hàm lệnh con anh em, rồi viết hàm mới **khớp với hàm cũ** — cùng kiểu đọc cờ, cùng kiểu báo lỗi, cùng thứ tự. Sau đó nó nối dây ở ba chỗ: nhánh trong bộ điều phối, nhánh trong trợ giúp con, và danh sách lệnh trong trợ giúp tổng.
+
+Thành phẩm ở đây không phải file mới mà là **một bản sửa không lệch phong cách**, cộng thêm một bước kiểm tra: chạy lại `--help` để xác nhận màn hình trợ giúp vẫn đúng.
+
+---
+
+# PHẦN 2 — Bên trong hai skill
+
+## 3. Cấu trúc thư mục
+
+Ở mục này có **hai cây thư mục khác nhau**, và lẫn lộn chúng là cách nhanh nhất để hiểu sai:
+
+- **Cây A** — thư mục của bản thân skill. Đây là thứ agent đọc.
+- **Cây B** — thư mục mà skill *sinh ra*. Đây là thứ bạn nhận được.
+
+### Cây A — bản thân hai skill
+
+@fig:skillTree
+    bash-cli-scaffold/
+    ├── SKILL.md                     frontmatter + thuật toán sinh file
+    ├── references/
+    │   ├── output-tree.md           danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ
+    │   └── placeholders.md          bảng marker và luật thay thế
+    └── templates/                   bash chạy được, chưa điền tên
+        ├── __NAME__.sh              điểm vào
+        ├── VERSION  CHANGELOG.md  .gitignore
+        ├── .shellcheckrc  .editorconfig
+        ├── lib/                     _bootstrap.sh  common.sh
+        │                            settings.sh   tools.sh
+        ├── config/                  tools.json.example  bootstrap.json
+        └── tests/                   helpers/load.bash  unit/common.bats
+
+    bash-cli-pattern/
+    ├── SKILL.md                     frontmatter + 10 bất biến + bảng định tuyến
+    └── references/
+        ├── entry-point.md           khuôn 6 phần của file điểm vào
+        ├── lib-module.md            luật cho file thư viện được nạp
+        ├── helpers.md               log, báo lỗi, ghi nguyên tử, nhận diện HĐH
+        ├── help-system.md           trợ giúp là một hệ thống con, không phải một cờ
+        ├── init-doctor.md           bộ ba init / doctor / assert
+        └── tooling.md               shellcheck, editorconfig, VERSION, test
 @endfig
 
-Cộng lại: 14 file, 567 dòng shell ở phần entry + lib, 63 dòng test. Thêm hai thư mục rỗng (`tests/fixtures/`, `docs/`) được tạo sẵn để có chỗ đặt.
+Nhiệm vụ từng chỗ, mỗi chỗ một câu:
 
-Ngay sau khi sinh xong, ba lệnh này chạy được mà không cần viết thêm dòng nào:
+| Thành phần | Nhiệm vụ |
+|---|---|
+| **frontmatter** (`name`, `description`) | Khối dữ liệu ở ngay đầu `SKILL.md`; là phần duy nhất nằm trong đầu óc agent **mọi lúc**, nên nó quyết định skill có được chọn hay không. |
+| **thân `SKILL.md`** | Được đọc **mỗi lần skill kích hoạt**: quy trình và phán đoán, không chứa chi tiết. |
+| `references/` | Chỉ đọc khi quy trình bảo đọc — nơi chứa chiều sâu. |
+| `templates/` | Vật liệu để **chép**, không phải để mô tả: bash thật, chỉ còn thiếu tên. |
 
-    <name>.sh --help          # màn hình help dựng đầy đủ
-    <name>.sh init            # quét môi trường, ghi settings.json
-    <name>.sh doctor          # đối chiếu settings.json với môi trường sống
+### Ba tầng bóc dần
 
-Các `cmd_*` do bạn đặt tên thì chỉ là chỗ trống: mỗi hàm gọi `die 1 "subcommand <name> not implemented yet"`. Bộ khung không đoán bạn muốn gì.
+Sự phân chia trên không tuỳ hứng. Nó theo một nguyên tắc có tên — **progressive disclosure**, tạm gọi là **bóc dần**: cái gì càng hay phải trả giá thì càng phải ngắn.
 
-## Vòng đời `settings.json`
+@fig:levels
+    LUÔN NẰM TRONG CONTEXT
+      frontmatter        quyết định skill có được chọn hay không
 
-Đây là phần mà cả hai dự án gốc đều có và là lý do bộ khung đáng dùng. Ý tưởng: **môi trường máy là một thứ cần được chụp lại và kiểm tra trôi dạt**, không phải thứ dò lại mỗi lần chạy.
+    ĐỌC KHI SKILL KÍCH HOẠT
+      SKILL.md (thân)    quy trình, bảng định tuyến, luật cấm — không chứa chi tiết
 
-@fig:cycle
-    1  init đọc config/tools.json.example để biết cần tool nào
-    2  tool_probe từng tool: resolve đường dẫn, đọc version, đoán variant
-    3  jq -n dựng JSON, atomic_write xuống settings.json
-    4  doctor quét lại môi trường sống rồi diff với bản đã lưu
-    5  doctor --fix sao lưu .bak rồi ghi đè bằng bản quét mới
-    → quay lại bước 2
+    ĐỌC KHI QUY TRÌNH BẢO ĐỌC
+      references/*.md    chiều sâu, không bao giờ đọc hết cùng một lúc
+      templates/*        vật liệu chép ra, hầu như không cần đọc hiểu
 @endfig
 
-Năm hàm trong `lib/settings.sh` chia nhau vòng lặp này: `scan` (chỉ in ra stdout, không ghi đĩa), `init` (từ chối ghi đè nếu file đã tồn tại, trừ khi có `--force`), `diff` (in bảng so sánh từng tool), `repair` (sao lưu rồi ghi lại), và `assert` — hàm im lặng, chỉ trả mã thoát khác 0 khi phát hiện trôi dạt, dành cho việc chặn trong script khác.
+Đọc cây A theo lăng kính đó thì hai skill lộ ra hai tính cách khác nhau:
 
-`settings.json` **không** được sinh lúc scaffold. `SKILL.md` nêu lý do rõ ràng: giữ cho bộ khung tái lập được, không nhét đường dẫn riêng của một máy vào file khởi tạo. Nó nằm trong `.gitignore` ngay từ đầu; thứ được commit là `tools.json.example`.
+- `bash-cli-scaffold` **có `templates/`** vì đầu ra của nó là *vật liệu*. Mô tả một file bash bằng văn xuôi rồi bắt agent viết lại là vừa tốn vừa dễ sai; đưa thẳng file bash chạy được thì không sai được.
+- `bash-cli-pattern` **không có `templates/`** vì đầu ra của nó là *phán đoán*. Không có file nào để chép — chỉ có "khi bạn đang sửa X thì mở file Y ra đọc".
+- **Cả hai đều không có `scripts/`.** Đây là một quyết định, không phải một thiếu sót: công việc nặng nhất của bộ khung là thay chuỗi ký tự trong từng file mẫu, mà đó không phải thuật toán. Một skill có `scripts/` là skill giao việc cho code vì code rẻ hơn và chắc tay hơn lời dặn; ở đây chẳng có gì để giao.
+- Cả hai đều **không có test**. Cái chặn sai duy nhất là một bước kiểm tra chạy tay ở cuối, sẽ nói ở mục 8.
 
-## Ba hàm resolve tool
+### Cây B — dự án mà bộ khung sinh ra
 
-`lib/tools.sh` ánh xạ 1:1 từ `capture-cmd/lib/_probe.sh`, chỉ đổi tên:
+@fig:projectTree
+    pg-migrate/
+    ├── pg-migrate.sh          ĐIỂM VÀO — chạy trực tiếp, có strict mode
+    ├── VERSION                một dòng: 0.1.0
+    ├── CHANGELOG.md           định dạng Keep a Changelog
+    ├── .gitignore             bỏ qua settings.json, *.bak, tmp/
+    ├── .shellcheckrc          tắt đúng một cảnh báo, có ghi lý do
+    ├── .editorconfig          .sh và .bats thụt 4, còn lại thụt 2, xuống dòng LF
+    ├── lib/                   CHỈ ĐƯỢC NẠP — không chạy trực tiếp
+    │   ├── _bootstrap.sh      chọn đúng trình thông dịch, rồi chạy lại chính mình
+    │   ├── common.sh          log / die / ghi nguyên tử / nhận diện HĐH
+    │   ├── settings.sh        quét môi trường, so lệch, sửa lệch
+    │   └── tools.sh           tìm đường dẫn, phiên bản, biến thể của công cụ ngoài
+    ├── config/
+    │   ├── tools.json.example danh sách công cụ cần — CÓ commit
+    │   └── bootstrap.json     cấu hình tĩnh, không phụ thuộc máy
+    ├── tests/
+    │   ├── helpers/load.bash  nạp một thư viện vào phiên test
+    │   ├── unit/common.bats   7 test khói cho common.sh
+    │   └── fixtures/          để trống
+    └── docs/                  để trống
 
-| Bộ khung | Bản gốc trong capture-cmd | Làm gì |
+    settings.json  ← KHÔNG có sẵn. Do lệnh `init` sinh ra. KHÔNG commit.
+@endfig
+
+Ranh giới quan trọng nhất trong cây B là **`bin/` và `lib/`**, hay ở đây là "file chạy được" đối lập với "file chỉ được nạp". Phụ thuộc chỉ đi một chiều: file chạy được nạp thư viện, thư viện không bao giờ gọi ngược lên. Nhờ vậy một thư viện dùng lại được cho nhiều điểm vào mà không kéo theo thứ gì.
+
+Bộ khung mặc định **không tạo `bin/`** — chỉ tạo một file điểm vào duy nhất ở gốc. Thư mục `bin/` chứa các CLI nhỏ tách riêng là tuỳ chọn, chỉ dựng khi bạn hỏi.
+
+## 4. Luồng chạy
+
+### Bộ khung: một đường thẳng, chạy đúng một lần
+
+@fig:scaffoldFlow
+    1  Nhận diện       người dùng muốn dựng một dự án bash nhiều file
+    2  Hỏi gộp         7 câu hỏi trong MỘT lượt, không hỏi nhỏ giọt
+    3  Đọc danh sách   references/output-tree.md — file nào phải có
+    4  Với từng file   đọc template → thay marker → ghi ra đích
+    5  Cấp quyền chạy  chmod +x cho file .sh ở gốc và mọi thứ trong bin/
+    6  Kiểm tra        chạy --help; nếu không hiện ra thì DỪNG, đừng báo xong
+    7  Bàn giao        đường dẫn + 3 lệnh chạy đầu tiên + chỗ viết lệnh con thật
+@endfig
+
+Bước 6 là bước duy nhất có quyền phủ quyết. Skill nói thẳng: nếu `--help` không hiện ra thì bộ khung hỏng — dừng lại và sửa, không được tuyên bố đã xong.
+
+### Khuôn mẫu: không có luồng, chỉ có bảng định tuyến
+
+`bash-cli-pattern` không chạy theo một đường. Nó tự kích hoạt khi **nhận ra hình dạng dự án** — thư mục nào vừa có `bin/` vừa có `lib/*.sh`, file nào tự xác định vị trí của mình rồi nạp thư viện từ đó — kể cả khi bạn không hề nhắc tới nó. Sau đó nó đọc **đúng một** file tham chiếu, chọn theo thứ bạn đang chạm vào:
+
+@fig:routes
+    BẠN ĐANG SỬA MỘT BASH CLI NHIỀU FILE
+                     │
+        ┌────────────┼────────────┬───────────┬──────────┬──────────┐
+        ▼            ▼            ▼           ▼          ▼          ▼
+    thêm lệnh    thêm module   sửa log     sửa màn     sửa init   sửa file
+      con         thư viện     báo lỗi    trợ giúp    / doctor   cấu hình
+        │            │            │           │          │          │
+    entry-point  lib-module   helpers   help-system  init-doctor  tooling
+        .md          .md         .md        .md          .md        .md
+
+    TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này
+@endfig
+
+Mỗi ngả đường ứng với một quy trình được viết sẵn. Ví dụ ngả "thêm lệnh con" có sáu bước, và hai bước cuối được đánh dấu **đừng bỏ qua**: thêm nhánh trợ giúp con, và cập nhật danh sách lệnh trong trợ giúp tổng. Lý do được nói rõ luôn — màn hình trợ giúp là một hệ thống con thật sự, thiếu một dòng trong đó là **lỗi**, không phải sơ suất nhỏ.
+
+Cuối mỗi lần sửa, bước kiểm tra giống nhau: chạy `--help`, chạy `doctor` nếu cấu hình có thể đã đổi, chạy công cụ soi lỗi tĩnh nếu máy có, chạy test nếu vùng vừa sửa có test.
+
+## 5. Dữ liệu và trạng thái
+
+**Bản thân hai skill không nhớ gì cả.** Không thư mục tạm, không bộ nhớ đệm, không file trạng thái, không gì sống sót giữa hai lần chạy. Chúng đọc file tham chiếu của chính mình, đọc file dự án của bạn, rồi ghi file dự án của bạn. Hết.
+
+Phần trạng thái đáng học nằm ở **dự án được sinh ra**, và đó mới là thứ hai skill thật sự bàn giao. Nó dựa trên một ranh giới duy nhất:
+
+| | Khai báo — **có** commit | Phân giải — **không** commit |
 |---|---|---|
-| `tool_resolve` | `cc_resolve` | `settings.json` trước, `command -v` sau |
-| `tool_version` | `cc_version` | thử `--version`, rồi `-V`, rồi `-v` |
-| `tool_variant` | `cc_variant` | đoán `gnu` / `apple` / `bsd` / `unknown` |
-| `tool_probe` | `cc_probe_tool` | gộp cả ba, trả về JSON |
+| File | `config/tools.json.example` | `settings.json` |
+| Nội dung | "tool này cần `jq` và `psql`" | "`jq` nằm ở `/opt/homebrew/bin/jq`, bản 1.7.1, biến thể apple" |
+| Ai tạo | bộ khung, lúc dựng dự án | lệnh `init`, trên từng máy |
 
-`tool_variant` là hàm dễ bị xem nhẹ nhất nhưng lại là lý do bộ khung tồn tại trên macOS: `date`, `sed`, `grep` bản BSD và bản GNU nhận cờ khác nhau, và một script chạy đúng trên CI Linux có thể hỏng âm thầm trên máy lập trình viên. Ghi lại `variant` lúc `init` biến sự khác biệt đó thành dữ liệu thay vì thành một bug lúc 11 giờ đêm.
+Đây là lý do **bộ khung từ chối tạo `settings.json`**. Nếu nó tạo, thư mục vừa sinh ra đã dính đường dẫn của một máy cụ thể, và dự án hết tái lập được. Việc quét máy là một hành động có chủ ý của người dùng, không phải tác dụng phụ.
 
----
+Ba lệnh xoay quanh ranh giới đó — bộ ba chẩn đoán:
 
-# PHẦN 3 — Bên trong bộ khung
+- **`init`** — chạy một lần. Quét môi trường sống, ghi ra `settings.json`. Từ chối ghi đè trừ khi có `--force`.
+- **`doctor`** — chạy khi cần. So `settings.json` đã lưu với môi trường hiện tại, in ra từng mục. Chỉ sửa khi bạn thêm `--fix`, và khi sửa thì chép bản cũ ra `.bak` trước.
+- **`assert`** — chốt chặn lúc chạy. Lệnh nào làm việc thật thì gọi nó trước; nếu có lệch thì thoát ngay với thông báo đã cài sẵn câu *"chạy `doctor --fix`"*.
 
-## Bộ giải interpreter: file chạy trước mọi thứ khác
+Bộ ba này thay thế cho thứ mà mọi script shell đều có: những dòng `command -v jq || exit 1` rải rác khắp nơi, mỗi dòng một kiểu, không dòng nào chỉ cho người dùng lối ra.
 
-`lib/_bootstrap.sh` là thứ đầu tiên entry point `source`, trước cả `common.sh`. Bài toán nó giải: trên macOS, `/bin/bash` là bản 3.2 từ năm 2007, và khi script được gọi từ `cron` hay `launchd` với `PATH` bị rút gọn, đó chính là interpreter mà kernel chọn — dù bạn đã cài bash 5 bằng Homebrew.
+Ngoài file, dự án sinh ra còn đọc vài **biến môi trường**, tất cả mang tiền tố bạn đã chọn:
 
-@fig:resolver
-    kernel đã chọn một bản bash nào đó
-    có settings.json + có jq  →  đọc .tools.bash.path, exec lại chính mình bằng bash đó
-    thiếu settings.json hoặc thiếu jq  →  đi tiếp, không lỗi
-    bash < 4 sau khi đã qua hai nhánh trên  →  in cách khắc phục rồi exit 1
-@endfig
+| Biến | Dùng để |
+|---|---|
+| `<PKG>_PKG_DIR` | gốc dự án, file điểm vào tự tính ra rồi export |
+| `<PKG>_LOG_LEVEL` | lọc mức log: `error` / `warn` / `info` / `debug`, mặc định `info` |
+| `<PKG>_COMPONENT` | tên ngắn hiện trong dòng log để biết log từ đâu ra |
+| `<PKG>_OS_OVERRIDE` | **móc dành cho test** — ép nhận diện HĐH mà không cần máy khác |
+| `<PKG>_BASH_BOOTSTRAPPED` | chặn vòng lặp khi file khởi động chạy lại chính mình |
+| `NO_COLOR` | quy ước chung: đặt bất cứ giá trị nào thì log hết màu |
 
-Ba chi tiết trong 45 dòng đó đáng học riêng:
+### Giao diện bên ngoài
 
-**File tự cấm mình dùng bash 4.** Comment đầu file viết rõ: không mảng kết hợp, không `${var,,}`, không `[[ =~ ]]`. Nó phải chạy được dưới chính cái interpreter mà nó sắp thay thế — nếu nó dùng cú pháp bash 4, nó sẽ chết trước khi kịp sửa vấn đề.
+Cả hai skill đều có chạm tới vài công cụ ngoài. Ở đây chỉ cần biết **đưa gì vào, nhận gì ra**:
 
-**Một biến cờ chặn vòng lặp re-exec.** `__PKG___BASH_BOOTSTRAPPED` được `export` trước khi `exec`. Thiếu nó, nếu `.tools.bash.path` trỏ tới một bản bash mà `$BASH` báo cáo dưới tên khác, script sẽ tự gọi lại chính nó vô hạn.
+| Công cụ | Skill đưa | Nhận lại |
+|---|---|---|
+| `jq` | một tài liệu JSON và một biểu thức truy vấn | JSON hoặc chuỗi đã lọc; bộ ba chẩn đoán dựng mọi file JSON qua đây thay vì nối chuỗi |
+| `shellcheck` | đường dẫn các file `.sh` vừa viết | danh sách cảnh báo tĩnh; bước kiểm tra tuỳ chọn, thiếu thì bỏ qua |
+| `bats` | thư mục `tests/` | kết quả pass/fail; bộ khung chỉ sinh test khói, test thật là việc của bạn |
+| `git` | không đưa gì | không nhận gì; skill không chạy git, chỉ sinh `.gitignore` để bạn tự commit |
+| `date`, `uname` | không đưa gì | dấu thời gian và tên HĐH ghi vào `settings.json` lúc quét |
 
-**Thông báo lỗi kèm cách sửa, không chỉ kèm lời than.** Khi rơi xuống cổng bash-4, nó in hai dòng: `brew install bash` và `<name>.sh doctor --fix`. Người dùng không phải đi tra.
-
-## Hai lớp chặn bash cũ, nhưng chỉ một lớp thật sự canh cửa
-
-@fig:gate
-    _bootstrap.sh   chạy khi được source — đây là lớp thật sự chặn
-    require_bash_4  được định nghĩa trong common.sh, entry point không gọi
-@endfig
-
-`lib/common.sh` định nghĩa `require_bash_4()` và comment của nó ghi "call from entry point". Nhưng entry point mà bộ khung sinh ra không gọi hàm đó ở đâu cả — lớp chặn thực sự là khối `BASH_VERSINFO[0] -lt 4` nằm cuối `_bootstrap.sh`, và nó chạy tự động vì `_bootstrap.sh` được `source` ngay dòng đầu.
-
-Điều này đáng biết khi bạn đọc code: `require_bash_4` là một hàm công khai để bạn gọi trong `bin/` wrapper của riêng mình — những script đó không nhất thiết đi qua `_bootstrap.sh`. Dự án `claude-global-rules-bootstrap` thật thì có gọi nó, ở dòng 34 của `bin/sync-custom-instruction`.
-
-## Cỗ máy placeholder
-
-Template không dùng công cụ template nào cả. Chúng là file shell hợp lệ với marker nhúng thẳng vào, và bước sinh chỉ là thay chuỗi theo nghĩa đen. Tám marker khác nhau, 113 lần xuất hiện trong 14 file:
-
-@fig:markers
-    __NAME__ (21)                    → pg-migrate
-    __ns__ (47)                      → pgm
-    __PKG__ (38)                     → PGM
-    __DESC__ (2)                     → dòng mô tả một câu
-    __NS__ (2)                       → tên component mặc định khi log
-    __SUBCOMMANDS_HELP_LINES__ (1)   → các dòng trong màn hình help
-    __STUB_CMD_FUNCTIONS__ (1)       → khối hàm cmd_* rỗng
-    __DISPATCH_STUB_ARMS__ (1)       → các nhánh case trong dispatcher
-@endfig
-
-Điểm tinh tế nhất nằm ở số dấu gạch dưới. Bash có quy ước đặt tiền tố `_` cho hàm nội bộ, nên một hàm riêng tư trong namespace `pgm` phải tên là `_pgm_log`. Trong template, thứ đó được viết là `___ns___` — ba gạch dưới, `ns`, ba gạch dưới. Sau khi thay `__ns__` → `pgm`, chuỗi tự trở thành `_pgm_`. Tương tự `___PKG___` → `_PGM_` cho các source guard như `_PGM_COMMON_SOURCED`.
-
-Cách này gọn nhưng đòi hỏi thay theo đúng nghĩa đen và phân biệt hoa thường. `references/placeholders.md` nhấn mạnh chính điểm đó: "`sed s/__ns__/pgm/` sẽ không khớp `__NS__`" — và trong `common.sh` thì cả hai dạng cùng tồn tại, phục vụ hai mục đích khác nhau.
-
-Ba marker cuối bảng không phải thay-một-từ mà là thay-một-khối: chúng là chỗ mà danh sách subcommand bạn khai báo được dệt vào ba nơi cùng lúc — màn hình help, các hàm rỗng, và dispatcher. Ba nơi này phải khớp nhau, và `bash-cli-pattern` liệt kê việc quên cập nhật help là lỗi chứ không phải thiếu sót nhỏ: "help renderer là một hệ thống con thật sự; thiếu mục trong đó là bug".
-
-## Bộ khung đạt bao nhiêu trên mười quy ước
-
-`bash-cli-pattern` định nghĩa 10 bất biến cho pattern này. Đối chiếu với thứ mà scaffold thật sự sinh ra:
-
-@fig:invariants
-    1  Entry point 6 khối theo thứ tự cố định
-    2  #!/usr/bin/env bash + _bootstrap.sh
-    3  bin/ để chạy, lib/ chỉ để source
-    4  Hàm trong lib đều có namespace
-    5  Nhận cả --flag value lẫn --flag=value
-    6  Bề mặt chẩn đoán init + doctor + assert
-    7  Help tập trung + help từng lệnh + help lib
-    8  Log ra stderr, dữ liệu ra stdout
-    9  JSON dựng bằng jq -n --arg + atomic_write
-    10 .shellcheckrc + .editorconfig + VERSION + CHANGELOG.md
-@endfig
-
-Tám bất biến được thoả trọn vẹn ngay lúc sinh. Hai cái còn lại là phần bộ khung cố tình để ngỏ:
-
-**Bất biến 3 — `bin/`.** Cây thư mục mặc định không có `bin/`. `references/output-tree.md` xếp nó vào mục "không được sinh ra", với lý do: wrapper `bin/` chỉ có ý nghĩa khi bạn đã biết mình muốn tách lệnh nào ra thành binary riêng. `capture-cmd` có 6 file trong `bin/`; `claude-global-rules-bootstrap` có 1. Không có con số mặc định nào đúng.
-
-**Bất biến 7 — `help lib`.** Bộ khung sinh ra `show_top_help` và `show_sub_help` với ba nhánh `init` / `doctor` / `version`. `help lib` — lệnh in ra danh sách module trong `lib/` — chỉ tồn tại trong `capture-cmd` (`lib/_help.sh`, dòng 101). Nó cần biết dự án của bạn có những lib nào, mà lúc scaffold thì mới có đúng bốn lib mặc định.
-
-## Bốn thứ skill từ chối làm
-
-`SKILL.md` dành hẳn một mục cho việc này, và mục đó đáng đọc hơn mục liệt kê tính năng:
-
-- **Không chạy `init` hộ bạn.** Sinh `settings.json` là một hành động có chủ ý của người dùng, vì nó ghi đường dẫn tuyệt đối của máy đó vào đĩa.
-- **Không viết thân hàm subcommand.** Mọi `cmd_*` do bạn đặt tên đều là `die 1 "not implemented"`.
-- **Không đăng ký vào `PATH`, alias hay registry nào.** Bạn tự nối nó vào shell của mình.
-- **Không sinh test ngoài một bộ smoke test.** `tests/unit/common.bats` có 7 `@test` kiểm tra rằng `common.sh` source sạch và các helper tồn tại — trong đó có một test bật cửa hậu `__PKG___OS_OVERRIDE` để ép `detect_os` trả về `linux` mà không cần đổi máy.
-
-Và một quy tắc về thứ tự: nếu bạn yêu cầu cả bốn thứ trên trong cùng một lượt, skill làm scaffold trước, rồi mới xử lý phần còn lại — và chuyển sang `bash-cli-pattern` nếu phần còn lại là sửa file vừa sinh.
-
-## Bước kiểm tra cuối
-
-Sau khi ghi xong toàn bộ file, skill chạy ba lệnh chỉ-đọc: `chmod +x` cho entry point, gọi `--help`, và chạy `shellcheck` nếu máy có cài. Câu kết của mục đó dứt khoát: nếu `--help` không hiện ra, bộ khung hỏng — dừng lại và sửa trước khi báo xong.
-
-Đó là kiểu điều kiện nghiệm thu đáng học khi bạn tự viết skill: một lệnh chạy được, rẻ, và thất bại một cách ồn ào. Không phải "đọc lại file xem có đúng không".
+Nội tạng của mấy công cụ đó không phải chuyện của trang này.
 
 ---
 
-Trang này được dựng bằng cách đọc trực tiếp `SKILL.md`, hai file trong `references/`, toàn bộ 14 file trong `templates/`, cùng mã nguồn thật của `capture-cmd` và `claude-global-rules-bootstrap`. Mọi con số — 13 dòng lệch, 45 dòng, 8 marker, 113 lần xuất hiện, 2.012 và 3.344 dòng — đều đếm từ file, không ước lượng.
+# PHẦN 3 — Một lần chạy đầy đủ
 
-Các phép so sánh `diff` được thực hiện bằng cách thay ngược marker trong template về namespace của dự án gốc (`scp` cho bootstrap, `cc` cho capture-cmd) rồi so sánh từng dòng. Số liệu đo ngày 18/09/2026.
+## 6. Đầu tới cuối
 
-Bộ khung chưa được chạy thật trong quá trình dựng trang: không có dự án nào được sinh ra, `init` và `doctor` chưa được thực thi. Những gì mô tả ở Phần 2 và Phần 3 là kết quả đọc mã, không phải kết quả chạy.
+### Đầu vào
+
+Bạn muốn một tool chạy migration Postgres. Bảy câu trả lời:
+
+| Câu hỏi | Bạn trả lời |
+|---|---|
+| Tên dự án | `pg-migrate` |
+| Tiền tố hàm | `pgm` |
+| Tiền tố biến môi trường | `PGM` |
+| Lệnh con | `init`, `doctor`, `apply`, `rollback` |
+| Nơi đặt | `scripts/bash/pg-migrate/` |
+| Công cụ ngoài cần | `psql`, `jq` |
+| Kiểu changelog | Keep a Changelog |
+
+### Giữa chừng: marker biến thành tên
+
+Đây là chỗ dễ hiểu sai nhất, nên đáng nhìn kỹ. File mẫu chứa những chuỗi đánh dấu; thay chuỗi là xong file.
+
+@fig:swap
+    TRONG TEMPLATE                            SAU KHI THAY
+    __NAME__                          →       pg-migrate
+    __PKG___PKG_DIR                   →       PGM_PKG_DIR
+    ___ns___log                       →       _pgm_log
+    ___PKG___COMMON_SOURCED           →       _PGM_COMMON_SOURCED
+@endfig
+
+Hai dòng dưới trông rối vì chúng **lồng nhau**. Marker chỉ là `__ns__` và `__PKG__`; những gạch dưới thừa hai bên là quy ước bash cho "hàm riêng tư, đừng gọi từ ngoài". `___ns___log` chính là `_` + `__ns__` + `_log`, nên sau khi thay ra `_pgm_log`. Bạn không cần nhớ chuyện này — chỉ cần biết rằng skill có hẳn một file tham chiếu dành riêng cho nó, vì nó đã từng làm người ta nhầm.
+
+Dòng đầu tiên của file điểm vào, trước và sau, cho thấy toàn bộ trò chơi:
+
+    # template
+    __PKG___PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    # kết quả
+    PGM_PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+Phần `${BASH_SOURCE[0]}` **không bị thay** — đó là cú pháp bash lúc chạy, không phải marker. Luật này được ghi riêng: đừng thay biến bash, đừng thay ruột của khối văn bản trích dẫn cứng, đừng thay hai lần.
+
+### Đầu ra
+
+Cả cây thư mục nằm trên đĩa. Chạy được ngay:
+
+    $ scripts/bash/pg-migrate/pg-migrate.sh --help
+    pg-migrate — apply postgres migrations idempotently
+
+    USAGE
+      pg-migrate.sh <subcommand> [options]
+      pg-migrate.sh help [<subcommand>]
+
+    SUBCOMMANDS
+      init      scan env and write settings.json (one-time)
+      doctor    compare settings.json vs live env; --fix to repair
+      apply     ← lệnh con của bạn; thân hàm còn rỗng
+      rollback  ← lệnh con của bạn; thân hàm còn rỗng
+      version   print tool version
+      help      show this help
+
+Chạy `init` một lần, `settings.json` xuất hiện — và đây là toàn bộ hình dạng của nó:
+
+    {
+      "version": 1,
+      "scanned-at": "2026-09-18T11:04:22Z",
+      "scanned-on": { "os": "darwin", "arch": "arm64" },
+      "tools": {
+        "psql": {
+          "name": "psql", "found": true,
+          "path": "/opt/homebrew/bin/psql",
+          "version": "17.2", "variant": "unknown"
+        },
+        "jq": {
+          "name": "jq", "found": true,
+          "path": "/usr/bin/jq",
+          "version": "1.7.1", "variant": "apple"
+        }
+      }
+    }
+
+Trường `variant` là thứ đáng chú ý: nó ghi lại **biến thể** của công cụ — `gnu`, `bsd`, `apple`, hay `unknown` — được đoán từ dòng đầu của `--version`. Đó chính là câu trả lời cho nỗi đau "chạy ngon trên máy tôi, hỏng trên máy anh" ở mục 1: sự khác biệt được **ghi lại thành dữ liệu** thay vì được phát hiện lúc lỗi.
+
+### Hai tuần sau: viết `rollback` cho thật
+
+Giờ sang skill còn lại. Sáu bước, theo đúng thứ tự:
+
+1. Đọc bộ điều phối ở cuối file điểm vào, tìm khối phân nhánh theo đối số đầu tiên.
+2. Đọc một hoặc hai hàm lệnh con anh em — để bắt chước, không để sáng tạo.
+3. Viết `cmd_rollback` **phía trên** bộ điều phối, với vòng đọc cờ riêng của nó.
+4. Thêm một nhánh vào bộ điều phối.
+5. Thêm một nhánh vào trợ giúp con.
+6. Cập nhật danh sách lệnh trong trợ giúp tổng.
+
+Bước 3 có một luật nhỏ mà hai skill đều nhắc: mỗi cờ phải nhận **cả hai cách gõ**, `--settings đường/dẫn` và `--settings=đường/dẫn`. Người dùng có hai thói quen; tool không nên bắt họ đổi.
+
+Và mỗi lệnh con **tự đọc cờ của riêng mình**, dù trông như lặp lại. Đó là cố ý: gom hết vào một chỗ xử lý chung là cách để cờ của lệnh này rò rỉ sang lệnh khác — một lỗi cực kỳ khó thấy.
+
+## 7. Hook
+
+Không có. Hai skill này không gắn vào hook nào, không có mục nào trong file cấu hình, không có lệnh gạch chéo nào gọi chúng.
+
+Điều đó đáng nói ra chứ không phải đáng giấu: với phần lớn skill, **`description` chính là toàn bộ dây nối**. Agent đọc mô tả, thấy tình huống khớp, rồi tự chọn. Không có gì khác bật nó lên.
+
+## 8. Cái gì chặn bạn làm sai
+
+Có hai lớp chặn, và chúng ở hai nơi khác nhau.
+
+### Lớp thứ nhất — chặn trong bản thân skill
+
+| Cái chặn | Vắng nó thì sao |
+|---|---|
+| `--help` phải hiện ra, nếu không thì dừng | Một marker sót lại hoặc một lỗi cú pháp trôi đi im lặng; bạn chỉ phát hiện lúc cần dùng thật |
+| Quét lại xem còn marker nào chưa thay | `__PKG___PKG_DIR` sống sót vào file đã giao, và **mọi** dòng nạp thư viện đều hỏng |
+| Không tự chạy `init` hộ người dùng | Một file dính đường dẫn của một máy cụ thể nằm sẵn trong repo mới toanh |
+| Không sửa lấy lòng phiên bản cũ | Repo đang phát triển đẻ ra lớp đệm tương thích cho thứ chưa ai dùng |
+| Không chạy lệnh có tác dụng phụ khi chưa được phép | Agent "kiểm tra thử" một lệnh migration trên cơ sở dữ liệu thật |
+| Không lặng lẽ đổi câu thông báo lỗi | Chốt chặn lúc chạy có nhét sẵn câu *"chạy `doctor --fix`"* vào lỗi; đổi chữ là đứt dây chỉ đường |
+| Mỗi skill có một dòng "việc kia thì dùng skill kia" | Bộ khung ghi đè lên một dự án đang sống, hoặc skill bảo trì tự phát minh lại bố cục |
+
+### Lớp thứ hai — chặn trong dự án được sinh ra
+
+@fig:gates
+    set -euo pipefail chỉ ở file chạy được   một thư viện bật -e sẽ lây sang
+                                             shell đang nạp nó, làm hỏng cả
+                                             những thứ chẳng liên quan
+
+    chốt chống nạp trùng ở mỗi thư viện      nhiều thư viện cùng nạp common.sh
+                                             thì hàm bị định nghĩa lại nhiều lần
+
+    init từ chối ghi đè nếu không --force     một lần gõ nhầm xoá mất snapshot
+                                             đã dùng được nhiều tháng
+
+    doctor mặc định chỉ so, không sửa        lệnh chẩn đoán tự ý đổi cấu hình
+                                             là lệnh không ai dám chạy
+
+    chốt chống chạy lại vô hạn               file khởi động tự gọi lại chính
+                                             mình dưới trình thông dịch khác
+
+    cổng phiên bản shell, kèm cách khắc      thoát sạch với câu "cài bản mới
+                                             bằng lệnh này" thay vì lỗi cú pháp
+                                             giữa chừng
+
+    ghi file kiểu nguyên tử                  máy tắt giữa chừng không để lại
+                                             file cấu hình viết dở
+@endfig
+
+Cái cuối đáng dừng lại một chút. **Ghi nguyên tử** nghĩa là: không ghi thẳng vào file đích, mà ghi ra một file tạm mang số hiệu tiến trình rồi đổi tên đè lên. Việc đổi tên hoặc xong hẳn hoặc chưa xảy ra, nên người đọc không bao giờ bắt gặp file ở trạng thái nửa vời. Số hiệu tiến trình trong tên file tạm là để hai tiến trình ghi cùng lúc không giẫm lên nhau.
+
+---
+
+# PHẦN 4 — Học lại thiết kế
+
+## 9. Những quyết định đáng lấy
+
+### Chia theo vòng đời, không chia theo chủ đề
+
+Hai skill, một để tạo, một để bảo trì — thay vì một skill to nói cả hai. Đánh đổi: cùng một quy ước bị mô tả ở hai nơi (khuôn file điểm vào vừa nằm trong file mẫu vừa nằm trong file tham chiếu), và đó đúng là chỗ hai bản sẽ lệch nhau theo thời gian.
+
+### Template là file thật, không phải lời mô tả
+
+Bộ khung **chép** bash chạy được thay vì mô tả bash nên trông thế nào. Đánh đổi: file mẫu không tự chạy và không tự test được, vì chúng còn đầy marker. Không có gì canh chúng ngoài lần chạy `--help` sau khi đã thay xong.
+
+### Bảng định tuyến thay cho quy trình
+
+Thân `bash-cli-pattern` gần như chỉ gồm "nếu bạn đang làm X thì mở Y". Đánh đổi: không có đường thẳng để đi theo, nên skill vô dụng nếu agent chọn sai file để mở.
+
+### Bất biến đánh số, mỗi dòng kèm một cột "vì sao"
+
+Mười điều, mỗi điều có hậu quả đi kèm. Một luật kèm lý do thì nhớ được; một luật trần trụi thì bị bỏ qua ngay lần đầu thấy bất tiện.
+
+### Cho phép lệch, và nói rõ lệch bao nhiêu thì hỏng
+
+Câu đáng lấy nguyên văn: *lệch một điều thì chấp nhận được; lệch nhiều điều nghĩa là file này không còn thuộc khuôn mẫu nữa*. Rất hiếm tài liệu quy ước nào dám ghi ngưỡng. Đánh đổi: ngưỡng mờ, nên vẫn cần người đọc có phán đoán.
+
+### Mô tả được viết như danh sách tình huống
+
+Cả hai `description` đều dài, nhồi những câu người dùng sẽ gõ thật — "thêm lệnh con", "dựng khung CLI", "sửa lệnh doctor" — chứ không tóm tắt skill làm gì. `bash-cli-pattern` còn đi xa hơn: nó nhận diện **hình dạng thư mục** để tự kích hoạt mà không cần được gọi tên. Đánh đổi: mô tả là phần duy nhất luôn nằm trong context, nên nó là đoạn văn đắt nhất trong cả skill — trả tiền ở mọi lượt của mọi cuộc hội thoại, kể cả những lượt chẳng liên quan gì tới bash.
+
+### Phần ruột thật ra chỉ là một ý
+
+Bỏ hết bố cục thư mục sang một bên, thứ hai skill thật sự bán là bộ ba `init` / `doctor` / `assert`: **chụp lại môi trường một lần, rồi so lệch cho rẻ**, thay vì kiểm tra vặt rải rác khắp mã nguồn. Bố cục thư mục chỉ là cái nhà cho ý đó ở.
+
+## 10. Tự dựng skill của bạn
+
+Bạn vừa xem một skill được thiết kế. Giờ là những quyết định đến lượt bạn phải quyết.
+
+### 1 · Lĩnh vực của bạn có hai nửa vòng đời không?
+
+Nếu có một việc "làm một lần lúc đầu" và một việc "đụng vào mãi mãi", hãy tách hai skill. Nếu không, đừng tách cho giống người ta. Khi tách thì **nối chúng lại bằng một dòng trong mỗi mô tả**: *đừng dùng cái này cho việc kia — dùng skill kia*. Thiếu dòng đó, hai skill sẽ tranh nhau và cái sai thắng một nửa số lần.
+
+### 2 · Cái gì ở lại `SKILL.md`, cái gì xuống `references/`
+
+Luật mà cặp skill này minh hoạ: **`SKILL.md` giữ quyết định đọc gì tiếp theo; `references/` giữ thứ chỉ cần khi bạn đã ở đó.** Thân `bash-cli-pattern` gần như chỉ là bảng định tuyến, còn chiều sâu nằm trong các file tham chiếu — mỗi lần chỉ mở một.
+
+Phép thử: câu này có cần đọc ở **mọi** lần chạy không? Không thì nó thuộc `references/`.
+
+### 3 · Vật liệu hay phán đoán?
+
+Nếu đầu ra là một file mà agent sẽ chép — hãy đưa hẳn file đó vào `templates/`. Nếu đầu ra là một lựa chọn phải cân nhắc — hãy viết văn xuôi. Đừng mô tả một file bằng lời khi bạn có thể đưa luôn file.
+
+Và chỉ thêm `scripts/` khi công việc **thật sự là thuật toán**. Một loạt phép thay chuỗi thì không phải.
+
+### 4 · Viết `description` như một danh sách tình huống
+
+Không phải "skill này giúp bạn dựng CLI". Mà là những câu người dùng sẽ gõ thật, càng cụ thể càng tốt, cộng thêm dòng ranh giới, cộng thêm — nếu bạn muốn nó tự bật — một dấu hiệu **nhận diện được bằng mắt**: một tên file, một cặp thư mục, một đuôi mở rộng.
+
+Nhớ rằng đây là đoạn đắt nhất bạn viết. Dài thì bắt trúng nhiều tình huống hơn, nhưng bạn trả tiền cho nó ở mọi lượt.
+
+### 5 · Mỗi luật phải mang theo lý do
+
+"Đừng quên thêm nhánh trợ giúp" thì quên ngay. "Thiếu nhánh trợ giúp thì người dùng nhìn thấy, và đó là **lỗi** chứ không phải sơ suất" thì không quên được. Khi viết một luật, hãy tìm lại chuyện đã hỏng khiến luật đó ra đời — nếu không tìm ra, có lẽ luật đó không cần tồn tại.
+
+### 6 · Đặt một cái chặn rẻ ở cuối
+
+Chọn thứ rẻ nhất mà **quan sát được** để chứng minh việc đã thành: ở đây là màn hình trợ giúp. Rồi biến nó thành điều kiện dừng, viết bằng câu mệnh lệnh: *nếu nó không hiện ra thì dừng, đừng báo xong*.
+
+### 7 · Nói rõ đâu là chịu lực, đâu là gợi ý
+
+Không phải luật nào cũng ngang nhau. Nếu bạn không phân hạng, người đọc sẽ tự phân — và họ phân sai.
+
+### Bước đầu tiên, làm ngay bây giờ
+
+Tạo `~/.claude/skills/<tên-của-bạn>/SKILL.md`. Trong đó đúng ba thứ:
+
+- frontmatter: `name`, và một `description` liệt kê tình huống;
+- một đoạn tiêu đề **"Vì sao skill này tồn tại"** — kể lại việc thủ công mà nó xoá bỏ;
+- một bảng định tuyến, kể cả khi bảng mới có một dòng.
+
+Chưa tạo `references/` vội. Chỉ tạo nó khi một mục phình ra tới mức bạn không muốn đọc lại ở mọi lần chạy. Thư mục rỗng là tiếng ồn.
+
+## 11. Bảng thuật ngữ
+
+**assert (chốt chặn lúc chạy)** — hàm được gọi trước khi làm việc thật, thoát ngay nếu cấu hình đã lưu lệch với môi trường hiện tại.
+
+**bats** — bộ chạy test dành cho bash; mỗi test là một khối `@test`.
+
+**bin/ và lib/** — quy ước tách file: `bin/` chứa file chạy trực tiếp, `lib/` chứa file chỉ được nạp vào file khác.
+
+**bóc dần (progressive disclosure)** — cách sắp xếp sao cho phần luôn phải đọc thì ngắn, phần dài thì chỉ đọc khi cần.
+
+**bộ điều phối (dispatcher)** — khối phân nhánh ở cuối file điểm vào, nhìn đối số đầu tiên rồi gọi hàm lệnh con tương ứng.
+
+**chốt chống nạp trùng (source guard)** — hai dòng đầu file thư viện, thoát ngay nếu file đã được nạp trước đó.
+
+**description** — dòng mô tả trong frontmatter; là bề mặt kích hoạt, quyết định skill có được chọn hay không.
+
+**doctor** — lệnh con so sánh cấu hình đã lưu với môi trường hiện tại và in ra khác biệt.
+
+**điểm vào (entry point)** — file được chạy trực tiếp, là nơi duy nhất bật chế độ nghiêm ngặt và nạp thư viện.
+
+**frontmatter** — khối dữ liệu ở đầu `SKILL.md`, chứa `name` và `description`.
+
+**ghi nguyên tử (atomic write)** — ghi ra file tạm rồi đổi tên đè lên đích, để người đọc không bao giờ thấy file viết dở.
+
+**hook** — cơ chế cho phép chạy một lệnh tự động khi có sự kiện xảy ra; cặp skill này không dùng.
+
+**init** — lệnh con chạy một lần, quét môi trường và ghi ra file cấu hình cho máy hiện tại.
+
+**jq** — công cụ dòng lệnh để đọc và dựng JSON.
+
+**lệch (drift)** — trạng thái cấu hình đã lưu không còn khớp với môi trường thật.
+
+**marker (placeholder)** — chuỗi đánh dấu trong file mẫu, sẽ được thay bằng tên thật lúc sinh file.
+
+**namespace (tiền tố)** — vài ký tự đứng đầu mọi tên hàm trong dự án, để hàm không đụng tên với thứ khác trong shell.
+
+**settings.json** — ảnh chụp môi trường của một máy cụ thể; sinh bởi `init`, không commit.
+
+**shebang** — dòng đầu file script, nói cho hệ điều hành biết chạy file bằng chương trình nào.
+
+**shellcheck** — công cụ soi lỗi tĩnh cho script shell.
+
+**chế độ nghiêm ngặt (strict mode)** — `set -euo pipefail`: dừng khi lỗi, dừng khi dùng biến chưa đặt, dừng khi một khâu trong đường ống hỏng.
+
+**stdout và stderr** — hai luồng ra: dữ liệu có cấu trúc đi ra stdout để nối ống, log và lỗi đi ra stderr.
+
+**lệnh con (subcommand)** — từ đầu tiên sau tên tool, ví dụ `init` trong `pg-migrate.sh init`.
+
+**nạp (source)** — đọc một file bash vào **chính** shell đang chạy, khác với chạy file đó ra một tiến trình riêng.
+
+**chạy lại chính mình (re-exec)** — thay thế tiến trình đang chạy bằng cùng script đó dưới một trình thông dịch khác.
+
+**biến thể (variant)** — nhãn `gnu` / `bsd` / `apple` / `unknown` ghi lại phiên bản nào của một công cụ đang được dùng.
+
+---
+Trang này mô tả hai skill như chúng đang là: một cặp quy ước viết tay cho công cụ shell, không phải một framework. Chúng không chạy gì thay bạn — chúng chỉ nói cho agent biết phải viết cái gì.
+
+Tên `pg-migrate`, `pgm`, `PGM` và danh sách công cụ trong ví dụ là bịa ra để đi hết một vòng cho dễ theo dõi. Bảy câu hỏi đầu vào, hai cây thư mục, luật thay marker và bộ ba `init` / `doctor` / `assert` thì thuộc về hai skill.
 </script>
 <script>/* ===================================================================
    LAYER 1 . DATA
@@ -549,7 +843,7 @@ var STATE = { view: 'doc', nav: false };
 var SRC = document.getElementById('src').textContent;
 
 var I18N = {
-  kick: 'Nghiên cứu skill . công cụ cho agent',
+  kick: 'Đọc một skill . khuôn mẫu công cụ dòng lệnh bằng bash',
   doc: 'Tài liệu',
   md: 'Markdown',
   copy: 'Copy markdown',
@@ -562,128 +856,161 @@ var I18N = {
 /* Figure payloads. `type` picks the renderer; everything else is its data. */
 var FIG = {
 
-  proof: {
-    type: 'proof',
-    cap: 'Bốn module mà bộ khung sinh ra, đối chiếu với file gốc trong hai dự án thật.',
-    rows: [
-      { kind: 'keep', n: '45/45', what: '`lib/_bootstrap.sh`',
-        detail: 'logic trùng khít capture-cmd — chỉ khác số gạch dưới của biến cục bộ' },
-      { kind: 'keep', n: '13', what: '`lib/common.sh`',
-        detail: '13 dòng lệch so với bản thật trong bootstrap, và cả 13 đều là comment' },
-      { kind: 'keep', n: '4/4', what: '`lib/tools.sh`',
-        detail: 'bốn hàm ánh xạ 1:1 từ capture-cmd/lib/_probe.sh, chỉ đổi tên' },
-      { kind: 'gone', n: '5/6', what: '`lib/settings.sh`',
-        detail: 'giữ scan · init · diff · repair · assert, bỏ cc_settings_get' }
-    ],
-    note: 'Đo bằng cách thay ngược marker trong template về namespace của dự án gốc (`scp`, `cc`) rồi `diff` từng dòng.'
-  },
-
-  bars: {
-    type: 'bars',
-    cap: 'Dòng shell và bats trong hai dự án nguồn, so với phần mã mà scaffold thật sự sinh ra.',
-    rows: [
-      { label: 'claude-global-rules-bootstrap', ms: 3344, val: '3.344 dòng' },
-      { label: 'capture-cmd', ms: 2012, val: '2.012 dòng' },
-      { label: 'bộ khung sinh ra · entry + lib', ms: 567, val: '567 dòng', cold: true }
+  /* ---- section 3 : the skills' own folders ---------------------- */
+  skillTree: {
+    type: 'tree',
+    cap: 'Cây thứ nhất: **bản thân hai skill** — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.',
+    trees: [
+      {
+        root: 'bash-cli-scaffold/',
+        sub: 'tạo mới · có vật liệu để chép',
+        rows: [
+          [0, 'SKILL.md', 'front', 'frontmatter + thuật toán sinh file'],
+          [0, 'references/', 'ref', 'đọc khi quy trình bảo đọc'],
+          [1, 'output-tree.md', 'ref', 'danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ'],
+          [1, 'placeholders.md', 'ref', 'bảng marker và luật thay thế'],
+          [0, 'templates/', 'tpl', 'bash chạy được, chưa điền tên'],
+          [1, '__NAME__.sh', 'tpl', 'điểm vào, khuôn 6 phần'],
+          [1, 'lib/', 'tpl', '_bootstrap · common · settings · tools'],
+          [1, 'config/', 'tpl', 'tools.json.example · bootstrap.json'],
+          [1, 'tests/', 'tpl', 'helper nạp lib + một file test khói'],
+          [1, 'file gốc dự án', 'tpl', 'VERSION · CHANGELOG · .gitignore · .shellcheckrc · .editorconfig']
+        ]
+      },
+      {
+        root: 'bash-cli-pattern/',
+        sub: 'nuôi lớn · chỉ có phán đoán',
+        rows: [
+          [0, 'SKILL.md', 'front', 'frontmatter + 10 bất biến + bảng định tuyến'],
+          [0, 'references/', 'ref', 'mỗi file một vùng sửa chữa'],
+          [1, 'entry-point.md', 'ref', 'khuôn 6 phần của file điểm vào'],
+          [1, 'lib-module.md', 'ref', 'luật cho file thư viện được nạp'],
+          [1, 'helpers.md', 'ref', 'log, báo lỗi, ghi nguyên tử, nhận diện HĐH'],
+          [1, 'help-system.md', 'ref', 'trợ giúp là hệ thống con, không phải một cờ'],
+          [1, 'init-doctor.md', 'ref', 'bộ ba init / doctor / assert'],
+          [1, 'tooling.md', 'ref', 'shellcheck, editorconfig, VERSION, test'],
+          [0, '(không có templates/)', 'gone', 'đầu ra là phán đoán, không có gì để chép'],
+          [0, '(không có scripts/)', 'gone', 'công việc không phải thuật toán']
+        ]
+      }
     ]
   },
 
-  tree: {
+  levels: {
     type: 'levels',
-    cap: 'Mười bốn file, chia theo vai trò. Thêm hai thư mục rỗng: `tests/fixtures/` và `docs/`.',
+    cap: 'Bóc dần: cái gì càng hay phải trả giá thì càng phải ngắn.',
     levels: [
-      { name: 'entry', note: '1 file · 168 dòng', tools: [
-        ['__NAME__.sh', 'sáu khối theo thứ tự cố định, dispatcher nằm cuối'] ] },
-      { name: 'lib', note: '4 file · 399 dòng', tools: [
-        ['_bootstrap.sh', '45 — giải interpreter, phải an toàn với bash 3.2'],
-        ['common.sh', '152 — log bốn mức, `die`, `atomic_write`, `detect_os`'],
-        ['settings.sh', '116 — scan · init · diff · repair · assert'],
-        ['tools.sh', '86 — resolve · version · variant · probe'] ] },
-      { name: 'config', note: '2 file', tools: [
-        ['tools.json.example', 'danh sách tool cần dò lúc `init`; đây là file được commit'],
-        ['bootstrap.json', 'cấu hình tĩnh: log level mặc định, đường dẫn'] ] },
-      { name: 'tests', note: '2 file · 63 dòng', tools: [
-        ['helpers/load.bash', '17 — source lib và đặt `PKG_DIR` cho bats'],
-        ['unit/common.bats', '46 — 7 `@test` smoke cho `common.sh`'] ] },
-      { name: 'meta', note: '5 file', tools: [
-        ['VERSION', '`0.1.0`'],
-        ['CHANGELOG.md', 'keep-a-changelog, một mục `0.1.0`'],
-        ['.gitignore', 'bỏ qua `settings.json`, `*.bak`, `tmp/`'],
-        ['.shellcheckrc', 'tắt SC1091 kèm lý do viết ra thành chữ'],
-        ['.editorconfig', '4 space cho `.sh` và `.bats`, LF, cắt whitespace thừa'] ] }
+      {
+        name: 'LUÔN NẰM TRONG CONTEXT',
+        note: 'trả tiền ở mọi lượt, kể cả lượt không liên quan',
+        tools: [['frontmatter', '`name` và `description` — quyết định skill có được chọn hay không']]
+      },
+      {
+        name: 'ĐỌC KHI SKILL KÍCH HOẠT',
+        note: 'trả tiền mỗi lần skill được chọn',
+        tools: [['thân SKILL.md', 'quy trình, bảng định tuyến, luật cấm — **không** chứa chi tiết']]
+      },
+      {
+        name: 'ĐỌC KHI QUY TRÌNH BẢO ĐỌC',
+        note: 'trả tiền khi và chỉ khi cần',
+        tools: [
+          ['references/', 'chiều sâu; không bao giờ được đọc hết cùng một lúc'],
+          ['templates/', 'vật liệu để chép ra; hầu như không cần đọc hiểu']
+        ]
+      }
     ]
   },
 
-  cycle: {
-    type: 'loop',
-    cap: 'Vòng đời `settings.json` — môi trường máy được chụp lại một lần, rồi kiểm tra trôi dạt.',
+  /* ---- section 3 : the project the scaffold produces ------------ */
+  projectTree: {
+    type: 'tree',
+    cap: 'Cây thứ hai: **dự án được sinh ra** — thứ bạn nhận được. Đừng lẫn với cây trên.',
+    trees: [
+      {
+        root: 'pg-migrate/',
+        sub: 'chạy được ngay, chưa cần viết thêm dòng nào',
+        rows: [
+          [0, 'pg-migrate.sh', 'run', 'ĐIỂM VÀO — chạy trực tiếp, bật chế độ nghiêm ngặt'],
+          [0, 'lib/', 'lib', 'CHỈ ĐƯỢC NẠP — không chạy trực tiếp'],
+          [1, '_bootstrap.sh', 'lib', 'chọn đúng trình thông dịch rồi chạy lại chính mình'],
+          [1, 'common.sh', 'lib', 'log / die / ghi nguyên tử / nhận diện HĐH'],
+          [1, 'settings.sh', 'lib', 'quét môi trường, so lệch, sửa lệch'],
+          [1, 'tools.sh', 'lib', 'tìm đường dẫn, phiên bản, biến thể của công cụ ngoài'],
+          [0, 'config/', 'keep', 'khai báo — CÓ commit'],
+          [1, 'tools.json.example', 'keep', '"tool này cần jq và psql"'],
+          [1, 'bootstrap.json', 'keep', 'cấu hình tĩnh, không phụ thuộc máy'],
+          [0, 'tests/', 'keep', 'helpers/load.bash · unit/common.bats · fixtures/ (rỗng)'],
+          [0, 'docs/', 'keep', 'để trống, chờ bạn viết'],
+          [0, 'file gốc dự án', 'keep', 'VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig'],
+          [0, 'settings.json', 'gen', 'KHÔNG có sẵn — do lệnh init sinh ra, KHÔNG commit']
+        ]
+      }
+    ]
+  },
+
+  /* ---- section 4 : the two very different flows ----------------- */
+  scaffoldFlow: {
+    type: 'flow',
+    cap: 'Bộ khung chạy **một lần** rồi rút. Bước 6 là bước duy nhất có quyền phủ quyết.',
     steps: [
-      '`init` đọc `config/tools.json.example` để biết cần những tool nào',
-      '`tool_probe` từng tool: resolve đường dẫn, đọc version, đoán variant',
-      '`jq -n --arg` dựng JSON, `atomic_write` ghi xuống `settings.json`',
-      '`doctor` quét lại môi trường sống rồi diff với bản đã lưu',
-      '`doctor --fix` sao lưu `.bak` rồi ghi đè bằng bản quét mới'
+      ['Nhận diện', 'người dùng đang bắt đầu một dự án bash nhiều file — kể cả khi họ không nói chữ nào về bố cục'],
+      ['Hỏi gộp', 'bảy câu hỏi trong **một** lượt: tên, tiền tố hàm, tiền tố biến, lệnh con, nơi đặt, công cụ ngoài, kiểu changelog'],
+      ['Đọc danh sách', 'mở file tham chiếu liệt kê đúng những file phải có'],
+      ['Sinh từng file', 'đọc template → thay marker → ghi ra đích'],
+      ['Cấp quyền chạy', 'chmod +x cho file .sh ở gốc'],
+      ['Kiểm tra', 'chạy `--help`; **không hiện ra thì dừng**, không được báo xong'],
+      ['Bàn giao', 'đường dẫn + ba lệnh chạy đầu + chỗ viết lệnh con thật + tên skill dùng cho lần sửa sau']
     ],
-    back: 'quay lại bước 2 — mỗi lần chạy là một lần quét mới'
+    note: 'Không có bước nào ghi `settings.json`. Đó là việc của người dùng, không phải tác dụng phụ.'
   },
 
-  resolver: {
+  routes: {
     type: 'routes',
-    cap: '`lib/_bootstrap.sh`: 45 dòng chạy trước mọi thứ khác, trong đó có cả lớp chặn bash cũ.',
-    top: 'kernel đã chọn một bản bash nào đó — trên macOS thường là /bin/bash 3.2',
+    cap: 'Skill bảo trì không có luồng. Nó nhận ra hình dạng dự án rồi mở **đúng một** file tham chiếu.',
+    top: 'Bạn đang sửa một bash CLI nhiều file (có cả bin/ lẫn lib/*.sh)',
     routes: [
-      ['có settings.json + có jq', 'đọc `.tools.bash.path`, `exec` lại chính mình bằng bash đó'],
-      ['thiếu settings.json hoặc jq', 'đi tiếp, không báo lỗi — hành vi vẫn xác định trước khi `init` chạy'],
-      ['vẫn dưới bash 4', 'in `brew install bash` và `doctor --fix` rồi `exit 1`']
+      ['thêm lệnh con', 'mở `entry-point.md` — khuôn 6 phần, cách đọc cờ, cách nối vào bộ điều phối'],
+      ['thêm module thư viện', 'mở `lib-module.md` — không shebang, không `set -e`, có chốt chống nạp trùng'],
+      ['sửa log hoặc báo lỗi', 'mở `helpers.md` — mức log, mã thoát, ghi nguyên tử, móc test HĐH'],
+      ['sửa màn hình trợ giúp', 'mở `help-system.md` — trợ giúp là hệ thống con, thiếu một nhánh là lỗi'],
+      ['sửa init / doctor', 'mở `init-doctor.md` — bộ ba chẩn đoán và hình dạng file cấu hình'],
+      ['sửa file gốc dự án', 'mở `tooling.md` — shellcheck, editorconfig, VERSION, bố cục test']
     ],
-    bottom: '__PKG___BASH_BOOTSTRAPPED được export trước khi exec, chặn vòng lặp re-exec'
+    bottom: 'TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này'
   },
 
-  gate: {
-    type: 'guards',
-    cap: 'Hai lớp chặn bash cũ trong bộ khung, và lớp nào thật sự canh cửa.',
+  /* ---- section 6 : marker in, name out -------------------------- */
+  swap: {
+    type: 'swap',
+    cap: 'Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker **lồng trong** quy ước gạch dưới của bash.',
     rows: [
-      { kind: 'fast', tag: '_bootstrap.sh',
-        text: 'Khối `BASH_VERSINFO[0] -lt 4` ở cuối file. Chạy tự động vì entry point `source` file này ngay dòng đầu. **Đây là lớp thật sự chặn.**' },
-      { kind: 'bound', tag: 'require_bash_4()',
-        text: 'Định nghĩa trong `common.sh` kèm comment "call from entry point", nhưng entry point sinh ra không gọi nó. Nó dành cho các script `bin/` bạn tự thêm sau — những script không đi qua `_bootstrap.sh`.' }
-    ]
+      ['__NAME__', 'pg-migrate', 'tên dự án, dùng cho tên file và tiêu đề trợ giúp'],
+      ['__PKG___PKG_DIR', 'PGM_PKG_DIR', 'marker là `__PKG__`, gạch dưới cuối là của tên biến'],
+      ['___ns___log', '_pgm_log', 'marker là `__ns__`; hai gạch dưới bọc ngoài đánh dấu "hàm riêng tư"'],
+      ['___PKG___COMMON_SOURCED', '_PGM_COMMON_SOURCED', 'tên chốt chống nạp trùng của thư viện common']
+    ],
+    note: 'Không thay: `${BASH_SOURCE[0]}`, `$HOME` và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker.'
   },
 
-  markers: {
-    type: 'islands',
-    cap: 'Tám marker, 113 lần xuất hiện trong 14 file. Thay theo nghĩa đen, phân biệt hoa thường.',
+  /* ---- section 8 : guards inside the generated project ---------- */
+  gates: {
+    type: 'gates',
+    cap: 'Những cái chặn nằm trong **dự án được sinh ra**. Mỗi dòng: luật, rồi chuyện xảy ra khi vắng nó.',
     rows: [
-      { where: '__NAME__ · 21', scope: 'pg-migrate' },
-      { where: '__ns__ · 47', scope: 'pgm' },
-      { where: '__PKG__ · 38', scope: 'PGM' },
-      { where: '__DESC__ · 2', scope: 'dòng mô tả một câu' },
-      { where: '__NS__ · 2', scope: 'tên component mặc định khi log' },
-      { where: '__SUBCOMMANDS_HELP_LINES__', scope: 'các dòng trong màn hình help', shared: true },
-      { where: '__STUB_CMD_FUNCTIONS__', scope: 'khối hàm cmd_* rỗng', shared: true },
-      { where: '__DISPATCH_STUB_ARMS__', scope: 'các nhánh case trong dispatcher', shared: true }
-    ],
-    note: 'Ba marker cuối không thay một từ mà thay cả một khối — chúng dệt danh sách subcommand của bạn vào ba nơi cùng lúc.'
-  },
-
-  invariants: {
-    type: 'questions',
-    cap: 'Mười bất biến do `bash-cli-pattern` định nghĩa, đối chiếu với thứ scaffold thật sự sinh ra.',
-    items: [
-      'Entry point sáu khối theo thứ tự cố định',
-      '`#!/usr/bin/env bash` cộng bộ giải interpreter `_bootstrap.sh`',
-      '`bin/` để chạy, `lib/` chỉ để source — *để ngỏ: cây mặc định không có `bin/`*',
-      'Hàm trong lib đều mang namespace của dự án',
-      'Nhận cả `--flag value` lẫn `--flag=value`',
-      'Bề mặt chẩn đoán `init` + `doctor` + assert',
-      'Help tập trung, help từng lệnh, và `help lib` — *để ngỏ: chưa có `help lib`*',
-      'Log và lỗi ra stderr, dữ liệu có cấu trúc ra stdout',
-      'JSON dựng bằng `jq -n --arg` rồi `atomic_write`',
-      '`.shellcheckrc` + `.editorconfig` + `VERSION` + `CHANGELOG.md` ở gốc'
-    ],
-    scores: [
-      { n: '8/10', label: 'thoả trọn vẹn ngay lúc sinh', kind: 'good' },
-      { n: '2/10', label: 'để ngỏ có chủ đích', kind: 'bad' }
+      ['`set -euo pipefail` chỉ ở file chạy được',
+       'một thư viện bật `-e` sẽ lây sang shell đang nạp nó, làm hỏng cả những thứ chẳng liên quan'],
+      ['chốt chống nạp trùng ở mỗi thư viện',
+       'nhiều thư viện cùng nạp `common.sh` thì hàm bị định nghĩa lại nhiều lần'],
+      ['`init` từ chối ghi đè nếu không có `--force`',
+       'một lần gõ nhầm xoá mất ảnh chụp môi trường đã dùng được nhiều tháng'],
+      ['`doctor` mặc định chỉ so, không sửa',
+       'lệnh chẩn đoán tự ý đổi cấu hình là lệnh không ai dám chạy; có `--fix` thì chép `.bak` trước'],
+      ['chốt chống chạy lại vô hạn',
+       'file khởi động tự gọi lại chính mình dưới trình thông dịch khác, mãi mãi'],
+      ['cổng phiên bản shell, kèm cách khắc phục',
+       'thay vì lỗi cú pháp giữa chừng, tool thoát sạch với câu "cài bản mới bằng lệnh này"'],
+      ['ghi file kiểu nguyên tử',
+       'máy tắt giữa chừng để lại file cấu hình viết dở, lần chạy sau đọc phải file hỏng']
     ]
   }
 };
@@ -866,60 +1193,72 @@ var MD = {
 };
 
 
-/* -- figure renderers ---------------------------------------------- */
+/* -- figure renderers ----------------------------------------------
+   Pure: data in, DOM out. Never reads STATE, so each one can be tested
+   by calling it with a literal object. Three of the six are new here --
+   `tree`, `flow` and `swap` -- because a folder listing, an ordered
+   procedure and a before/after pair have no honest shape in the catalog.
+   ------------------------------------------------------------------ */
 
 var FIGURE = {
 
-  questions: function(f){
-    return el('div', null, [
-      el('ol', { class: 'qlist' }, f.items.map(function(t){
-        return el('li', { html: inline(t) }); })),
-      el('div', { class: 'score' }, f.scores.map(function(s){
-        return el('div', { class: 'sc ' + s.kind }, [
-          el('b', { text: s.n }), el('span', { text: s.label })
-        ]);
-      }))
-    ]);
+  /* A folder listing. One or more roots; each row is
+     [indentDepth, name, kind, note]. `kind` colours the rail, so the
+     reader sees the division of labour before reading a single word. */
+  tree: function(f){
+    return el('div', { class: 'trees' }, f.trees.map(function(T){
+      return el('div', { class: 'tr-box' }, [
+        el('div', { class: 'tr-head' }, [
+          el('b', { text: T.root }),
+          T.sub ? el('span', { text: T.sub }) : null
+        ]),
+        el('div', { class: 'tr-rows' }, T.rows.map(function(r){
+          return el('div', { class: 'tr-row d' + r[0] + ' k-' + r[2] }, [
+            el('code', { text: r[1] }),
+            el('span', { html: inline(r[3]) })
+          ]);
+        }))
+      ]);
+    }));
   },
 
-  proof: function(f){
-    return el('div', null, [
-      el('div', { class: 'proof' }, f.rows.map(function(r){
-        return el('div', { class: 'proof-row ' + r.kind }, [
-          el('div', { class: 'proof-what' }, [
-            el('span', { html: inline(r.what) }),
-            el('em', { text: r.detail })
-          ]),
-          el('div', { class: 'proof-n', text: r.n })
-        ]);
-      })),
-      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
-    ]);
-  },
-
-  graph: function(f){
-    var kids = [ el('div', { class: 'gnodes' }, f.nodes.map(function(n){
-      return el('span', { class: 'gn' + (n[1] ? ' core' : ''), text: n[0] }); })) ];
-    f.groups.forEach(function(g){
-      if(g.title) kids.push(el('div', { class: 'gsplit', text: g.title }));
-      kids.push(el('div', { class: 'gedges' }, g.edges.map(function(e){
-        return el('div', { class: 'ge' }, [
-          el('i', { text: e[0] }), el('b', { text: e[1] }), el('s', { text: e[2] })
-        ]);
-      })));
-    });
-    return el('div', null, kids);
-  },
-
-  loop: function(f){
+  /* An ordered procedure. Numbered because the content really is a
+     sequence -- the numbers are the information, not decoration. */
+  flow: function(f){
     var kids = f.steps.map(function(s, i){
-      return el('div', { class: 'lp' }, [
-        el('em', { text: String(i + 1) }),
-        el('div', { html: inline(s) })
+      return el('div', { class: 'fl-step' }, [
+        el('b', { text: String(i + 1) }),
+        el('div', { class: 'fl-body' }, [
+          el('strong', { html: inline(s[0]) }),
+          el('span', { html: inline(s[1]) })
+        ])
       ]);
     });
-    if(f.back) kids.push(el('div', { class: 'loop-back', text: f.back }));
-    return el('div', { class: 'loop' }, kids);
+    return el('div', null, [
+      el('div', { class: 'flow' }, kids),
+      f.note ? el('div', { class: 'fl-note', html: inline(f.note) }) : null
+    ]);
+  },
+
+  /* Before and after, with the reason on the right. Two monospace
+     columns because the whole point is comparing two literal strings. */
+  swap: function(f){
+    var kids = f.rows.map(function(r){
+      return el('div', { class: 'sw-row' }, [
+        el('code', { class: 'sw-a', text: r[0] }),
+        el('i', { text: '→' }),
+        el('code', { class: 'sw-b', text: r[1] }),
+        el('span', { html: inline(r[2]) })
+      ]);
+    });
+    return el('div', null, [
+      el('div', { class: 'sw-head' }, [
+        el('span', { text: 'trong template' }),
+        el('span', { text: 'sau khi thay' })
+      ]),
+      el('div', { class: 'swap' }, kids),
+      f.note ? el('div', { class: 'fl-note', html: inline(f.note) }) : null
+    ]);
   },
 
   levels: function(f){
@@ -949,60 +1288,14 @@ var FIGURE = {
     ]);
   },
 
-  hooks: function(f){
-    return el('div', { class: 'hooks' }, f.rows.map(function(r){
-      return el('div', { class: 'hk' + (r.none ? ' none' : '') }, [
-        el('b', { text: r.hook }),
-        el('i', { text: r.reaches }),
-        el('span', { html: inline(r.carries) })
-      ]);
-    }));
-  },
-
   gates: function(f){
     return el('div', { class: 'gates' }, f.rows.map(function(r){
       return el('div', { class: 'gt' }, [
-        el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
-      ]);
-    }));
-  },
-
-  islands: function(f){
-    var kids = f.rows.map(function(r){
-      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
-        el('s', { text: r.where }),
-        el('i', { text: '→' }),
-        el('b', { text: r.scope })
-      ]);
-    });
-    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
-    return el('div', { class: 'isl' }, kids);
-  },
-
-  bars: function(f){
-    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
-    return el('div', { class: 'bars' }, f.rows.map(function(r){
-      var pct = Math.max(2, Math.round(r.ms / max * 100));
-      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
-        el('b', { html: inline(r.label) }),
-        el('div', { class: 'br-track' }, [
-          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
-          el('span', { class: 'br-val', text: r.val })
-        ])
-      ]);
-    }));
-  },
-
-  guards: function(f){
-    return el('div', { class: 'guards' }, f.rows.map(function(r){
-      return el('div', { class: 'gd ' + r.kind }, [
-        el('b', { text: r.tag }),
-        el('p', { html: inline(r.text) })
+        el('b', { html: inline(r[0]) }), el('span', { html: inline(r[1]) })
       ]);
     }));
   }
 };
-
 
 
 /* ===================================================================
