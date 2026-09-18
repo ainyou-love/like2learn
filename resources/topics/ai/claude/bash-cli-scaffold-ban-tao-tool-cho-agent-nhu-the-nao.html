@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>bash-cli-scaffold: bạn tạo tool cho agent như thế nào</title>
+<meta name="description" content="Nghiên cứu skill bash-cli-scaffold của Claude Code: bộ khung CLI bash được chưng cất từ hai dự án có thật, đo bằng diff.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>/* Structural base for a single-file doc site.
+   The PALETTE below is a placeholder: the playbook (section 7) asks you to ground
+   colour and type in the subject, not in a template. Replace the token VALUES and
+   keep the three-times structure (:root, prefers-color-scheme guarded, [data-theme]).
+   Figure classes at the bottom are a catalog -- keep the ones your figures use,
+   delete the rest, add your own. */
+:root{
+  --ground:#F1F3EF; --surface:#FBFCFA; --panel:#E4E8E0; --line:#CBD2C6; --line-soft:#DDE3D8;
+  --ink:#161A15; --muted:#525A4E; --faint:#7E8778;
+  --trace:#1F5D45; --trace-soft:#DCEAE1;
+  --est:#2A6A45;  --hyp:#8A6410;  --unv:#525A4E;  --asm:#5B4A8C;
+  --alarm:#8A3B22; --alarm-soft:#F5E6DF;
+  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#10130F; --surface:#181C16; --panel:#1F241C; --line:#2E3529; --line-soft:#242A20;
+  --ink:#E4E8DE; --muted:#979E90; --faint:#787F72;
+  --trace:#6FC29B; --trace-soft:#13291F;
+  --est:#74C297;  --hyp:#D9AE5C;  --unv:#979E90;  --asm:#AE9BD8;
+  --alarm:#DE8E6E; --alarm-soft:#2A1913;
+}}
+:root[data-theme="dark"]{
+  --ground:#10130F; --surface:#181C16; --panel:#1F241C; --line:#2E3529; --line-soft:#242A20;
+  --ink:#E4E8DE; --muted:#979E90; --faint:#787F72;
+  --trace:#6FC29B; --trace-soft:#13291F;
+  --est:#74C297;  --hyp:#D9AE5C;  --unv:#979E90;  --asm:#AE9BD8;
+  --alarm:#DE8E6E; --alarm-soft:#2A1913;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+  font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--trace);outline-offset:3px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto}}
+
+/* ── top bar ─────────────────────────────────────────────── */
+.bar{position:sticky;top:0;z-index:40;background:var(--ground);
+  border-bottom:1px solid var(--line);
+  padding:9px 18px;padding-top:calc(9px + env(safe-area-inset-top,0px));
+  display:flex;gap:10px;align-items:center}
+.bar .sp{flex:1}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.03em;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:3px;padding:7px 12px;transition:color .12s,border-color .12s}
+button:hover{color:var(--ink);border-color:var(--trace)}
+button[aria-pressed="true"]{color:var(--ground);background:var(--trace);border-color:var(--trace)}
+#navbtn{display:inline-flex}
+@media (min-width:1180px){#navbtn{display:none}}
+
+/* ── drawer ──────────────────────────────────────────────── */
+#nav{position:fixed;z-index:50;top:0;left:0;width:290px;height:100dvh;overflow-y:auto;
+  background:var(--surface);border-right:1px solid var(--line);
+  padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-100%);transition:transform .2s}
+#nav.open{transform:none}
+#scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.42)}
+@media (min-width:1180px){
+  #nav{transform:none;border-right:1px solid var(--line-soft);background:transparent}
+  #scrim{display:none}
+  body{padding-left:290px}
+  .bar{padding-left:26px}
+}
+#nav .navhead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 12px;padding-left:11px}
+#toc a{display:block;text-decoration:none;color:var(--muted);font-size:13.5px;line-height:1.42;
+  padding:6px 0 6px 11px;border-left:2px solid var(--line-soft)}
+#toc a:hover{color:var(--ink);border-left-color:var(--trace)}
+#toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--faint)}
+#toc a.on{color:var(--ink);border-left-color:var(--trace);font-weight:600}
+#toc a.part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink);margin-top:16px;border-left-color:var(--trace)}
+#toc a.part:first-child{margin-top:0}
+
+/* ── page ────────────────────────────────────────────────── */
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 90px}
+.hero{padding:52px 0 26px;border-bottom:1px solid var(--line)}
+.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--trace);margin:0 0 16px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.1;
+  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance}
+.lede p{font-size:clamp(17px,2.2vw,19.5px);color:var(--muted);margin:0 0 13px;max-width:64ch}
+h2,h3,h4{scroll-margin-top:78px}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,4vw,31px);line-height:1.2;
+  letter-spacing:-.012em;margin:54px 0 18px;text-wrap:balance}
+h2 .eyebrow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--trace);font-weight:400;margin-bottom:11px;letter-spacing:.16em}
+h3{font-family:var(--serif);font-weight:600;font-size:20.5px;margin:38px 0 12px}
+h4{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
+p{margin:0 0 17px;max-width:66ch}
+ul,ol{margin:0 0 18px;padding-left:22px;max-width:66ch}
+li{margin-bottom:8px}
+li::marker{color:var(--trace)}
+strong{font-weight:600}
+blockquote{margin:0 0 20px;padding:2px 0 2px 18px;border-left:2px solid var(--trace);
+  color:var(--muted);max-width:64ch}
+blockquote p:last-child{margin-bottom:0}
+hr{border:0;border-top:1px solid var(--line);margin:46px 0}
+code{font-family:var(--mono);font-size:.845em;background:var(--panel);
+  border-radius:2px;padding:1.5px 5px;color:var(--ink);overflow-wrap:break-word}
+.pre{overflow-x:auto;margin:0 0 22px;background:var(--panel);border-radius:3px;
+  border-left:2px solid var(--line)}
+.pre pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
+.pre code{background:none;padding:0;border-radius:0;font-size:inherit}
+.tw{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:400px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);text-align:left;font-weight:500;padding:10px 13px;
+  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.55}
+tr:last-child td{border-bottom:0}
+
+/* ── figures ─────────────────────────────────────────────── */
+figure{margin:0 0 28px}
+.fig{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:20px 18px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
+.fmono{font-family:var(--mono)}
+
+/* four questions + score */
+.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
+.qlist li{counter-increment:q;display:flex;gap:13px;margin:0 0 11px;font-size:16px}
+.qlist li::before{content:counter(q);font-family:var(--mono);font-size:11px;color:var(--trace);
+  border:1px solid var(--trace);border-radius:50%;width:21px;height:21px;flex:none;
+  display:grid;place-items:center;margin-top:3px}
+.score{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:15px;
+  border-top:1px solid var(--line-soft)}
+.sc{flex:1 1 150px;padding:11px 13px;border-radius:3px;background:var(--panel)}
+.sc b{display:block;font-family:var(--mono);font-size:26px;line-height:1;margin-bottom:5px}
+.sc span{font-size:12.5px;color:var(--muted)}
+.sc.good b{color:var(--est)} .sc.bad b{color:var(--alarm)}
+.sc.bad{background:var(--alarm-soft)}
+
+/* the boldness: delta proof */
+.proof{display:grid;gap:0}
+.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.proof-row:last-child{border-bottom:0}
+.proof-what{font-size:15.5px}
+.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  display:block;margin-top:4px}
+.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
+.proof-row.keep .proof-n{color:var(--est)}
+.proof-row.gone .proof-n{color:var(--alarm)}
+.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
+  font-size:13.5px;color:var(--muted)}
+
+/* graph */
+.gnodes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.gn{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:3px;
+  border:1px solid var(--line);background:var(--panel)}
+.gn.core{border-color:var(--trace);color:var(--trace);background:var(--trace-soft)}
+.gedges{display:grid;gap:8px}
+.ge{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;
+  font-family:var(--mono);font-size:11.5px}
+.ge i{font-style:normal;color:var(--muted);text-align:right}
+.ge b{font-weight:500;color:var(--trace);white-space:nowrap;font-size:10.5px;letter-spacing:.04em}
+.ge s{text-decoration:none;color:var(--muted)}
+.gsplit{margin:15px 0 9px;padding-top:13px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+/* loop */
+.loop{display:grid;gap:9px}
+.lp{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:3px;
+  background:var(--panel)}
+.lp em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--trace);
+  flex:none;width:18px;padding-top:3px}
+.lp div{font-size:14.5px}
+.lp code{background:var(--surface)}
+.loop-back{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;
+  padding:8px;border:1px dashed var(--line);border-radius:3px}
+
+/* levels */
+.lvl{margin-bottom:17px}
+.lvl:last-child{margin-bottom:0}
+.lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--trace);margin-bottom:10px}
+.lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
+.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
+  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+.tool:first-of-type{border-top:0}
+.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
+.tool span{color:var(--muted)}
+
+/* provenance routes */
+.routes{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
+.rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+.rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
+.rt span{font-size:13.5px;color:var(--muted)}
+.routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
+  padding:10px;border-radius:3px}
+.routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
+.routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
+
+/* push hooks */
+.hooks{display:grid;gap:0}
+.hk{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.hk:last-child{border-bottom:0}
+.hk b{font-family:var(--mono);font-size:12.5px;font-weight:500}
+.hk i{font-style:normal;font-size:12.5px;color:var(--trace);font-family:var(--mono)}
+.hk span{font-size:14px;color:var(--muted)}
+.hk.none b,.hk.none i{color:var(--faint)}
+
+/* gates */
+.gates{display:grid;gap:7px}
+.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
+  padding:9px 12px;border-radius:3px;background:var(--panel);font-size:14px}
+.gt b{font-family:var(--mono);font-size:12px;font-weight:500}
+.gt span{color:var(--muted);font-size:13px}
+
+/* islands */
+.isl{display:grid;gap:9px}
+.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
+  font-family:var(--mono);font-size:12px}
+.is s{text-decoration:none;color:var(--muted)}
+.is b{color:var(--trace);font-weight:500}
+.is i{font-style:normal;color:var(--faint);font-size:15px}
+.is.shared b{color:var(--hyp)}
+.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* warm bars */
+.bars{display:grid;gap:13px}
+.br b{display:block;font-size:13.5px;margin-bottom:6px}
+.br-track{display:flex;align-items:center;gap:10px}
+.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
+.br.cold .br-fill{background:var(--alarm)}
+.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* guards */
+.guards{display:grid;gap:12px}
+.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
+.gd.fast{border-left-color:var(--hyp)}
+.gd.bound{border-left-color:var(--est)}
+.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;margin-bottom:7px}
+.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
+.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
+.gd p code{font-size:.9em}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding-top:13px;
+  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;border-radius:2px;flex:none;font-style:normal}
+
+/* ── markdown view ───────────────────────────────────────── */
+#md{padding-top:26px}
+.md-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;
+  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.md-note p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 220px;max-width:none}
+#mdbox{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+#mdbox pre{margin:0;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+  white-space:pre}
+#mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
+footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
+footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <button id="navbtn" type="button" aria-expanded="false" aria-controls="nav"></button>
+  <span class="sp"></span>
+  <button id="viewbtn" type="button" aria-pressed="false"></button>
+</header>
+
+<aside id="nav" aria-label="Mục lục">
+  <p class="navhead" id="navhead"></p>
+  <nav id="toc"></nav>
+</aside>
+<div id="scrim" hidden></div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kick" id="kick"></p>
+    <h1 id="title"></h1>
+    <div class="lede" id="lede"></div>
+  </header>
+
+  <main id="docview">
+    <div id="doc"></div>
+    <footer id="foot"></footer>
+  </main>
+
+  <section id="md" hidden>
+    <div class="md-note">
+      <p id="mdnote"></p>
+      <button id="copybtn" type="button"></button>
+    </div>
+    <div id="mdbox"><pre><code id="mdtext"></code></pre></div>
+  </section>
+</div>
+
+<script type="text/plain" id="src"># bash-cli-scaffold: bạn tạo tool cho agent như thế nào
+
+> Phần 1 — Một skill không nghĩ ra bộ khung CLI. Nó chưng cất bộ khung đó từ hai công cụ đã chạy thật, và có thể đo được mức độ trung thành.
+> Phần 2 — Bảy câu hỏi đầu vào, mười bốn file đầu ra, ba lệnh chạy được ngay khi vừa sinh xong.
+> Phần 3 — Bên trong: bộ giải interpreter tự re-exec, cỗ máy `settings.json`, và những thứ bị cắt có chủ đích.
+
+---
+
+# PHẦN 1 — Bằng chứng: 13 dòng, không một dòng logic
+
+## Vấn đề mà skill này giải
+
+Viết một công cụ bash nhiều file luôn bắt đầu bằng cùng một buổi chiều lãng phí. Bạn quyết định lại chỗ đặt `bin/` và `lib/`, viết lại `die`, viết lại `log_info`, viết lại cái hàm ghi file nguyên tử mà lần trước bạn đã viết đúng rồi. Rồi hai tháng sau, dự án thứ ba của bạn có một `atomic_write` khác với dự án thứ hai, và bạn không nhớ bản nào đúng.
+
+`bash-cli-scaffold` là một Claude Code skill dựng sẵn toàn bộ bộ khung đó. Nhưng điều đáng học không phải là "nó tạo file cho bạn" — bất kỳ template nào cũng làm được. Điều đáng học là **bộ khung ấy đến từ đâu**.
+
+## Nó không được tưởng tượng ra. Nó được đo.
+
+Skill này tự mô tả là dựng theo "v2 conventions" của hai dự án có thật trong cùng repo:
+
+- `scripts/bash/capture-cmd/` — bản lặp thứ nhất (v1), 21 file, 2.012 dòng shell và bats.
+- `claude-customization/claude-global-rules-bootstrap/` — bản lặp thứ hai (v2), 8 lib module, 17 file bats, 3.344 dòng.
+
+Cách thường thấy để kiểm chứng một câu như vậy là đọc lướt rồi gật đầu. Cách tốt hơn là đem template ra thay tên biến ngược lại rồi `diff` với file gốc. Kết quả:
+
+@fig:proof
+    lib/_bootstrap.sh   45/45   logic trùng khít với capture-cmd
+    lib/common.sh       13      dòng khác biệt — cả 13 đều là comment
+    lib/tools.sh        4/4     ánh xạ 1:1 từ capture-cmd/lib/_probe.sh
+    lib/settings.sh     5/6     giữ 5 hàm, bỏ cc_settings_get
+@endfig
+
+Đây là con số đáng nhớ nhất của cả trang này. Đem `templates/lib/common.sh` thay `__ns__` → `scp`, `__PKG__` → `SCP`, rồi `diff` với `lib/common.sh` thật trong `claude-global-rules-bootstrap`: **13 dòng lệch, và không một dòng nào trong đó là code.** Tám dòng là khối comment liệt kê hàm mà template thêm vào; năm dòng còn lại là comment được viết lại hoặc thêm bớt. Toàn bộ `require_bash_4`, bốn hàm log, `die`, `atomic_write`, `absolute_path`, `detect_os` — giống nhau từng ký tự.
+
+`lib/_bootstrap.sh` còn sạch hơn: 45 dòng, khác bản `capture-cmd` đúng ở chỗ biến cục bộ mang hai dấu gạch dưới thay vì một (`__cc_settings` so với `_cc_settings`) — hệ quả của quy ước đặt marker, không phải khác biệt hành vi.
+
+## Vì sao điều đó quan trọng hơn vẻ ngoài
+
+Một template được viết ra bằng trí nhớ sẽ chứa những đoạn code chưa bao giờ chạy. Một template được trích ra từ mã đang chạy thì mang theo cả những quyết định mà tác giả đã trả giá để học được: vì sao `_bootstrap.sh` phải an toàn với bash 3.2, vì sao `atomic_write` đọc stdin thay vì nhận chuỗi, vì sao `detect_os` có cửa hậu cho test.
+
+@fig:bars
+    claude-global-rules-bootstrap   3.344 dòng
+    capture-cmd                     2.012 dòng
+    bộ khung sinh ra                  567 dòng
+@endfig
+
+5.356 dòng shell đã chạy thật được nén xuống còn 567 dòng bộ khung. Phần bị bỏ lại chính là phần thuộc về từng bài toán riêng: `installer.sh`, `manifest.sh`, `state.sh`, `settings-merge.sh` của bootstrap; `_hooks.sh`, `_render.sh`, `_capture.sh` của capture-cmd. Phần giữ lại là bốn module mà **cả hai dự án đều có**.
+
+## Quyết định thiết kế đáng biết nhất: tách làm hai skill
+
+`bash-cli-scaffold` cố tình không biết cách sửa code. Nó có một skill anh em, `bash-cli-pattern` (7 file, 856 dòng), và phần mô tả của cả hai chỉ thẳng sang nhau:
+
+> Use this ONLY for new projects starting from an empty directory; for adding subcommands, lib modules, or other edits to existing projects, use `bash-cli-pattern` instead.
+
+Đây không phải sự phân chia tuỳ tiện. Hai việc có hình dạng khác nhau:
+
+- **Sinh mới** là một hàm: đầu vào là bảy câu trả lời, đầu ra là mười bốn file, không cần đọc gì trong thư mục đích vì thư mục đích đang rỗng.
+- **Sửa đổi** thì ngược lại: phải đọc code đang có trước, rồi bắt chước nó. `bash-cli-pattern` viết rõ điều này — thêm một subcommand thì "đọc 1-2 hàm `cmd_*` anh em trong cùng file, khớp cấu trúc của chúng".
+
+Gộp hai việc vào một skill sẽ tạo ra một skill lúc nào cũng phải hỏi "đây là dự án mới hay cũ?" trước khi làm bất cứ điều gì. Tách ra thì câu hỏi ấy biến mất — nó đã được trả lời ở bước chọn skill.
+
+---
+
+# PHẦN 2 — Bề mặt bạn thật sự chạm vào
+
+## Bảy câu hỏi, hỏi một lần
+
+`SKILL.md` yêu cầu hỏi trọn bộ đầu vào trong **một** lượt — nguyên văn: "single AskUserQuestion batch — don't drip them out". Đây là chi tiết nhỏ nhưng nói nhiều về cách viết skill: nhỏ giọt câu hỏi biến một tác vụ ba mươi giây thành bảy lượt hội thoại.
+
+| Đầu vào | Ví dụ | Dùng để làm gì |
+|---|---|---|
+| Tên dự án (kebab-case) | `pg-migrate` | tên thư mục, tên file `<name>.sh`, tiêu đề help |
+| Namespace hàm (2-3 ký tự) | `pgm` | tiền tố hàm: `pgm_settings_scan` |
+| Tiền tố biến môi trường | `PGM` | `PGM_PKG_DIR`, `PGM_LOG_LEVEL` |
+| Danh sách subcommand ban đầu | `apply`, `rollback` | nhánh dispatcher + hàm `cmd_*` rỗng |
+| Thư mục đích | `scripts/bash/pg-migrate/` | nơi ghi cây thư mục |
+| Tool ngoài cần dùng | `psql`, `jq` | mục khởi tạo trong `tools.json.example` |
+| Kiểu changelog | keep-a-changelog | định dạng `CHANGELOG.md` |
+
+Bốn thứ skill tự quyết, không hỏi: luôn dùng `#!/usr/bin/env bash`; luôn kèm `_bootstrap.sh`; **luôn có `init` và `doctor` kể cả khi bạn không liệt kê**; luôn có `.shellcheckrc`, `.editorconfig`, `VERSION` bắt đầu ở `0.1.0`.
+
+## Mười bốn file đi ra
+
+@fig:tree
+    entry     __NAME__.sh 168 dòng — 6 khối, dispatcher ở cuối
+    lib       _bootstrap.sh 45 · common.sh 152 · settings.sh 116 · tools.sh 86
+    config    tools.json.example · bootstrap.json
+    tests     helpers/load.bash 17 · unit/common.bats 46 — 7 @test
+    meta      VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig
+@endfig
+
+Cộng lại: 14 file, 567 dòng shell ở phần entry + lib, 63 dòng test. Thêm hai thư mục rỗng (`tests/fixtures/`, `docs/`) được tạo sẵn để có chỗ đặt.
+
+Ngay sau khi sinh xong, ba lệnh này chạy được mà không cần viết thêm dòng nào:
+
+    <name>.sh --help          # màn hình help dựng đầy đủ
+    <name>.sh init            # quét môi trường, ghi settings.json
+    <name>.sh doctor          # đối chiếu settings.json với môi trường sống
+
+Các `cmd_*` do bạn đặt tên thì chỉ là chỗ trống: mỗi hàm gọi `die 1 "subcommand <name> not implemented yet"`. Bộ khung không đoán bạn muốn gì.
+
+## Vòng đời `settings.json`
+
+Đây là phần mà cả hai dự án gốc đều có và là lý do bộ khung đáng dùng. Ý tưởng: **môi trường máy là một thứ cần được chụp lại và kiểm tra trôi dạt**, không phải thứ dò lại mỗi lần chạy.
+
+@fig:cycle
+    1  init đọc config/tools.json.example để biết cần tool nào
+    2  tool_probe từng tool: resolve đường dẫn, đọc version, đoán variant
+    3  jq -n dựng JSON, atomic_write xuống settings.json
+    4  doctor quét lại môi trường sống rồi diff với bản đã lưu
+    5  doctor --fix sao lưu .bak rồi ghi đè bằng bản quét mới
+    → quay lại bước 2
+@endfig
+
+Năm hàm trong `lib/settings.sh` chia nhau vòng lặp này: `scan` (chỉ in ra stdout, không ghi đĩa), `init` (từ chối ghi đè nếu file đã tồn tại, trừ khi có `--force`), `diff` (in bảng so sánh từng tool), `repair` (sao lưu rồi ghi lại), và `assert` — hàm im lặng, chỉ trả mã thoát khác 0 khi phát hiện trôi dạt, dành cho việc chặn trong script khác.
+
+`settings.json` **không** được sinh lúc scaffold. `SKILL.md` nêu lý do rõ ràng: giữ cho bộ khung tái lập được, không nhét đường dẫn riêng của một máy vào file khởi tạo. Nó nằm trong `.gitignore` ngay từ đầu; thứ được commit là `tools.json.example`.
+
+## Ba hàm resolve tool
+
+`lib/tools.sh` ánh xạ 1:1 từ `capture-cmd/lib/_probe.sh`, chỉ đổi tên:
+
+| Bộ khung | Bản gốc trong capture-cmd | Làm gì |
+|---|---|---|
+| `tool_resolve` | `cc_resolve` | `settings.json` trước, `command -v` sau |
+| `tool_version` | `cc_version` | thử `--version`, rồi `-V`, rồi `-v` |
+| `tool_variant` | `cc_variant` | đoán `gnu` / `apple` / `bsd` / `unknown` |
+| `tool_probe` | `cc_probe_tool` | gộp cả ba, trả về JSON |
+
+`tool_variant` là hàm dễ bị xem nhẹ nhất nhưng lại là lý do bộ khung tồn tại trên macOS: `date`, `sed`, `grep` bản BSD và bản GNU nhận cờ khác nhau, và một script chạy đúng trên CI Linux có thể hỏng âm thầm trên máy lập trình viên. Ghi lại `variant` lúc `init` biến sự khác biệt đó thành dữ liệu thay vì thành một bug lúc 11 giờ đêm.
+
+---
+
+# PHẦN 3 — Bên trong bộ khung
+
+## Bộ giải interpreter: file chạy trước mọi thứ khác
+
+`lib/_bootstrap.sh` là thứ đầu tiên entry point `source`, trước cả `common.sh`. Bài toán nó giải: trên macOS, `/bin/bash` là bản 3.2 từ năm 2007, và khi script được gọi từ `cron` hay `launchd` với `PATH` bị rút gọn, đó chính là interpreter mà kernel chọn — dù bạn đã cài bash 5 bằng Homebrew.
+
+@fig:resolver
+    kernel đã chọn một bản bash nào đó
+    có settings.json + có jq  →  đọc .tools.bash.path, exec lại chính mình bằng bash đó
+    thiếu settings.json hoặc thiếu jq  →  đi tiếp, không lỗi
+    bash < 4 sau khi đã qua hai nhánh trên  →  in cách khắc phục rồi exit 1
+@endfig
+
+Ba chi tiết trong 45 dòng đó đáng học riêng:
+
+**File tự cấm mình dùng bash 4.** Comment đầu file viết rõ: không mảng kết hợp, không `${var,,}`, không `[[ =~ ]]`. Nó phải chạy được dưới chính cái interpreter mà nó sắp thay thế — nếu nó dùng cú pháp bash 4, nó sẽ chết trước khi kịp sửa vấn đề.
+
+**Một biến cờ chặn vòng lặp re-exec.** `__PKG___BASH_BOOTSTRAPPED` được `export` trước khi `exec`. Thiếu nó, nếu `.tools.bash.path` trỏ tới một bản bash mà `$BASH` báo cáo dưới tên khác, script sẽ tự gọi lại chính nó vô hạn.
+
+**Thông báo lỗi kèm cách sửa, không chỉ kèm lời than.** Khi rơi xuống cổng bash-4, nó in hai dòng: `brew install bash` và `<name>.sh doctor --fix`. Người dùng không phải đi tra.
+
+## Hai lớp chặn bash cũ, nhưng chỉ một lớp thật sự canh cửa
+
+@fig:gate
+    _bootstrap.sh   chạy khi được source — đây là lớp thật sự chặn
+    require_bash_4  được định nghĩa trong common.sh, entry point không gọi
+@endfig
+
+`lib/common.sh` định nghĩa `require_bash_4()` và comment của nó ghi "call from entry point". Nhưng entry point mà bộ khung sinh ra không gọi hàm đó ở đâu cả — lớp chặn thực sự là khối `BASH_VERSINFO[0] -lt 4` nằm cuối `_bootstrap.sh`, và nó chạy tự động vì `_bootstrap.sh` được `source` ngay dòng đầu.
+
+Điều này đáng biết khi bạn đọc code: `require_bash_4` là một hàm công khai để bạn gọi trong `bin/` wrapper của riêng mình — những script đó không nhất thiết đi qua `_bootstrap.sh`. Dự án `claude-global-rules-bootstrap` thật thì có gọi nó, ở dòng 34 của `bin/sync-custom-instruction`.
+
+## Cỗ máy placeholder
+
+Template không dùng công cụ template nào cả. Chúng là file shell hợp lệ với marker nhúng thẳng vào, và bước sinh chỉ là thay chuỗi theo nghĩa đen. Tám marker khác nhau, 113 lần xuất hiện trong 14 file:
+
+@fig:markers
+    __NAME__ (21)                    → pg-migrate
+    __ns__ (47)                      → pgm
+    __PKG__ (38)                     → PGM
+    __DESC__ (2)                     → dòng mô tả một câu
+    __NS__ (2)                       → tên component mặc định khi log
+    __SUBCOMMANDS_HELP_LINES__ (1)   → các dòng trong màn hình help
+    __STUB_CMD_FUNCTIONS__ (1)       → khối hàm cmd_* rỗng
+    __DISPATCH_STUB_ARMS__ (1)       → các nhánh case trong dispatcher
+@endfig
+
+Điểm tinh tế nhất nằm ở số dấu gạch dưới. Bash có quy ước đặt tiền tố `_` cho hàm nội bộ, nên một hàm riêng tư trong namespace `pgm` phải tên là `_pgm_log`. Trong template, thứ đó được viết là `___ns___` — ba gạch dưới, `ns`, ba gạch dưới. Sau khi thay `__ns__` → `pgm`, chuỗi tự trở thành `_pgm_`. Tương tự `___PKG___` → `_PGM_` cho các source guard như `_PGM_COMMON_SOURCED`.
+
+Cách này gọn nhưng đòi hỏi thay theo đúng nghĩa đen và phân biệt hoa thường. `references/placeholders.md` nhấn mạnh chính điểm đó: "`sed s/__ns__/pgm/` sẽ không khớp `__NS__`" — và trong `common.sh` thì cả hai dạng cùng tồn tại, phục vụ hai mục đích khác nhau.
+
+Ba marker cuối bảng không phải thay-một-từ mà là thay-một-khối: chúng là chỗ mà danh sách subcommand bạn khai báo được dệt vào ba nơi cùng lúc — màn hình help, các hàm rỗng, và dispatcher. Ba nơi này phải khớp nhau, và `bash-cli-pattern` liệt kê việc quên cập nhật help là lỗi chứ không phải thiếu sót nhỏ: "help renderer là một hệ thống con thật sự; thiếu mục trong đó là bug".
+
+## Bộ khung đạt bao nhiêu trên mười quy ước
+
+`bash-cli-pattern` định nghĩa 10 bất biến cho pattern này. Đối chiếu với thứ mà scaffold thật sự sinh ra:
+
+@fig:invariants
+    1  Entry point 6 khối theo thứ tự cố định
+    2  #!/usr/bin/env bash + _bootstrap.sh
+    3  bin/ để chạy, lib/ chỉ để source
+    4  Hàm trong lib đều có namespace
+    5  Nhận cả --flag value lẫn --flag=value
+    6  Bề mặt chẩn đoán init + doctor + assert
+    7  Help tập trung + help từng lệnh + help lib
+    8  Log ra stderr, dữ liệu ra stdout
+    9  JSON dựng bằng jq -n --arg + atomic_write
+    10 .shellcheckrc + .editorconfig + VERSION + CHANGELOG.md
+@endfig
+
+Tám bất biến được thoả trọn vẹn ngay lúc sinh. Hai cái còn lại là phần bộ khung cố tình để ngỏ:
+
+**Bất biến 3 — `bin/`.** Cây thư mục mặc định không có `bin/`. `references/output-tree.md` xếp nó vào mục "không được sinh ra", với lý do: wrapper `bin/` chỉ có ý nghĩa khi bạn đã biết mình muốn tách lệnh nào ra thành binary riêng. `capture-cmd` có 6 file trong `bin/`; `claude-global-rules-bootstrap` có 1. Không có con số mặc định nào đúng.
+
+**Bất biến 7 — `help lib`.** Bộ khung sinh ra `show_top_help` và `show_sub_help` với ba nhánh `init` / `doctor` / `version`. `help lib` — lệnh in ra danh sách module trong `lib/` — chỉ tồn tại trong `capture-cmd` (`lib/_help.sh`, dòng 101). Nó cần biết dự án của bạn có những lib nào, mà lúc scaffold thì mới có đúng bốn lib mặc định.
+
+## Bốn thứ skill từ chối làm
+
+`SKILL.md` dành hẳn một mục cho việc này, và mục đó đáng đọc hơn mục liệt kê tính năng:
+
+- **Không chạy `init` hộ bạn.** Sinh `settings.json` là một hành động có chủ ý của người dùng, vì nó ghi đường dẫn tuyệt đối của máy đó vào đĩa.
+- **Không viết thân hàm subcommand.** Mọi `cmd_*` do bạn đặt tên đều là `die 1 "not implemented"`.
+- **Không đăng ký vào `PATH`, alias hay registry nào.** Bạn tự nối nó vào shell của mình.
+- **Không sinh test ngoài một bộ smoke test.** `tests/unit/common.bats` có 7 `@test` kiểm tra rằng `common.sh` source sạch và các helper tồn tại — trong đó có một test bật cửa hậu `__PKG___OS_OVERRIDE` để ép `detect_os` trả về `linux` mà không cần đổi máy.
+
+Và một quy tắc về thứ tự: nếu bạn yêu cầu cả bốn thứ trên trong cùng một lượt, skill làm scaffold trước, rồi mới xử lý phần còn lại — và chuyển sang `bash-cli-pattern` nếu phần còn lại là sửa file vừa sinh.
+
+## Bước kiểm tra cuối
+
+Sau khi ghi xong toàn bộ file, skill chạy ba lệnh chỉ-đọc: `chmod +x` cho entry point, gọi `--help`, và chạy `shellcheck` nếu máy có cài. Câu kết của mục đó dứt khoát: nếu `--help` không hiện ra, bộ khung hỏng — dừng lại và sửa trước khi báo xong.
+
+Đó là kiểu điều kiện nghiệm thu đáng học khi bạn tự viết skill: một lệnh chạy được, rẻ, và thất bại một cách ồn ào. Không phải "đọc lại file xem có đúng không".
+
+---
+
+Trang này được dựng bằng cách đọc trực tiếp `SKILL.md`, hai file trong `references/`, toàn bộ 14 file trong `templates/`, cùng mã nguồn thật của `capture-cmd` và `claude-global-rules-bootstrap`. Mọi con số — 13 dòng lệch, 45 dòng, 8 marker, 113 lần xuất hiện, 2.012 và 3.344 dòng — đều đếm từ file, không ước lượng.
+
+Các phép so sánh `diff` được thực hiện bằng cách thay ngược marker trong template về namespace của dự án gốc (`scp` cho bootstrap, `cc` cho capture-cmd) rồi so sánh từng dòng. Số liệu đo ngày 18/09/2026.
+
+Bộ khung chưa được chạy thật trong quá trình dựng trang: không có dự án nào được sinh ra, `init` và `doctor` chưa được thực thi. Những gì mô tả ở Phần 2 và Phần 3 là kết quả đọc mã, không phải kết quả chạy.
+</script>
+<script>/* ===================================================================
+   LAYER 1 . DATA
+   No DOM, no logic. STATE, I18N (chrome only), SRC, FIG.
+   =================================================================== */
+
+var STATE = { view: 'doc', nav: false };
+
+var SRC = document.getElementById('src').textContent;
+
+var I18N = {
+  kick: 'Nghiên cứu skill . công cụ cho agent',
+  doc: 'Tài liệu',
+  md: 'Markdown',
+  copy: 'Copy markdown',
+  done: 'Đã copy',
+  contents: 'Mục lục',
+  navHead: 'Trong bài',
+  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+};
+
+/* Figure payloads. `type` picks the renderer; everything else is its data. */
+var FIG = {
+
+  proof: {
+    type: 'proof',
+    cap: 'Bốn module mà bộ khung sinh ra, đối chiếu với file gốc trong hai dự án thật.',
+    rows: [
+      { kind: 'keep', n: '45/45', what: '`lib/_bootstrap.sh`',
+        detail: 'logic trùng khít capture-cmd — chỉ khác số gạch dưới của biến cục bộ' },
+      { kind: 'keep', n: '13', what: '`lib/common.sh`',
+        detail: '13 dòng lệch so với bản thật trong bootstrap, và cả 13 đều là comment' },
+      { kind: 'keep', n: '4/4', what: '`lib/tools.sh`',
+        detail: 'bốn hàm ánh xạ 1:1 từ capture-cmd/lib/_probe.sh, chỉ đổi tên' },
+      { kind: 'gone', n: '5/6', what: '`lib/settings.sh`',
+        detail: 'giữ scan · init · diff · repair · assert, bỏ cc_settings_get' }
+    ],
+    note: 'Đo bằng cách thay ngược marker trong template về namespace của dự án gốc (`scp`, `cc`) rồi `diff` từng dòng.'
+  },
+
+  bars: {
+    type: 'bars',
+    cap: 'Dòng shell và bats trong hai dự án nguồn, so với phần mã mà scaffold thật sự sinh ra.',
+    rows: [
+      { label: 'claude-global-rules-bootstrap', ms: 3344, val: '3.344 dòng' },
+      { label: 'capture-cmd', ms: 2012, val: '2.012 dòng' },
+      { label: 'bộ khung sinh ra · entry + lib', ms: 567, val: '567 dòng', cold: true }
+    ]
+  },
+
+  tree: {
+    type: 'levels',
+    cap: 'Mười bốn file, chia theo vai trò. Thêm hai thư mục rỗng: `tests/fixtures/` và `docs/`.',
+    levels: [
+      { name: 'entry', note: '1 file · 168 dòng', tools: [
+        ['__NAME__.sh', 'sáu khối theo thứ tự cố định, dispatcher nằm cuối'] ] },
+      { name: 'lib', note: '4 file · 399 dòng', tools: [
+        ['_bootstrap.sh', '45 — giải interpreter, phải an toàn với bash 3.2'],
+        ['common.sh', '152 — log bốn mức, `die`, `atomic_write`, `detect_os`'],
+        ['settings.sh', '116 — scan · init · diff · repair · assert'],
+        ['tools.sh', '86 — resolve · version · variant · probe'] ] },
+      { name: 'config', note: '2 file', tools: [
+        ['tools.json.example', 'danh sách tool cần dò lúc `init`; đây là file được commit'],
+        ['bootstrap.json', 'cấu hình tĩnh: log level mặc định, đường dẫn'] ] },
+      { name: 'tests', note: '2 file · 63 dòng', tools: [
+        ['helpers/load.bash', '17 — source lib và đặt `PKG_DIR` cho bats'],
+        ['unit/common.bats', '46 — 7 `@test` smoke cho `common.sh`'] ] },
+      { name: 'meta', note: '5 file', tools: [
+        ['VERSION', '`0.1.0`'],
+        ['CHANGELOG.md', 'keep-a-changelog, một mục `0.1.0`'],
+        ['.gitignore', 'bỏ qua `settings.json`, `*.bak`, `tmp/`'],
+        ['.shellcheckrc', 'tắt SC1091 kèm lý do viết ra thành chữ'],
+        ['.editorconfig', '4 space cho `.sh` và `.bats`, LF, cắt whitespace thừa'] ] }
+    ]
+  },
+
+  cycle: {
+    type: 'loop',
+    cap: 'Vòng đời `settings.json` — môi trường máy được chụp lại một lần, rồi kiểm tra trôi dạt.',
+    steps: [
+      '`init` đọc `config/tools.json.example` để biết cần những tool nào',
+      '`tool_probe` từng tool: resolve đường dẫn, đọc version, đoán variant',
+      '`jq -n --arg` dựng JSON, `atomic_write` ghi xuống `settings.json`',
+      '`doctor` quét lại môi trường sống rồi diff với bản đã lưu',
+      '`doctor --fix` sao lưu `.bak` rồi ghi đè bằng bản quét mới'
+    ],
+    back: 'quay lại bước 2 — mỗi lần chạy là một lần quét mới'
+  },
+
+  resolver: {
+    type: 'routes',
+    cap: '`lib/_bootstrap.sh`: 45 dòng chạy trước mọi thứ khác, trong đó có cả lớp chặn bash cũ.',
+    top: 'kernel đã chọn một bản bash nào đó — trên macOS thường là /bin/bash 3.2',
+    routes: [
+      ['có settings.json + có jq', 'đọc `.tools.bash.path`, `exec` lại chính mình bằng bash đó'],
+      ['thiếu settings.json hoặc jq', 'đi tiếp, không báo lỗi — hành vi vẫn xác định trước khi `init` chạy'],
+      ['vẫn dưới bash 4', 'in `brew install bash` và `doctor --fix` rồi `exit 1`']
+    ],
+    bottom: '__PKG___BASH_BOOTSTRAPPED được export trước khi exec, chặn vòng lặp re-exec'
+  },
+
+  gate: {
+    type: 'guards',
+    cap: 'Hai lớp chặn bash cũ trong bộ khung, và lớp nào thật sự canh cửa.',
+    rows: [
+      { kind: 'fast', tag: '_bootstrap.sh',
+        text: 'Khối `BASH_VERSINFO[0] -lt 4` ở cuối file. Chạy tự động vì entry point `source` file này ngay dòng đầu. **Đây là lớp thật sự chặn.**' },
+      { kind: 'bound', tag: 'require_bash_4()',
+        text: 'Định nghĩa trong `common.sh` kèm comment "call from entry point", nhưng entry point sinh ra không gọi nó. Nó dành cho các script `bin/` bạn tự thêm sau — những script không đi qua `_bootstrap.sh`.' }
+    ]
+  },
+
+  markers: {
+    type: 'islands',
+    cap: 'Tám marker, 113 lần xuất hiện trong 14 file. Thay theo nghĩa đen, phân biệt hoa thường.',
+    rows: [
+      { where: '__NAME__ · 21', scope: 'pg-migrate' },
+      { where: '__ns__ · 47', scope: 'pgm' },
+      { where: '__PKG__ · 38', scope: 'PGM' },
+      { where: '__DESC__ · 2', scope: 'dòng mô tả một câu' },
+      { where: '__NS__ · 2', scope: 'tên component mặc định khi log' },
+      { where: '__SUBCOMMANDS_HELP_LINES__', scope: 'các dòng trong màn hình help', shared: true },
+      { where: '__STUB_CMD_FUNCTIONS__', scope: 'khối hàm cmd_* rỗng', shared: true },
+      { where: '__DISPATCH_STUB_ARMS__', scope: 'các nhánh case trong dispatcher', shared: true }
+    ],
+    note: 'Ba marker cuối không thay một từ mà thay cả một khối — chúng dệt danh sách subcommand của bạn vào ba nơi cùng lúc.'
+  },
+
+  invariants: {
+    type: 'questions',
+    cap: 'Mười bất biến do `bash-cli-pattern` định nghĩa, đối chiếu với thứ scaffold thật sự sinh ra.',
+    items: [
+      'Entry point sáu khối theo thứ tự cố định',
+      '`#!/usr/bin/env bash` cộng bộ giải interpreter `_bootstrap.sh`',
+      '`bin/` để chạy, `lib/` chỉ để source — *để ngỏ: cây mặc định không có `bin/`*',
+      'Hàm trong lib đều mang namespace của dự án',
+      'Nhận cả `--flag value` lẫn `--flag=value`',
+      'Bề mặt chẩn đoán `init` + `doctor` + assert',
+      'Help tập trung, help từng lệnh, và `help lib` — *để ngỏ: chưa có `help lib`*',
+      'Log và lỗi ra stderr, dữ liệu có cấu trúc ra stdout',
+      'JSON dựng bằng `jq -n --arg` rồi `atomic_write`',
+      '`.shellcheckrc` + `.editorconfig` + `VERSION` + `CHANGELOG.md` ở gốc'
+    ],
+    scores: [
+      { n: '8/10', label: 'thoả trọn vẹn ngay lúc sinh', kind: 'good' },
+      { n: '2/10', label: 'để ngỏ có chủ đích', kind: 'bad' }
+    ]
+  }
+};
+
+
+/* ===================================================================
+   LAYER 2 . COMPONENTS
+   Pure: data in, DOM out. Must not read STATE.
+   =================================================================== */
+
+function esc(s){ return String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function el(tag, attrs, kids){
+  var n = document.createElement(tag);
+  if(attrs) for(var k in attrs){
+    if(k === 'html') n.innerHTML = attrs[k];
+    else if(k === 'text') n.textContent = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(function(c){ if(c) n.appendChild(c); });
+  return n;
+}
+
+/* Code spans are pulled out before escaping and put back after, so that
+   markup inside them is never interpreted. The sentinel is ordinary text,
+   not a control character, so the source stays copy-paste safe. */
+function inline(s){
+  var keep = [];
+  s = String(s).replace(/`([^`]+)`/g, function(_, c){
+    keep.push(c); return 'K0DE' + (keep.length - 1) + 'K0DE';
+  });
+  s = esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*([^*]+)\*(?![*\w])/g, '$1<em>$2</em>');
+  return s.replace(/K0DE(\d+)K0DE/g, function(_, i){
+    return '<code>' + esc(keep[+i]) + '</code>';
+  });
+}
+
+var BLOCK = {
+  h: function(b){
+    var tag = b.level === 1 ? 'h2' : b.level === 2 ? 'h3' : 'h4';
+    var m = /^(PHAN|PHẦN|PART)\s+(\d+)\s*—\s*(.*)$/.exec(b.text);
+    if(tag === 'h2' && m){
+      return el('h2', null, [
+        el('span', { class: 'eyebrow', text: m[1] + ' ' + m[2] }),
+        el('span', { html: inline(m[3]) })
+      ]);
+    }
+    return el(tag, { html: inline(b.text) });
+  },
+  p:  function(b){ return el('p', { html: inline(b.text) }); },
+  ul: function(b){ return el('ul', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  ol: function(b){ return el('ol', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  quote: function(b){ return el('blockquote', null, b.items.map(function(t){
+        return el('p', { html: inline(t) }); })); },
+  code: function(b){
+    return el('div', { class: 'pre' }, [ el('pre', { text: b.text }) ]);
+  },
+  hr: function(){ return el('hr'); },
+  table: function(b){
+    var head = el('tr', null, b.head.map(function(c){
+      return el('th', { html: inline(c) }); }));
+    var body = b.rows.map(function(r){
+      return el('tr', null, r.map(function(c){ return el('td', { html: inline(c) }); }));
+    });
+    return el('div', { class: 'tw' }, [
+      el('table', null, [ el('thead', null, [head]), el('tbody', null, body) ])
+    ]);
+  },
+  fig: function(b){
+    var f = FIG[b.id];
+    if(!f) return el('p', { text: '[missing figure: ' + b.id + ']' });
+    var render = FIGURE[f.type];
+    if(!render) return el('p', { text: '[no renderer: ' + f.type + ']' });
+    return el('figure', null, [
+      el('div', { class: 'fig' }, [ render(f) ]),
+      f.cap ? el('figcaption', { html: inline(f.cap) }) : null
+    ]);
+  }
+};
+
+/* -- markdown ------------------------------------------------------- */
+
+var MD = {
+  parse: function(src){
+    var lines = src.split('\n'), out = [], i = 0;
+    function blank(s){ return !s.trim(); }
+    function cells(s){
+      return s.trim().replace(/^\|/, '').replace(/\|$/, '')
+              .split('|').map(function(c){ return c.trim(); });
+    }
+
+    while(i < lines.length){
+      var ln = lines[i];
+      if(blank(ln)){ i++; continue; }
+
+      /* figure directive: keep the id, skip the ASCII fallback body */
+      var fm = /^@fig:(\S+)\s*$/.exec(ln);
+      if(fm){
+        var id = fm[1]; i++;
+        while(i < lines.length && !/^@endfig\s*$/.test(lines[i])) i++;
+        i++;
+        out.push({ t: 'fig', id: id });
+        continue;
+      }
+
+      var hm = /^(#{1,4})\s+(.*)$/.exec(ln);
+      if(hm){ out.push({ t: 'h', level: hm[1].length, text: hm[2].trim() }); i++; continue; }
+
+      if(/^---\s*$/.test(ln)){ out.push({ t: 'hr' }); i++; continue; }
+
+      if(/^\|/.test(ln) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])){
+        var head = cells(ln); i += 2;
+        var rows = [];
+        while(i < lines.length && /^\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
+        out.push({ t: 'table', head: head, rows: rows });
+        continue;
+      }
+
+      if(/^>\s?/.test(ln)){
+        var q = [];
+        while(i < lines.length && /^>\s?/.test(lines[i])){
+          q.push(lines[i].replace(/^>\s?/, '')); i++;
+        }
+        out.push({ t: 'quote', items: q });
+        continue;
+      }
+
+      var lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(ln);
+      if(lm){
+        var ordered = /\d/.test(lm[2]), items = [];
+        while(i < lines.length){
+          var m2 = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
+          if(m2){ items.push(m2[3]); i++; }
+          else if(/^\s{2,}\S/.test(lines[i]) && items.length){
+            items[items.length - 1] += ' ' + lines[i].trim(); i++;
+          } else break;
+        }
+        out.push({ t: ordered ? 'ol' : 'ul', items: items });
+        continue;
+      }
+
+      /* Four-space indented code. Blank lines inside one block are kept,
+         then trimmed off the end, so a diagram split by blank lines stays
+         a single block instead of becoming several. */
+      if(/^ {4}\S/.test(ln)){
+        var buf = [];
+        while(i < lines.length){
+          if(/^ {4}/.test(lines[i])){ buf.push(lines[i].slice(4)); i++; }
+          else if(blank(lines[i]) && /^ {4}/.test(lines[i + 1] || '')){ buf.push(''); i++; }
+          else break;
+        }
+        while(buf.length && !buf[buf.length - 1].trim()) buf.pop();
+        out.push({ t: 'code', text: buf.join('\n') });
+        continue;
+      }
+
+      var para = [ln.trim()]; i++;
+      while(i < lines.length && !blank(lines[i]) &&
+            !/^(#{1,4}\s|@fig:|@endfig|---\s*$|\||>\s?|\s*([-*]|\d+\.)\s|\s{4}\S)/.test(lines[i])){
+        para.push(lines[i].trim()); i++;
+      }
+      out.push({ t: 'p', text: para.join(' ') });
+    }
+    return out;
+  },
+
+  render: function(blocks){
+    var frag = document.createDocumentFragment();
+    blocks.forEach(function(b){
+      var fn = BLOCK[b.t];
+      if(fn) frag.appendChild(fn(b));
+    });
+    return frag;
+  }
+};
+
+
+/* -- figure renderers ---------------------------------------------- */
+
+var FIGURE = {
+
+  questions: function(f){
+    return el('div', null, [
+      el('ol', { class: 'qlist' }, f.items.map(function(t){
+        return el('li', { html: inline(t) }); })),
+      el('div', { class: 'score' }, f.scores.map(function(s){
+        return el('div', { class: 'sc ' + s.kind }, [
+          el('b', { text: s.n }), el('span', { text: s.label })
+        ]);
+      }))
+    ]);
+  },
+
+  proof: function(f){
+    return el('div', null, [
+      el('div', { class: 'proof' }, f.rows.map(function(r){
+        return el('div', { class: 'proof-row ' + r.kind }, [
+          el('div', { class: 'proof-what' }, [
+            el('span', { html: inline(r.what) }),
+            el('em', { text: r.detail })
+          ]),
+          el('div', { class: 'proof-n', text: r.n })
+        ]);
+      })),
+      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
+    ]);
+  },
+
+  graph: function(f){
+    var kids = [ el('div', { class: 'gnodes' }, f.nodes.map(function(n){
+      return el('span', { class: 'gn' + (n[1] ? ' core' : ''), text: n[0] }); })) ];
+    f.groups.forEach(function(g){
+      if(g.title) kids.push(el('div', { class: 'gsplit', text: g.title }));
+      kids.push(el('div', { class: 'gedges' }, g.edges.map(function(e){
+        return el('div', { class: 'ge' }, [
+          el('i', { text: e[0] }), el('b', { text: e[1] }), el('s', { text: e[2] })
+        ]);
+      })));
+    });
+    return el('div', null, kids);
+  },
+
+  loop: function(f){
+    var kids = f.steps.map(function(s, i){
+      return el('div', { class: 'lp' }, [
+        el('em', { text: String(i + 1) }),
+        el('div', { html: inline(s) })
+      ]);
+    });
+    if(f.back) kids.push(el('div', { class: 'loop-back', text: f.back }));
+    return el('div', { class: 'loop' }, kids);
+  },
+
+  levels: function(f){
+    return el('div', null, f.levels.map(function(L){
+      return el('div', { class: 'lvl' }, [
+        el('div', { class: 'lvl-h' }, [
+          el('span', { text: L.name + '  ' }),
+          el('span', { text: L.note })
+        ])
+      ].concat(L.tools.map(function(t){
+        return el('div', { class: 'tool' }, [
+          el('b', { text: t[0] }), el('span', { html: inline(t[1]) })
+        ]);
+      })));
+    }));
+  },
+
+  routes: function(f){
+    return el('div', null, [
+      el('div', { class: 'routes-top', text: f.top }),
+      el('div', { class: 'routes' }, f.routes.map(function(r){
+        return el('div', { class: 'rt' }, [
+          el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
+        ]);
+      })),
+      el('div', { class: 'routes-bot', text: f.bottom })
+    ]);
+  },
+
+  hooks: function(f){
+    return el('div', { class: 'hooks' }, f.rows.map(function(r){
+      return el('div', { class: 'hk' + (r.none ? ' none' : '') }, [
+        el('b', { text: r.hook }),
+        el('i', { text: r.reaches }),
+        el('span', { html: inline(r.carries) })
+      ]);
+    }));
+  },
+
+  gates: function(f){
+    return el('div', { class: 'gates' }, f.rows.map(function(r){
+      return el('div', { class: 'gt' }, [
+        el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
+      ]);
+    }));
+  },
+
+  islands: function(f){
+    var kids = f.rows.map(function(r){
+      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
+        el('s', { text: r.where }),
+        el('i', { text: '→' }),
+        el('b', { text: r.scope })
+      ]);
+    });
+    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
+    return el('div', { class: 'isl' }, kids);
+  },
+
+  bars: function(f){
+    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
+    return el('div', { class: 'bars' }, f.rows.map(function(r){
+      var pct = Math.max(2, Math.round(r.ms / max * 100));
+      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
+        el('b', { html: inline(r.label) }),
+        el('div', { class: 'br-track' }, [
+          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
+          el('span', { class: 'br-val', text: r.val })
+        ])
+      ]);
+    }));
+  },
+
+  guards: function(f){
+    return el('div', { class: 'guards' }, f.rows.map(function(r){
+      return el('div', { class: 'gd ' + r.kind }, [
+        el('b', { text: r.tag }),
+        el('p', { html: inline(r.text) })
+      ]);
+    }));
+  }
+};
+
+
+
+/* ===================================================================
+   LAYER 3 . LOGIC
+   Binds DATA to COMPONENTS. The only layer that touches STATE.
+   Pipeline:  SRC -> sections(front | body | footer) -> MD.parse
+                  -> MD.render -> DOM -> table of contents
+   Both views read the SAME text, so they cannot drift apart.
+   =================================================================== */
+
+/* front matter (title + lede) | body | footer, split on the outer rules */
+function sections(){
+  var t = SRC.replace(/^﻿/, '');
+  var first = t.indexOf('\n---\n');
+  var last = t.lastIndexOf('\n---\n');
+  var head = t.slice(0, first).split('\n');
+  return {
+    title: (head.filter(function(l){ return l.indexOf('# ') === 0; })[0] || '# ').slice(2),
+    lede: head
+           .filter(function(l){ return l.indexOf('> ') === 0; })
+           .map(function(l){ return l.slice(2); }),
+    body: t.slice(first + 5, last),
+    footer: t.slice(last + 5).split('\n\n')
+             .map(function(p){ return p.trim(); })
+             .filter(Boolean)
+  };
+}
+
+/* the copy-out markdown drops layout directives; prose and ASCII stay */
+function forCopy(){
+  return SRC.split('\n')
+    .filter(function(l){ return !/^@(fig:|endfig|box:|endbox)/.test(l); })
+    .join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function slug(s, i){
+  var base = String(s).toLowerCase()
+    .replace(/[^a-z0-9À-ỹ]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 44);
+  return (base || 'muc') + '-' + i;
+}
+
+/* ---- rendering -------------------------------------------------- */
+
+function buildToc(root){
+  var toc = document.getElementById('toc');
+  toc.textContent = '';
+  var heads = root.querySelectorAll('h2, h3');
+  var n = 0;
+  Array.prototype.forEach.call(heads, function(h){
+    n++;
+    if(!h.id) h.id = slug(h.textContent, n);
+    var isPart = h.tagName === 'H2';
+    var label = h.textContent;
+    if(isPart){
+      var eb = h.querySelector('.eyebrow');
+      if(eb) label = eb.textContent + ' — ' + label.slice(eb.textContent.length);
+    }
+    var a = el('a', {
+      href: '#' + h.id,
+      class: isPart ? 'part' : 'lv3',
+      text: label
+    });
+    a.addEventListener('click', function(){ if(!wide()) setNav(false); });
+    toc.appendChild(a);
+  });
+}
+
+function render(){
+  var s = sections();
+
+  var h1 = document.getElementById('title');
+  h1.textContent = s.title;
+  document.title = s.title;
+
+  var lede = document.getElementById('lede');
+  lede.textContent = '';
+  s.lede.forEach(function(p){ lede.appendChild(el('p', { html: inline(p) })); });
+
+  var doc = document.getElementById('doc');
+  doc.textContent = '';
+  doc.appendChild(MD.render(MD.parse(s.body)));
+
+  var foot = document.getElementById('foot');
+  foot.textContent = '';
+  s.footer.forEach(function(p){ foot.appendChild(el('p', { html: inline(p) })); });
+
+  document.getElementById('mdtext').textContent = forCopy();
+
+  buildToc(doc);
+
+  var isDoc = STATE.view === 'doc';
+  document.getElementById('docview').hidden = !isDoc;
+  document.getElementById('md').hidden = isDoc;
+  var vb = document.getElementById('viewbtn');
+  vb.textContent = isDoc ? I18N.md : I18N.doc;
+  vb.setAttribute('aria-pressed', isDoc ? 'false' : 'true');
+
+  /* no anchors to jump to in the markdown view */
+  var nb = document.getElementById('navbtn');
+  nb.hidden = !isDoc;
+  if(!isDoc && STATE.nav) setNav(false);
+
+  spy();
+}
+
+/* ---- controls ---------------------------------------------------- */
+
+function wide(){ return (window.innerWidth || 1280) >= 1180; }
+
+function setView(v){ STATE.view = v; render(); }
+
+function setNav(open){
+  STATE.nav = open;
+  document.getElementById('nav').classList.toggle('open', open);
+  document.getElementById('scrim').hidden = !open || wide();
+  document.getElementById('navbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function copyMd(){
+  var btn = document.getElementById('copybtn');
+  var text = document.getElementById('mdtext').textContent;
+  function flash(msg){
+    var old = btn.textContent; btn.textContent = msg;
+    setTimeout(function(){ btn.textContent = old; }, 1600);
+  }
+  function fallback(){
+    try{
+      var r = document.createRange();
+      r.selectNodeContents(document.getElementById('mdtext'));
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(r);
+      var ok = false;
+      try{ ok = document.execCommand('copy'); }catch(e){}
+      flash(ok ? I18N.done : 'Đã bôi đen — Cmd/Ctrl+C');
+    }catch(e){ flash('Bôi đen thủ công'); }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ flash(I18N.done); }, fallback);
+  } else fallback();
+}
+
+/* ---- scrollspy ---------------------------------------------------- */
+
+var spyTimer = null;
+function spy(){
+  if(spyTimer) return;
+  spyTimer = setTimeout(function(){
+    spyTimer = null;
+    var links = document.querySelectorAll('#toc a');
+    var best = null, bestTop = -1e9;
+    Array.prototype.forEach.call(links, function(a){
+      var t = document.getElementById(a.getAttribute('href').slice(1));
+      if(!t) return;
+      var top = t.getBoundingClientRect().top - 90;
+      if(top <= 0 && top > bestTop){ bestTop = top; best = a; }
+    });
+    Array.prototype.forEach.call(links, function(a){
+      a.classList.toggle('on', a === best);
+    });
+  }, 90);
+}
+
+/* ---- wiring ------------------------------------------------------- */
+
+function boot(){
+  document.getElementById('kick').textContent = I18N.kick;
+  document.getElementById('navhead').textContent = I18N.navHead;
+  document.getElementById('copybtn').textContent = I18N.copy;
+  document.getElementById('mdnote').textContent = I18N.mdNote;
+  document.getElementById('navbtn').textContent = I18N.contents;
+
+  document.getElementById('viewbtn').addEventListener('click', function(){
+    setView(STATE.view === 'doc' ? 'md' : 'doc');
+  });
+  document.getElementById('navbtn').addEventListener('click', function(){
+    setNav(!STATE.nav);
+  });
+  document.getElementById('scrim').addEventListener('click', function(){ setNav(false); });
+  document.getElementById('copybtn').addEventListener('click', copyMd);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && STATE.nav) setNav(false);
+  });
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', function(){
+    setNav(wide() ? false : STATE.nav);
+  });
+
+  render();
+  setNav(false);
+}
+
+boot();
+</script>
+</body>
+</html>
