@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>video-marker: làm demo video không hao như bạn nghĩ</title>
+<meta name="description" content="Ghi chép đọc mã một Claude Code skill: ảnh tĩnh cộng giọng đọc macOS, ffmpeg ghép lại, và những giới hạn nó chọn mang.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>/* Structural base for a single-file doc site.
+   The PALETTE below is a placeholder: the playbook (section 7) asks you to ground
+   colour and type in the subject, not in a template. Replace the token VALUES and
+   keep the three-times structure (:root, prefers-color-scheme guarded, [data-theme]).
+   Figure classes at the bottom are a catalog -- keep the ones your figures use,
+   delete the rest, add your own. */
+:root{
+  --ground:#F4F2EE; --surface:#FFFFFF; --panel:#EDEAE4; --line:#D8D3CA; --line-soft:#E6E2DB;
+  --ink:#1A1916; --muted:#5E5A52; --faint:#8A857B;
+  --trace:#2C5F63; --trace-soft:#DFEBEB;
+  --est:#2F6B4F;  --hyp:#9A6414;  --unv:#5E5A52;  --asm:#7A4E86;
+  --alarm:#8E2F26; --alarm-soft:#F6E5E2;
+  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
+  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
+  --trace:#7FBDBF; --trace-soft:#172A2B;
+  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
+  --alarm:#E0897E; --alarm-soft:#2C1B18;
+}}
+:root[data-theme="dark"]{
+  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
+  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
+  --trace:#7FBDBF; --trace-soft:#172A2B;
+  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
+  --alarm:#E0897E; --alarm-soft:#2C1B18;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+  font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--trace);outline-offset:3px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto}}
+
+/* ── top bar ─────────────────────────────────────────────── */
+.bar{position:sticky;top:0;z-index:40;background:var(--ground);
+  border-bottom:1px solid var(--line);
+  padding:9px 18px;padding-top:calc(9px + env(safe-area-inset-top,0px));
+  display:flex;gap:10px;align-items:center}
+.bar .sp{flex:1}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.03em;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:3px;padding:7px 12px;transition:color .12s,border-color .12s}
+button:hover{color:var(--ink);border-color:var(--trace)}
+button[aria-pressed="true"]{color:var(--ground);background:var(--trace);border-color:var(--trace)}
+#navbtn{display:inline-flex}
+@media (min-width:1180px){#navbtn{display:none}}
+
+/* ── drawer ──────────────────────────────────────────────── */
+#nav{position:fixed;z-index:50;top:0;left:0;width:290px;height:100dvh;overflow-y:auto;
+  background:var(--surface);border-right:1px solid var(--line);
+  padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-100%);transition:transform .2s}
+#nav.open{transform:none}
+#scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.42)}
+@media (min-width:1180px){
+  #nav{transform:none;border-right:1px solid var(--line-soft);background:transparent}
+  #scrim{display:none}
+  body{padding-left:290px}
+  .bar{padding-left:26px}
+}
+#nav .navhead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 12px;padding-left:11px}
+#toc a{display:block;text-decoration:none;color:var(--muted);font-size:13.5px;line-height:1.42;
+  padding:6px 0 6px 11px;border-left:2px solid var(--line-soft)}
+#toc a:hover{color:var(--ink);border-left-color:var(--trace)}
+#toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--faint)}
+#toc a.on{color:var(--ink);border-left-color:var(--trace);font-weight:600}
+#toc a.part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink);margin-top:16px;border-left-color:var(--trace)}
+#toc a.part:first-child{margin-top:0}
+
+/* ── page ────────────────────────────────────────────────── */
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 90px}
+.hero{padding:52px 0 26px;border-bottom:1px solid var(--line)}
+.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--trace);margin:0 0 16px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.1;
+  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance}
+.lede p{font-size:clamp(17px,2.2vw,19.5px);color:var(--muted);margin:0 0 13px;max-width:64ch}
+h2,h3,h4{scroll-margin-top:78px}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,4vw,31px);line-height:1.2;
+  letter-spacing:-.012em;margin:54px 0 18px;text-wrap:balance}
+h2 .eyebrow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--trace);font-weight:400;margin-bottom:11px;letter-spacing:.16em}
+h3{font-family:var(--serif);font-weight:600;font-size:20.5px;margin:38px 0 12px}
+h4{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
+p{margin:0 0 17px;max-width:66ch}
+ul,ol{margin:0 0 18px;padding-left:22px;max-width:66ch}
+li{margin-bottom:8px}
+li::marker{color:var(--trace)}
+strong{font-weight:600}
+blockquote{margin:0 0 20px;padding:2px 0 2px 18px;border-left:2px solid var(--trace);
+  color:var(--muted);max-width:64ch}
+blockquote p:last-child{margin-bottom:0}
+hr{border:0;border-top:1px solid var(--line);margin:46px 0}
+code{font-family:var(--mono);font-size:.845em;background:var(--panel);
+  border-radius:2px;padding:1.5px 5px;color:var(--ink);overflow-wrap:break-word}
+.pre{overflow-x:auto;margin:0 0 22px;background:var(--panel);border-radius:3px;
+  border-left:2px solid var(--line)}
+.pre pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
+.pre code{background:none;padding:0;border-radius:0;font-size:inherit}
+.tw{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:400px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);text-align:left;font-weight:500;padding:10px 13px;
+  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.55}
+tr:last-child td{border-bottom:0}
+
+/* ── figures ─────────────────────────────────────────────── */
+figure{margin:0 0 28px}
+.fig{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:20px 18px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
+.fmono{font-family:var(--mono)}
+
+/* four questions + score */
+.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
+.qlist li{counter-increment:q;display:flex;gap:13px;margin:0 0 11px;font-size:16px}
+.qlist li::before{content:counter(q);font-family:var(--mono);font-size:11px;color:var(--trace);
+  border:1px solid var(--trace);border-radius:50%;width:21px;height:21px;flex:none;
+  display:grid;place-items:center;margin-top:3px}
+.score{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:15px;
+  border-top:1px solid var(--line-soft)}
+.sc{flex:1 1 150px;padding:11px 13px;border-radius:3px;background:var(--panel)}
+.sc b{display:block;font-family:var(--mono);font-size:26px;line-height:1;margin-bottom:5px}
+.sc span{font-size:12.5px;color:var(--muted)}
+.sc.good b{color:var(--est)} .sc.bad b{color:var(--alarm)}
+.sc.bad{background:var(--alarm-soft)}
+
+/* the boldness: delta proof */
+.proof{display:grid;gap:0}
+.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.proof-row:last-child{border-bottom:0}
+.proof-what{font-size:15.5px}
+.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  display:block;margin-top:4px}
+.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
+.proof-row.keep .proof-n{color:var(--est)}
+.proof-row.gone .proof-n{color:var(--alarm)}
+.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
+  font-size:13.5px;color:var(--muted)}
+
+/* graph */
+.gnodes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.gn{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:3px;
+  border:1px solid var(--line);background:var(--panel)}
+.gn.core{border-color:var(--trace);color:var(--trace);background:var(--trace-soft)}
+.gedges{display:grid;gap:8px}
+.ge{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;
+  font-family:var(--mono);font-size:11.5px}
+.ge i{font-style:normal;color:var(--muted);text-align:right}
+.ge b{font-weight:500;color:var(--trace);white-space:nowrap;font-size:10.5px;letter-spacing:.04em}
+.ge s{text-decoration:none;color:var(--muted)}
+.gsplit{margin:15px 0 9px;padding-top:13px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+/* loop */
+.loop{display:grid;gap:9px}
+.lp{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:3px;
+  background:var(--panel)}
+.lp em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--trace);
+  flex:none;width:18px;padding-top:3px}
+.lp div{font-size:14.5px}
+.lp code{background:var(--surface)}
+.loop-back{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;
+  padding:8px;border:1px dashed var(--line);border-radius:3px}
+
+/* levels */
+.lvl{margin-bottom:17px}
+.lvl:last-child{margin-bottom:0}
+.lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--trace);margin-bottom:10px}
+.lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
+.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
+  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+.tool:first-of-type{border-top:0}
+.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
+.tool span{color:var(--muted)}
+
+/* provenance routes */
+.routes{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
+.rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+.rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
+.rt span{font-size:13.5px;color:var(--muted)}
+.routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
+  padding:10px;border-radius:3px}
+.routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
+.routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
+
+/* push hooks */
+.hooks{display:grid;gap:0}
+.hk{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.hk:last-child{border-bottom:0}
+.hk b{font-family:var(--mono);font-size:12.5px;font-weight:500}
+.hk i{font-style:normal;font-size:12.5px;color:var(--trace);font-family:var(--mono)}
+.hk span{font-size:14px;color:var(--muted)}
+.hk.none b,.hk.none i{color:var(--faint)}
+
+/* gates */
+.gates{display:grid;gap:7px}
+.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
+  padding:9px 12px;border-radius:3px;background:var(--panel);font-size:14px}
+.gt b{font-family:var(--mono);font-size:12px;font-weight:500}
+.gt span{color:var(--muted);font-size:13px}
+
+/* islands */
+.isl{display:grid;gap:9px}
+.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
+  font-family:var(--mono);font-size:12px}
+.is s{text-decoration:none;color:var(--muted)}
+.is b{color:var(--trace);font-weight:500}
+.is i{font-style:normal;color:var(--faint);font-size:15px}
+.is.shared b{color:var(--hyp)}
+.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* warm bars */
+.bars{display:grid;gap:13px}
+.br b{display:block;font-size:13.5px;margin-bottom:6px}
+.br-track{display:flex;align-items:center;gap:10px}
+.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
+.br.cold .br-fill{background:var(--alarm)}
+.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* guards */
+.guards{display:grid;gap:12px}
+.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
+.gd.fast{border-left-color:var(--hyp)}
+.gd.bound{border-left-color:var(--est)}
+.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;margin-bottom:7px}
+.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
+.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
+.gd p code{font-size:.9em}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding-top:13px;
+  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;border-radius:2px;flex:none;font-style:normal}
+
+/* ── markdown view ───────────────────────────────────────── */
+#md{padding-top:26px}
+.md-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;
+  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.md-note p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 220px;max-width:none}
+#mdbox{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+#mdbox pre{margin:0;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+  white-space:pre}
+#mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
+footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
+footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <button id="navbtn" type="button" aria-expanded="false" aria-controls="nav"></button>
+  <span class="sp"></span>
+  <button id="viewbtn" type="button" aria-pressed="false"></button>
+</header>
+
+<aside id="nav" aria-label="Mục lục">
+  <p class="navhead" id="navhead"></p>
+  <nav id="toc"></nav>
+</aside>
+<div id="scrim" hidden></div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kick" id="kick"></p>
+    <h1 id="title"></h1>
+    <div class="lede" id="lede"></div>
+  </header>
+
+  <main id="docview">
+    <div id="doc"></div>
+    <footer id="foot"></footer>
+  </main>
+
+  <section id="md" hidden>
+    <div class="md-note">
+      <p id="mdnote"></p>
+      <button id="copybtn" type="button"></button>
+    </div>
+    <div id="mdbox"><pre><code id="mdtext"></code></pre></div>
+  </section>
+</div>
+
+<script type="text/plain" id="src"># video-marker — làm demo video không hao như bạn nghĩ
+
+> Một skill Claude Code ghép ảnh chụp màn hình với giọng đọc máy thành video demo có phụ đề nung sẵn vào khung hình.
+> Toàn bộ khâu dựng nằm trong 410 dòng bash gọi bốn binary chạy cục bộ. Không API trả phí, không một byte nào rời khỏi máy.
+> Thứ bạn viết tay cho mỗi cảnh chỉ có hai trường bắt buộc; còn độ dài mỗi cảnh thì không phải lựa chọn của bạn.
+> Ghi chép đọc từ mã nguồn ngày 18/09/2026 — SKILL.md, ba file trong `references/`, template manifest, và trọn vẹn script pipeline.
+
+---
+
+# PHẦN 1 — Bài toán, và một quyết định thiết kế đáng nhớ
+
+Làm một video demo thường tốn ở chỗ không ai ngờ: không phải khâu quay, mà khâu dựng. Quay màn hình xong là có một file thô dài mười phút, và từ đó trở đi mọi thứ đều thủ công — cắt, lồng tiếng, gõ phụ đề, canh timing, xuất lại khi một bước trong luồng đổi.
+
+`video-marker` giải bài toán đó bằng cách từ chối luôn việc quay. Frontmatter của skill nói thẳng nó làm gì:
+
+> Generate demo videos from (text, snapshot) pairs — narration + still images with title overlays and subtitles burned in
+
+Đầu vào là các cặp (chữ, ảnh tĩnh). Đầu ra là một file MP4. Ở giữa không có timeline nào để kéo.
+
+## Ảnh tĩnh cộng giọng máy, không phải screen recording
+
+Mục `Role` trong SKILL.md tự đặt giới hạn vai trò ngay câu đầu: "You are a video assembly orchestrator. Your job is to turn (text, snapshot) pairs into a narrated demo video — not to edit video content, add effects, or do post-production."
+
+Quyết định thiết kế đáng nhớ nằm ở chỗ này: **độ dài mỗi cảnh không phải một con số bạn chọn, mà là độ dài đoạn audio đọc ra**. Script đưa ảnh vào `ffmpeg` với `-loop 1` (lặp ảnh vô hạn) rồi để cờ `-shortest` cắt clip theo luồng ngắn hơn — luôn là luồng audio.
+
+Hệ quả rất dễ chịu khi viết kịch bản: bạn sửa câu narration, cảnh tự dài ra hoặc ngắn lại theo. Không có timing nào để canh lại, vì không có timing nào được viết ra ngay từ đầu.
+
+## Skill từ chối tự chụp ảnh — và đó là chủ ý
+
+Trong năm ràng buộc mà SKILL.md liệt kê ở mục `Constraints`, có một dòng đáng chú ý: "Does NOT capture screenshots — expects them as input".
+
+Manifest chỉ yêu cầu `image` là đường dẫn tới một file có thật trên đĩa. Hàm `validate_manifest` kiểm tra đúng một điều về ảnh: `[[ ! -f "$image" ]]`. Ảnh đến từ đâu là chuyện của bạn.
+
+@fig:source
+    yêu cầu duy nhất: một đường dẫn file ảnh có thật
+
+      agent-browser / công cụ automation   ->  chụp từng bước của luồng web
+      screencapture (có sẵn trên macOS)    ->  chụp thủ công từng màn hình
+      artifact của test runner             ->  ảnh sinh ra khi test chạy
+      ảnh xuất từ file thiết kế            ->  demo một thứ chưa build xong
+
+    video-marker không tự chụp bất cứ thứ gì
+@endfig
+
+Đây là kiểu ràng buộc dễ bị đọc nhầm là thiếu sót. Thật ra nó cắt đúng chỗ: chụp màn hình là việc phụ thuộc hoàn toàn vào thứ đang được demo — web, app desktop, terminal, thiết kế tĩnh — trong khi khâu dựng thì giống nhau ở mọi trường hợp. Gộp hai việc vào một skill sẽ khiến nửa giá trị của nó chết theo trình duyệt.
+
+Cũng cần nói rõ một điểm: **bản thân skill không nhắc tên một công cụ chụp ảnh nào**. Nó không đề cập `agent-browser`, không đề cập `screencapture`, không đề cập test runner. Nó chỉ đòi một file tồn tại. Những cái tên trong sơ đồ trên là các nguồn tương thích, không phải thứ được viết trong mã nguồn.
+
+## Manifest là toàn bộ kịch bản
+
+Một file JSON mô tả cả video. Điều đáng để ý không nằm ở số trường — chỉ có bảy — mà ở chỗ một trường được dùng lại ở hai nơi khác nhau.
+
+@fig:fields
+    output   -> tên file đích của bước ghép cuối
+    voice    -> say -v <voice>
+    text     -> say (audio)  VÀ  phụ đề nung dưới đáy khung hình
+    image    -> khung hình nền
+    title    -> chữ ở đỉnh khung hình
+    status   -> màu viền + màu chữ title
+@endfig
+
+`text` vừa là kịch bản đọc vừa là phụ đề. Trong `generate_video`, cùng một biến `$text` được truyền cho `text_to_audio` rồi truyền tiếp làm tham số phụ đề cho `image_audio_to_clip` — bạn không thể để lời đọc và phụ đề lệch nhau, vì chỉ có một nguồn.
+
+---
+
+# PHẦN 2 — Bề mặt bạn thật sự chạm vào
+
+## Bảy trường, hai trong đó bắt buộc
+
+| Trường | Bắt buộc | Mặc định | Nó làm gì |
+|---|---|---|---|
+| `output` | không | `output.mp4` | đường dẫn file video đích |
+| `voice` | không | `Samantha` | tên giọng truyền thẳng cho `say -v` |
+| `slides` | có | — | mảng các cảnh |
+| `slides[].text` | **có** | — | lời đọc, đồng thời là phụ đề |
+| `slides[].image` | **có** | — | ảnh nền của cảnh |
+| `slides[].title` | không | — | chữ ở đỉnh khung hình |
+| `slides[].status` | không | — | `pass` hoặc `fail` |
+
+Một manifest tối thiểu hợp lệ chỉ cần thế này:
+
+    {
+      "slides": [
+        { "text": "Người dùng mở trang đăng nhập", "image": "shots/01.png" }
+      ]
+    }
+
+## `status`: một chữ đổi màu cả khung hình
+
+Trường `status` là thứ khiến skill này hợp với video báo cáo kết quả kiểm thử hơn là video giới thiệu sản phẩm. Ba nhánh, đọc thẳng từ `annotate_image`:
+
+| `status` | Viền | Màu chữ title |
+|---|---|---|
+| `pass` | 6px xanh `#22c55e` | `#22c55e` |
+| `fail` | 6px đỏ `#ef4444` | `#ef4444` |
+| bỏ trống | không viền | trắng |
+
+Phụ đề thì luôn màu vàng, cỡ 28pt, viền chữ đen — không đổi theo `status`.
+
+Có một hệ quả kỹ thuật nằm sau lựa chọn "viền" này. Viền được thêm bằng `magick -border 6`, tức là **phóng to canvas thêm 12px mỗi chiều**, chứ không vẽ đè lên ảnh. Trộn cảnh có viền và cảnh không viền trong cùng một manifest sẽ cho ra các clip khác độ phân giải, trong khi bước ghép cuối chạy `-c copy`. File `manifest-format.md` cảnh báo đúng chỗ này: "All images should ideally be the same resolution for smooth concatenation."
+
+## Hai cách gọi script
+
+Không có hệ thống subcommand. Hàm `main` chỉ phân biệt đúng hai dạng:
+
+    # dạng 1 — chạy cả pipeline
+    bash .claude/skills/video-marker/scripts/video-marker.sh manifest.json
+
+    # dạng 2 — gọi thẳng một hàm để thử
+    bash .claude/skills/video-marker/scripts/video-marker.sh --fn check_dependencies
+
+Dạng thứ hai đáng giá hơn vẻ ngoài của nó. `--fn` dùng `declare -f "$fn_name"` để kiểm tra hàm có tồn tại rồi gọi thẳng, nên mọi hàm trong file đều gọi được độc lập từ dòng lệnh. Comment ngay trên khối hàm nói rõ ý đồ: "Each function is self-contained and independently testable via --fn flag". Đây là cách rẻ nhất để có tính kiểm thử trong một script bash không có framework test nào.
+
+## Cửa kiểm tra đặt trước lúc đốt CPU
+
+`validate_manifest` chạy trước bất kỳ lời gọi `say` hay `ffmpeg` nào. Nó kiểm sáu điều:
+
+@fig:gate
+    1. file manifest tồn tại
+    2. jq empty parse được (JSON hợp lệ)
+    3. .slides | length khác 0
+    4. mỗi slide có text khác null và khác rỗng
+    5. mỗi slide có image khác null và khác rỗng
+    6. mỗi đường dẫn image trỏ tới file có thật
+
+    -> không dừng ở lỗi đầu tiên: đếm hết rồi mới báo "FAIL: N error(s)"
+@endfig
+
+Chi tiết đáng học ở đây là nó **không dừng ở lỗi đầu tiên**. Vòng lặp tăng biến `errors` rồi đi tiếp, in ra từng dòng `ERROR: Slide N ...`, cuối cùng mới trả về mã lỗi. Với một manifest hai mươi cảnh và ba đường dẫn ảnh gõ sai, bạn sửa một lần thay vì chạy lại ba lần.
+
+---
+
+# PHẦN 3 — Bên trong 410 dòng
+
+Script có 9 hàm: 7 hàm nguyên tử, 1 hàm workflow (`generate_video`) và `main`. Bốn bước của pipeline được đánh số ngay trong output để bạn biết nó đang ở đâu.
+
+## Bốn bước, và một vòng lặp nằm trong bước ba
+
+    [1/4] check_dependencies     — ffmpeg, say, jq, magick
+    [2/4] validate_manifest      — sáu kiểm tra ở trên
+    [3/4] mỗi slide -> một clip  — vòng lặp bên dưới
+    [4/4] concat_clips           — ghép, báo dung lượng, gợi ý `open`
+
+Bước 3 làm việc trong một thư mục tạm tạo bằng `mktemp -d`, và thư mục đó bị `rm -rf` ở cả nhánh thành công lẫn nhánh lỗi:
+
+@fig:slideloop
+    với slide thứ i:
+      1. jq đọc 4 trường: text, image, title, status
+      2. say -v <voice> "<text>" -o audio_i.aiff
+      3. magick: viền -> title đỉnh -> phụ đề đáy  (ra file _annotated.png)
+      4. ffmpeg: ảnh đã chú thích + audio -> clip_i.mp4
+      5. xoá _annotated.png
+    -> slide kế tiếp
+@endfig
+
+## Tham số ffmpeg thật sự được dùng
+
+Chỉ có đúng hai lời gọi `ffmpeg` trong cả script. Lời gọi thứ nhất, dựng một clip:
+
+    ffmpeg -y -loop 1 -i "$use_image" -i "$audio" \
+      -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+      -c:v libx264 -tune stillimage \
+      -c:a aac -b:a 192k \
+      -pix_fmt yuv420p -shortest \
+      -loglevel warning \
+      "$clip_out"
+
+Hai cờ ít gặp đáng giải thích. `-tune stillimage` báo cho libx264 biết nội dung gần như không đổi giữa các khung, nên bitrate dồn hết vào một khung hình sắc nét thay vì chia đều cho chuyển động không tồn tại. Còn `scale=trunc(iw/2)*2:trunc(ih/2)*2` là để làm tròn xuống số chẵn cho cả hai chiều: libx264 với `yuv420p` không nhận cạnh lẻ, mà ảnh chụp màn hình thì thường xuyên lẻ — nhất là sau khi `magick` cộng thêm 6px viền mỗi bên.
+
+Lời gọi thứ hai, ghép:
+
+    ffmpeg -y -f concat -safe 0 -i "$list_file" -c copy -loglevel warning "$output"
+
+`-c copy` nghĩa là không encode lại: các clip được nối ở mức stream. Nhanh và không mất chất lượng — đổi lại, mọi clip phải cùng codec và cùng độ phân giải, đúng như phần `status` ở trên đã nói.
+
+## Chữ được nung vào ảnh, không phải vào video
+
+Đây là chỗ mã nguồn khác với chính tài liệu của nó, và dấu vết còn lại kể được cả một lần đổi hướng thiết kế.
+
+`SKILL.md` mô tả title là "top bar, white text on semi-transparent dark background", và `manifest-format.md` cũng nói "white text, dark background". Trong `annotate_image` không hề có thanh nền nào. Nó vẽ chữ trực tiếp lên ảnh bằng ba lệnh `magick` nối nhau, và độ đọc được đến từ viền chữ đen (`-stroke black`) chứ không đến từ nền:
+
+    magick "$output" -font "$font" -pointsize 42 -strokewidth 3 \
+      -stroke black -fill "$title_color" \
+      -gravity North -annotate +0+8 "$title" "$output"
+
+Chỉ có `references/dependencies.md` ghi đúng: "No background bars — text drawn directly over screenshot."
+
+Vì sao hai file kia lệch? Vì thiết kế ban đầu dùng bộ lọc `drawtext` của `ffmpeg`, và cách làm đó có thanh nền thật (`box=1:boxcolor=black@0.6`). Ba mẩu hoá thạch còn sót lại đủ để dựng lại câu chuyện:
+
+@fig:fossils
+    10  tên hàm được liệt kê trong usage text của script
+     7  trong số đó thật sự tồn tại
+     3  không tồn tại ở đâu cả: word_wrap_text, escape_drawtext, build_vf_filter
+     1  hàm có thật nhưng không được liệt kê: annotate_image
+    11  hằng số cấu hình khai báo ở đầu file
+     2  không được tham chiếu ở bất cứ đâu khác: OVERLAY_FONT_SIZE, OVERLAY_BAR_ALPHA
+@endfig
+
+Hai hằng số chết chính là chữ ký. `OVERLAY_BAR_ALPHA=0.6` khớp chính xác với `boxcolor=black@0.6` trong `references/ffmpeg-patterns.md` — file đó tới giờ vẫn chép nguyên công thức `drawtext` cũ. Và bảng troubleshooting trong `dependencies.md` có một dòng chốt lại toàn bộ suy luận:
+
+| Lỗi | Nguyên nhân | Cách xử lý |
+|---|---|---|
+| `No such filter: drawtext` | ffmpeg thiếu libfreetype | Not needed — we use ImageMagick instead |
+
+Đổi hướng ấy không phải chuyện thẩm mỹ. Với `drawtext`, chữ được vẽ trong lúc encode nên mọi ký tự phải được escape để sống sót qua chuỗi filter của ffmpeg — dấu nháy, dấu hai chấm, dấu phẩy đều là ký tự điều khiển, và đó chính là lý do một hàm tên `escape_drawtext` từng được đặt tên. Đẩy việc vẽ chữ sang ImageMagick ở bước trước khiến bài toán escape biến mất: `magick` nhận chữ như một tham số argv bình thường.
+
+Cái giá phải trả là một dependency nữa. Đếm số công cụ trong `check_dependencies` xác nhận điều đó: danh sách hiện tại là `ffmpeg say jq magick`.
+
+Việc xuống dòng phụ đề cũng được viết tay ngay trong `annotate_image` — một vòng `for word in $subtitle` cộng dồn từng từ cho tới khi chạm ngưỡng `SUBTITLE_MAX_CHARS=60`. Không dùng `fold`, không dùng `-caption` của ImageMagick. Đó là lý do cái tên `word_wrap_text` từng có mặt trong usage text.
+
+## Khi một slide hỏng: hai cách bash đối xử với cùng một dòng lệnh
+
+Script mở đầu bằng `set -euo pipefail`, và cả `validate_manifest` lẫn vòng lặp slide đều dùng đúng một thành ngữ để đếm lỗi: `((errors++))` và `((failed++))`. Hai chỗ lại cho hai kết quả khác hẳn nhau — không phải vì dòng lệnh khác, mà vì **cách hàm chứa nó được gọi**.
+
+@fig:seterr
+    validate_manifest "$manifest" || return 1     <- gọi trong ngữ cảnh điều kiện
+        set -e bị vô hiệu bên trong
+        ((errors++)) trả mã 1 khi errors=0 -> bị bỏ qua
+        vòng lặp chạy hết, liệt kê đủ mọi lỗi
+
+    generate_video "$1"                           <- gọi trực tiếp
+        set -e vẫn còn hiệu lực
+        ((failed++)) trả mã 1 khi failed=0 -> shell thoát ngay
+        slide hỏng đầu tiên kết thúc cả lần chạy
+@endfig
+
+Cơ chế nằm ở chỗ `((failed++))` là hậu tố: nó trả về *giá trị cũ*. Khi `failed` đang bằng 0, lệnh số học trả về 0, và một lệnh số học trả về 0 được bash coi là **thất bại** — mã thoát 1. Dưới `set -e`, thế là đủ để dừng script. Còn khi cả lời gọi hàm nằm bên trái một `||`, bash tắt `set -e` cho toàn bộ thân hàm, nên chính dòng đó lại vô hại.
+
+Tôi đã dựng lại đúng khuôn hình này bằng một đoạn bash tối giản để kiểm chứng (18/09/2026): bản gọi trực tiếp thoát ở vòng lặp đầu tiên với mã 1; bản gọi qua `||` chạy hết ba vòng và in ra `failed=3`.
+
+Điều này làm nhánh báo cáo cuối script trở nên không tới được: khối in `Failed: N slide(s)` chỉ chạy khi `failed` lớn hơn 0, mà mọi đường làm `failed` tăng đều kết thúc lần chạy trước đó. Nói cách khác, ý định "bỏ qua slide hỏng rồi đi tiếp" có trong mã nguồn, nhưng thành ngữ đếm lỗi đứng chắn trước nó.
+
+Đây là một bài học bash đáng nhớ hơn là một chi tiết vụn: `((i++))` an toàn ở mọi nơi, trừ dưới `set -e`, trừ khi biến đang bằng 0. Viết `((i++)) || true` hoặc `i=$((i+1))` thì cả hai vị trí hành xử như nhau.
+
+---
+
+# PHẦN 4 — Những gì bị cắt có chủ ý
+
+Mục `Constraints` của SKILL.md liệt kê đúng năm dòng, và không dòng nào trong đó là lời xin lỗi. Đọc chúng cạnh mã nguồn sẽ thấy rõ đường biên mà tác giả cố tình vẽ ra.
+
+## Bốn binary, và cái ràng buộc thật sự nằm ở một trong số đó
+
+@fig:deps
+    check_dependencies chạy `command -v` cho bốn lệnh:
+
+      ffmpeg   encode + ghép                 brew install ffmpeg
+      say      TTS                           có sẵn trên macOS
+      jq       đọc manifest JSON             brew install jq
+      magick   vẽ title/phụ đề/viền          brew install imagemagick
+
+    + một font: /System/Library/Fonts/Helvetica.ttc (macOS 12+)
+@endfig
+
+Ba trong bốn công cụ có trên mọi hệ điều hành. Chỉ `say` là không — nó là TTS dựng sẵn của macOS, và SKILL.md ghi thẳng ràng buộc đó ở dòng đầu mục `Constraints`: "macOS only (depends on `say` command for TTS)". Cùng với đó là một ràng buộc thứ hai đi kèm: "No cloud TTS APIs — uses local `say` only".
+
+Đây chính là chỗ chữ "không hao" trong tiêu đề được trả bằng tiền thật. Grep toàn bộ script tìm `curl`, `wget`, `http`, `api_key`, `token`: không một kết quả nào. Không có khoá API để xin, không có hạn mức để theo dõi, không có đoạn ghi âm nào rời khỏi máy. Đổi lại, script chỉ chạy được trên macOS — và chất giọng là chất giọng mà macOS có sẵn.
+
+Một điều kiện nữa không được ghi ở đâu nhưng có thật trong mã nguồn: `annotate_image` dùng `${status,,}` để hạ chữ thường, cú pháp này cần **bash 4 trở lên**. Bản `/bin/bash` mà macOS đóng gói là 3.2, và trên đó biểu thức này báo `bad substitution` (kiểm chứng trực tiếp ngày 18/09/2026). Câu lệnh mà SKILL.md hướng dẫn là `bash <script>`, tức là lấy `bash` đầu tiên trên `PATH` — máy nào đã cài bash qua Homebrew thì chạy bình thường, máy chỉ có bash hệ thống thì không.
+
+## Tiếng Việt: chưa bị chặn, nhưng cũng chưa được chứng minh
+
+Không chỗ nào trong skill nhắc tới tiếng Việt, theo cả hai nghĩa: nó không hứa hỗ trợ, và cũng không tuyên bố loại trừ. Đây là những gì mã nguồn thật sự cho phép kết luận.
+
+Trường `voice` được truyền thẳng, không kiểm tra, vào `say -v "$voice"`. Trên máy tôi kiểm tra ngày 18/09/2026, `say -v '?'` liệt kê 184 giọng, trong đó có `Linh vi_VN`. Về mặt cơ chế, đặt `"voice": "Linh"` trong manifest là hợp lệ và `say` sẽ đọc tiếng Việt.
+
+Ba điểm còn lại thì tôi không kiểm chứng được nếu không render thật:
+
+- Phụ đề xuống dòng theo ngưỡng 60 ký tự — con số được chọn cho tiếng Anh. Tiếng Việt nhiều từ ngắn hơn nhưng có dấu, nên số dòng thực tế sẽ khác.
+- Chữ có dấu phải qua được `magick -annotate` với font `Helvetica.ttc`. Tôi không dựng khung hình nào để xem dấu có rơi hay không.
+- Giọng `Linh` phải được cài sẵn trên máy chạy; danh sách giọng của macOS khác nhau tuỳ máy.
+
+Nói ngắn gọn: skill này được viết cho tiếng Anh, còn tiếng Việt thì không bị chặn ở tầng mã nguồn mà chỉ là chưa ai chứng minh nó chạy được.
+
+## Không hiệu ứng, không hậu kỳ, không tự chụp ảnh
+
+Ba ràng buộc còn lại trong danh sách năm dòng đều là những thứ bị cắt để giữ pipeline ở dạng một chiều:
+
+| Ràng buộc trong SKILL.md | Điều nó loại trừ |
+|---|---|
+| No animated effects, transitions, or post-production | không fade, không zoom, không chuyển cảnh; mỗi cảnh là một ảnh đứng yên |
+| No cloud TTS APIs — uses local `say` only | không giọng neural, không chọn nhà cung cấp, không chi phí theo ký tự |
+| Does NOT capture screenshots — expects them as input | nguồn ảnh là việc của công cụ khác |
+
+Hãy để ý cái được đổi lấy: vì không có hiệu ứng và không có chuyển cảnh, mọi clip đều cùng codec, cùng khung hình đứng yên, nên bước ghép cuối chạy được `-c copy` — nối stream, không encode lại. Thêm một hiệu ứng chuyển cảnh thôi là buộc phải encode lại toàn bộ, và thời gian dựng sẽ tỉ lệ với độ dài video thay vì gần như bằng không.
+
+Đó là hình dạng chung của mọi lựa chọn trong skill này: cắt bỏ phần mềm dẻo để phần còn lại rẻ và đoán trước được.
+
+## Vậy quy trình dùng nó trông thế nào
+
+SKILL.md mô tả bốn pha, và pha đầu tiên có một cửa chặn: sau khi dựng manifest, agent phải xác nhận nội dung với người dùng trước khi generate. Nguyên văn trong file là "**GATE**: Confirm manifest contents with user before generating".
+
+Cửa chặn đó đặt đúng chỗ. Manifest là toàn bộ kịch bản; đọc lại một file JSON mười dòng thì rẻ, còn render xong mới phát hiện sai câu chữ thì phải chạy lại cả pipeline.
+
+---
+
+Tài liệu này được viết từ mã nguồn đọc ngày 18/09/2026: `SKILL.md` (70 dòng), `references/dependencies.md` (67), `references/ffmpeg-patterns.md` (73), `references/manifest-format.md` (70), `templates/manifest.json` (20) và `scripts/video-marker.sh` (410 dòng). Mọi con số trong bài đều đếm từ các file đó.
+
+Ba kết luận đến từ việc chạy lệnh trên máy kiểm tra chứ không từ việc đọc: danh sách giọng `say` (184 giọng, có `Linh vi_VN`), hành vi của `${var,,}` dưới `/bin/bash` 3.2, và khuôn `set -e` với `((i++))` dựng lại bằng một đoạn bash tối giản.
+
+Những gì chưa được kiểm chứng: chưa có video nào được render trong lúc viết bài, nên mọi mô tả về kết quả hình ảnh — vị trí chữ, độ đọc được của viền chữ đen, cách dấu tiếng Việt hiển thị — đều suy ra từ tham số lệnh chứ không từ khung hình thật.
+</script>
+<script>/* ===================================================================
+   LAYER 1 . DATA
+   No DOM, no logic. The markdown in #src is the single source of truth;
+   FIG holds only what a figure draws that prose cannot.
+   =================================================================== */
+
+var STATE = { view: 'doc', nav: false };
+
+var SRC = document.getElementById('src').textContent;
+
+var I18N = {
+  kick: 'Ghi chép skill . pipeline dựng video',
+  doc: 'Tài liệu',
+  md: 'Markdown',
+  copy: 'Copy markdown',
+  done: 'Đã copy',
+  contents: 'Mục lục',
+  navHead: 'Trong bài',
+  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+};
+
+/* Figure payloads. `type` picks the renderer; everything else is its data. */
+var FIG = {
+
+  source: {
+    type: 'routes',
+    top: 'manifest chỉ đòi một điều: đường dẫn trỏ tới file ảnh có thật',
+    routes: [
+      ['công cụ automation trình duyệt', 'chụp từng bước của một luồng web'],
+      ['screencapture', 'có sẵn trên macOS — chụp thủ công từng màn hình'],
+      ['artifact của test runner', 'ảnh do chính lần chạy test sinh ra'],
+      ['ảnh xuất từ file thiết kế', 'demo một thứ chưa build xong']
+    ],
+    bottom: 'video-marker không tự chụp bất cứ thứ gì',
+    cap: 'Bốn nguồn ảnh tương thích. Cần nói rõ: **không nguồn nào trong số này được skill nhắc tên** — mã nguồn chỉ kiểm tra `[[ ! -f "$image" ]]`. Cắt khâu chụp ra ngoài là cách giữ cho khâu dựng không chết theo công cụ chụp.'
+  },
+
+  fields: {
+    type: 'graph',
+    nodes: [
+      ['output', false], ['voice', false], ['text', true],
+      ['image', true], ['title', false], ['status', false]
+    ],
+    groups: [
+      { title: 'trường manifest → nơi tiêu thụ nó',
+        edges: [
+          ['text', 'say', 'audio .aiff'],
+          ['text', 'magick', 'phụ đề đáy khung'],
+          ['image', 'ffmpeg', 'khung hình nền'],
+          ['title', 'magick', 'chữ đỉnh khung'],
+          ['status', 'magick', 'viền + màu chữ title'],
+          ['voice', 'say -v', 'giọng đọc'],
+          ['output', 'ffmpeg concat', 'file đích']
+        ] }
+    ],
+    cap: 'Hai node được tô đậm là hai trường bắt buộc. `text` xuất hiện hai lần: cùng một biến `$text` được truyền cho `text_to_audio` rồi truyền tiếp làm tham số phụ đề — lời đọc và phụ đề không thể lệch nhau vì chỉ có một nguồn.'
+  },
+
+  gate: {
+    type: 'gates',
+    rows: [
+      ['file manifest tồn tại', '`[[ ! -f "$manifest" ]]` → `ERROR: Manifest not found`'],
+      ['JSON parse được', '`jq empty "$manifest"`'],
+      ['có ít nhất một slide', '`.slides | length` khác 0'],
+      ['mỗi slide có `text`', 'khác `null` và khác chuỗi rỗng'],
+      ['mỗi slide có `image`', 'khác `null` và khác chuỗi rỗng'],
+      ['mỗi `image` trỏ tới file có thật', '`[[ ! -f "$image" ]]` cho từng slide']
+    ],
+    cap: 'Sáu kiểm tra của `validate_manifest`, chạy trước bất kỳ lời gọi `say` hay `ffmpeg` nào. Vòng lặp tăng biến `errors` rồi đi tiếp thay vì dừng ở lỗi đầu tiên, nên một manifest sai ba đường dẫn chỉ cần sửa một lần.'
+  },
+
+  slideloop: {
+    type: 'loop',
+    steps: [
+      '`jq` đọc bốn trường của slide: `text`, `image`, `title`, `status`',
+      '`say -v <voice> "<text>" -o audio_i.aiff` — đoạn audio này quyết định độ dài cảnh',
+      '`magick` ba lượt: viền màu → chữ title ở đỉnh → phụ đề đã xuống dòng ở đáy',
+      '`ffmpeg` ghép ảnh đã chú thích với audio thành `clip_i.mp4`',
+      'xoá file `_annotated.png` trung gian ngay sau khi clip dựng xong'
+    ],
+    back: '→ slide kế tiếp, trong cùng thư mục `mktemp -d` rồi `rm -rf` ở mọi nhánh thoát',
+    cap: 'Vòng lặp bên trong bước 3. Mọi file trung gian sống trong một thư mục tạm; thư mục đó bị xoá ở cả nhánh thành công lẫn nhánh lỗi.'
+  },
+
+  fossils: {
+    type: 'proof',
+    rows: [
+      { kind: 'keep', n: '7', what: 'tên hàm trong usage text thật sự tồn tại',
+        detail: 'trên tổng số 10 tên được liệt kê' },
+      { kind: 'gone', n: '3', what: 'tên hàm không tồn tại ở bất cứ đâu',
+        detail: 'word_wrap_text · escape_drawtext · build_vf_filter' },
+      { kind: 'gone', n: '1', what: 'hàm có thật nhưng không được liệt kê',
+        detail: 'annotate_image — hàm vẽ toàn bộ phần chữ' },
+      { kind: 'gone', n: '2', what: 'hằng số khai báo mà không nơi nào dùng',
+        detail: 'OVERLAY_FONT_SIZE=24 · OVERLAY_BAR_ALPHA=0.6' }
+    ],
+    note: '`OVERLAY_BAR_ALPHA=0.6` khớp chính xác với `boxcolor=black@0.6` trong công thức `drawtext` mà `references/ffmpeg-patterns.md` tới nay vẫn còn chép lại.',
+    cap: 'Đếm bằng grep trên chính `scripts/video-marker.sh`, 18/09/2026. Bốn con số này dựng lại được một lần đổi hướng: từ vẽ chữ bằng bộ lọc `drawtext` của ffmpeg sang vẽ bằng ImageMagick ở bước trước đó.'
+  },
+
+  seterr: {
+    type: 'guards',
+    rows: [
+      { kind: 'bound', tag: 'gọi trong ngữ cảnh điều kiện',
+        text: '`validate_manifest "$manifest" || return 1` — bash tắt `set -e` cho cả thân hàm, nên `((errors++))` vô hại. Vòng lặp chạy hết và liệt kê đủ mọi lỗi.' },
+      { kind: 'fast', tag: 'gọi trực tiếp',
+        text: '`generate_video "$1"` — `set -e` còn nguyên hiệu lực. `((failed++))` khi `failed` đang bằng 0 trả về mã 1, và shell thoát ngay tại slide hỏng đầu tiên.' }
+    ],
+    cap: 'Cùng một thành ngữ đếm lỗi, hai kết cục khác nhau — khác biệt duy nhất là cách hàm chứa nó được gọi. Kiểm chứng bằng một đoạn bash tối giản dựng lại đúng khuôn hình này, 18/09/2026.'
+  },
+
+  deps: {
+    type: 'levels',
+    levels: [
+      { name: 'CÓ SẴN TRONG macOS', note: 'không phải cài gì',
+        tools: [
+          ['say', 'TTS — nguồn của cả narration lẫn độ dài mỗi cảnh'],
+          ['Helvetica.ttc', 'font cho title và phụ đề, đường dẫn cứng trong `OVERLAY_FONT`']
+        ] },
+      { name: 'CÀI QUA HOMEBREW', note: 'ba binary',
+        tools: [
+          ['ffmpeg', 'dựng từng clip, rồi ghép stream ở bước cuối'],
+          ['jq', 'đọc từng trường của manifest'],
+          ['magick', 'ImageMagick 7+ — vẽ viền, title và phụ đề lên ảnh']
+        ] }
+    ],
+    cap: '`check_dependencies` chạy `command -v` cho bốn lệnh và in ra danh sách còn thiếu kèm câu `brew install` tương ứng. Ba trong bốn có trên mọi hệ điều hành; `say` thì không, và đó là toàn bộ lý do skill này chỉ chạy trên macOS.'
+  }
+};
+
+
+/* ===================================================================
+   LAYER 2 . COMPONENTS
+   Pure: data in, DOM out. Must not read STATE.
+   =================================================================== */
+
+function esc(s){ return String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function el(tag, attrs, kids){
+  var n = document.createElement(tag);
+  if(attrs) for(var k in attrs){
+    if(k === 'html') n.innerHTML = attrs[k];
+    else if(k === 'text') n.textContent = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(function(c){ if(c) n.appendChild(c); });
+  return n;
+}
+
+/* Code spans are pulled out before escaping and put back after, so that
+   markup inside them is never interpreted. The sentinel is ordinary text,
+   not a control character, so the source stays copy-paste safe. */
+function inline(s){
+  var keep = [];
+  s = String(s).replace(/`([^`]+)`/g, function(_, c){
+    keep.push(c); return 'K0DE' + (keep.length - 1) + 'K0DE';
+  });
+  s = esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*([^*]+)\*(?![*\w])/g, '$1<em>$2</em>');
+  return s.replace(/K0DE(\d+)K0DE/g, function(_, i){
+    return '<code>' + esc(keep[+i]) + '</code>';
+  });
+}
+
+var BLOCK = {
+  h: function(b){
+    var tag = b.level === 1 ? 'h2' : b.level === 2 ? 'h3' : 'h4';
+    var m = /^(PHAN|PHẦN|PART)\s+(\d+)\s*—\s*(.*)$/.exec(b.text);
+    if(tag === 'h2' && m){
+      return el('h2', null, [
+        el('span', { class: 'eyebrow', text: m[1] + ' ' + m[2] }),
+        el('span', { html: inline(m[3]) })
+      ]);
+    }
+    return el(tag, { html: inline(b.text) });
+  },
+  p:  function(b){ return el('p', { html: inline(b.text) }); },
+  ul: function(b){ return el('ul', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  ol: function(b){ return el('ol', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  quote: function(b){ return el('blockquote', null, b.items.map(function(t){
+        return el('p', { html: inline(t) }); })); },
+  code: function(b){
+    return el('div', { class: 'pre' }, [ el('pre', { text: b.text }) ]);
+  },
+  hr: function(){ return el('hr'); },
+  table: function(b){
+    var head = el('tr', null, b.head.map(function(c){
+      return el('th', { html: inline(c) }); }));
+    var body = b.rows.map(function(r){
+      return el('tr', null, r.map(function(c){ return el('td', { html: inline(c) }); }));
+    });
+    return el('div', { class: 'tw' }, [
+      el('table', null, [ el('thead', null, [head]), el('tbody', null, body) ])
+    ]);
+  },
+  fig: function(b){
+    var f = FIG[b.id];
+    if(!f) return el('p', { text: '[missing figure: ' + b.id + ']' });
+    var render = FIGURE[f.type];
+    if(!render) return el('p', { text: '[no renderer: ' + f.type + ']' });
+    return el('figure', null, [
+      el('div', { class: 'fig' }, [ render(f) ]),
+      f.cap ? el('figcaption', { html: inline(f.cap) }) : null
+    ]);
+  }
+};
+
+/* -- markdown ------------------------------------------------------- */
+
+var MD = {
+  parse: function(src){
+    var lines = src.split('\n'), out = [], i = 0;
+    function blank(s){ return !s.trim(); }
+    function cells(s){
+      return s.trim().replace(/^\|/, '').replace(/\|$/, '')
+              .split('|').map(function(c){ return c.trim(); });
+    }
+
+    while(i < lines.length){
+      var ln = lines[i];
+      if(blank(ln)){ i++; continue; }
+
+      /* figure directive: keep the id, skip the ASCII fallback body */
+      var fm = /^@fig:(\S+)\s*$/.exec(ln);
+      if(fm){
+        var id = fm[1]; i++;
+        while(i < lines.length && !/^@endfig\s*$/.test(lines[i])) i++;
+        i++;
+        out.push({ t: 'fig', id: id });
+        continue;
+      }
+
+      var hm = /^(#{1,4})\s+(.*)$/.exec(ln);
+      if(hm){ out.push({ t: 'h', level: hm[1].length, text: hm[2].trim() }); i++; continue; }
+
+      if(/^---\s*$/.test(ln)){ out.push({ t: 'hr' }); i++; continue; }
+
+      if(/^\|/.test(ln) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])){
+        var head = cells(ln); i += 2;
+        var rows = [];
+        while(i < lines.length && /^\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
+        out.push({ t: 'table', head: head, rows: rows });
+        continue;
+      }
+
+      if(/^>\s?/.test(ln)){
+        var q = [];
+        while(i < lines.length && /^>\s?/.test(lines[i])){
+          q.push(lines[i].replace(/^>\s?/, '')); i++;
+        }
+        out.push({ t: 'quote', items: q });
+        continue;
+      }
+
+      var lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(ln);
+      if(lm){
+        var ordered = /\d/.test(lm[2]), items = [];
+        while(i < lines.length){
+          var m2 = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
+          if(m2){ items.push(m2[3]); i++; }
+          else if(/^\s{2,}\S/.test(lines[i]) && items.length){
+            items[items.length - 1] += ' ' + lines[i].trim(); i++;
+          } else break;
+        }
+        out.push({ t: ordered ? 'ol' : 'ul', items: items });
+        continue;
+      }
+
+      /* Four-space indented code. Blank lines inside one block are kept,
+         then trimmed off the end, so a diagram split by blank lines stays
+         a single block instead of becoming several. */
+      if(/^ {4}\S/.test(ln)){
+        var buf = [];
+        while(i < lines.length){
+          if(/^ {4}/.test(lines[i])){ buf.push(lines[i].slice(4)); i++; }
+          else if(blank(lines[i]) && /^ {4}/.test(lines[i + 1] || '')){ buf.push(''); i++; }
+          else break;
+        }
+        while(buf.length && !buf[buf.length - 1].trim()) buf.pop();
+        out.push({ t: 'code', text: buf.join('\n') });
+        continue;
+      }
+
+      var para = [ln.trim()]; i++;
+      while(i < lines.length && !blank(lines[i]) &&
+            !/^(#{1,4}\s|@fig:|@endfig|---\s*$|\||>\s?|\s*([-*]|\d+\.)\s|\s{4}\S)/.test(lines[i])){
+        para.push(lines[i].trim()); i++;
+      }
+      out.push({ t: 'p', text: para.join(' ') });
+    }
+    return out;
+  },
+
+  render: function(blocks){
+    var frag = document.createDocumentFragment();
+    blocks.forEach(function(b){
+      var fn = BLOCK[b.t];
+      if(fn) frag.appendChild(fn(b));
+    });
+    return frag;
+  }
+};
+
+
+/* -- figure renderers ---------------------------------------------- */
+
+var FIGURE = {
+
+  questions: function(f){
+    return el('div', null, [
+      el('ol', { class: 'qlist' }, f.items.map(function(t){
+        return el('li', { html: inline(t) }); })),
+      el('div', { class: 'score' }, f.scores.map(function(s){
+        return el('div', { class: 'sc ' + s.kind }, [
+          el('b', { text: s.n }), el('span', { text: s.label })
+        ]);
+      }))
+    ]);
+  },
+
+  proof: function(f){
+    return el('div', null, [
+      el('div', { class: 'proof' }, f.rows.map(function(r){
+        return el('div', { class: 'proof-row ' + r.kind }, [
+          el('div', { class: 'proof-what' }, [
+            el('span', { html: inline(r.what) }),
+            el('em', { text: r.detail })
+          ]),
+          el('div', { class: 'proof-n', text: r.n })
+        ]);
+      })),
+      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
+    ]);
+  },
+
+  graph: function(f){
+    var kids = [ el('div', { class: 'gnodes' }, f.nodes.map(function(n){
+      return el('span', { class: 'gn' + (n[1] ? ' core' : ''), text: n[0] }); })) ];
+    f.groups.forEach(function(g){
+      if(g.title) kids.push(el('div', { class: 'gsplit', text: g.title }));
+      kids.push(el('div', { class: 'gedges' }, g.edges.map(function(e){
+        return el('div', { class: 'ge' }, [
+          el('i', { text: e[0] }), el('b', { text: e[1] }), el('s', { text: e[2] })
+        ]);
+      })));
+    });
+    return el('div', null, kids);
+  },
+
+  loop: function(f){
+    var kids = f.steps.map(function(s, i){
+      return el('div', { class: 'lp' }, [
+        el('em', { text: String(i + 1) }),
+        el('div', { html: inline(s) })
+      ]);
+    });
+    if(f.back) kids.push(el('div', { class: 'loop-back', text: f.back }));
+    return el('div', { class: 'loop' }, kids);
+  },
+
+  levels: function(f){
+    return el('div', null, f.levels.map(function(L){
+      return el('div', { class: 'lvl' }, [
+        el('div', { class: 'lvl-h' }, [
+          el('span', { text: L.name + '  ' }),
+          el('span', { text: L.note })
+        ])
+      ].concat(L.tools.map(function(t){
+        return el('div', { class: 'tool' }, [
+          el('b', { text: t[0] }), el('span', { html: inline(t[1]) })
+        ]);
+      })));
+    }));
+  },
+
+  routes: function(f){
+    return el('div', null, [
+      el('div', { class: 'routes-top', text: f.top }),
+      el('div', { class: 'routes' }, f.routes.map(function(r){
+        return el('div', { class: 'rt' }, [
+          el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
+        ]);
+      })),
+      el('div', { class: 'routes-bot', text: f.bottom })
+    ]);
+  },
+
+  hooks: function(f){
+    return el('div', { class: 'hooks' }, f.rows.map(function(r){
+      return el('div', { class: 'hk' + (r.none ? ' none' : '') }, [
+        el('b', { text: r.hook }),
+        el('i', { text: r.reaches }),
+        el('span', { html: inline(r.carries) })
+      ]);
+    }));
+  },
+
+  gates: function(f){
+    return el('div', { class: 'gates' }, f.rows.map(function(r){
+      return el('div', { class: 'gt' }, [
+        el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
+      ]);
+    }));
+  },
+
+  islands: function(f){
+    var kids = f.rows.map(function(r){
+      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
+        el('s', { text: r.where }),
+        el('i', { text: '→' }),
+        el('b', { text: r.scope })
+      ]);
+    });
+    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
+    return el('div', { class: 'isl' }, kids);
+  },
+
+  bars: function(f){
+    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
+    return el('div', { class: 'bars' }, f.rows.map(function(r){
+      var pct = Math.max(2, Math.round(r.ms / max * 100));
+      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
+        el('b', { html: inline(r.label) }),
+        el('div', { class: 'br-track' }, [
+          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
+          el('span', { class: 'br-val', text: r.val })
+        ])
+      ]);
+    }));
+  },
+
+  guards: function(f){
+    return el('div', { class: 'guards' }, f.rows.map(function(r){
+      return el('div', { class: 'gd ' + r.kind }, [
+        el('b', { text: r.tag }),
+        el('p', { html: inline(r.text) })
+      ]);
+    }));
+  }
+};
+
+
+
+/* ===================================================================
+   LAYER 3 . LOGIC
+   Binds DATA to COMPONENTS. The only layer that touches STATE.
+   Pipeline:  SRC -> sections(front | body | footer) -> MD.parse
+                  -> MD.render -> DOM -> table of contents
+   Both views read the SAME text, so they cannot drift apart.
+   =================================================================== */
+
+/* front matter (title + lede) | body | footer, split on the outer rules */
+function sections(){
+  var t = SRC.replace(/^﻿/, '');
+  var first = t.indexOf('\n---\n');
+  var last = t.lastIndexOf('\n---\n');
+  var head = t.slice(0, first).split('\n');
+  return {
+    title: (head.filter(function(l){ return l.indexOf('# ') === 0; })[0] || '# ').slice(2),
+    lede: head
+           .filter(function(l){ return l.indexOf('> ') === 0; })
+           .map(function(l){ return l.slice(2); }),
+    body: t.slice(first + 5, last),
+    footer: t.slice(last + 5).split('\n\n')
+             .map(function(p){ return p.trim(); })
+             .filter(Boolean)
+  };
+}
+
+/* the copy-out markdown drops layout directives; prose and ASCII stay */
+function forCopy(){
+  return SRC.split('\n')
+    .filter(function(l){ return !/^@(fig:|endfig|box:|endbox)/.test(l); })
+    .join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function slug(s, i){
+  var base = String(s).toLowerCase()
+    .replace(/[^a-z0-9À-ỹ]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 44);
+  return (base || 'muc') + '-' + i;
+}
+
+/* ---- rendering -------------------------------------------------- */
+
+function buildToc(root){
+  var toc = document.getElementById('toc');
+  toc.textContent = '';
+  var heads = root.querySelectorAll('h2, h3');
+  var n = 0;
+  Array.prototype.forEach.call(heads, function(h){
+    n++;
+    if(!h.id) h.id = slug(h.textContent, n);
+    var isPart = h.tagName === 'H2';
+    var label = h.textContent;
+    if(isPart){
+      var eb = h.querySelector('.eyebrow');
+      if(eb) label = eb.textContent + ' — ' + label.slice(eb.textContent.length);
+    }
+    var a = el('a', {
+      href: '#' + h.id,
+      class: isPart ? 'part' : 'lv3',
+      text: label
+    });
+    a.addEventListener('click', function(){ if(!wide()) setNav(false); });
+    toc.appendChild(a);
+  });
+}
+
+function render(){
+  var s = sections();
+
+  var h1 = document.getElementById('title');
+  h1.textContent = s.title;
+  document.title = s.title;
+
+  var lede = document.getElementById('lede');
+  lede.textContent = '';
+  s.lede.forEach(function(p){ lede.appendChild(el('p', { html: inline(p) })); });
+
+  var doc = document.getElementById('doc');
+  doc.textContent = '';
+  doc.appendChild(MD.render(MD.parse(s.body)));
+
+  var foot = document.getElementById('foot');
+  foot.textContent = '';
+  s.footer.forEach(function(p){ foot.appendChild(el('p', { html: inline(p) })); });
+
+  document.getElementById('mdtext').textContent = forCopy();
+
+  buildToc(doc);
+
+  var isDoc = STATE.view === 'doc';
+  document.getElementById('docview').hidden = !isDoc;
+  document.getElementById('md').hidden = isDoc;
+  var vb = document.getElementById('viewbtn');
+  vb.textContent = isDoc ? I18N.md : I18N.doc;
+  vb.setAttribute('aria-pressed', isDoc ? 'false' : 'true');
+
+  /* no anchors to jump to in the markdown view */
+  var nb = document.getElementById('navbtn');
+  nb.hidden = !isDoc;
+  if(!isDoc && STATE.nav) setNav(false);
+
+  spy();
+}
+
+/* ---- controls ---------------------------------------------------- */
+
+function wide(){ return (window.innerWidth || 1280) >= 1180; }
+
+function setView(v){ STATE.view = v; render(); }
+
+function setNav(open){
+  STATE.nav = open;
+  document.getElementById('nav').classList.toggle('open', open);
+  document.getElementById('scrim').hidden = !open || wide();
+  document.getElementById('navbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function copyMd(){
+  var btn = document.getElementById('copybtn');
+  var text = document.getElementById('mdtext').textContent;
+  function flash(msg){
+    var old = btn.textContent; btn.textContent = msg;
+    setTimeout(function(){ btn.textContent = old; }, 1600);
+  }
+  function fallback(){
+    try{
+      var r = document.createRange();
+      r.selectNodeContents(document.getElementById('mdtext'));
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(r);
+      var ok = false;
+      try{ ok = document.execCommand('copy'); }catch(e){}
+      flash(ok ? I18N.done : 'Đã bôi đen — Cmd/Ctrl+C');
+    }catch(e){ flash('Bôi đen thủ công'); }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ flash(I18N.done); }, fallback);
+  } else fallback();
+}
+
+/* ---- scrollspy ---------------------------------------------------- */
+
+var spyTimer = null;
+function spy(){
+  if(spyTimer) return;
+  spyTimer = setTimeout(function(){
+    spyTimer = null;
+    var links = document.querySelectorAll('#toc a');
+    var best = null, bestTop = -1e9;
+    Array.prototype.forEach.call(links, function(a){
+      var t = document.getElementById(a.getAttribute('href').slice(1));
+      if(!t) return;
+      var top = t.getBoundingClientRect().top - 90;
+      if(top <= 0 && top > bestTop){ bestTop = top; best = a; }
+    });
+    Array.prototype.forEach.call(links, function(a){
+      a.classList.toggle('on', a === best);
+    });
+  }, 90);
+}
+
+/* ---- wiring ------------------------------------------------------- */
+
+function boot(){
+  document.getElementById('kick').textContent = I18N.kick;
+  document.getElementById('navhead').textContent = I18N.navHead;
+  document.getElementById('copybtn').textContent = I18N.copy;
+  document.getElementById('mdnote').textContent = I18N.mdNote;
+  document.getElementById('navbtn').textContent = I18N.contents;
+
+  document.getElementById('viewbtn').addEventListener('click', function(){
+    setView(STATE.view === 'doc' ? 'md' : 'doc');
+  });
+  document.getElementById('navbtn').addEventListener('click', function(){
+    setNav(!STATE.nav);
+  });
+  document.getElementById('scrim').addEventListener('click', function(){ setNav(false); });
+  document.getElementById('copybtn').addEventListener('click', copyMd);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && STATE.nav) setNav(false);
+  });
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', function(){
+    setNav(wide() ? false : STATE.nav);
+  });
+
+  render();
+  setNav(false);
+}
+
+boot();
+</script>
+</body>
+</html>
