@@ -32,11 +32,6 @@ property is null" is worth more than any amount of API listing.
 design decision worth knowing" or "why X and not Y" are the author telling you
 what belongs in section 9.
 
-**Numbers with dates.** Benchmarks, before-and-after counts, measured medians.
-Grep for `ms`, `measured`, dates, and percentage signs. Keep the date attached —
-an undated number ages badly and a dated one stays honest. These are supporting
-evidence for section 9, never the opening of the page.
-
 **"Not in this slice" / "Limitations" / "Out of scope".** Shows a scope that was
 cut on purpose, which is instructive in itself.
 
@@ -61,7 +56,7 @@ When prose and source disagree, the source wins. Say so plainly in your report t
 the user; whether it belongs in the page depends on whether the page is a study
 guide or an assessment.
 
-## Collecting for the ten sections
+## Collecting for the eleven sections
 
 The page has a fixed skeleton, so read with those slots in mind. Most of a
 rewrite is caused by finishing the reading and only then discovering that four
@@ -71,13 +66,14 @@ sections have nothing in them.
 |---|---|
 | Mục đích | The manual work the skill replaced. Commit messages and the paragraph above the rules say it more plainly than the rules do. |
 | Use case & output | The example the author chose, and the exact artifact produced — path, extension, and what opening it looks like. |
-| Cấu trúc | `find <skill> -type f` with line counts, and one sentence per file on the job it holds. |
+| Cấu trúc thư mục | `find <skill> -type f` for the tree, one sentence per entry on the job it holds, and which of `references/` / `scripts/` / `templates/` the skill chose to use or skip. A missing folder is a design decision — find out what replaced it. |
 | Luồng chạy | The entry point, then each step in the order it fires. A numbered procedure in `SKILL.md` is a claim; the script is the fact. |
 | Dữ liệu & trạng thái | Files written, temp directories, manifests, env vars, anything that survives between steps. Note where it lives and who cleans it up. |
 | Đầu–cuối | One example you can follow all the way through. Prefer one the repo already contains over one you invent. |
 | Hook | Grep the settings layers for the skill or script name. Finding nothing is a result — record it as "attaches to nothing". |
 | Guard | Validation, `set -euo pipefail`, refusals, preflight checks, tests that fail the build. For each, what breaks without it. |
 | Đặc trưng | The choice a reasonable person would have made differently, and the sentence where the author defends it. |
+| Tự dựng skill của bạn | Every decision the author had to make that a reader will also face: what stayed in `SKILL.md` and what moved to `references/`, why a script exists instead of more prose, how the description was shaped to fire at the right moment. |
 | Glossary | Every term you had to look up, the moment you look it up. |
 
 ## External interfaces
@@ -99,6 +95,8 @@ Keep these as you go — reconstructing them later costs more than noting them.
 - **Glossary terms, as they surprise you.** The moment a word needs looking up is
   the only moment you can tell it needed looking up.
 - **The reason the skill exists**, in the author's own words if you can find them.
+- **Design decisions, with the alternative rejected.** These become section 10,
+  and they are the reason someone can build their own skill after reading.
 - **What you did not read.** A file you skipped, a directory you sampled. This
   becomes the honest gaps list.
 
