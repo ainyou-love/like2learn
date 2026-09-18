@@ -1,0 +1,3425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeSafe AI / Jev — Engineering Brief · v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* ── tokens ─────────────────────────────────────────────────────── */
+:root{
+  --paper:#E9ECEF; --surface:#FFFFFF; --surface-2:#F4F6F8;
+  --ink:#141D26; --ink-2:#3D4E5E; --muted:#6B7C8C; --rule:#C9D2DA; --rule-soft:#E0E6EB;
+  --fact:#0F6B63; --fact-bg:#DDEFED;
+  --assum:#5B3FA8; --assum-bg:#E7E1F6;
+  --risk:#9E2533; --risk-bg:#F7DEE1;
+  --code-bg:#F1F4F6;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D141B; --surface:#141E27; --surface-2:#19242F;
+    --ink:#DDE5EC; --ink-2:#B3C1CD; --muted:#7E8F9E; --rule:#2A3A48; --rule-soft:#1E2B37;
+    --fact:#45C4B8; --fact-bg:#10312F;
+    --assum:#AC90F2; --assum-bg:#241C3B;
+    --risk:#EE8391; --risk-bg:#3A1A20;
+    --code-bg:#101A23;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D141B; --surface:#141E27; --surface-2:#19242F;
+  --ink:#DDE5EC; --ink-2:#B3C1CD; --muted:#7E8F9E; --rule:#2A3A48; --rule-soft:#1E2B37;
+  --fact:#45C4B8; --fact-bg:#10312F;
+  --assum:#AC90F2; --assum-bg:#241C3B;
+  --risk:#EE8391; --risk-bg:#3A1A20;
+  --code-bg:#101A23;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:17px; line-height:1.62;
+  font-variant-numeric:tabular-nums;
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* ── chrome ─────────────────────────────────────────────────────── */
+.bar{
+  position:sticky; top:0; z-index:30; background:var(--paper);
+  border-bottom:1px solid var(--rule); backdrop-filter:saturate(1.2) blur(6px);
+}
+.bar-in{
+  max-width:1040px; margin:0 auto; padding:.55rem 1.15rem;
+  display:flex; gap:.9rem; align-items:center; flex-wrap:wrap;
+}
+.mark{
+  font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.02em;
+  color:var(--muted); margin-right:auto; white-space:nowrap;
+}
+.mark b{color:var(--ink);font-weight:600}
+.seg{display:flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  padding:.34rem .72rem; border:0; background:transparent; color:var(--muted);
+  cursor:pointer; line-height:1.4;
+}
+.seg button + button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:focus-visible{outline:2px solid var(--assum);outline-offset:-2px}
+
+/* ── shell ──────────────────────────────────────────────────────── */
+.wrap{max-width:1040px;margin:0 auto;padding:0 1.15rem 6rem}
+.hero{padding:3.2rem 0 2rem;border-bottom:1px solid var(--rule)}
+.hero h1{
+  font-size:clamp(2rem,5.5vw,3.1rem); line-height:1.08; font-weight:600;
+  margin:0 0 .7rem; letter-spacing:-.015em; max-width:16ch;
+}
+.hero .lede{font-size:1.06rem;color:var(--ink-2);max-width:62ch;margin:0}
+.meta{
+  font-family:var(--mono); font-size:.72rem; color:var(--muted);
+  display:flex; gap:1.4rem; flex-wrap:wrap; margin:1.6rem 0 0;
+  padding-top:1rem; border-top:1px solid var(--rule-soft);
+}
+.meta span b{color:var(--ink);font-weight:500}
+
+[hidden]{display:none !important}
+
+/* ── prose ──────────────────────────────────────────────────────── */
+.doc h2{
+  font-size:1.9rem;font-weight:600;letter-spacing:-.012em;line-height:1.18;
+  margin:4rem 0 .4rem;max-width:22ch;
+}
+.doc h2 .num{
+  display:block;font-family:var(--mono);font-size:.7rem;font-weight:500;
+  color:var(--muted);letter-spacing:.06em;margin-bottom:.5rem;
+}
+.doc h3{
+  font-size:1.16rem;font-weight:600;margin:2.4rem 0 .5rem;max-width:40ch;line-height:1.3;
+}
+.doc h4{font-family:var(--mono);font-size:.82rem;font-weight:600;margin:1.7rem 0 .45rem;color:var(--ink-2)}
+.doc p{max-width:72ch;margin:.85rem 0}
+.doc ul,.doc ol{max-width:70ch;padding-left:1.15rem;margin:.85rem 0}
+.doc li{margin:.32rem 0}
+.doc li::marker{color:var(--muted)}
+.doc a{color:var(--fact);text-underline-offset:2px}
+.doc strong{font-weight:600}
+.doc code{font-family:var(--mono);font-size:.84em;background:var(--code-bg);padding:.1em .34em;border-radius:2px}
+.part-rule{margin:4.5rem 0 0;border:0;border-top:2px solid var(--ink)}
+
+/* semantic tag chips — mirror the doc's own truth classification */
+.t{
+  font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.02em;
+  padding:.16em .45em;border-radius:2px;white-space:nowrap;vertical-align:.1em;
+  margin-right:.35em;
+}
+.t-f{color:var(--fact);background:var(--fact-bg)}
+.t-a{color:var(--assum);background:var(--assum-bg)}
+.t-r{color:var(--risk);background:var(--risk-bg)}
+
+/* ── tables ─────────────────────────────────────────────────────── */
+.tw{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:.78rem;line-height:1.5}
+th{
+  text-align:left;font-weight:600;color:var(--ink);
+  padding:.6rem .8rem;border-bottom:1px solid var(--rule);background:var(--surface-2);white-space:nowrap;
+}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--rule-soft);vertical-align:top;color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink);white-space:nowrap}
+table.wrapcell td:first-child{white-space:normal}
+
+/* ── code ───────────────────────────────────────────────────────── */
+pre{
+  font-family:var(--mono);font-size:.76rem;line-height:1.6;
+  background:var(--code-bg);border:1px solid var(--rule-soft);border-radius:3px;
+  padding:.95rem 1.05rem;overflow-x:auto;margin:1.2rem 0;color:var(--ink-2);
+}
+pre b{color:var(--ink);font-weight:600}
+pre .g{color:var(--muted)}
+pre .ok{color:var(--fact)}
+pre .no{color:var(--risk)}
+
+/* ── figures ────────────────────────────────────────────────────── */
+figure{margin:1.9rem 0;border:1px solid var(--rule);border-radius:3px;background:var(--surface);overflow:hidden}
+figcaption{
+  font-family:var(--mono);font-size:.69rem;color:var(--muted);
+  padding:.5rem .85rem;border-top:1px solid var(--rule-soft);background:var(--surface-2);
+}
+.fig-body{padding:1.15rem;overflow-x:auto}
+
+/* hero response viz */
+.resp{font-family:var(--mono);font-size:.74rem;display:grid;gap:.75rem}
+.resp-row{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(140px,2fr) 54px;gap:.7rem;align-items:center}
+.resp-k{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:9px;background:var(--surface-2);border:1px solid var(--rule-soft);border-radius:1px;position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;background:var(--fact)}
+.fill.u{background:var(--assum)}
+.resp-v{text-align:right;color:var(--muted)}
+
+/* flow diagram */
+.flow{display:grid;gap:.4rem;font-family:var(--mono);font-size:.73rem;min-width:min(100%,430px)}
+.step{display:grid;grid-template-columns:62px 1fr;gap:.75rem;align-items:start;padding:.5rem .1rem}
+.owner{
+  font-size:.64rem;font-weight:600;padding:.2em .4em;border-radius:2px;text-align:center;
+  border:1px solid currentColor;
+}
+.o-code{color:var(--fact)}
+.o-model{color:var(--assum)}
+.step p{margin:0;font-family:var(--mono);font-size:.73rem;color:var(--ink-2);line-height:1.5;max-width:60ch}
+.step p b{color:var(--ink);font-weight:600}
+.arr{color:var(--rule);padding-left:26px;line-height:.6;font-family:var(--mono)}
+
+/* sampling comparison */
+.samp{display:grid;gap:1rem;font-family:var(--mono);font-size:.72rem;min-width:min(100%,430px)}
+.samp-row .lab{color:var(--ink);margin-bottom:.45rem;font-weight:600}
+.toks{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.tok{width:15px;height:15px;border:1px solid var(--rule);background:var(--surface-2);border-radius:1px}
+.tok.s{border-color:var(--risk);background:var(--risk-bg)}
+.tok.p{border-color:var(--fact);background:var(--fact-bg)}
+.samp-row .note{color:var(--muted);margin-top:.4rem}
+
+/* confidence bands */
+.bands{font-family:var(--mono);font-size:.72rem}
+.band-bar{display:flex;height:26px;border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.band-bar div{display:flex;align-items:center;justify-content:center;font-size:.66rem;color:var(--ink)}
+.b1{flex:5;background:var(--risk-bg)}
+.b2{flex:3;background:var(--assum-bg)}
+.b3{flex:2;background:var(--fact-bg)}
+.scale{display:flex;justify-content:space-between;color:var(--muted);margin-top:.35rem;font-size:.66rem}
+.band-legend{display:grid;gap:.3rem;margin-top:.8rem;color:var(--ink-2)}
+
+/* layer stack */
+.stack{display:grid;gap:5px;font-family:var(--mono);font-size:.73rem;min-width:min(100%,380px)}
+.layer{
+  display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:center;
+  border:1px solid var(--rule);border-radius:2px;padding:.6rem .8rem;background:var(--surface-2);
+}
+.layer .who{color:var(--muted);font-size:.68rem;white-space:nowrap}
+.layer.gap{
+  border-style:dashed;border-color:var(--assum);background:var(--assum-bg);
+}
+.layer.gap span:first-child{color:var(--assum);font-weight:600}
+.layer.gap .who{color:var(--assum)}
+
+/* 2x2 matrix */
+.mtx{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:auto 1fr 1fr auto;font-family:var(--mono);font-size:.7rem;min-width:min(100%,380px);gap:0}
+.mtx .yl{writing-mode:vertical-rl;transform:rotate(180deg);color:var(--muted);display:flex;align-items:center;justify-content:center;padding:.3rem;font-size:.66rem}
+.mtx .cell{border:1px solid var(--rule);padding:.7rem .75rem;min-height:72px;background:var(--surface-2)}
+.mtx .cell b{display:block;color:var(--ink);font-size:.72rem;margin-bottom:.25rem}
+.mtx .cell span{color:var(--muted);font-size:.66rem;line-height:1.45;display:block}
+.mtx .cell.hot{background:var(--risk-bg);border-color:var(--risk)}
+.mtx .cell.hot b{color:var(--risk)}
+.mtx .hdr{color:var(--muted);text-align:center;padding:.35rem;font-size:.66rem}
+.mtx .xl{grid-column:2/4;text-align:center;color:var(--muted);padding-top:.35rem;font-size:.66rem}
+
+/* write/read path */
+.paths{display:grid;gap:1.1rem;font-family:var(--mono);font-size:.72rem;min-width:min(100%,430px)}
+.path{border:1px solid var(--rule);border-radius:2px;padding:.8rem .9rem;background:var(--surface-2)}
+.path .ph{font-weight:600;color:var(--ink);margin-bottom:.55rem;display:flex;justify-content:space-between;gap:1rem}
+.path .ph em{font-style:normal;font-weight:400;color:var(--muted);font-size:.68rem}
+.path ol{margin:0;padding-left:1.1rem;color:var(--ink-2);max-width:none}
+.path li{margin:.22rem 0;line-height:1.5}
+.path .gate{color:var(--risk);font-weight:600}
+
+/* callout */
+.call{
+  border-left:2px solid var(--assum);background:var(--surface);
+  padding:.85rem 1.05rem;margin:1.5rem 0;max-width:72ch;
+}
+.call p{margin:.35rem 0}
+.call.risk{border-left-color:var(--risk)}
+.call.fact{border-left-color:var(--fact)}
+
+/* context framing box */
+.ctx{
+  border:1px solid var(--rule);border-left:3px solid var(--muted);
+  background:var(--surface-2);padding:1rem 1.15rem;margin:1.8rem 0;max-width:74ch;
+}
+.ctx h4{margin:0 0 .5rem;font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.ctx p{margin:.45rem 0;font-size:.95rem}
+.ctx ul{margin:.5rem 0;font-size:.95rem}
+
+/* flow step markers for part 3 */
+.o-no{color:var(--risk)}
+.o-yes{color:var(--fact)}
+.o-na{color:var(--muted)}
+
+/* effect severity ladder */
+.ladder{display:grid;gap:4px;font-family:var(--mono);font-size:.72rem;min-width:min(100%,430px)}
+.rung{
+  display:grid;grid-template-columns:104px 1fr;gap:.8rem;align-items:start;
+  border:1px solid var(--rule);border-left-width:3px;border-radius:2px;
+  padding:.55rem .75rem;background:var(--surface-2);
+}
+.rung b{color:var(--ink);font-weight:600;font-size:.7rem}
+.rung span{color:var(--muted);font-size:.68rem;line-height:1.5;display:block}
+.r1{border-left-color:var(--rule)}
+.r2{border-left-color:var(--fact)}
+.r3{border-left-color:var(--assum)}
+.r4{border-left-color:var(--risk)}
+.reach{display:grid;gap:.4rem;margin-top:1rem;font-family:var(--mono);font-size:.68rem}
+.reach div{display:grid;grid-template-columns:76px 1fr;gap:.7rem;align-items:center;color:var(--muted)}
+.reach i{height:7px;border-radius:1px;display:block;font-style:normal}
+
+/* FFI boundary */
+.ffi{font-family:var(--mono);font-size:.72rem;display:grid;gap:.25rem;min-width:min(100%,400px)}
+.ffi .fl{
+  display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;
+  padding:.48rem .75rem;border:1px solid var(--rule);border-radius:2px;background:var(--surface-2);
+}
+.ffi .fl em{font-style:normal;color:var(--risk);font-size:.66rem;white-space:nowrap}
+.ffi .fl.in{border-color:var(--fact);background:var(--fact-bg)}
+.ffi .fl.in em{color:var(--fact)}
+.ffi .sep{padding-left:.75rem;color:var(--rule);line-height:.9}
+
+/* contextualised hero demo */
+.demo{display:grid;gap:1.15rem}
+.dl{font-family:var(--mono);font-size:.63rem;color:var(--muted);display:block;margin-bottom:.4rem}
+.quote{
+  font-family:var(--mono);font-size:.74rem;line-height:1.6;color:var(--ink);
+  border-left:2px solid var(--rule);padding:.1rem 0 .1rem .8rem;margin:0 0 1rem;max-width:70ch;
+}
+.qs{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:.7rem;display:grid;gap:.4rem}
+.qs li{display:grid;grid-template-columns:96px 52px 1fr;gap:.55rem;align-items:baseline;color:var(--muted);line-height:1.5}
+.qs b{color:var(--ink);font-weight:600}
+.ty{
+  font-family:var(--mono);font-size:.59rem;color:var(--muted);
+  border:1px solid var(--rule);padding:.08em .32em;border-radius:2px;white-space:nowrap;text-align:center;
+}
+.ans{display:grid;gap:1rem;border-top:1px solid var(--rule-soft);padding-top:1.1rem}
+.ans-blk{display:grid;gap:.35rem}
+.ans-hd{
+  display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.72rem;color:var(--muted);
+}
+.ans-hd b{color:var(--fact);font-weight:600}
+.ans-hd code{color:var(--ink);background:none;padding:0}
+.conf{margin-left:auto;font-size:.65rem;color:var(--muted)}
+.conf.low{color:var(--assum)}
+
+/* ── sidebar navigation ─────────────────────────────────────────── */
+#navbtn{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;line-height:1;
+  padding:.4rem .6rem;border:1px solid var(--rule);background:var(--surface);
+  color:var(--ink);border-radius:3px;cursor:pointer;
+}
+#navbtn:hover{background:var(--surface-2)}
+#navbtn:focus-visible{outline:2px solid var(--assum);outline-offset:2px}
+#navbtn[hidden]{display:none}
+
+#nav{
+  position:fixed;top:0;left:0;width:266px;height:100dvh;z-index:40;
+  background:var(--surface);border-right:1px solid var(--rule);
+  overflow-y:auto;overscroll-behavior:contain;
+  padding:4.6rem 0 3rem;
+  transform:translateX(-100%);transition:transform .18s ease;
+  -webkit-overflow-scrolling:touch;
+}
+body.nav-open #nav{transform:none}
+#toc{display:grid}
+#toc a{
+  font-family:var(--mono);font-size:.7rem;line-height:1.45;text-decoration:none;
+  color:var(--muted);padding:.4rem 1.1rem;border-left:2px solid transparent;
+}
+#toc a:hover{color:var(--ink);background:var(--surface-2)}
+#toc a.toc2{
+  color:var(--ink);font-weight:600;font-size:.72rem;
+  margin-top:.9rem;padding-top:.55rem;border-top:1px solid var(--rule-soft);
+}
+#toc a.toc2:first-child{margin-top:0;border-top:0}
+#toc a.toc3{padding-left:1.6rem}
+#toc a.on{color:var(--fact);border-left-color:var(--fact);background:var(--surface-2)}
+
+#scrim{
+  position:fixed;inset:0;z-index:35;background:rgba(6,12,18,.55);
+  opacity:0;pointer-events:none;transition:opacity .18s ease;border:0;padding:0;
+}
+body.nav-open #scrim{opacity:1;pointer-events:auto}
+
+body{transition:padding-left .18s ease}
+@media (min-width:1180px){
+  #scrim{display:none}
+  body.nav-open{padding-left:266px}
+}
+@media (max-width:1179px){
+  #nav{width:min(84vw,300px)}
+}
+
+.doc h2,.doc h3,.doc h4{scroll-margin-top:74px}
+.p2.off,.p3.off{display:none}
+
+.selwrap{position:relative}
+.selwrap::after{
+  content:"▾";position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+  pointer-events:none;color:var(--muted);font-size:.68rem;line-height:1;
+}
+#depth{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;line-height:1.4;
+  padding:.34rem 1.5rem .34rem .72rem;border:0;border-radius:0;
+  background:transparent;color:var(--ink);cursor:pointer;appearance:none;
+}
+#depth:focus-visible{outline:2px solid var(--assum);outline-offset:-2px}
+#depth option{background:var(--surface);color:var(--ink)}
+
+/* collapsible source document */
+details.src{
+  border:1px solid var(--rule);border-radius:3px;
+  background:var(--surface-2);margin:1.4rem 0;max-width:74ch;
+}
+details.src > summary{
+  font-family:var(--mono);font-size:.72rem;color:var(--ink);cursor:pointer;
+  padding:.62rem .85rem;list-style:none;display:flex;gap:.55rem;align-items:center;
+}
+details.src > summary::-webkit-details-marker{display:none}
+details.src > summary::before{content:"▸";color:var(--muted);font-size:.8rem;line-height:1}
+details.src[open] > summary::before{content:"▾"}
+details.src > summary:hover{background:var(--surface)}
+details.src > summary:focus-visible{outline:2px solid var(--assum);outline-offset:-2px}
+details.src > summary em{font-style:normal;color:var(--muted);font-size:.66rem;margin-left:auto}
+details.src pre{
+  margin:0;border:0;border-top:1px solid var(--rule);border-radius:0;
+  background:var(--code-bg);max-height:62vh;overflow:auto;font-size:.72rem;
+}
+
+/* ── markdown view ──────────────────────────────────────────────── */
+.md-head{
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  margin:2.4rem 0 .7rem;flex-wrap:wrap;
+}
+.md-head p{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:0;max-width:60ch}
+.copy{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;padding:.38rem .8rem;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink);
+  border-radius:3px;cursor:pointer;white-space:nowrap;
+}
+.copy:hover{background:var(--surface-2)}
+.copy:focus-visible{outline:2px solid var(--assum);outline-offset:2px}
+.copy[data-done="1"]{color:var(--fact);border-color:var(--fact)}
+pre.md{max-height:none;white-space:pre;font-size:.74rem;line-height:1.55}
+
+footer{
+  margin-top:5rem;padding-top:1.3rem;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:.69rem;color:var(--muted);
+}
+footer p{max-width:72ch;margin:.4rem 0}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .resp-row{grid-template-columns:1fr 1fr 44px}
+  .step{grid-template-columns:54px 1fr;gap:.55rem}
+  .mark{width:100%;margin-bottom:.15rem}
+}
+
+/* ── v3 additions: markdown-rendered document ─────────────────────── */
+.doc > .part-rule:first-child{margin-top:0}
+.doc table.wrapcell td:first-child{white-space:normal}
+.md-note{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin:.2rem 0 0}
+</style>
+</head>
+<body>
+
+<!-- ═══ SHELL ═══ -->
+<div class="bar">
+  <div class="bar-in">
+    <button id="navbtn" aria-expanded="false" aria-controls="nav" onclick="setNav()">☰ Mục lục</button>
+    <div class="mark"><b>TypeSafe AI / Jev</b> — brief · v3</div>
+    <div class="seg selwrap">
+      <select id="depth" onchange="setDepth(+this.value)">
+        <option value="1"></option><option value="2"></option><option value="3"></option>
+      </select>
+    </div>
+    <div class="seg" role="group" aria-label="Language">
+      <button id="b-vi" aria-pressed="true" onclick="setLang('vi')">Tiếng Việt</button>
+      <button id="b-en" aria-pressed="false" onclick="setLang('en')">English</button>
+    </div>
+    <div class="seg" role="group" aria-label="View">
+      <button id="b-html" aria-pressed="true" onclick="setView('html')">Document</button>
+      <button id="b-md" aria-pressed="false" onclick="setView('md')">Markdown</button>
+    </div>
+  </div>
+</div>
+
+<aside id="nav" aria-label="Contents"><nav id="toc"></nav></aside>
+<button id="scrim" tabindex="-1" aria-hidden="true" onclick="setNav(false)"></button>
+
+<div class="wrap">
+  <div class="hero">
+    <h1 id="headline"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <section class="doc" id="view-doc"><div id="doc"></div></section>
+
+  <section class="doc" id="view-md" hidden>
+    <div class="md-head">
+      <p id="mdnote"></p>
+      <button class="copy" onclick="copyMd(this)">Copy markdown</button>
+    </div>
+    <pre class="md" id="mdout"></pre>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<!-- ═══ CONTENT · one markdown document per language, the single source of truth ═══ -->
+<script type="text/plain" id="src-vi"># TypeSafe AI / Jev — Engineering Brief (v3)
+
+> Phần 1 — đánh giá TypeSafe AI và model Jev như một decision layer.
+> Phần 2 — thiết kế cho một custom context reasoning tracker.
+> Phần 3 — chi phí cơ hội của ngôn ngữ functional type-safe trong agent tooling.
+
+---
+
+## Ví dụ mở đầu — một request đầy đủ
+
+@fig:heroDemo
+STATE gửi lên (nội dung ticket):
+
+    Chào, tôi kết nối tài khoản Stripe ba ngày nay mà cứ lỗi.
+    Đang mất đơn hàng. Nhờ hỗ trợ gấp.
+
+3 QUESTION hỏi cùng lúc trong MỘT request:
+
+    department   choice   Ticket này thuộc team nào?
+                          billing · technical · sales
+    frustration  score    Khách bực đến mức nào?
+                          0 bình tĩnh · 1 khó chịu · 2 giận dữ
+    is_urgent    noul     Nội dung có thể hiện tính gấp không?
+
+Response:
+
+    department  → technical                       confidence 0.596
+                  technical  ████████████████░░░   0.840
+                  billing    ███░░░░░░░░░░░░░░░░   0.159
+                  sales      ░░░░░░░░░░░░░░░░░░░   0.001
+                  ↑ dưới ngưỡng 0.7 → nên đẩy cho người xem
+
+    frustration → 1.035   (thang 0–2)             confidence 0.842
+                  0 ── 1 ── 2
+                  ██████████░░░░░░░░░
+
+    is_urgent   → 0.999                           (noul không kèm confidence)
+                  ███████████████████
+
+Ba câu hỏi chạy song song, ~100ms, trong một request. Không có câu chữ nào trong
+response — chỉ giá trị có type kèm phân phối xác suất. Ngưỡng cắt do code của bạn
+sở hữu, không phải model.
+@endfig
+
+---
+
+# PHẦN 1 — TypeSafe AI và model Jev
+
+## 1.1 Là gì, của ai, độ sẵn sàng production
+
+[FACT] Thông tin từ site, blog ra mắt và press release:
+
+| Hạng mục | Nội dung |
+|---|---|
+| Công ty | TypeSafe AI — San Francisco, thành lập 2024, 2 năm stealth |
+| Founder | Diogo Almeida (CEO, ex-OpenAI, đồng phát minh RLHF/InstructGPT), Erik Gafni (CTO), Sasha Sheng (COO, ex-Meta FAIR) |
+| Ra mắt | 15/09/2026 — $40M seed do DCVC dẫn dắt; Forbes dẫn nguồn định giá ~$200M |
+| Sản phẩm | `Jev` — model đầu tiên của lớp "System One Model" |
+| Giá | $0.042 / 1M input token · output token miễn phí |
+| Latency | 70–500ms end-to-end (số của hãng) |
+| Trạng thái | Early access + waitlist · `jev-1.13` |
+
+[ASSUMPTION/HIGH] **Production readiness: chưa.** Căn cứ:
+
+- Early access, phải xin waitlist — không phải GA
+- Không công bố SLA, uptime, region. Eval của hãng chạy từ laptop ở West Coast
+- Text-only. Chưa hỗ trợ image, audio, video
+- Không có self-host → vendor lock-in tuyệt đối vào một công ty 2 năm tuổi
+- Hãng tự thừa nhận không chứng minh được giá hiện tại không phải subsidy
+
+[FACT] Điểm cộng cho độ trưởng thành kỹ thuật: publish trang *jaggedness* liệt kê
+8 failure mode đã biết của `jev-1.13`; SDK Python/JS có retry policy và exception
+hierarchy; ~18 cookbook chạy được.
+
+## 1.2 Painpoint gốc
+
+RLHF tối ưu model cho *sở thích con người*, nên model giỏi chat nhưng có ba tật
+khiến nó không dùng được để automate:
+
+1. **Overconfidence** — model đúng 95% nhưng không nói được khi nào nó rơi vào 5%
+   còn lại ⇒ task đó không tự động hoá được
+2. **Hallucination / type error** — structured output vẫn có thể lệch schema
+3. **Overhead sinh token tuần tự** — 3–329s cho frontier model
+
+@fig:samp
+    LLM  · autoregressive   ■■■■■■■■■■■■■■■■■■■■   token-by-token, phần lớn bị vứt
+    Jev  · parallel sampler ■■■■■                  một lượt, mọi question cùng lúc
+@endfig
+
+> **Chỉnh mental model.** Jev không trả `{should_do: "yes"}`. Nó trả `noul: 0.87`
+> — một xác suất. Ngưỡng cắt (`> 0.7 → do it`) là code của bạn sở hữu.
+> Model không ra quyết định; model đưa tín hiệu đã calibrate. Code ra quyết định.
+
+## 1.3 Competitor và alternative
+
+[FACT] Không sản phẩm nào trùng 1:1. Nhưng mỗi mảnh giá trị đều có thay thế.
+
+| Nhóm | Ví dụ | Đánh đổi so với Jev |
+|---|---|---|
+| Small / fast LLM | Haiku, Gemini Flash-Lite, Groq/Cerebras | Chậm & đắt hơn 1–2 bậc, nhưng generate được, trưởng thành, đa nhà cung cấp |
+| Constrained decoding | OpenAI structured outputs, Outlines, Guidance, BAML, Instructor | Đảm bảo schema nhưng không calibrate; vẫn autoregressive |
+| Encoder fine-tune | ModernBERT/DeBERTa + head, SetFit | Rẻ nhất, self-host được, latency ~ms — nhưng cần label data |
+| Zero-shot classifier | NLI (bart-large-mnli), embedding + logistic regression | Miễn phí, self-host — chất lượng semantic kém hơn nhiều |
+| Reranker | Cohere Rerank, Voyage, bge-reranker | Chuyên biệt cho ranking |
+| Guardrail | Llama Guard, Prompt Guard, Lakera | Chỉ một domain |
+| Framework | DSPy typed signatures | Lớp trừu tượng — vẫn chạy trên LLM bên dưới |
+
+[FACT] Phản biện mạnh nhất: trong thread Hacker News (~475 comment), khi một người
+nói "cái này về cơ bản là zero-shot classifier", Almeida trả lời "chính xác!" —
+và từ chối công bố kiến trúc.
+
+[ASSUMPTION/MEDIUM] Định vị đúng nhất: **general-purpose zero-shot semantic
+classifier / reranker / scorer, đóng gói thành API, giá rất rẻ, có calibration.**
+So sánh đúng đối tượng: BERT fine-tune và Haiku, không phải GPT-6.
+
+## 1.4 Case study
+
+### A · Trong sản phẩm dùng AI
+
+Có giá trị rõ ràng:
+
+- **RAG passage filtering** — score từng passage, code chọn passage nào vào model
+  trả lời; đồng thời phát hiện prompt injection
+- **Guardrail I/O** — một request chấm mọi hazard, threshold trong code
+- **Citation check** — quote có support claim không; confidence thấp → flag
+- **Re-ranking** — cookbook báo top-1 5% → 18%, top-10 38% → 62% (40 query CLERC,
+  BM25 shortlist 30 passage)
+- **Intent routing** — rule cứng / LLM chuyên biệt / người
+- **Parallel questions** — 13 câu hỏi gộp 1 call: rẻ hơn 12.2x, nhanh hơn 10x
+
+Cần thận trọng: *function calling* và *date extraction* có cookbook, nhưng trang
+jaggedness nói Jev không so sánh được ngày tháng và không đếm được. Pattern đúng:
+Jev chọn *thành phần* từ tập đóng, code ráp lại và tính toán.
+
+### B · Trong dev workflow (Claude Code / agent tooling)
+
+**(a) Agent skill** — Jev giúp bạn viết code dùng Jev:
+
+    claude plugin marketplace add typesafe-ai/skills
+    claude plugin install typesafe@typesafe-ai
+
+[CONCERN/MAINTENANCE] Docs của họ cảnh báo: agent viết question không tốt; constant
+(question + threshold) nên gom vào **một file duy nhất** để review được.
+
+**(b) Jev làm decision layer bên dưới agent** — phần thú vị hơn:
+
+- **Skill suggestion** — chọn tối đa 1 skill trong catalog 182 skill: 1 request rank
+  toàn bộ + hỏi "lượt này có cần skill nào không"; request 2 đọc top 3, được quyền
+  từ chối cả 3
+- **Verify tool-call trace** — tách "trace này có đúng không" thành 9 câu hỏi nguyên
+  tử: tên tool hợp lý, argument khớp schema, coordinate khớp bước trước, unit khớp
+
+[RISK/HUMAN] Jev không thay được Claude Code. Không sinh code, không reason, không
+plan. Nó là `if` statement thông minh nằm dưới agent.
+
+**(c) Đặt nó ở đâu trong pipeline** — câu trả lời ngắn: **ở hai đầu, không bao giờ
+ở giữa.**
+
+**Có — nhưng ở hai đầu của pipeline, không bao giờ ở giữa.**
+
+@fig:flowGate
+    LLM                → probabilistic
+     ↓
+    [JEV ✓]  Trước biên — chọn tool/skill nào load · screening prompt injection
+     ↓
+    Parse              → deterministic, schema lo. Jev KHÔNG thuộc đây
+     ↓
+    [JEV ~]  Validate  — chỉ phần semantic trên unstructured input
+     ↓
+    [JEV ✗]  Command       — tuyệt đối không
+     ↓
+    [JEV ✗]  State machine — tuyệt đối không
+     ↓
+    [JEV ✗]  Effect
+     ↓
+    [JEV ✓]  Audit     — triage, xếp hạng anomaly theo mức cần người
+@endfig
+
+| Vị trí | Việc | Vì sao là fuzzy thật |
+|---|---|---|
+| Trước MCP | Chọn tool/skill nào load cho turn này | Ý định người dùng là unstructured |
+| Trước MCP | Prompt injection screening trên input | Không có rule nào đủ |
+| Tại Validate | Argument nằm trong tập đóng → `Choice`, không phải free generation | Mapping ngôn ngữ → enum |
+| Tại Validate | "Request này có khớp policy viết bằng prose không?" | Policy là văn bản |
+| Sau Effect | Rank 10k reconciliation mismatch theo mức cần người | Không ai đọc hết được |
+
+Chỗ nó tuyệt đối không được vào:
+
+    ✗ noul: "refund này có hợp lệ không?"
+
+Câu này sai về nguyên tắc chứ không phải sai về chất lượng.
+`amount <= refundable_amount` là một phép so sánh trên dữ liệu bạn đã có. Hỏi model
+là tự nguyện đổi một sự thật lấy một xác suất.
+
+## 1.5 Khi nào dùng, khi nào không
+
+**Heuristic một dòng:** nếu output cuối cùng là một nhánh trong code chứ không phải
+văn bản người đọc → ứng viên.
+
+| Dùng khi | Không dùng khi |
+|---|---|
+| Quyết định lặp nhiều lần, cùng shape, volume cao | Cần sinh text, code, giải thích, plan |
+| Latency trên critical path | Toán, đếm, so sánh ngày tháng |
+| Cần biết "model không chắc" để escalate | Task cần nhiều bước indirection |
+| Map-reduce trên dữ liệu lớn | Code thường / regex giải quyết chính xác được |
+| Chưa có label data | Volume thấp — thêm vendor không đáng |
+| — | Cần audit trail dạng ngôn ngữ tự nhiên |
+
+### Claim của hãng vs thực tế
+
+| Claim | Đánh giá |
+|---|---|
+| "Không hallucinate" | [FACT] Đúng nghĩa hẹp: không thể sai type. [CONCERN] Không có nghĩa là không trả lời sai — vẫn chọn sai option hợp lệ |
+| 193.6x nhanh / 444.6x rẻ | [ASSUMPTION/LOW] Số của hãng, workflow do team họ xây; họ tự ghi chú đây là đầu cao của khoảng lợi ích |
+| Calibration | Chưa có bên thứ ba publish metric độc lập — claim cốt lõi nhất và chưa verify |
+| Self-consistency | Có cookbook, nhưng cookbook không phải bằng chứng độc lập |
+
+[RISK/SECURITY] Docs nói rõ: `state` không được đối xử như hostile by default.
+Injected instruction trong state có thể lái được câu trả lời. Nếu dùng Jev làm
+guardrail cho LLM khác, đây là mâu thuẫn cần test kỹ.
+
+[TRADE_OFF] Đánh đổi: **gánh nặng eval chuyển sang bạn.** Phải tự dựng labeled set,
+plot confidence vs accuracy, chọn ngưỡng, maintain khi model version đổi.
+Pin version trong production — `jev-1.13`, không phải `jev-latest`.
+
+## 1.6 Architecture và workflow
+
+    POST https://api.typesafe.ai/v1/systemone
+
+    {
+      "state": <string | JSON object | array>,
+      "model": "jev-1.13",
+      "questions": {
+        "<key>": { "type": "noul"|"choice"|"score",
+                   "instructions": ..., "criteria": ... }
+      }
+    }
+
+| Primitive | Hỏi gì | Trả về |
+|---|---|---|
+| `noul` | Mệnh đề này đúng không? | `noul`: 0–1 · không có confidence |
+| `choice` | Chọn 1 trong tập đóng | `choice` · `probabilities{}` · `confidence` |
+| `score` | Chấm theo thang có thứ tự | `score` (float nội suy) · `legend` · `confidence` |
+
+[FACT] Ràng buộc: context 64k token cho `state` + `questions`; 32k cho `state` +
+câu hỏi dài nhất. Choice cardinality ≤ 255. Question đánh giá song song, độc lập
+trên cùng state — thêm question gần như không tăng response time, không tạo
+context-rot. `confidence` suy ra từ `probabilities`; họ trả full distribution nên
+bạn có thể tự tính đại lượng khác.
+
+### Pipeline
+
+@fig:flowPipe
+    [CODE]  Xử lý trường hợp xác định
+              ticket closed → return · days_overdue > 30 → route
+       ↓
+    [CODE]  Dựng state — CHỈ field mà question cần
+              state to & nhiều nhiễu = giảm accuracy
+       ↓
+    [CODE]  Dựng N câu hỏi nguyên tử
+              ✗ "message này có phải spam không?"
+              ✓ requests_credentials / unexpected_reward / time_pressure
+                / sender_identity_mismatch / link_domain_mismatch
+       ↓
+    [JEV ]  1 request → N câu trả lời song song   (~100ms, bất kể N)
+       ↓
+    [CODE]  Tổ hợp — trọng số do BẠN sở hữu
+              spam_risk = 0.45*a + 0.30*b + 0.25*c
+       ↓
+    [CODE]  Gate theo rủi ro của HÀNH ĐỘNG, không phải theo model
+              conf < 0.5              → human
+              read-only   + conf>0.7  → act
+              destructive + conf>0.9  → act, else confirm
+@endfig
+
+### Ba nguyên tắc thiết kế, theo thứ tự quan trọng
+
+1. **Decompose question.** Docs gọi đây là khái niệm quan trọng nhất. Câu hỏi rộng
+   giấu nhiều phán đoán sau một con số; câu hỏi nguyên tử phơi từng phán đoán ra.
+2. **Trỏ vào state bằng path.** Dùng backtick:
+   "Does `support.tickets[0].message` and `commerce.orders[0].charges` indicate a
+   duplicate charge?"
+3. **Criteria có cấu trúc, tương phản.** Mỗi option khai `what` / `not_for` /
+   `examples` với cùng field name.
+
+[FACT] Khi đổi ưu tiên nghiệp vụ, bạn sửa một hệ số trong code — không viết lại
+prompt. Đây là khác biệt lớn nhất so với prompt-based classification.
+
+### Speculative fan-out
+
+Vì output token miễn phí và question chạy song song, hỏi luôn cả những câu *có thể*
+không cần, rồi code chỉ đọc câu liên quan đến nhánh đã chọn. Xoá hoàn toàn
+round-trip thứ hai — pattern không khả thi về kinh tế với LLM.
+
+## 1.7 Glossary
+
+| Thuật ngữ | Nghĩa |
+|---|---|
+| System One Model | Tên do TypeSafe đặt cho lớp model ra quyết định có type, không sinh text. Từ Kahneman. Không phải category chuẩn của ngành |
+| Jev | Model đầu tiên của lớp đó. Theo William Stanley Jevons — hiệu suất tăng thì tiêu thụ tăng |
+| RLCD | Reinforcement Learning for Calibrated Decisions — tối ưu cho xác suất trung thực thay vì human preference (RLHF) hay verifiable reward (RLVR) |
+| Noul | Primitive yes/no, trả xác suất 0–1. Không có confidence |
+| Choice | Chọn 1 trong tập đóng ≤ 255 option |
+| Score | Chấm theo mức có thứ tự, trả float nội suy. Không dùng để tái tạo con số chính xác |
+| State | Input context: string, JSON object hoặc array |
+| Calibration | Confidence cao ⇒ accuracy cao, đo trên *nhóm* prediction |
+| Type-safe | Output luôn khớp schema. Không đảm bảo output đúng |
+| Jaggedness | Danh sách failure mode đã biết của từng version |
+| Speculative fan-out | Hỏi thừa nhiều câu trong 1 call, code chọn câu nào dùng |
+| Parallel sampler | Sinh toàn bộ output trong một lượt thay vì token-by-token |
+
+---
+
+# PHẦN 2 — Custom context reasoning tracker
+
+**Câu hỏi:** một custom context tracker lưu không chỉ quyết định cuối cùng mà cả
+những điều còn bỏ ngỏ, kèm trọng số, theo một system-design reasoning state — nó
+có thay thế được không?
+
+[NEED_ANSWER] "Thay thế" có hai cách đọc: (A) thay Jev / decision-layer model →
+không. (B) thay cách AI tự quản context (memory, past-chat search) → một phần, và
+đây mới là phần đáng làm.
+
+## 2.1 Câu trả lời ngắn
+
+Không thay thế thứ gì đang có. Nó **lấp một tầng chưa ai sở hữu.**
+
+@fig:stack
+    Tầng                                        Ai đang giữ
+    ────────────────────────────────────────────────────────
+    Business state — kết quả cuối               DB / module
+    Reasoning state — vì sao, còn gì bỏ ngỏ     ← KHÔNG AI
+    Conversation log — văn bản thô              chat history
+    Judgement function — stateless              LLM / Jev
+@endfig
+
+[FACT] Bằng chứng cụ thể: cơ chế retrieve hội thoại cũ **không phân biệt được**
+"AI đề xuất X" với "team đã quyết X". Một gợi ý bị phản ứng tích cực nhìn y hệt một
+quyết định đã chốt, khi đọc lại 3 tháng sau. Đó là thứ một tracker có **write event
+tường minh** sửa được, còn retrieval thì không bao giờ.
+
+Cái nó thay thế không phải component nào, mà là **chi phí tái suy diễn**: mỗi lần
+quay lại một vùng thiết kế, bạn trả lại phí "tại sao hồi đó chọn thế" + "cái gì còn
+bỏ ngỏ". Chi phí thật, nhưng có giới hạn — đừng kỳ vọng nó thay reasoning.
+
+## 2.2 Vấn đề lớn nhất: "trọng số" là gì?
+
+[CONCERN] Đây là chỗ thiết kế này hay chết.
+
+| Trục | Ý nghĩa | Thay đổi theo |
+|---|---|---|
+| Xác suất giả định sai | belief | bằng chứng mới |
+| Chi phí nếu sai | blast radius | kiến trúc thay đổi |
+| Độ khẩn | thời điểm phải chốt | deadline, dependency |
+| Độ tươi | còn đúng không | code đã đổi chưa |
+
+[RISK] Gộp bốn trục thành **một số** là phá hỏng tín hiệu. Item "xác suất sai 10%
+nhưng sai thì mất DB" và item "xác suất sai 60% nhưng sai thì đổi tên biến" có thể
+ra cùng điểm số — rồi bạn sort theo nó và ưu tiên sai.
+
+@fig:matrix
+                       impact thấp          impact cao
+                    ┌──────────────────┬──────────────────┐
+    likelihood cao  │  Bỏ qua          │  Spike/prototype │
+                    │  (đây là lo lắng)│  cần bằng chứng  │
+                    ├──────────────────┼──────────────────┤
+    likelihood thấp │  Theo dõi        │  CHỐT NGAY       │
+                    │  không ưu tiên   │  bị bỏ sót nhiều │
+                    └──────────────────┴──────────────────┘
+@endfig
+
+Giữ hai trục tách rời — đúng như risk register cổ điển. Cộng một dấu thời gian.
+
+## 2.3 Trigger tốt hơn trọng số
+
+[ASSUMPTION/HIGH] Trọng số là cách quản open item *kém hơn* điều kiện kích hoạt.
+
+    ✗ open_item: "chưa chốt sharding key"   weight: 0.7
+
+    ✓ open_item: "chưa chốt sharding key"
+      revisit_when:    write QPS > 3k  OR  thêm tenant thứ 2
+      invalidated_if:  chuyển sang managed DB
+
+Trọng số đòi bạn **chủ động đi đọc lại** danh sách — việc không ai làm sau tuần thứ
+ba. Trigger biến open item thành **tripwire**: tự nổi lên đúng lúc có ý nghĩa.
+
+[FACT] Prior art: mục "Unresolved questions" trong Rust RFC template, ADR với trạng
+thái `superseded`, risk register. Không cái nào dùng trọng số đơn lẻ làm cơ chế chính.
+
+## 2.4 Chỗ Jev thực sự vào
+
+Tracker là **state**. Jev là **function**. Không cạnh tranh, chúng ghép.
+
+@fig:pathsTrack
+    WRITE PATH   (turn / PR / discussion)
+      1. noul   — "đoạn này có chứa một quyết định đã chốt?"
+      2. noul   — "đoạn này có để lại câu hỏi chưa trả lời?"
+      3. choice — decision | open | assumption | noise
+      4. confidence thấp → KHÔNG tự ghi, đẩy cho người xác nhận   ← quan trọng nhất
+
+    READ PATH    (chỗ ăn tiền)
+      1. N open item đang tồn tại (N có thể 200+)
+      2. 1 call, N câu score — "item này liên quan tới task hiện tại mức nào?"
+      3. 1 call, N câu noul  — "item này còn hợp lệ với state code hiện tại?"
+      4. code lấy top-k → inject vào context
+@endfig
+
+Read path chính là bài toán RAG passage filtering. Không có tầng lọc này, tracker
+càng đầy càng vô dụng: nhồi 200 open item vào context = context rot.
+
+[TRADE_OFF] Model ở write path đổi lấy tốc độ nhưng sinh rác âm thầm. Gate bằng
+confidence là bắt buộc.
+
+## 2.5 Ba failure mode giết dự án loại này
+
+| Failure mode | Cơ chế | Đối sách |
+|---|---|---|
+| Second source of truth | Tracker nói một đằng, code nói một nẻo; entry không neo vào artifact người ta vốn chạm thì drift trong 1 sprint | Lưu cạnh code, review trong PR |
+| Write-path tax | Mỗi thảo luận phát sinh nghĩa vụ ghi; con người sẽ bỏ | Write phải là sản phẩm phụ của việc đang làm — parse PR, parse transcript |
+| Không có close event | Open item chỉ vào, không ra → landfill | Mỗi item bắt buộc có `invalidated_if`. Không viết được điều kiện đóng ⇒ đó là lo lắng |
+
+## 2.6 Phiên bản nhỏ nhất đáng chạy
+
+    repo/DECISIONS.md   (append-only)
+
+    ## D-014  Chọn Postgres thay vì Mongo        [decided 2026-09-18]
+    why: cần transaction đa bảng ở luồng thanh toán
+    open:
+      - O-031 sharding key chưa chốt
+        likelihood-wrong: med    impact: high
+        revisit_when:    write QPS > 3k
+        invalidated_if:  chuyển sang managed DB
+      - O-032 giả định volume < 50GB/năm  (chưa verify)
+        revisit_when:    hết Q1
+
+[VERIFY/METRIC] Một số duy nhất quyết định có automate hay không:
+
+> **Trong 4 tuần, bao nhiêu lần một open item được lôi ra và thực sự làm đổi một
+> quyết định?**
+
+- 0 lần → dừng. Vấn đề của bạn không phải mất reasoning state.
+- 1–2 lần → giữ dạng file thủ công. Đủ rồi.
+- ≥ 5 lần → mới đáng dựng write path + read path tự động.
+
+[CONCERN] Phần lớn nỗ lực "lưu reasoning state" chết không phải vì thiếu công nghệ,
+mà vì đo ra con số trên bằng 0 nhưng không ai chịu đo.
+
+## 2.7 Trả lời trực tiếp
+
+| Nhánh | Kết luận |
+|---|---|
+| Thay Jev | Không. Tracker = state, Jev = function. Tracker **cần** một thứ như Jev ở read path để không bị chính nó bóp chết |
+| Thay memory / past-chat của AI | Có, ở một điểm cụ thể: phân biệt *đề xuất* với *quyết định*, và giữ được cái *chưa chốt*. Retrieval không làm được vì không có write event |
+| Thay reasoning | Không, và đừng thử. Nó rút ngắn đường vào ngữ cảnh, không thay việc nghĩ |
+
+[NEED_DECISION] Trước khi đi tiếp, cần chốt: tracker này phục vụ **agent** (máy đọc,
+schema chặt, read path tự động) hay phục vụ **người** (đọc trong review, file
+markdown là đủ, không cần model)? Hai hướng rẽ ngay từ ngày đầu, ghép lại sau rất đắt.
+
+---
+
+# PHẦN 3 — Jev như một function, và chi phí cơ hội của ngôn ngữ functional type-safe
+
+Phần này hỏi một câu duy nhất: khi đã có Jev làm validation function, việc kéo thêm
+**một ngôn ngữ functional có type mạnh** vào kiến trúc agent còn đáng giá ở đâu?
+Haskell được dùng làm đại diện vì hai tài liệu bên ngoài nêu đích danh nó — nhưng
+**mọi kết luận ở đây áp cho cả nhóm**: OCaml, F#, Scala 3, Rust, Elm, PureScript,
+Gleam, hay chỉ là sealed class của Kotlin và discriminated union của TypeScript. Cái
+thay đổi theo từng ngôn ngữ là *chi phí*, không phải *lợi ích*; mục 3.6 tách riêng hai
+thứ đó.
+
+@box:ctx
+## NGỮ CẢNH — ví dụ nghiệp vụ và hai kiến trúc đang được so
+
+**Hệ thống giả định.** Một SaaS bán hàng: có subscription, có đơn lẻ, thanh toán qua
+Stripe, ledger nội bộ, ví trả trước cho khách doanh nghiệp. Đội support dùng một admin
+tool nội bộ có AI agent. Nhân viên gõ tiếng tự nhiên, agent gọi tool.
+
+**Tình huống chạy xuyên suốt phần này.** Khách báo bị charge hai lần cho đơn `A-104`.
+Nhân viên support gõ: *"hoàn tiền phần dư cho đơn A-104"*. Agent phát ra một tool call:
+
+    payment.refund({
+      payment_id: "pay_8fd2",
+      amount:     49.00,
+      currency:   "USD",
+      reason:     "duplicate_charge"
+    })
+
+Cùng codebase đó còn có `filesystem.search`, `git.status`, `search_documents`,
+`update_ticket`, `create_order`, `wallet.transfer`, `production_deploy` — trải đủ từ
+READ tới CRITICAL, đúng cái thang ở mục 3.5.
+
+**Hai tài liệu bên ngoài** mà phần này review:
+
+- **Một prompt review codebase** yêu cầu quét toàn bộ agent skill, MCP server, tool
+  call, script Bash/Python trong repo, rồi chỉ ra chỗ nào đáng chuyển sang một
+  *Haskell trusted core*. Prompt có rubric chấm 0–5 trên tám trục lợi ích và năm trục
+  chi phí, và cho phép kết luận "không có lý do dùng Haskell".
+- **Một ghi chú kiến trúc** đề xuất phân tầng theo ngôn ngữ: Bash làm system glue,
+  Python làm orchestration/API, Haskell làm domain core.
+
+[LƯU Ý] Không có codebase thật nào được cung cấp. Phần này review *lập luận*, không
+review repo. Tình huống `A-104` ở trên là dựng để có chỗ neo, không trích từ hệ thống
+nào.
+
+### Hai kiến trúc
+
+@endbox
+
+@fig:pathsArch
+    KIẾN TRÚC HIỆN TẠI  (điển hình, Python thuần)
+      1. LLM phát ra tool call
+      2. MCP server (Python) — JSON schema / Pydantic validate SHAPE
+      3. handler Python:
+           if payment.status == "captured"
+           if amount <= refundable
+           if not already_refunded
+           if caller.can("refund")
+      4. gọi Stripe API
+      5. ghi một dòng log dạng text
+
+    KIẾN TRÚC ĐỀ XUẤT  (đang được đưa ra để review)
+      1. LLM phát ra tool call
+      2. MCP / Python orchestration — parse, permission, lấy dữ liệu
+      3. validated command đi qua biên process
+      4. HASKELL TRUSTED CORE — typed state transition
+      5. controlled side effect
+      6. audit / reconcile từ chính command đã ghi
+
+Điểm khác duy nhất nằm ở bước 3–4: bốn dòng `if` rải trong handler, so với một hàm chỉ
+nhận đúng loại payment mà nó được phép đụng vào.
+@endfig
+
+Luận điểm trung tâm của ghi chú kiến trúc, đặt vào tình huống `A-104`:
+
+| JSON schema chứng minh | JSON schema không chứng minh |
+|---|---|
+| `amount` là number | `amount <= refundable_amount` |
+| `currency` là string | `currency` khớp payment gốc |
+| `payment_id` có mặt | payment đó đã `captured` chưa |
+| `reason` thuộc enum | refund này đã chạy rồi hay chưa |
+| — | người gọi có quyền refund không |
+
+## 3.0 Câu hỏi thật sự đang hỏi
+
+Jev đang được nhìn như một **validation function**: đưa state vào, nhận về giá trị có
+type, không thể sai schema. Haskell được đề xuất cho **đúng chỗ đó** — parse, validate,
+ép bất biến. Hai bên dùng chung một bộ từ vựng: *type-safe*, *total function*, *không
+thể sai kiểu*.
+
+Nên câu hỏi hợp lý là: đây là **mâu thuẫn về trách nhiệm** — hai thứ tranh nhau một
+chỗ — hay là **cơ hội ghép**?
+
+> **Trả lời trước, chứng minh sau:** giao thoa nằm ở *từ ngữ*, không nằm ở trách
+> nhiệm. Cùng chữ "type-safe" nhưng hai bên đang nói về hai thứ khác nhau.
+
+|  | Jev | Haskell |
+|---|---|---|
+| "type-safe" nghĩa là | output khớp answer space bạn đã khai | quan hệ giữa các giá trị được kiểm ở compile time |
+| Bảo đảm lúc nào | runtime, mỗi lần gọi | compile time, một lần cho mọi lần chạy |
+| Input | unstructured, untrusted | giá trị đã được parse |
+| Output | `Distribution` — dữ liệu | `Value` — bằng chứng |
+| Không nói gì về | câu trả lời có đúng không | câu chữ ngoài hệ thống nghĩa là gì |
+
+Trong tình huống `A-104`: Jev có thể trả lời "nhân viên này đang muốn refund, không
+phải cancel" với 0.93 — một việc mà không type system nào làm được. Nhưng nó không
+biết `pay_8fd2` đã captured chưa, và nó không được phép đoán. Ngược lại, Haskell biết
+chắc refund chỉ đi ra từ `CapturedPayment`, nhưng nó không đọc được câu tiếng Việt của
+nhân viên.
+
+[ASSUMPTION/HIGH] Rủi ro thật không phải chọn nhầm bên. Rủi ro là dùng cái nọ mà tưởng
+đã có cái kia — đọc "Jev không thể hallucinate" rồi kết luận tool call giờ đã an toàn.
+Phần còn lại của Phần 3 tách hai thứ đó ra.
+
+## 3.1 "Functional" trong Jev thực ra là gì
+
+    ✓ TOTAL          không throw, không parse error, không type error
+                     codomain đóng, định nghĩa trước
+
+    ✓ PURE-ish       không giữ state giữa các call, question độc lập
+                     không có hidden context giữa question này với question kia
+
+    ✗ REFERENTIALLY TRANSPARENT
+                     output là phân phối xác suất, không phải giá trị
+                     self-consistency ≠ determinism
+
+[CONCERN] Dấu ✗ đó quyết định toàn bộ phần còn lại. Một total function trả
+`Distribution a` **không phải một proof** — nó là dữ liệu. Nếu để output của Jev đi
+thẳng vào domain như một quyết định, bạn vừa đưa xác suất vào chỗ đáng lẽ phải là
+bất biến.
+
+    jev :: State -> Questions -> IO (Distribution Answer)
+    --     ^^^^^ untrusted input          ^^^^^^^^^^^^ vẫn là untrusted output
+
+## 3.2 Đất dụng võ — đã trả lời ở §1.4.B
+
+Chi tiết nằm ở **Phần 1, mục 1.4.B** (§ "B · Trong dev workflow"): sơ đồ pipeline có đánh dấu ✓ / ~ / ✗ cho từng
+bước, bảng năm vị trí Jev thật sự hữu ích, và rule phân định predicate nào thuộc về
+code.
+
+Tóm lại một dòng để đọc tiếp phần này: **Jev được phép đứng trước biên và sau biên,
+không bao giờ đứng trong.** Trước biên là routing, argument extraction, injection
+screening. Sau biên là audit triage. Ở giữa — Command, State machine, Effect — output
+của nó là một xác suất, và xác suất không được phép trở thành bất biến.
+
+## 3.3 Chỗ Jev và Haskell thật sự đụng nhau
+
+Không cạnh tranh trên critical path — hai đầu đối diện. Nhưng có đúng một vùng chồng
+lấn, và đó là vùng nguy hiểm: **những predicate hiện đang là fuzzy judgement nhưng
+đáng lẽ phải là deterministic rule.**
+
+[CHI PHÍ CƠ HỘI CỦA JEV] Không nằm trong hoá đơn:
+
+    Giá $0.042/MTok làm cho
+        "hỏi model đi"
+    rẻ hơn (trong ngắn hạn)
+        "mô hình hoá domain cho tử tế"
+
+    → team chọn cái rẻ
+    → 6 tháng sau: domain model không tồn tại,
+      chỉ có một tập question + threshold không ai dám sửa
+
+Rule phân định:
+
+    Predicate có quyết định được từ dữ liệu đang có không?
+        CÓ    → code. Không bao giờ hỏi model. Không ngoại lệ.
+        KHÔNG → cần diễn giải unstructured input → model
+                → output là Distribution
+                → đi qua threshold policy
+                → mới thành Command
+
+## 3.4 Bảng correctness — ai cung cấp cái gì
+
+| Tầng | Loại correctness | JSON schema | Jev | Typed domain |
+|---|---|---|---|---|
+| Structural | field đúng type | ✓ | ✓✓ không thể sai | ✓ |
+| Semantic | giá trị có nghĩa | ✗ | ~ chỉ trên unstructured | ✓✓ |
+| Transition | state đi đúng đường | ✗ | ✗ | ✓✓ |
+| Operational | effect bị kiểm soát | ✗ | ✗ | ✓ |
+| Post-condition | reconcile được | ✗ | ~ triage | ✓ |
+
+[ASSUMPTION/HIGH] Người đọc launch post rồi kết luận "tool call của tôi giờ an toàn
+rồi" đã hiểu sai. Jev nâng structural correctness lên mức tuyệt đối và thêm một chút
+semantic. Ba dòng giữa vẫn trống y như cũ.
+
+## 3.5 Mức formalization theo mức nguy hiểm của side effect
+
+@fig:ladder
+    READ       filesystem.search · git.diff · database.query
+               sai thì tốn một lần đọc lại
+    WRITE      update_ticket · generate_report
+               sai thì sửa tay được
+    BUSINESS   create_order · refund · recharge_wallet
+               sai thì mất tiền và mất niềm tin
+    CRITICAL   transfer_money · production_deploy · delete_customer
+               sai thì không hoàn tác được
+
+    Bash       ████────────────────
+    Python     ██████████──────────
+    Typed core ████████████████████
+@endfig
+
+## 3.6 Haskell mua được gì, và không mua được gì
+
+Mua được — bốn thứ, và chỉ bốn:
+
+1. **Illegal state unrepresentable.** `refund :: CapturedPayment -> RefundedPayment`
+   khiến "refund một payment chưa capture" không compile được.
+2. **Exhaustiveness fail-the-build.** Thêm state mới thì mọi case thiếu nhánh đều đỏ.
+   Python `match` + `Literal` chỉ đỏ nếu bật mypy strict *và* có người chạy nó.
+3. **Parse-don't-validate ở biên.** `newtype Money` với smart constructor xoá hẳn câu
+   hỏi "đã validate chưa nhỉ" ở tầng thứ tư.
+4. **Command as data + pure interpreter.** Dry-run, replay, audit dùng chung một
+   code path.
+
+Không mua được:
+
+| Claim trong ghi chú | Thực tế |
+|---|---|
+| `amount <= refundable_amount` | Runtime value từ DB. Type system không chứng minh được. Là một `if` trong mọi ngôn ngữ |
+| `refund not duplicated` | Unique constraint ở DB. Không phải bài toán type |
+| `caller has permission` | Runtime data. Type chỉ ép bạn *nhớ* check, không check hộ |
+| Concurrency correctness | STM tốt thật, nhưng Postgres `SERIALIZABLE` cũng vậy và đã nằm sẵn trong stack |
+| `payment already captured` | **Đây mới là Haskell win thật** |
+
+[FACT] Trong năm dòng ví dụ của ghi chú, chỉ một dòng là lợi thế type system. Bốn
+dòng còn lại là runtime check, ngôn ngữ nào cũng thế.
+
+### Chi phí cơ hội ẩn: biên FFI
+
+@fig:ffi
+    Python orchestration
+        ↓  serialize sang JSON          ← type mất ở đây
+    Haskell core — parse lại, smart constructor
+        ↓                               ← guarantee chỉ sống trong này
+    typed state transition
+        ↓  serialize về JSON            ← type lại mất
+    Python
+@endfig
+
+[RISK/SCALING] Nếu Python gọi sai thứ tự, gọi thiếu bước, hay gọi lại sau timeout,
+Haskell không biết. Idempotency vẫn phải giải ở ngoài. Haskell core bảo vệ
+**transition**, không bảo vệ **orchestration** — mà phần lớn sự cố agent nằm ở
+orchestration.
+
+### Haskell chỉ là đại diện — lợi ích giữ nguyên, chi phí thì không
+
+Bốn thứ ở trên không phải đặc sản Haskell. Chúng là đặc sản của **ADT + exhaustiveness
++ parse-don't-validate**, và khá nhiều ngôn ngữ có đủ bộ đó. Cái thật sự khác nhau là
+**chi phí biên**: nếu ngôn ngữ chia chung runtime với lớp orchestration của bạn, phần
+lớn chi phí FFI ở trên biến mất.
+
+| Ngôn ngữ | Có bao nhiêu trong bốn thứ | Chi phí biên |
+|---|---|---|
+| Haskell | đủ 4 | Cao — process riêng, ecosystem nhỏ, tuyển người khó |
+| OCaml | đủ 4, compile rất nhanh | Cao tương tự, nhưng build đơn giản hơn nhiều |
+| F# / Scala 3 | đủ 4 | **Thấp nếu bạn đã ở .NET / JVM** — chung runtime, không có biên serialize |
+| Rust | ADT, exhaustiveness, newtype đủ mạnh; effect control qua ownership chứ không qua type | Trung bình — nhúng được qua PyO3, không cần process riêng |
+| Kotlin / Swift | sealed class / enum + exhaustive match; yếu hơn ở parse-don't-validate | Thấp nếu đã có sẵn trong stack |
+| TypeScript | discriminated union + exhaustive check; type bị xoá lúc chạy | **Gần bằng 0** nếu MCP server vốn đã là TS |
+| Python + ADT | tagged union + mypy strict — khoảng 80% | Bằng 0; đổi lại guarantee chỉ tồn tại nếu có người chạy type check |
+
+[ASSUMPTION/HIGH] Đây là lý do "có nên dùng Haskell không" thường là câu hỏi sai. Câu
+đúng hơn: **ngôn ngữ nào trong nhóm này có chi phí biên thấp nhất với stack bạn đang
+có?** Đội đã ở JVM thì Scala 3 mua gần hết lợi ích với gần như không có chi phí FFI;
+MCP server viết bằng TypeScript thì discriminated union tại chỗ ăn đứt một lõi Haskell
+nằm sau một biên serialize.
+
+## 3.7 Cùng một ngân sách kỹ thuật, tiêu vào đâu
+
+Câu hỏi đúng không phải "Haskell hay không", mà **sự cố của bạn 6 tháng qua thuộc
+loại nào**.
+
+| Loại sự cố | Cách chữa rẻ nhất | Haskell giúp? |
+|---|---|---|
+| LLM chọn sai tool / sai arg về nghĩa | Tool description tốt hơn + judgement layer + confidence gate | Không |
+| Code cho phép transition không hợp lệ | ADT + state machine tường minh | **Có, mạnh** |
+| Retry / partial write / double effect | Idempotency key + DB constraint + outbox | Không |
+| Không ai dựng lại được chuyện gì đã xảy ra | Audit log tường minh + command-as-data | Một phần |
+| Validation trùng lặp rải rác nhiều tool | Gom về một domain module | Có, nhưng Python cũng làm được |
+
+[ASSUMPTION/MEDIUM] Trong agent tooling nói chung, loại 1 và 3 chiếm đa số. Loại 2
+chỉ chiếm đa số khi domain thật sự là payment/ledger/wallet — đúng những thứ ghi chú
+liệt kê. Ghi chú không sai, nhưng nó lấy ví dụ từ *vùng ngoại lệ* rồi trình bày như
+nguyên tắc chung.
+
+### Ngưỡng quyết định thực dụng
+
+    State machine < 6 state, guard đơn giản
+        → Python + Enum + match + Hypothesis. Đủ. Dừng lại.
+
+    6–10 state, guard phụ thuộc lịch sử
+        → Python + tagged union + mypy strict + property test
+          (80% guarantee, 15% chi phí)
+
+    > 10 state, transition guard phức tạp,
+    sai một lần mất tiền thật, cần replay/dry-run
+        → Haskell core đáng cân nhắc
+
+## 3.8 Chỗ Jev và Haskell ghép lại
+
+Mối nối nằm ở **threshold policy** — và chính threshold policy mới là Haskell
+candidate tốt nhất, không phải bản thân tool. Vì đó là chỗ fuzzy gặp discrete, và sai
+ở đó là sai im lặng.
+
+    -- Output của model là DỮ LIỆU, không phải quyết định
+    newtype Conf = Conf Double          -- smart ctor: [0,1]
+    data Dist a  = Dist { best :: a, conf :: Conf }
+
+    data Verdict a
+      = Auto     a          -- đủ tin, đi tiếp
+      | NeedsAck a          -- cần người xác nhận
+      | Escalate            -- không đi tiếp
+
+    -- policy gắn với RỦI RO CỦA ACTION, không gắn với model
+    decide :: RiskClass -> Dist a -> Verdict a
+
+    -- Command chỉ dựng được từ Auto + permission đã check
+    data Authorized c = Authorized c AuditRef
+
+    authorize :: Verdict Intent -> Permission -> Maybe (Authorized RefundCmd)
+
+    execute :: Authorized RefundCmd -> CapturedPayment -> IO RefundedPayment
+    --         ^^^^^^^^^^                ^^^^^^^^^^^^^^^^
+    --         không có evidence          sai state → không compile
+    --         → không gọi được
+
+Ba illegal state biến mất ở compile time: gọi `execute` với output model thô chưa qua
+`decide`; gọi `execute` khi `decide` trả `Escalate`; refund một payment chưa captured.
+Cả ba đều là bug thật, và cả ba hiện đang được canh bằng `if` trong Python.
+
+## 3.9 Review prompt review
+
+[FACT] Prompt viết tốt — đặc biệt câu cuối cho phép kết luận "không có lý do dùng
+Haskell" và gọi đó là kết quả *ưu tiên*. Escape hatch đúng và hiếm thấy.
+
+<details>
+<summary>Toàn văn prompt được review (~450 dòng, nguyên bản tiếng Anh)</summary>
+
+    Review AI Agent Skills & Tool Calls for Haskell Opportunities
+
+    Review the current codebase, focusing specifically on:
+
+    * AI Agent skills
+    * MCP servers/tools
+    * Tool-call implementations
+    * Bash scripts invoked by agents
+    * Python scripts invoked by agents
+    * Domain/business tools
+    * Tools that perform external side effects
+    * Validation, state transitions, retries, idempotency, reconciliation, and error
+      handling around tool calls
+
+    Goal
+
+    Identify places where the current Bash/Python implementation would materially
+    benefit from using a Haskell-based trusted core or tool implementation.
+
+    Do NOT recommend Haskell merely because stronger typing is possible.
+
+    Prefer keeping the existing Bash/Python implementation unless Haskell provides a
+    clear improvement in:
+
+    * correctness
+    * domain invariant enforcement
+    * state-transition safety
+    * parsing/validation
+    * side-effect control
+    * concurrency correctness
+    * idempotency
+    * auditability
+    * failure recovery
+    * maintainability of complex domain logic
+
+    Mental Model
+
+    Classify tools roughly as:
+
+    Bash      -> system glue / simple commands
+    Python    -> orchestration / AI / API / data workflows
+    Haskell   -> trusted domain core / complex invariants /
+                 state machines / correctness-critical operations
+
+    Pay particular attention to this boundary:
+
+    LLM -> Tool Call -> Schema Parsing -> Validation -> Domain Command
+        -> State Transition -> Side Effect -> Audit / Reconciliation
+
+    JSON/tool schemas provide mainly structural correctness.
+
+    Look for places where we additionally need:
+
+    semantic correctness
+    state correctness
+    transition correctness
+    operational correctness
+    post-condition correctness
+
+    Review Process
+
+    First discover all relevant skills and tools in the repository.
+
+    For each important tool, determine:
+
+    Tool / Purpose / Current implementation / READ | WRITE | BUSINESS EFFECT |
+    CRITICAL EFFECT / Inputs / Outputs / Side effects / Domain invariants /
+    State transitions / Failure modes / Retry-idempotency requirements /
+    Current validation mechanism
+
+    Then evaluate whether the current implementation is sufficient.
+
+    Look especially for code patterns such as:
+
+    if status == ...
+    if type == ...
+    if state == ...
+    if action == ...
+    assert ...
+    raise InvalidState(...)
+
+    large Enum/string-based state models, deeply nested validation, duplicated
+    validation across tools, implicit state machines, transaction workflows, retry
+    logic, compensation logic, reconciliation logic, and code where the correctness of
+    one operation depends on several previous operations having succeeded.
+
+    Ask:
+
+    Are we repeatedly checking at runtime something that could instead be made
+    impossible or explicit through a stronger domain model?
+
+    For example, distinguish:
+
+    Payment
+
+    from:
+
+    PendingPayment / AuthorizedPayment / CapturedPayment / RefundedPayment
+
+    and transitions such as:
+
+    authorize : PendingPayment    -> AuthorizedPayment
+    capture   : AuthorizedPayment -> CapturedPayment
+    refund    : CapturedPayment   -> RefundedPayment
+
+    Decision Rule
+
+    For each candidate assign:
+
+    KEEP BASH / KEEP PYTHON / PYTHON + STRONGER MODELING / HASKELL CORE / HASKELL TOOL
+
+    Use Haskell only when the benefit is substantial enough to justify:
+
+    additional build/toolchain complexity
+    FFI/process/API boundary
+    deployment complexity
+    smaller ecosystem
+    developer learning cost
+    maintenance cost
+
+    Prefer:
+
+    Python orchestration -> Haskell trusted core
+
+    over rewriting an entire MCP server in Haskell when only the domain core benefits
+    from stronger modeling.
+
+    Haskell Candidate Score
+
+    Score each serious candidate from 0-5 for:
+
+    Domain invariant complexity
+    State-machine complexity
+    Cost of incorrect execution
+    Concurrency complexity
+    Retry/idempotency complexity
+    Parsing/validation complexity
+    Audit/reconciliation requirements
+    Benefit from compile-time guarantees
+
+    Also score 0-5 for migration costs:
+
+    Implementation cost
+    Integration complexity
+    Operational complexity
+    Team learning cost
+    Ecosystem disadvantage
+
+    Do not recommend migration based purely on the total score. Explain the actual
+    engineering trade-off.
+
+    Output
+
+    Produce a concise table:
+
+    Tool / Skill | Current | Risk | Haskell Value | Recommendation | Why
+
+    Then identify the Top 3 Haskell candidates, if any.
+
+    For each candidate show:
+
+    CURRENT
+    LLM -> MCP -> Python/Bash -> runtime validation -> side effect
+
+    versus:
+
+    PROPOSED
+    LLM -> MCP / Python orchestration -> validated command
+        -> Haskell trusted core -> typed state transition -> controlled side effect
+
+    Provide a small illustrative Haskell type/API design showing which illegal states or
+    transitions would become difficult or impossible to represent.
+
+    Finally provide:
+
+    Keep As-Is
+      Things that should remain Bash/Python.
+
+    Improve Without Haskell
+      Places where better Python typing, Pydantic/dataclasses, ADT-like modeling,
+      property-based testing, or architecture would solve the problem sufficiently.
+
+    Haskell Candidates
+      Only places where Haskell gives a meaningful additional correctness boundary.
+
+    Recommended First Experiment
+
+    Choose one small, high-value, low-integration-cost candidate for a Haskell proof of
+    concept.
+
+    Define:
+
+    * exact boundary
+    * input/output contract
+    * Haskell types
+    * invariants enforced
+    * integration method
+    * tests/property tests
+    * success criteria
+
+    Do not modify code yet.
+
+    Base every recommendation on code actually found in this repository. Cite relevant
+    files/functions for every important conclusion.
+
+    If there is no compelling Haskell candidate, explicitly conclude:
+
+    "There is currently no engineering justification for introducing Haskell."
+
+    That is a valid and preferred conclusion over forcing Haskell into the architecture.
+
+</details>
+
+[RISK] Nhưng có một lỗ hổng làm lệch kết quả: rubric so sánh **Haskell với Python
+hiện tại**, không phải Haskell với **Python đã được mô hình hoá tử tế**. Mọi candidate
+sẽ ăn điểm cao một cách giả tạo, vì baseline là code chưa cố gắng.
+
+Ba thứ nên thêm vào prompt:
+
+    [1] Trước khi chấm điểm bất kỳ candidate nào:
+        viết ra phiên bản Python + ADT + mypy strict sẽ trông thế nào.
+        Chấm Haskell so với PHIÊN BẢN ĐÓ.
+        Nếu delta nhỏ → KEEP PYTHON, bất kể tổng điểm.
+
+    [2] Thêm một câu hỏi bắt buộc cho mỗi candidate:
+        "Trong 6 tháng qua tool này đã hỏng chưa? Hỏng kiểu gì?"
+        Không có incident lịch sử ⇒ trần điểm là 2.
+
+    [3] Thêm một trục chi phí còn thiếu:
+        "Chi phí biên FFI" — guarantee mất ở chỗ serialize,
+        và orchestration vẫn nằm ngoài lõi.
+
+[NEXT_STEP] Và một mục output nên thêm: **candidate nào thật ra là bug ở tầng DB hoặc
+idempotency đang giả dạng bug ở tầng type?** Mục này thường nuốt mất 1–2 trong Top 3.
+
+## 3.10 Chốt
+
+| Câu hỏi | Trả lời |
+|---|---|
+| Jev có đất trong MCP/skill/tool call? | Có — ở *trước* biên (routing, argument extraction, injection screening) và *sau* biên (audit triage). Không bao giờ ở trong |
+| "Functional" của Jev thay được domain modeling? | Không. Total function trả phân phối, không phải proof. Output của nó là input của domain |
+| Jev đấu Haskell? | Category error. Hai đầu đối diện của cùng một pipeline. Vùng chồng lấn duy nhất là threshold policy — và đó là candidate Haskell tốt nhất |
+| Chi phí cơ hội lớn nhất của Jev | Giá rẻ làm "hỏi model" thắng "mô hình hoá domain" trong ngắn hạn. Nợ kiến trúc không hiện trên hoá đơn |
+| Chi phí cơ hội lớn nhất của Haskell | Biên FFI. Thêm một lớp parse chứ không xoá lớp nào, và orchestration vẫn nằm ngoài vùng bảo vệ |
+
+[NEED_INPUT] Hai con số quyết định gần như toàn bộ câu trả lời cụ thể: domain thật của
+bạn là gì (payment/ledger hay dev tooling nội bộ), và state machine lớn nhất hiện có
+bao nhiêu state? Mọi thảo luận thêm mà không có chúng sẽ trôi về phía trừu tượng.
+
+---
+
+Nguồn: typesafe.ai, docs.typesafe.ai, thông cáo báo chí 15/09/2026, và các bài phân
+tích công khai trong 72 giờ sau khi ra mắt. Số liệu hiệu năng và giá là của nhà cung
+cấp, chưa được bên thứ ba kiểm chứng độc lập.
+
+Phần 2 là đề xuất thiết kế, không phải mô tả một sản phẩm đang tồn tại.
+
+Phần 3 review lập luận trong hai tài liệu bên ngoài, không review một codebase cụ thể
+nào; Haskell trong đó là đại diện cho cả nhóm ngôn ngữ functional có type mạnh.
+</script>
+<script type="text/plain" id="src-en"># TypeSafe AI / Jev — Engineering Brief (v3)
+
+> Part 1 — an assessment of TypeSafe AI and the Jev model as a decision layer.
+> Part 2 — a design for a custom context reasoning tracker.
+> Part 3 — the opportunity cost of a functional type-safe language in agent tooling.
+
+---
+
+## Opening example — one complete request
+
+@fig:heroDemo
+The STATE sent up (the support ticket):
+
+    Hi, I've been trying to connect my Stripe account for three days
+    and it keeps failing. I'm losing sales. Please help as soon as you can.
+
+3 QUESTIONS asked together in ONE request:
+
+    department   choice   Which team should handle this?
+                          billing · technical · sales
+    frustration  score    How frustrated is the customer?
+                          0 calm · 1 annoyed · 2 angry
+    is_urgent    noul     Does the message convey urgency?
+
+The response:
+
+    department  → technical                       confidence 0.596
+                  technical  ████████████████░░░   0.840
+                  billing    ███░░░░░░░░░░░░░░░░   0.159
+                  sales      ░░░░░░░░░░░░░░░░░░░   0.001
+                  ↑ below the 0.7 threshold → send it to a person
+
+    frustration → 1.035   (scale 0–2)             confidence 0.842
+                  0 ── 1 ── 2
+                  ██████████░░░░░░░░░
+
+    is_urgent   → 0.999                           (a noul carries no confidence)
+                  ███████████████████
+
+Three questions ran in parallel, in around 100ms, in one request. There is no prose
+anywhere in the response — only typed values with probability distributions. Your
+code owns the cut-off, not the model.
+@endfig
+
+---
+
+# PART 1 — TypeSafe AI and the Jev model
+
+## 1.1 What it is, who built it, production readiness
+
+[FACT] From the site, the launch post, and the press release:
+
+| Item | Detail |
+|---|---|
+| Company | TypeSafe AI — San Francisco, founded 2024, two years in stealth |
+| Founders | Diogo Almeida (CEO, ex-OpenAI, co-inventor of RLHF/InstructGPT), Erik Gafni (CTO), Sasha Sheng (COO, ex-Meta FAIR) |
+| Launch | 15 Sep 2026 — $40M seed led by DCVC; Forbes cited a ~$200M valuation |
+| Product | `Jev` — first model in the "System One Model" class |
+| Price | $0.042 per 1M input tokens · output tokens free |
+| Latency | 70–500ms end to end (vendor figure) |
+| Status | Early access behind a waitlist · `jev-1.13` |
+
+[ASSUMPTION/HIGH] **Not production ready.** Grounds:
+
+- Early access behind a waitlist, not general availability
+- No published service level agreement, uptime record, or region
+- Text only; no image, audio, or video support yet
+- No self-hosting, so you are fully locked into a two-year-old company
+- The company concedes it cannot prove the current price is not subsidised
+
+[FACT] A real mark of engineering maturity: they publish a *jaggedness* page listing
+eight known failure modes of `jev-1.13`; the Python and JavaScript clients ship with
+a retry policy and a proper exception hierarchy; around eighteen runnable cookbooks
+exist.
+
+## 1.2 The problem it was built for
+
+Training against *human preference* produced models that excel at conversation but
+carry three defects that block automation:
+
+1. **Overconfidence.** A model that is right 95% of the time but cannot tell you when
+   it is in the other 5% cannot automate that task.
+2. **Hallucination and type errors.** Structured output can still break the schema.
+3. **Sequential generation overhead.** Three to 329 seconds for frontier models.
+
+@fig:samp
+    LLM  · autoregressive   ■■■■■■■■■■■■■■■■■■■■   token by token, mostly discarded
+    Jev  · parallel sampler ■■■■■                  one pass, all questions at once
+@endfig
+
+> **A correction to the usual mental model.** Jev does not return
+> `{should_do: "yes"}`. It returns `noul: 0.87`, a probability. The cut-off
+> (`> 0.7 → do it`) belongs to your code. The model does not decide; it emits a
+> calibrated signal. Your code decides.
+
+## 1.3 Competitors and alternatives
+
+[FACT] Nothing matches it one for one. But every piece of the value has a substitute.
+
+| Category | Examples | Trade-off against Jev |
+|---|---|---|
+| Small, fast LLMs | Haiku, Gemini Flash-Lite, Groq or Cerebras hosting | One to two orders of magnitude slower and dearer, but they generate, they are mature, and there are several vendors |
+| Constrained decoding | OpenAI structured outputs, Outlines, Guidance, BAML, Instructor | Guarantees the schema but not calibration; still autoregressive |
+| Fine-tuned encoders | ModernBERT or DeBERTa with a head, SetFit | Cheapest, self-hostable, millisecond latency — but needs labelled data, one model per task |
+| Zero-shot classifiers | NLI models, embeddings plus logistic regression | Free and self-hosted, but much weaker on semantic judgement |
+| Rerankers | Cohere Rerank, Voyage, bge-reranker | Specialised for ranking only |
+| Guardrails | Llama Guard, Prompt Guard, Lakera | One domain only |
+| Frameworks | DSPy typed signatures | An abstraction that still runs on an LLM underneath |
+
+[FACT] The sharpest pushback: in a Hacker News thread of roughly 475 comments, a
+commenter said this was essentially a zero-shot classifier and Almeida agreed
+outright, while declining to disclose the architecture.
+
+[ASSUMPTION/MEDIUM] The most accurate positioning: **a general-purpose zero-shot
+semantic classifier, reranker, and scorer, packaged as an API, priced very low, with
+calibration.** Compare it with a fine-tuned encoder and with Haiku, not with GPT-6.
+
+## 1.4 Case studies
+
+### A · Inside an AI product
+
+Clear value:
+
+- **Filtering retrieved passages** — score each one, let code decide which reach the
+  answering model, and catch injected instructions along the way
+- **Input and output guardrails** — one request scores every hazard, thresholds in code
+- **Citation checking** — does the context support the claim; low confidence flags it
+- **Reranking** — their cookbook reports top-1 rising from 5% to 18% and top-10 from
+  38% to 62% across 40 CLERC queries over a 30-passage BM25 shortlist
+- **Intent routing** — to deterministic logic, a specialist model, or a person
+- **Batching questions** — thirteen questions over one article in a single call came
+  out 12.2 times cheaper and 10 times faster, with the same answers
+
+Handle with care: function calling and date extraction have cookbooks, but the
+jaggedness page says plainly that the model cannot compare dates and cannot count.
+The correct shape is to have it pick *components* from a closed set and let code
+assemble and calculate.
+
+### B · Inside a development workflow
+
+**(a) The agent skill** — it helps you write code that uses Jev:
+
+    claude plugin marketplace add typesafe-ai/skills
+    claude plugin install typesafe@typesafe-ai
+
+[CONCERN/MAINTENANCE] Their own documentation warns that agents write poor questions,
+and that the constants — questions and thresholds — belong in **a single file** so a
+human can review them.
+
+**(b) Jev as a decision layer underneath the agent** — the more interesting half:
+
+- **Picking a skill** — at most one skill from a 182-skill catalogue per turn: one
+  request ranks every skill and asks whether the turn needs one at all; a second reads
+  the top three properly and may reject all of them
+- **Verifying a tool-call trace** — nine atomic questions: is the tool appropriate, do
+  the arguments match the schema, do the coordinates match the previous output, does
+  the unit match the request
+
+[RISK/HUMAN] Jev cannot replace a coding agent. It does not write code, reason, or
+plan. It is a smart `if` statement sitting underneath one.
+
+**(c) Where it belongs in the pipeline** — the short answer: **at the two ends,
+never in the middle.**
+
+**Yes — but at the two ends of the pipeline, never in the middle.**
+
+@fig:flowGate
+    LLM                → probabilistic
+     ↓
+    [JEV ✓]  Before the boundary — which tool/skill to load · injection screening
+     ↓
+    Parse              → deterministic, the schema handles it. NOT Jev's job
+     ↓
+    [JEV ~]  Validate  — only the semantic part, over unstructured input
+     ↓
+    [JEV ✗]  Command       — never
+     ↓
+    [JEV ✗]  State machine — never
+     ↓
+    [JEV ✗]  Effect
+     ↓
+    [JEV ✓]  Audit     — triage, ranking anomalies by how much they need a person
+@endfig
+
+| Position | Job | Why it is genuinely fuzzy |
+|---|---|---|
+| Before MCP | Choose which tool or skill to load this turn | User intent arrives unstructured |
+| Before MCP | Screen input for injected instructions | No rule set is sufficient |
+| At validate | Map an argument onto a closed set with `Choice` | Natural language to enum |
+| At validate | Does this request match a policy written in prose? | The policy is prose |
+| After effect | Rank ten thousand reconciliation mismatches | Nobody can read them all |
+
+Where it must never go:
+
+    ✗ noul: "is this refund valid?"
+
+That question is wrong in principle, not merely low quality.
+`amount <= refundable_amount` is a comparison over data you already hold. Asking a
+model is volunteering to trade a fact for a probability.
+
+## 1.5 When to use it and when not to
+
+**One-line heuristic:** if the final output is a branch in your code rather than prose
+for a person to read, it is a candidate.
+
+| Use it when | Avoid it when |
+|---|---|
+| The decision repeats at volume with the same shape | You need generated text, code, explanation, or a plan |
+| Latency sits on the critical path | The task is arithmetic, counting, or date comparison |
+| You need the model to say it is unsure | The task needs several layers of indirection |
+| You are mapping over a large corpus | Ordinary code or a regular expression solves it exactly |
+| You have no labelled data yet | Volume is low and a new vendor is not worth the dependency |
+| — | Compliance needs an audit trail in natural language |
+
+### Vendor claims against reality
+
+| Claim | Assessment |
+|---|---|
+| "No hallucinations" | [FACT] True narrowly: type errors are impossible. [CONCERN] It does not mean the answer is right — the model can still pick the wrong valid option |
+| 193.6x faster, 444.6x cheaper | [ASSUMPTION/LOW] Vendor figures on workflows their own team built; they note these sit at the high end of real-world gains |
+| Calibration | No independent metrics published by a third party — the central claim and the unverified one |
+| Self-consistency | There is a cookbook, but a cookbook is not independent evidence |
+
+[RISK/SECURITY] The documentation is explicit: `state` is not treated as hostile by
+default. An injected instruction inside the state can move the answer. If you plan to
+use Jev as a guardrail for another model, that tension needs thorough testing.
+
+[TRADE-OFF] What you give up for the speed and the price: **the evaluation burden
+moves to you.** Build a labelled set, plot confidence against accuracy, choose the
+cut-offs, maintain them across versions. Pin the version in production —
+`jev-1.13`, not `jev-latest`.
+
+## 1.6 Architecture and workflow
+
+    POST https://api.typesafe.ai/v1/systemone
+
+    {
+      "state": <string | JSON object | array>,
+      "model": "jev-1.13",
+      "questions": {
+        "<key>": { "type": "noul"|"choice"|"score",
+                   "instructions": ..., "criteria": ... }
+      }
+    }
+
+| Primitive | The question | The answer |
+|---|---|---|
+| `noul` | Is this statement true? | `noul`: 0–1 · no confidence value |
+| `choice` | Pick one from a closed set | `choice` · `probabilities{}` · `confidence` |
+| `score` | Rate against ordered levels | `score` (interpolated float) · `legend` · `confidence` |
+
+[FACT] The limits: 64k tokens across state and questions together, 32k for the state
+plus the longest single question. A choice may hold up to 255 options. Every question
+is evaluated in parallel and in isolation, so more questions barely cost time and one
+never becomes hidden context for another. The confidence value is derived from the
+probability distribution, and the full distribution is returned so you can compute
+your own measure.
+
+### Pipeline
+
+@fig:flowPipe
+    [CODE]  Handle the deterministic cases
+              ticket closed → return · more than 30 days overdue → route
+       ↓
+    [CODE]  Assemble the state — only the fields a question needs
+              a large, noisy state costs accuracy
+       ↓
+    [CODE]  Write N atomic questions
+              ✗ "is this message spam?"
+              ✓ requests_credentials / unexpected_reward / time_pressure
+                / sender_identity_mismatch / link_domain_mismatch
+       ↓
+    [JEV ]  One request → N answers in parallel   (~100ms, whatever N is)
+       ↓
+    [CODE]  Combine — the weights are yours
+              spam_risk = 0.45*a + 0.30*b + 0.25*c
+       ↓
+    [CODE]  Gate on the risk of the ACTION, not on the model
+              confidence below 0.5       → send to a person
+              read-only    above 0.7     → act
+              destructive  above 0.9     → act, otherwise confirm first
+@endfig
+
+### Three design rules, in order of importance
+
+1. **Break questions down.** The documentation calls this the single most important
+   idea. A broad question hides several judgements behind one number.
+2. **Point at the state by path.** Wrap paths in backticks:
+   "Does `support.tickets[0].message` and `commerce.orders[0].charges` indicate a
+   duplicate charge?"
+3. **Give criteria structure and contrast.** Describe each option with `what`,
+   `not_for`, and `examples`, using the same field names throughout.
+
+[FACT] When business priorities shift, you change a coefficient in code rather than
+rewriting a prompt. That is the largest difference from prompt-based classification.
+
+### Speculative fan-out
+
+Because output tokens are free and questions run in parallel, ask questions you
+probably will not need and let code read only those relevant to the branch taken.
+That removes the second round trip entirely — a pattern that never made economic
+sense with an LLM.
+
+## 1.7 Glossary
+
+| Term | Meaning |
+|---|---|
+| System One Model | TypeSafe's name for a class of models returning typed decisions rather than text. Borrowed from Kahneman. Not an industry-standard category |
+| Jev | The first model in that class, named after William Stanley Jevons |
+| RLCD | Reinforcement Learning for Calibrated Decisions — optimising for honest probabilities rather than human preference or verifiable rewards |
+| Noul | The yes/no primitive, returning a probability between 0 and 1. No confidence value |
+| Choice | Pick one option from a closed set of at most 255 |
+| Score | Rate against ordered levels, returning an interpolated float. Not a way to recover an exact number |
+| State | The input context: a string, a JSON object, or an array |
+| Calibration | Higher confidence means higher accuracy, measured across a group of predictions |
+| Type safety | The output always conforms to the declared schema. It says nothing about correctness |
+| Jaggedness | Their term for the published list of known failure modes per version |
+| Speculative fan-out | Asking more questions than you need and letting code choose which answers matter |
+| Parallel sampler | Producing the whole output in one pass rather than token by token |
+
+---
+
+# PART 2 — A custom context reasoning tracker
+
+**The question:** a custom context tracker that stores not only final decisions but
+also what was left unresolved, weighted, as a system-design reasoning state — can it
+replace anything?
+
+[NEEDS AN ANSWER] "Replace" has two readings with opposite answers. Replacing Jev or
+the decision layer: no. Replacing how an assistant manages its own context: partly,
+and that part is worth building.
+
+## 2.1 The short answer
+
+It replaces nothing that exists. It **fills a layer that nobody owns.**
+
+@fig:stack
+    Layer                                        Owner today
+    ─────────────────────────────────────────────────────────
+    Business state — the final outcome           database, modules
+    Reasoning state — why, and what is open      ← NOBODY
+    Conversation log — raw prose                 chat history
+    Judgement function — stateless               LLM or Jev
+@endfig
+
+[FACT] Concrete evidence that the gap is real: retrieval over old conversations
+**cannot distinguish** "the assistant suggested X" from "the team decided X". A
+suggestion the user reacted well to looks identical to a settled decision three
+months later. That is exactly what an explicit **write event** fixes, and exactly
+what retrieval can never fix.
+
+What it replaces is not a component but a cost: the **cost of re-deriving**. Every
+time you return to a part of the design you pay again for "why did we choose this"
+and "what did we leave hanging". Real, but bounded — do not expect it to replace
+thinking.
+
+## 2.2 The hard part: what does the weight measure?
+
+[CONCERN] This is where designs like this usually die.
+
+| Axis | Meaning | Changes with |
+|---|---|---|
+| Chance the assumption is wrong | belief | new evidence |
+| Cost if it is wrong | blast radius | architectural change |
+| Urgency | when it must be settled | deadlines, dependencies |
+| Freshness | whether it still holds | whether the code moved |
+
+[RISK] Collapsing these four into **one number** destroys the signal. An item that is
+10% likely to be wrong but would cost you the database, and one that is 60% likely to
+be wrong but would cost a variable rename, can score identically.
+
+@fig:matrix
+                        low impact           high impact
+                     ┌──────────────────┬──────────────────┐
+    high likelihood  │  Drop            │  Spike it        │
+                     │  this is a worry │  get evidence    │
+                     ├──────────────────┼──────────────────┤
+    low likelihood   │  Track           │  SETTLE NOW      │
+                     │  do not priorit. │  most missed     │
+                     └──────────────────┴──────────────────┘
+@endfig
+
+Keep the two axes apart, exactly as a classical risk register does, and add a
+timestamp.
+
+## 2.3 Triggers beat weights
+
+[ASSUMPTION/HIGH] A weight is a *worse* way to manage an open item than a condition
+that wakes it up.
+
+    ✗ open item: "sharding key not settled"   weight: 0.7
+
+    ✓ open item: "sharding key not settled"
+      revisit when:    write QPS above 3k  OR  a second tenant arrives
+      invalidated if:  we move to a managed database
+
+A weight requires somebody to **go and reread the list**, which nobody does after week
+three. A trigger turns the open item into a **tripwire**: it surfaces itself at the
+moment it matters.
+
+[FACT] Direct prior art: the "Unresolved questions" section of a Rust RFC,
+architecture decision records with a `superseded` status, and the risk register. None
+uses a single weight as the primary mechanism.
+
+## 2.4 Where Jev actually fits
+
+The tracker is **state**. Jev is a **function**. They do not compete; they compose.
+
+@fig:pathsTrack
+    WRITE PATH   (a turn, a pull request, a discussion)
+      1. noul   — does this passage contain a settled decision?
+      2. noul   — does it leave a question unanswered?
+      3. choice — decision | open | assumption | noise
+      4. low confidence → do not write, ask a person to confirm   ← the critical gate
+
+    READ PATH    (where the value is)
+      1. N open items exist, and N can easily pass 200
+      2. one call, N score questions — how relevant is this to the current task?
+      3. one call, N yes/no questions — does this still hold against the code now?
+      4. code takes the top few and injects them into the context
+@endfig
+
+The read path is the passage-filtering problem again. Without it, the fuller the
+tracker gets the less useful it becomes: 200 open items in the context is worse than
+none.
+
+[TRADE-OFF] Putting a model on the write path buys speed and quietly manufactures
+rubbish. Gating on confidence is mandatory.
+
+## 2.5 Three failure modes that kill projects like this
+
+| Failure mode | How it happens | Counter-measure |
+|---|---|---|
+| A second source of truth | The tracker says one thing and the code another; entries not anchored to artefacts people already touch drift within a sprint | Store it beside the code, review it in the pull request |
+| Write-path tax | Every discussion carries an obligation to record something, and people stop | Writing must be a by-product of work already happening — parse the pull request, parse the transcript |
+| No closing event | Open items go in and never come out, and it becomes landfill | Every item needs an "invalidated if" condition. If you cannot write one, it is a worry, not an open item |
+
+## 2.6 The smallest version worth running
+
+    repo/DECISIONS.md   (append only)
+
+    ## D-014  Postgres over Mongo                [decided 2026-09-18]
+    why: the payment flow needs multi-table transactions
+    open:
+      - O-031 sharding key not settled
+        chance wrong: medium    impact: high
+        revisit when:    write QPS above 3k
+        invalidated if:  we move to a managed database
+      - O-032 assumes under 50GB a year  (unverified)
+        revisit when:    end of Q1
+
+[VERIFY/METRIC] One number decides whether to automate any of this:
+
+> **Over four weeks, how many times did an open item get pulled out and actually
+> change a decision?**
+
+- Zero → stop. Losing reasoning state is not your problem.
+- One or two → keep the hand-written file. It is enough.
+- Five or more → now the automated write and read paths are worth building.
+
+[CONCERN] Most attempts to store reasoning state fail not for want of technology, but
+because that number turns out to be zero and nobody was willing to measure it.
+
+## 2.7 Direct answers
+
+| Reading | Answer |
+|---|---|
+| Replaces Jev | No. The tracker is state, Jev is a function. The tracker **needs** something like Jev on the read path or its own growth will strangle it |
+| Replaces assistant memory and past-chat search | Yes, on two specific points: separating a *suggestion* from a *decision*, and retaining what was never settled. Retrieval cannot do either, because it has no write event |
+| Replaces reasoning | No, and do not try. It shortens the path into context; it does not do the thinking |
+
+[NEEDS A DECISION] One thing to settle before going further: does this tracker serve
+**an agent** — machine-read, strict schema, automated read path — or **a person** —
+read during review, a markdown file is enough, no model involved? The two diverge on
+day one and are expensive to merge later.
+
+---
+
+# PART 3 — Jev as a function, and the opportunity cost of a functional type-safe language
+
+This part asks one question: once Jev is doing the validation, where does pulling **a
+functional language with a strong type system** into the agent architecture still pay
+for itself? Haskell stands in for the category because the two external documents name
+it — but **every conclusion here applies to the group**: OCaml, F#, Scala 3, Rust, Elm,
+PureScript, Gleam, or merely Kotlin's sealed classes and TypeScript's discriminated
+unions. What changes between them is the *cost*, not the *benefit*; section 3.6
+separates the two.
+
+@box:ctx
+## CONTEXT — the business example and the two architectures being compared
+
+**The system in question.** A commerce SaaS: subscriptions, one-off orders, payments
+through Stripe, an internal ledger, and prepaid wallets for business customers. The
+support team works in an internal admin tool with an AI agent in it. An agent types in
+plain language and the model issues tool calls.
+
+**The scenario running through this part.** A customer reports being charged twice for
+order `A-104`. A support agent types: *"refund the extra charge on A-104"*. The model
+emits one tool call:
+
+    payment.refund({
+      payment_id: "pay_8fd2",
+      amount:     49.00,
+      currency:   "USD",
+      reason:     "duplicate_charge"
+    })
+
+The same codebase also exposes `filesystem.search`, `git.status`, `search_documents`,
+`update_ticket`, `create_order`, `wallet.transfer`, and `production_deploy` — spanning
+READ through CRITICAL, the ladder in section 3.5.
+
+**The two external documents** this part reviews:
+
+- **A codebase review prompt** asking an assistant to sweep every agent skill, MCP
+  server, tool call, and Bash or Python script in the repository and identify where a
+  *Haskell trusted core* would earn its keep. It carries a 0–5 rubric across eight
+  benefit axes and five cost axes, and explicitly permits the conclusion that Haskell
+  is unjustified.
+- **An architecture note** proposing a split by language: Bash for system glue, Python
+  for orchestration and APIs, Haskell for the domain core.
+
+[NOTE] No actual codebase was supplied. This part reviews the *reasoning*, not a
+repository. The `A-104` scenario was constructed to give the discussion something to
+hold onto; it is not drawn from a real system.
+
+### The two architectures
+
+@endbox
+
+@fig:pathsArch
+    THE ARCHITECTURE TODAY  (typical, plain Python)
+      1. the model emits a tool call
+      2. MCP server (Python) — a JSON schema validates the SHAPE
+      3. Python handler:
+           if payment.status == "captured"
+           if amount <= refundable
+           if not already_refunded
+           if caller.can("refund")
+      4. call the Stripe API
+      5. write one line of text to a log
+
+    THE PROPOSED ARCHITECTURE  (the thing being reviewed)
+      1. the model emits a tool call
+      2. MCP and Python orchestration — parse, permission, fetch data
+      3. a validated command crosses the process boundary
+      4. HASKELL TRUSTED CORE — a typed state transition
+      5. a controlled side effect
+      6. audit and reconciliation from the recorded command
+
+The only real difference is at steps three and four: four `if` statements scattered
+through a handler, versus a function that can only accept the kind of payment it is
+allowed to touch.
+@endfig
+
+The architecture note's central claim, applied to `A-104`:
+
+| A JSON schema proves | A JSON schema does not prove |
+|---|---|
+| `amount` is a number | `amount <= refundable_amount` |
+| `currency` is a string | `currency` matches the original payment |
+| `payment_id` is present | that payment has been captured |
+| `reason` is in the enum | this refund has not already run |
+| — | the caller is allowed to refund |
+
+## 3.0 The question actually being asked
+
+Jev is being treated as a **validation function**: feed in state, receive a typed
+value, no schema error possible. Haskell is being proposed for **that same position** —
+parse, validate, enforce invariants. Both sides use the same vocabulary: *type-safe*,
+*total function*, *type errors are impossible*.
+
+So the fair question is whether this is a **conflict of responsibility** — two things
+competing for one slot — or an **opportunity to compose**.
+
+> **The answer first, the proof after:** the overlap is in the *words*, not in the
+> responsibility. The same phrase "type-safe" refers to two different things here.
+
+|  | Jev | Haskell |
+|---|---|---|
+| "type-safe" means | the output matches the answer space you declared | relationships between values are checked at compile time |
+| Guaranteed when | at runtime, on every call | at compile time, once for every run |
+| Input | unstructured and untrusted | values that have already been parsed |
+| Output | a `Distribution` — data | a `Value` — evidence |
+| Says nothing about | whether the answer is correct | what the prose outside the system means |
+
+In the `A-104` scenario: Jev can report that this agent means a refund rather than a
+cancellation, at 0.93 — something no type system can do. But it does not know whether
+`pay_8fd2` was captured, and it must not guess. Haskell knows for certain that a refund
+can only come out of a `CapturedPayment`, but it cannot read the sentence the support
+agent typed.
+
+[ASSUMPTION/HIGH] The real risk is not picking the wrong side. It is using one while
+believing you have the other — reading "Jev cannot hallucinate" and concluding the tool
+call is now safe. The rest of Part 3 pulls those two apart.
+
+## 3.1 What "functional" actually means for Jev
+
+    ✓ TOTAL          no throws, no parse errors, no type errors
+                     the codomain is closed and declared in advance
+
+    ✓ PURE-ish       no state between calls, questions are independent
+                     one question never becomes hidden context for another
+
+    ✗ REFERENTIALLY TRANSPARENT
+                     the output is a probability distribution, not a value
+                     self-consistency is not determinism
+
+[CONCERN] That third line decides everything else. A total function returning
+`Distribution a` is **not a proof** — it is data. Let a Jev answer flow straight into
+the domain as a decision and you have introduced a probability where an invariant
+belongs.
+
+    jev :: State -> Questions -> IO (Distribution Answer)
+    --     ^^^^^ untrusted input          ^^^^^^^^^^^^ still untrusted output
+
+## 3.2 Where it fits — answered in §1.4.B
+
+The detail lives in **Part 1, section 1.4.B** (§ "B · Inside a development workflow"): the pipeline diagram marked ✓ / ~ / ✗
+step by step, the table of the five positions where Jev genuinely helps, and the rule
+for deciding which predicates belong to code.
+
+The one line needed to read on: **Jev may stand before the boundary and after it,
+never inside.** Before it means routing, argument extraction, and injection screening.
+After it means audit triage. In between — Command, State machine, Effect — its output
+is a probability, and a probability must never become an invariant.
+
+## 3.3 Where Jev and Haskell actually meet
+
+They do not compete on the critical path — they sit at opposite ends of it. But there
+is exactly one overlap, and it is the dangerous one: **predicates currently handled as
+fuzzy judgements that should have been deterministic rules.**
+
+[JEV'S OPPORTUNITY COST] It never shows up on the invoice:
+
+    $0.042 per million tokens makes
+        "just ask the model"
+    cheaper, in the short run, than
+        "model the domain properly"
+
+    → the team takes the cheap option
+    → six months later there is no domain model,
+      only a pile of questions and thresholds nobody dares touch
+
+A dividing rule you can apply today:
+
+    Can this predicate be decided from data you already hold?
+        YES  → write code. Never ask the model. No exceptions.
+        NO   → it needs unstructured input interpreted → model
+               → the output is a Distribution
+               → it passes through a threshold policy
+               → only then does it become a Command
+
+## 3.4 Who supplies which kind of correctness
+
+| Layer | Kind of correctness | JSON schema | Jev | Typed domain |
+|---|---|---|---|---|
+| Structural | fields have the right types | ✓ | ✓✓ cannot fail | ✓ |
+| Semantic | the values mean something | ✗ | ~ only over unstructured input | ✓✓ |
+| Transition | the state moves legally | ✗ | ✗ | ✓✓ |
+| Operational | the effect is controlled | ✗ | ✗ | ✓ |
+| Post-condition | it reconciles | ✗ | ~ triage | ✓ |
+
+[ASSUMPTION/HIGH] Anyone who reads the launch post and concludes their tool calls are
+now safe has misread it. Jev raises structural correctness to an absolute and adds a
+little semantic correctness. The three middle rows are as empty as they were.
+
+## 3.5 Formalisation should track how dangerous the effect is
+
+@fig:ladder
+    READ       filesystem.search · git.diff · database.query
+               getting it wrong costs one more read
+    WRITE      update_ticket · generate_report
+               getting it wrong is fixable by hand
+    BUSINESS   create_order · refund · recharge_wallet
+               getting it wrong costs money and trust
+    CRITICAL   transfer_money · production_deploy · delete_customer
+               getting it wrong cannot be undone
+
+    Bash       ████────────────────
+    Python     ██████████──────────
+    Typed core ████████████████████
+@endfig
+
+## 3.6 What Haskell buys, and what it does not
+
+What it buys — four things, and only four:
+
+1. **Illegal states become unrepresentable.**
+   `refund :: CapturedPayment -> RefundedPayment` means refunding an uncaptured
+   payment will not compile.
+2. **Exhaustiveness fails the build.** Add a state and every missing branch turns red.
+   Python's `match` with `Literal` only turns red if strict checking is on and
+   somebody runs it.
+3. **Parse, don't validate, at the edge.** A `newtype Money` with a smart constructor
+   removes the "has this been validated yet?" question four layers down.
+4. **Commands as data with a pure interpreter.** Dry runs, replays, and audits share
+   one code path.
+
+What it does not buy:
+
+| Claim in the note | Reality |
+|---|---|
+| `amount <= refundable_amount` | A runtime value from the database. No type system proves it. An `if` in every language |
+| `refund not duplicated` | A unique constraint in the database. Not a typing problem |
+| `caller has permission` | Runtime data. Types can force you to *remember* the check, not perform it |
+| Concurrency correctness | Software transactional memory is good, but so is `SERIALIZABLE` in Postgres, already in the stack |
+| `payment already captured` | **This one is a real win for the type system** |
+
+[FACT] Of the five example lines in the note, one is a type-system advantage. The
+other four are runtime checks in any language.
+
+### The hidden cost: the foreign-function boundary
+
+@fig:ffi
+    Python orchestration
+        ↓  serialise to JSON            ← types lost here
+    Haskell core — parse again, smart constructors
+        ↓                               ← the guarantee lives only here
+    typed state transition
+        ↓  serialise back to JSON       ← types lost again
+    Python
+@endfig
+
+[RISK/SCALING] If Python calls in the wrong order, skips a step, or retries after a
+timeout, Haskell never knows. Idempotency still has to be solved outside. A Haskell
+core protects **transitions**, not **orchestration** — and most agent incidents live
+in orchestration.
+
+### Haskell is only the stand-in — the benefit holds, the cost does not
+
+None of those four things is peculiar to Haskell. They belong to **algebraic data
+types + exhaustiveness + parse-don't-validate**, and a fair number of languages carry
+the full set. What genuinely differs is the **boundary cost**: if the language shares a
+runtime with your orchestration layer, most of the foreign-function cost above
+disappears.
+
+| Language | How much of the four | Boundary cost |
+|---|---|---|
+| Haskell | all four | High — separate process, small ecosystem, hard to hire for |
+| OCaml | all four, very fast compiles | Similarly high, but a much simpler build |
+| F# / Scala 3 | all four | **Low if you are already on .NET or the JVM** — same runtime, no serialisation boundary |
+| Rust | ADTs, exhaustiveness, strong newtypes; effect control comes through ownership rather than types | Medium — embeds through PyO3, no separate process needed |
+| Kotlin / Swift | sealed classes or enums with exhaustive matching; weaker at parse-don't-validate | Low if already in the stack |
+| TypeScript | discriminated unions with exhaustiveness checks; types erased at runtime | **Near zero** if the MCP server is already TypeScript |
+| Python with ADTs | tagged unions plus strict type checking — roughly 80% | Zero, in exchange for a guarantee that only exists if somebody runs the checker |
+
+[ASSUMPTION/HIGH] This is why "should we adopt Haskell" is usually the wrong question.
+The better one: **which language in this family has the lowest boundary cost against
+the stack you already run?** A JVM team gets nearly all the benefit from Scala 3 at
+almost no foreign-function cost; if the MCP server is already TypeScript, in-place
+discriminated unions beat a Haskell core sitting behind a serialisation boundary.
+
+## 3.7 One engineering budget, three places to spend it
+
+The right question is not whether to adopt Haskell. It is **what kind of incidents you
+have had over the past six months.**
+
+| Kind of incident | Cheapest fix | Does Haskell help? |
+|---|---|---|
+| The model picked the wrong tool or a semantically wrong argument | Better tool descriptions, a judgement layer, a confidence gate | No |
+| The code permitted an illegal transition | Algebraic data types and an explicit state machine | **Yes, strongly** |
+| Retries, partial writes, duplicated effects | Idempotency keys, database constraints, an outbox | No |
+| Nobody can reconstruct what happened | An explicit audit log and commands as data | Partly |
+| Validation duplicated across many tools | Consolidate into one domain module | Yes, but Python can too |
+
+[ASSUMPTION/MEDIUM] Across agent tooling generally, the first and third dominate. The
+second dominates only when the domain really is payments, ledgers, or wallets —
+exactly what the note lists. The note is not wrong, but it draws its examples from the
+*exceptional* case and presents them as the general rule.
+
+### A workable decision threshold
+
+    Fewer than 6 states, simple guards
+        → Python with an enum, match, and property tests. Enough. Stop.
+
+    6 to 10 states, guards that depend on history
+        → Python with tagged unions, strict type checking, property tests
+          (80% of the guarantee for 15% of the cost)
+
+    More than 10 states, complex transition guards,
+    one mistake costs real money, replay and dry runs needed
+        → a Haskell core is worth considering
+
+## 3.8 Where Jev and Haskell join
+
+The joint is the **threshold policy** — and the threshold policy, not the tool, is the
+strongest Haskell candidate in the whole architecture. It is where the fuzzy meets the
+discrete, and mistakes there are silent.
+
+    -- the model's output is DATA, not a decision
+    newtype Conf = Conf Double          -- smart constructor: [0,1]
+    data Dist a  = Dist { best :: a, conf :: Conf }
+
+    data Verdict a
+      = Auto     a          -- confident enough, proceed
+      | NeedsAck a          -- a person must confirm
+      | Escalate            -- do not proceed
+
+    -- the policy binds to the RISK OF THE ACTION, not to the model
+    decide :: RiskClass -> Dist a -> Verdict a
+
+    -- a command can only be built from Auto plus a checked permission
+    data Authorized c = Authorized c AuditRef
+
+    authorize :: Verdict Intent -> Permission -> Maybe (Authorized RefundCmd)
+
+    execute :: Authorized RefundCmd -> CapturedPayment -> IO RefundedPayment
+    --         ^^^^^^^^^^                ^^^^^^^^^^^^^^^^
+    --         no evidence, no call        wrong state, no compile
+
+Three illegal states disappear at compile time: calling `execute` with a raw model
+output that never passed `decide`; calling it when `decide` returned `Escalate`;
+refunding a payment that was never captured. All three are real bugs, and all three are
+currently policed by an `if` in Python.
+
+## 3.9 A review of the review prompt
+
+[FACT] The prompt is well built — especially its closing permission to conclude that
+Haskell is unjustified, and its framing of that as the *preferred* outcome. That
+escape hatch is correct and rare.
+
+<details>
+<summary>The full prompt under review (~450 lines, verbatim)</summary>
+
+    Review AI Agent Skills & Tool Calls for Haskell Opportunities
+
+    Review the current codebase, focusing specifically on:
+
+    * AI Agent skills
+    * MCP servers/tools
+    * Tool-call implementations
+    * Bash scripts invoked by agents
+    * Python scripts invoked by agents
+    * Domain/business tools
+    * Tools that perform external side effects
+    * Validation, state transitions, retries, idempotency, reconciliation, and error
+      handling around tool calls
+
+    Goal
+
+    Identify places where the current Bash/Python implementation would materially
+    benefit from using a Haskell-based trusted core or tool implementation.
+
+    Do NOT recommend Haskell merely because stronger typing is possible.
+
+    Prefer keeping the existing Bash/Python implementation unless Haskell provides a
+    clear improvement in:
+
+    * correctness
+    * domain invariant enforcement
+    * state-transition safety
+    * parsing/validation
+    * side-effect control
+    * concurrency correctness
+    * idempotency
+    * auditability
+    * failure recovery
+    * maintainability of complex domain logic
+
+    Mental Model
+
+    Classify tools roughly as:
+
+    Bash      -> system glue / simple commands
+    Python    -> orchestration / AI / API / data workflows
+    Haskell   -> trusted domain core / complex invariants /
+                 state machines / correctness-critical operations
+
+    Pay particular attention to this boundary:
+
+    LLM -> Tool Call -> Schema Parsing -> Validation -> Domain Command
+        -> State Transition -> Side Effect -> Audit / Reconciliation
+
+    JSON/tool schemas provide mainly structural correctness.
+
+    Look for places where we additionally need:
+
+    semantic correctness
+    state correctness
+    transition correctness
+    operational correctness
+    post-condition correctness
+
+    Review Process
+
+    First discover all relevant skills and tools in the repository.
+
+    For each important tool, determine:
+
+    Tool / Purpose / Current implementation / READ | WRITE | BUSINESS EFFECT |
+    CRITICAL EFFECT / Inputs / Outputs / Side effects / Domain invariants /
+    State transitions / Failure modes / Retry-idempotency requirements /
+    Current validation mechanism
+
+    Then evaluate whether the current implementation is sufficient.
+
+    Look especially for code patterns such as:
+
+    if status == ...
+    if type == ...
+    if state == ...
+    if action == ...
+    assert ...
+    raise InvalidState(...)
+
+    large Enum/string-based state models, deeply nested validation, duplicated
+    validation across tools, implicit state machines, transaction workflows, retry
+    logic, compensation logic, reconciliation logic, and code where the correctness of
+    one operation depends on several previous operations having succeeded.
+
+    Ask:
+
+    Are we repeatedly checking at runtime something that could instead be made
+    impossible or explicit through a stronger domain model?
+
+    For example, distinguish:
+
+    Payment
+
+    from:
+
+    PendingPayment / AuthorizedPayment / CapturedPayment / RefundedPayment
+
+    and transitions such as:
+
+    authorize : PendingPayment    -> AuthorizedPayment
+    capture   : AuthorizedPayment -> CapturedPayment
+    refund    : CapturedPayment   -> RefundedPayment
+
+    Decision Rule
+
+    For each candidate assign:
+
+    KEEP BASH / KEEP PYTHON / PYTHON + STRONGER MODELING / HASKELL CORE / HASKELL TOOL
+
+    Use Haskell only when the benefit is substantial enough to justify:
+
+    additional build/toolchain complexity
+    FFI/process/API boundary
+    deployment complexity
+    smaller ecosystem
+    developer learning cost
+    maintenance cost
+
+    Prefer:
+
+    Python orchestration -> Haskell trusted core
+
+    over rewriting an entire MCP server in Haskell when only the domain core benefits
+    from stronger modeling.
+
+    Haskell Candidate Score
+
+    Score each serious candidate from 0-5 for:
+
+    Domain invariant complexity
+    State-machine complexity
+    Cost of incorrect execution
+    Concurrency complexity
+    Retry/idempotency complexity
+    Parsing/validation complexity
+    Audit/reconciliation requirements
+    Benefit from compile-time guarantees
+
+    Also score 0-5 for migration costs:
+
+    Implementation cost
+    Integration complexity
+    Operational complexity
+    Team learning cost
+    Ecosystem disadvantage
+
+    Do not recommend migration based purely on the total score. Explain the actual
+    engineering trade-off.
+
+    Output
+
+    Produce a concise table:
+
+    Tool / Skill | Current | Risk | Haskell Value | Recommendation | Why
+
+    Then identify the Top 3 Haskell candidates, if any.
+
+    For each candidate show:
+
+    CURRENT
+    LLM -> MCP -> Python/Bash -> runtime validation -> side effect
+
+    versus:
+
+    PROPOSED
+    LLM -> MCP / Python orchestration -> validated command
+        -> Haskell trusted core -> typed state transition -> controlled side effect
+
+    Provide a small illustrative Haskell type/API design showing which illegal states or
+    transitions would become difficult or impossible to represent.
+
+    Finally provide:
+
+    Keep As-Is
+      Things that should remain Bash/Python.
+
+    Improve Without Haskell
+      Places where better Python typing, Pydantic/dataclasses, ADT-like modeling,
+      property-based testing, or architecture would solve the problem sufficiently.
+
+    Haskell Candidates
+      Only places where Haskell gives a meaningful additional correctness boundary.
+
+    Recommended First Experiment
+
+    Choose one small, high-value, low-integration-cost candidate for a Haskell proof of
+    concept.
+
+    Define:
+
+    * exact boundary
+    * input/output contract
+    * Haskell types
+    * invariants enforced
+    * integration method
+    * tests/property tests
+    * success criteria
+
+    Do not modify code yet.
+
+    Base every recommendation on code actually found in this repository. Cite relevant
+    files/functions for every important conclusion.
+
+    If there is no compelling Haskell candidate, explicitly conclude:
+
+    "There is currently no engineering justification for introducing Haskell."
+
+    That is a valid and preferred conclusion over forcing Haskell into the architecture.
+
+</details>
+
+[RISK] But one gap skews the result: the rubric compares **Haskell against the Python
+that exists**, not Haskell against **Python that has been modelled properly**. Every
+candidate will score artificially well, because the baseline is code that never tried.
+
+Three additions worth making:
+
+    [1] Before scoring any candidate, write out what the Python version
+        with algebraic types and strict checking would look like.
+        Score Haskell against THAT.
+        If the delta is small → keep Python, whatever the total says.
+
+    [2] Add a mandatory question per candidate:
+        "Has this tool broken in the last six months? How?"
+        No incident history ⇒ cap the score at 2.
+
+    [3] Add the missing cost axis:
+        "Foreign-function boundary cost" — the guarantee is lost at
+        serialisation, and orchestration stays outside the core.
+
+[NEXT STEP] One more output section is worth adding: **which candidates are really
+database or idempotency bugs wearing a type-system costume?** In practice that section
+swallows one or two of the top three.
+
+## 3.10 Conclusions
+
+| Question | Answer |
+|---|---|
+| Does Jev belong in MCP servers, skills, and tool calls? | Yes — *before* the boundary for routing, argument extraction, and injection screening, and *after* it for audit triage. Never inside |
+| Does Jev being "functional" replace domain modelling? | No. A total function returning a distribution, not a proof. Its output is the domain's input |
+| Jev against Haskell? | A category error. Opposite ends of the same pipeline. The one overlap is the threshold policy — also the best Haskell candidate here |
+| Jev's largest opportunity cost | Cheapness makes "ask the model" beat "model the domain" in the short run. Architectural debt that never appears on the invoice |
+| Haskell's largest opportunity cost | The foreign-function boundary. You add a parsing layer rather than removing one, and orchestration stays outside the protected region |
+
+[NEEDS INPUT] Two numbers determine almost every concrete answer: what the domain
+actually is (payments and ledgers, or internal developer tooling), and how many states
+the largest existing state machine has. Any further discussion without them drifts
+towards abstraction.
+
+---
+
+Sources: typesafe.ai, docs.typesafe.ai, the press release of 15 September 2026, and
+public analysis published within 72 hours of launch. Performance and pricing figures
+are the vendor's and have not been independently verified.
+
+Part 2 is a design proposal, not a description of an existing product.
+
+Part 3 reviews the reasoning in two external documents, not any specific codebase;
+Haskell stands in there for the whole family of functional type-safe languages.
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   LAYER 1 · DATA
+   Everything that varies lives here. No DOM, no logic.
+   - STATE  mutable view state
+   - I18N   chrome strings (UI only; all prose comes from the markdown)
+   - SRC    the single source of truth, one markdown document per language
+   - CUT    markers the depth slicer uses to remove Part 2 / Part 3
+   - FIG    figure payloads, keyed by the @fig: id used in the markdown
+   ═══════════════════════════════════════════════════════════════════ */
+
+const STATE = { lang: 'vi', view: 'html', depth: 1, nav: false };
+
+const SRC = {
+  vi: document.getElementById('src-vi').textContent,
+  en: document.getElementById('src-en').textContent
+};
+
+const I18N = {
+  vi: {
+    headline: 'Quyết định, không phải chuỗi',
+    meta: [['Ra mắt', '15 · 09 · 2026'], ['Đánh giá', '18 · 09 · 2026'],
+           ['Version', 'jev-1.13 · early access']],
+    doc: 'Tài liệu', md: 'Markdown', copy: 'Copy markdown', done: 'Đã copy',
+    contents: '☰ Mục lục', depthLabel: 'Độ dài tài liệu',
+    depth: ['Bớt chuyện', 'Nhiều chuyện', 'Quá nhiều chuyện'],
+    mdNote: 'Markdown thuần — copy nguyên khối vào Obsidian, Notion, repo docs hoặc chat.'
+  },
+  en: {
+    headline: 'Decisions, not strings',
+    meta: [['Launched', '15 · 09 · 2026'], ['Assessed', '18 · 09 · 2026'],
+           ['Version', 'jev-1.13 · early access']],
+    doc: 'Document', md: 'Markdown', copy: 'Copy markdown', done: 'Copied',
+    contents: '☰ Contents', depthLabel: 'Document length',
+    depth: ['Less talk', 'More talk', 'Far too much talk'],
+    mdNote: 'Plain markdown — copy the whole block into Obsidian, Notion, repo docs, or a chat.'
+  }
+};
+
+const CUT = {
+  vi: { p2: '\n# PHẦN 2 — ', p3: '\n# PHẦN 3 — ', foot: '\nNguồn: typesafe.ai',
+        n2: '\n\nPhần 2 là đề xuất thiết kế', n3: '\n\nPhần 3 review lập luận',
+        l2: /\n> Phần 2 — [^\n]*/, l3: /\n> Phần 3 — [^\n]*/ },
+  en: { p2: '\n# PART 2 — ', p3: '\n# PART 3 — ', foot: '\nSources: typesafe.ai',
+        n2: '\n\nPart 2 is a design proposal', n3: '\n\nPart 3 reviews the reasoning',
+        l2: /\n> Part 2 — [^\n]*/, l3: /\n> Part 3 — [^\n]*/ }
+};
+
+/* Figure payloads. `type` selects a component; `vi` / `en` carry the labels. */
+const FIG = {
+
+  heroDemo: {
+    type: 'demo',
+    cap: {
+      vi: 'Một response thật của Jev, kèm đúng input đã sinh ra nó. Không có câu chữ nào — chỉ giá trị có type kèm phân phối xác suất. Ba câu hỏi chạy song song trong một request; ngưỡng cắt do code của bạn sở hữu.',
+      en: 'A real Jev response, shown with the input that produced it. No prose anywhere — only typed values with probability distributions. Three questions ran in parallel in one request; your code owns the cut-off.'
+    },
+    vi: {
+      stateLabel: 'STATE — nội dung ticket gửi lên',
+      state: 'Chào, tôi kết nối tài khoản Stripe ba ngày nay mà cứ lỗi. Đang mất đơn hàng. Nhờ hỗ trợ gấp.',
+      qLabel: '3 QUESTION hỏi cùng lúc, trong MỘT request',
+      qs: [['department', 'choice', 'Ticket này thuộc team nào? — billing · technical · sales'],
+           ['frustration', 'score', 'Khách bực đến mức nào? — 0 bình tĩnh · 1 khó chịu · 2 giận dữ'],
+           ['is_urgent', 'noul', 'Nội dung có thể hiện tính gấp không?']],
+      ans: [
+        { key: 'department', win: 'technical', conf: 'confidence 0.596 — dưới 0.7, nên đẩy cho người xem', low: true,
+          bars: [['technical', 84, 0.840, 0], ['billing', 15.9, 0.159, 1], ['sales', 1, 0.001, 1]] },
+        { key: 'frustration', win: '1.035', note: 'thang 0–2', conf: 'confidence 0.842',
+          bars: [['0 ── 1 ── 2', 52, 1.035, 0]] },
+        { key: 'is_urgent', win: '0.999', conf: 'noul không kèm confidence',
+          bars: [['xác suất đúng', 99.9, 0.999, 0]] }
+      ]
+    },
+    en: {
+      stateLabel: 'STATE — the support ticket that came in',
+      state: "Hi, I've been trying to connect my Stripe account for three days and it keeps failing. I'm losing sales. Please help as soon as you can.",
+      qLabel: '3 QUESTIONS asked together, in ONE request',
+      qs: [['department', 'choice', 'Which team should handle this? — billing · technical · sales'],
+           ['frustration', 'score', 'How frustrated is the customer? — 0 calm · 1 annoyed · 2 angry'],
+           ['is_urgent', 'noul', 'Does the message convey urgency?']],
+      ans: [
+        { key: 'department', win: 'technical', conf: 'confidence 0.596 — below 0.7, send it to a person', low: true,
+          bars: [['technical', 84, 0.840, 0], ['billing', 15.9, 0.159, 1], ['sales', 1, 0.001, 1]] },
+        { key: 'frustration', win: '1.035', note: 'scale 0–2', conf: 'confidence 0.842',
+          bars: [['0 ── 1 ── 2', 52, 1.035, 0]] },
+        { key: 'is_urgent', win: '0.999', conf: 'a noul carries no confidence value',
+          bars: [['probability true', 99.9, 0.999, 0]] }
+      ]
+    }
+  },
+
+  samp: {
+    type: 'samp',
+    cap: {
+      vi: 'Nguồn gốc của lợi thế tốc độ: bỏ sinh chuỗi để đổi lấy một lượt forward pass duy nhất.',
+      en: 'Where the speed comes from: giving up string generation in exchange for a single forward pass.'
+    },
+    vi: { rows: [
+      { lab: 'LLM · autoregressive', n: 20, cls: 's',
+        note: 'Mỗi ô là một token, phụ thuộc token trước. Reasoning trace + JSON wrapper + parse. Phần lớn công sinh ra rồi bị vứt.' },
+      { lab: 'Jev · parallel sampler', n: 5, cls: 'p',
+        note: 'Mọi question được đánh giá cùng lúc, độc lập, trên cùng state. Thêm question gần như không tăng response time.' }] },
+    en: { rows: [
+      { lab: 'LLM · autoregressive', n: 20, cls: 's',
+        note: 'Each box is a token, conditioned on the previous one. Reasoning trace, JSON wrapper, then parsing. Most of the work is generated and then thrown away.' },
+      { lab: 'Jev · parallel sampler', n: 5, cls: 'p',
+        note: 'Every question is evaluated at once, independently, against the same state. Adding questions barely moves the response time.' }] }
+  },
+
+  flowGate: {
+    type: 'flow',
+    cap: {
+      vi: 'Pipeline tool call quen thuộc, đánh dấu chỗ một fuzzy judgement được phép xuất hiện.',
+      en: 'The familiar tool-call pipeline, with the places a fuzzy judgement may legitimately appear marked out.'
+    },
+    vi: { steps: [
+      ['LLM', 'na', '', 'probabilistic'],
+      ['JEV ✓', 'yes', 'Trước biên', 'chọn tool/skill nào load · screening prompt injection'],
+      ['PARSE', 'na', '', 'deterministic · schema lo · Jev không thuộc đây'],
+      ['JEV ~', 'yes', 'Validate', 'chỉ phần semantic trên unstructured input'],
+      ['JEV ✗', 'no', 'Command', 'tuyệt đối không'],
+      ['JEV ✗', 'no', 'State machine', 'tuyệt đối không'],
+      ['JEV ✗', 'no', 'Effect', ''],
+      ['JEV ✓', 'yes', 'Audit', 'triage, xếp hạng anomaly theo mức cần người']] },
+    en: { steps: [
+      ['LLM', 'na', '', 'probabilistic'],
+      ['JEV ✓', 'yes', 'Before the boundary', 'which tool or skill to load · screening for injected instructions'],
+      ['PARSE', 'na', '', "deterministic · the schema handles it · not Jev's job"],
+      ['JEV ~', 'yes', 'Validate', 'only the semantic part, over unstructured input'],
+      ['JEV ✗', 'no', 'Command', 'never'],
+      ['JEV ✗', 'no', 'State machine', 'never'],
+      ['JEV ✗', 'no', 'Effect', ''],
+      ['JEV ✓', 'yes', 'Audit', 'triage, ranking anomalies by how much they need a person']] }
+  },
+
+  flowPipe: {
+    type: 'multi',
+    items: [
+      { type: 'flow',
+        cap: { vi: 'Model chỉ xuất hiện ở đúng một bước. Năm bước còn lại là code — và đó là điểm của kiến trúc này.',
+               en: 'The model appears at exactly one step. The other five are code — and that is the point of the architecture.' },
+        vi: { steps: [
+          ['CODE', 'code', 'Xử lý trường hợp xác định', 'ticket closed → return · days_overdue &gt; 30 → route'],
+          ['CODE', 'code', 'Dựng state — chỉ field mà question cần', 'state to và nhiều nhiễu = giảm accuracy'],
+          ['CODE', 'code', 'Dựng N câu hỏi nguyên tử', '<span class="no">✗ "message này có phải spam không?"</span><br><span class="ok">✓ requests_credentials · unexpected_reward · time_pressure · sender_identity_mismatch · link_domain_mismatch</span>'],
+          ['JEV', 'model', '1 request → N câu trả lời song song', '~100ms, bất kể N'],
+          ['CODE', 'code', 'Tổ hợp — trọng số do bạn sở hữu', 'spam_risk = 0.45·a + 0.30·b + 0.25·c'],
+          ['CODE', 'code', 'Gate theo rủi ro của hành động', 'không phải theo model']] },
+        en: { steps: [
+          ['CODE', 'code', 'Handle the deterministic cases', 'ticket closed → return · more than 30 days overdue → route'],
+          ['CODE', 'code', 'Assemble the state — only the fields a question needs', 'a large, noisy state costs accuracy'],
+          ['CODE', 'code', 'Write N atomic questions', '<span class="no">✗ "is this message spam?"</span><br><span class="ok">✓ requests_credentials · unexpected_reward · time_pressure · sender_identity_mismatch · link_domain_mismatch</span>'],
+          ['JEV', 'model', 'One request, N answers in parallel', 'around 100ms, whatever N is'],
+          ['CODE', 'code', 'Combine — the weights are yours', 'spam_risk = 0.45·a + 0.30·b + 0.25·c'],
+          ['CODE', 'code', 'Gate on the risk of the action', 'not on the model']] } },
+      { type: 'bands',
+        cap: { vi: 'Ngưỡng gắn với <em>rủi ro của hành động</em>, không phải với model. Cùng một confidence, hai action khác nhau thì hai ngưỡng khác nhau.',
+               en: 'Thresholds attach to the <em>risk of the action</em>, not to the model. The same confidence justifies two different cut-offs for two different actions.' },
+        vi: { bands: ['human', 'confirm', 'act'], scale: ['0.0', '0.5', '0.8', '1.0'],
+              legend: ['conf &lt; 0.5 → route to human', 'read-only + conf &gt; 0.7 → act',
+                       'destructive + conf &gt; 0.9 → act, ngược lại confirm'] },
+        en: { bands: ['human', 'confirm', 'act'], scale: ['0.0', '0.5', '0.8', '1.0'],
+              legend: ['confidence below 0.5 → send to a person', 'read-only action above 0.7 → act',
+                       'destructive action above 0.9 → act, otherwise confirm first'] } }
+    ]
+  },
+
+  stack: {
+    type: 'stack',
+    cap: {
+      vi: 'Tầng ở giữa là chỗ trống. Business module giữ kết quả, chat log giữ câu chữ — không tầng nào giữ được cấu trúc của lập luận.',
+      en: 'The middle layer is the gap. Business modules keep the outcome, chat logs keep the words — neither keeps the shape of the argument.'
+    },
+    vi: { layers: [['Business state — kết quả cuối', 'DB / module', 0],
+                   ['Reasoning state — vì sao, và còn gì bỏ ngỏ', 'không ai', 1],
+                   ['Conversation log — văn bản thô', 'chat history', 0],
+                   ['Judgement function — stateless', 'LLM / Jev', 0]] },
+    en: { layers: [['Business state — the final outcome', 'database, modules', 0],
+                   ['Reasoning state — why, and what is still open', 'nobody', 1],
+                   ['Conversation log — raw prose', 'chat history', 0],
+                   ['Judgement function — stateless', 'LLM or Jev', 0]] }
+  },
+
+  matrix: {
+    type: 'mtx',
+    cap: {
+      vi: 'Giữ hai trục tách rời — đúng như risk register cổ điển. Cộng một dấu thời gian. Đừng collapse.',
+      en: 'Keep the two axes apart, exactly as a classical risk register does, and add a timestamp. Do not collapse them.'
+    },
+    vi: { y: 'likelihood wrong', x: '→ impact', cols: ['impact thấp', 'impact cao'],
+          cells: [['Theo dõi', 'Ghi lại, không ưu tiên. Đóng khi tiện.', 0],
+                  ['Chốt ngay', 'Ít khả năng sai nhưng sai thì đắt. Đây là loại bị bỏ sót nhiều nhất.', 1],
+                  ['Bỏ qua', 'Không phải open item. Đây là lo lắng.', 0],
+                  ['Spike / prototype', 'Cần bằng chứng trước khi đi tiếp.', 1]] },
+    en: { y: 'chance of being wrong', x: '→ impact', cols: ['low impact', 'high impact'],
+          cells: [['Track', 'Write it down, do not prioritise. Close it when convenient.', 0],
+                  ['Settle now', 'Unlikely to be wrong, expensive if it is. The most commonly missed quadrant.', 1],
+                  ['Drop', 'Not an open item. This is a worry.', 0],
+                  ['Spike it', 'Get evidence before going further.', 1]] }
+  },
+
+  pathsTrack: {
+    type: 'paths',
+    cap: {
+      vi: 'Read path chính là bài toán RAG passage filtering. Không có tầng lọc này, tracker càng đầy càng vô dụng.',
+      en: 'The read path is the passage-filtering problem again. Without it, the fuller the tracker gets the less useful it becomes.'
+    },
+    vi: { paths: [
+      { head: 'WRITE PATH', sub: 'turn · PR · discussion', items: [
+        ['noul — "đoạn này có chứa một quyết định đã chốt?"', 0],
+        ['noul — "đoạn này có để lại câu hỏi chưa trả lời?"', 0],
+        ['choice — <code>decision</code> | <code>open</code> | <code>assumption</code> | <code>noise</code>', 0],
+        ['confidence thấp → KHÔNG tự ghi, đẩy cho người xác nhận', 1]] },
+      { head: 'READ PATH', sub: 'chỗ ăn tiền', items: [
+        ['N open item đang tồn tại (N có thể 200+)', 0],
+        ['1 call, N câu score — "item này liên quan tới task hiện tại mức nào?"', 0],
+        ['1 call, N câu noul — "item này còn hợp lệ với state code hiện tại?"', 0],
+        ['code lấy top-k → inject vào context', 0]] }] },
+    en: { paths: [
+      { head: 'WRITE PATH', sub: 'a turn, a pull request, a discussion', items: [
+        ['noul — does this passage contain a settled decision?', 0],
+        ['noul — does it leave a question unanswered?', 0],
+        ['choice — <code>decision</code> | <code>open</code> | <code>assumption</code> | <code>noise</code>', 0],
+        ['low confidence → do not write, ask a person to confirm', 1]] },
+      { head: 'READ PATH', sub: 'where the value is', items: [
+        ['N open items exist, and N can easily pass 200', 0],
+        ['one call, N score questions — how relevant is this item to the current task?', 0],
+        ['one call, N yes/no questions — does this item still hold against the code as it is now?', 0],
+        ['code takes the top few and injects them into the context', 0]] }] }
+  },
+
+  pathsArch: {
+    type: 'paths',
+    cap: {
+      vi: 'Điểm khác duy nhất nằm ở bước 3–4: bốn dòng <code>if</code> rải trong handler, so với một hàm chỉ nhận đúng loại payment mà nó được phép đụng vào.',
+      en: 'The only real difference is at steps three and four: four <code>if</code> statements scattered through a handler, versus a function that can only accept the kind of payment it is allowed to touch.'
+    },
+    vi: { paths: [
+      { head: 'KIẾN TRÚC HIỆN TẠI', sub: 'điển hình, Python thuần', items: [
+        ['LLM phát ra tool call', 0],
+        ['MCP server (Python) — JSON schema / Pydantic validate <em>shape</em>', 0],
+        ['handler Python: <code>if payment.status == "captured"</code> · <code>if amount &lt;= refundable</code> · <code>if not already_refunded</code> · <code>if caller.can("refund")</code>', 0],
+        ['gọi Stripe API', 0],
+        ['ghi một dòng log dạng text', 0]] },
+      { head: 'KIẾN TRÚC ĐỀ XUẤT', sub: 'đang được đưa ra để review', items: [
+        ['LLM phát ra tool call', 0],
+        ['MCP / Python orchestration — parse, permission, lấy dữ liệu', 0],
+        ['validated command đi qua biên process', 0],
+        ['<b>Haskell trusted core</b> — typed state transition', 0],
+        ['controlled side effect', 0],
+        ['audit / reconcile từ chính command đã ghi', 0]] }] },
+    en: { paths: [
+      { head: 'THE ARCHITECTURE TODAY', sub: 'typical, plain Python', items: [
+        ['the model emits a tool call', 0],
+        ['MCP server (Python) — a JSON schema validates the <em>shape</em>', 0],
+        ['Python handler: <code>if payment.status == "captured"</code> · <code>if amount &lt;= refundable</code> · <code>if not already_refunded</code> · <code>if caller.can("refund")</code>', 0],
+        ['call the Stripe API', 0],
+        ['write one line of text to a log', 0]] },
+      { head: 'THE PROPOSED ARCHITECTURE', sub: 'the thing being reviewed', items: [
+        ['the model emits a tool call', 0],
+        ['MCP and Python orchestration — parse, check permission, fetch data', 0],
+        ['a validated command crosses the process boundary', 0],
+        ['<b>Haskell trusted core</b> — a typed state transition', 0],
+        ['a controlled side effect', 0],
+        ['audit and reconciliation from the recorded command', 0]] }] }
+  },
+
+  ladder: {
+    type: 'ladder',
+    cap: {
+      vi: 'Tool càng gần side effect không hoàn tác được, mức formalization càng đáng tăng. Đây là phần của ghi chú kiến trúc đúng hoàn toàn.',
+      en: 'The closer a tool sits to an irreversible effect, the more formalisation earns its cost. This part of the architecture note is entirely right.'
+    },
+    reach: [['Bash', 24, 'var(--rule)'], ['Python', 58, 'var(--fact)'], ['Typed core', 100, 'var(--risk)']],
+    vi: { rungs: [
+      ['READ', 'filesystem.search · git.diff · database.query — sai thì tốn một lần đọc lại'],
+      ['WRITE', 'update_ticket · generate_report — sai thì sửa tay được'],
+      ['BUSINESS', 'create_order · refund · recharge_wallet — sai thì mất tiền và mất niềm tin'],
+      ['CRITICAL', 'transfer_money · production_deploy · delete_customer · change_billing — sai thì không hoàn tác được']] },
+    en: { rungs: [
+      ['READ', 'filesystem.search · git.diff · database.query — getting it wrong costs one more read'],
+      ['WRITE', 'update_ticket · generate_report — getting it wrong is fixable by hand'],
+      ['BUSINESS', 'create_order · refund · recharge_wallet — getting it wrong costs money and trust'],
+      ['CRITICAL', 'transfer_money · production_deploy · delete_customer · change_billing — getting it wrong cannot be undone']] }
+  },
+
+  ffi: {
+    type: 'ffi',
+    cap: {
+      vi: 'Bạn không xoá được lớp parse/validate — bạn thêm một lớp nữa.',
+      en: 'You do not remove the parse-and-validate layer — you add another one.'
+    },
+    vi: { rows: [['Python orchestration', '—', 0], ['serialize sang JSON', 'type mất ở đây', 0],
+                 ['Haskell core — parse lại, smart constructor', 'guarantee chỉ sống trong này', 1],
+                 ['typed state transition', 'an toàn', 1],
+                 ['serialize về JSON', 'type lại mất', 0], ['Python', '—', 0]] },
+    en: { rows: [['Python orchestration', '—', 0], ['serialise to JSON', 'types lost here', 0],
+                 ['Haskell core — parse again, smart constructors', 'the guarantee lives only here', 1],
+                 ['typed state transition', 'safe', 1],
+                 ['serialise back to JSON', 'types lost again', 0], ['Python', '—', 0]] }
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYER 2 · COMPONENTS
+   Pure functions: data in, DOM out. Nothing here reads STATE.
+   - el / esc / inline   primitives
+   - BLOCK               one renderer per markdown block type
+   - FIGURE              one renderer per figure `type`, keyed by name
+   - MD.parse / MD.render   markdown subset → block list → DOM
+   ═══════════════════════════════════════════════════════════════════ */
+
+function el(tag, attrs, html){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){ if(attrs[k] != null) n.setAttribute(k, attrs[k]); }
+  if(html != null) n.innerHTML = html;
+  return n;
+}
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* semantic tag chips mirror the document's own truth classification */
+const TAG_CLASS = t =>
+  /FACT|VERIFY/.test(t) ? 'f' :
+  /RISK|CONCERN|LƯU Ý|NOTE|CHI PHÍ|OPPORTUNITY/.test(t) ? 'r' : 'a';
+
+/* inline markdown: `code`, **bold**, *em* — code spans are protected first */
+function inline(src){
+  const spans = [];
+  let s = String(src).replace(/`([^`]+)`/g, (_, c) => {
+    spans.push('<code>' + esc(c) + '</code>');
+    return '\u0000' + (spans.length - 1) + '\u0000';
+  });
+  s = esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => spans[+i]);
+}
+
+/* a leading [TAG] becomes a chip, the rest of the paragraph stays prose */
+function withTag(text){
+  const m = text.match(/^\[([^\]\n]{2,40})\]\s+([\s\S]*)$/);
+  if(!m || m[1] !== m[1].toUpperCase()) return inline(text);
+  return '<span class="t t-' + TAG_CLASS(m[1]) + '">' + esc(m[1]) + '</span> ' + inline(m[2]);
+}
+
+const BLOCK = {
+  h(b){
+    if(b.level === 1){
+      const m = b.text.match(/^((?:PHẦN|PART) \d+)\s+—\s+([\s\S]+)$/);
+      return m ? el('h2', null, '<span class="num">' + esc(m[1]) + '</span>' + inline(m[2]))
+               : el('h2', null, inline(b.text));
+    }
+    return el(b.level === 2 ? 'h3' : 'h4', null, inline(b.text));
+  },
+  p:   b => el('p', null, withTag(b.text)),
+  ul:  b => el('ul', null, b.items.map(i => '<li>' + inline(i) + '</li>').join('')),
+  ol:  b => el('ol', null, b.items.map(i => '<li>' + inline(i) + '</li>').join('')),
+  hr:  () => el('hr', { class: 'part-rule' }),
+  code: b => el('pre', null, esc(b.text)),
+  quote(b){
+    const d = el('div', { class: 'call' });
+    b.lines.forEach(l => d.appendChild(el('p', null, withTag(l))));
+    return d;
+  },
+  table(b){
+    const rows = r => '<tr>' + r.map(c => '<' + (r === b.head ? 'th' : 'td') + '>' + inline(c) +
+                      '</' + (r === b.head ? 'th' : 'td') + '>').join('') + '</tr>';
+    const w = el('div', { class: 'tw' });
+    w.appendChild(el('table', { class: 'wrapcell' }, rows(b.head) + b.rows.map(rows).join('')));
+    return w;
+  },
+  details(b){
+    const d = el('details', { class: 'src' });
+    d.appendChild(el('summary', null, esc(b.summary)));
+    d.appendChild(el('pre', null, esc(b.body)));
+    return d;
+  }
+};
+
+/* ── figure components ─────────────────────────────────────────────── */
+const wrapFig = (inner, cap) => {
+  const f = el('figure');
+  const b = el('div', { class: 'fig-body' });
+  b.appendChild(inner);
+  f.appendChild(b);
+  if(cap) f.appendChild(el('figcaption', null, cap));
+  return f;
+};
+
+const FIGURE = {
+  demo(d){
+    const r = el('div', { class: 'demo' });
+    const top = el('div');
+    top.appendChild(el('span', { class: 'dl' }, esc(d.stateLabel)));
+    top.appendChild(el('p', { class: 'quote' }, esc(d.state)));
+    top.appendChild(el('span', { class: 'dl' }, esc(d.qLabel)));
+    top.appendChild(el('ul', { class: 'qs' }, d.qs.map(q =>
+      '<li><b>' + esc(q[0]) + '</b><span class="ty">' + esc(q[1]) + '</span><span>' + esc(q[2]) + '</span></li>').join('')));
+    r.appendChild(top);
+    const ans = el('div', { class: 'ans' });
+    d.ans.forEach(a => {
+      const blk = el('div', { class: 'ans-blk' });
+      blk.appendChild(el('div', { class: 'ans-hd' },
+        '<code>' + esc(a.key) + '</code> → <b>' + esc(a.win) + '</b>' +
+        (a.note ? '<span class="ty">' + esc(a.note) + '</span>' : '') +
+        '<span class="conf' + (a.low ? ' low' : '') + '">' + esc(a.conf) + '</span>'));
+      a.bars.forEach(([k, w, v, dim]) => blk.appendChild(el('div', { class: 'resp' },
+        '<div class="resp-row"><span class="resp-k">' + esc(k) + '</span>' +
+        '<span class="track"><span class="fill' + (dim ? ' u' : '') + '" style="width:' + w + '%"></span></span>' +
+        '<span class="resp-v">' + v.toFixed(3) + '</span></div>')));
+      ans.appendChild(blk);
+    });
+    r.appendChild(ans);
+    return r;
+  },
+
+  samp(d){
+    const r = el('div', { class: 'samp' });
+    d.rows.forEach(row => {
+      const x = el('div', { class: 'samp-row' });
+      x.appendChild(el('div', { class: 'lab' }, esc(row.lab)));
+      x.appendChild(el('div', { class: 'toks' },
+        Array(row.n).fill('<span class="tok ' + row.cls + '"></span>').join('')));
+      x.appendChild(el('div', { class: 'note' }, esc(row.note)));
+      r.appendChild(x);
+    });
+    return r;
+  },
+
+  flow(d){
+    const r = el('div', { class: 'flow' });
+    d.steps.forEach(([owner, cls, title, body], i) => {
+      if(i) r.appendChild(el('div', { class: 'arr' }, '↓'));
+      r.appendChild(el('div', { class: 'step' },
+        '<span class="owner o-' + cls + '">' + esc(owner) + '</span>' +
+        '<p>' + (title ? '<b>' + esc(title) + '</b>' + (body ? '<br>' : '') : '') +
+        (body ? '<span class="g">' + body + '</span>' : '') + '</p>'));
+    });
+    return r;
+  },
+
+  bands(d){
+    const r = el('div', { class: 'bands' });
+    r.appendChild(el('div', { class: 'band-bar' },
+      d.bands.map((b, i) => '<div class="b' + (i + 1) + '">' + esc(b) + '</div>').join('')));
+    r.appendChild(el('div', { class: 'scale' }, d.scale.map(s => '<span>' + esc(s) + '</span>').join('')));
+    r.appendChild(el('div', { class: 'band-legend' }, d.legend.map(l => '<div>' + l + '</div>').join('')));
+    return r;
+  },
+
+  stack(d){
+    return el('div', { class: 'stack' }, d.layers.map(([name, who, gap]) =>
+      '<div class="layer' + (gap ? ' gap' : '') + '"><span>' + esc(name) +
+      '</span><span class="who">' + esc(who) + '</span></div>').join(''));
+  },
+
+  mtx(d){
+    const cell = ([t, s, hot]) => '<div class="cell' + (hot ? ' hot' : '') + '"><b>' + esc(t) +
+                                  '</b><span>' + esc(s) + '</span></div>';
+    return el('div', { class: 'mtx' },
+      '<div class="yl">' + esc(d.y) + '</div>' +
+      d.cols.map(c => '<div class="hdr">' + esc(c) + '</div>').join('') +
+      d.cells.map(cell).join('') +
+      '<div class="xl">' + esc(d.x) + '</div>');
+  },
+
+  paths(d){
+    return el('div', { class: 'paths' }, d.paths.map(p =>
+      '<div class="path"><div class="ph"><span>' + esc(p.head) + '</span><em>' + esc(p.sub) + '</em></div><ol>' +
+      p.items.map(([t, gate]) => '<li' + (gate ? ' class="gate"' : '') + '>' + t + '</li>').join('') +
+      '</ol></div>').join(''));
+  },
+
+  ladder(d, shared){
+    const r = el('div');
+    r.appendChild(el('div', { class: 'ladder' }, d.rungs.map(([t, s], i) =>
+      '<div class="rung r' + (i + 1) + '"><b>' + esc(t) + '</b><span>' + esc(s) + '</span></div>').join('')));
+    r.appendChild(el('div', { class: 'reach' }, shared.reach.map(([n, w, c]) =>
+      '<div><span>' + esc(n) + '</span><i style="background:' + c + ';width:' + w + '%"></i></div>').join('')));
+    return r;
+  },
+
+  ffi(d){
+    return el('div', { class: 'ffi' }, d.rows.map(([t, note, inCore], i) =>
+      (i ? '<div class="sep">↓</div>' : '') +
+      '<div class="fl' + (inCore ? ' in' : '') + '"><span>' + esc(t) + '</span><em>' + esc(note) + '</em></div>'
+    ).join(''));
+  }
+};
+
+/* build one figure (or a stack of them) from FIG data for a language */
+function buildFigure(id, lang){
+  const spec = FIG[id];
+  if(!spec) return el('p', null, '<code>@fig:' + esc(id) + '</code>');
+  const one = sp => wrapFig(FIGURE[sp.type](sp[lang], sp), sp.cap ? sp.cap[lang] : null);
+  if(spec.type === 'multi'){
+    const frag = document.createDocumentFragment();
+    spec.items.forEach(sp => frag.appendChild(one(sp)));
+    return frag;
+  }
+  return one(spec);
+}
+
+/* ── markdown subset parser ────────────────────────────────────────── */
+const MD = {
+  parse(src){
+    const L = src.split('\n'), out = [];
+    let i = 0;
+    const isCode = s => s.startsWith('    ');
+    while(i < L.length){
+      const ln = L[i];
+
+      if(!ln.trim()){ i++; continue; }
+
+      if(ln.startsWith('@fig:')){                       // figure region
+        const id = ln.slice(5).trim();
+        while(i < L.length && L[i] !== '@endfig') i++;
+        i++;
+        out.push({ t: 'fig', id });
+        continue;
+      }
+      if(ln.startsWith('@box:')){                       // styled region
+        const cls = ln.slice(5).trim();
+        const inner = [];
+        i++;
+        while(i < L.length && L[i] !== '@endbox') inner.push(L[i++]);
+        i++;
+        out.push({ t: 'box', cls, blocks: MD.parse(inner.join('\n')) });
+        continue;
+      }
+      if(ln.startsWith('<details>')){                   // raw collapsible
+        i++;
+        const sm = (L[i] || '').replace(/<\/?summary>/g, '');
+        i++;
+        const body = [];
+        while(i < L.length && !L[i].startsWith('</details>')){
+          if(isCode(L[i])) body.push(L[i].slice(4)); else if(L[i].trim() === '') body.push('');
+          i++;
+        }
+        i++;
+        out.push({ t: 'details', summary: sm, body: body.join('\n').replace(/^\n+|\n+$/g, '') });
+        continue;
+      }
+      if(/^#{1,4} /.test(ln)){
+        const lv = ln.match(/^#+/)[0].length;
+        out.push({ t: 'h', level: lv, text: ln.slice(lv + 1).trim() });
+        i++; continue;
+      }
+      if(ln.startsWith('---')){ out.push({ t: 'hr' }); i++; continue; }
+
+      if(isCode(ln)){                                   // indented code, blanks allowed inside
+        const buf = [];
+        let last = i;
+        while(i < L.length && (isCode(L[i]) || !L[i].trim())){
+          if(isCode(L[i])) last = i;
+          buf.push(L[i]); i++;
+        }
+        buf.length = last - (i - buf.length) + 1;
+        out.push({ t: 'code', text: buf.map(x => x.slice(4)).join('\n') });
+        i = last + 1; continue;
+      }
+      if(ln.startsWith('|')){                           // table
+        const rows = [];
+        while(i < L.length && L[i].startsWith('|')){
+          rows.push(L[i].replace(/^\||\|$/g, '').split('|').map(c => c.trim()));
+          i++;
+        }
+        const head = rows.shift();
+        if(rows.length && rows[0].every(c => /^-{2,}$/.test(c))) rows.shift();
+        out.push({ t: 'table', head, rows });
+        continue;
+      }
+      if(ln.startsWith('> ')){                          // blockquote → callout
+        const para = [];
+        let cur = [];
+        while(i < L.length && L[i].startsWith('>')){
+          const txt = L[i].replace(/^>\s?/, '');
+          if(!txt.trim()){ if(cur.length){ para.push(cur.join(' ')); cur = []; } }
+          else cur.push(txt);
+          i++;
+        }
+        if(cur.length) para.push(cur.join(' '));
+        out.push({ t: 'quote', lines: para });
+        continue;
+      }
+      if(/^[-*] /.test(ln) || /^\d+\. /.test(ln)){      // list, 2-space continuations
+        const ordered = /^\d+\. /.test(ln);
+        const items = [];
+        while(i < L.length && (/^[-*] |^\d+\. /.test(L[i]) || /^ {2,}\S/.test(L[i]))){
+          if(/^ {2,}\S/.test(L[i])) items[items.length - 1] += ' ' + L[i].trim();
+          else items.push(L[i].replace(/^[-*] |^\d+\. /, ''));
+          i++;
+        }
+        out.push({ t: ordered ? 'ol' : 'ul', items });
+        continue;
+      }
+      const para = [];                                  // paragraph
+      while(i < L.length && L[i].trim() && !/^[#>|@]|^---|^    |^[-*] |^\d+\. |^</.test(L[i])){
+        para.push(L[i].trim()); i++;
+      }
+      if(para.length) out.push({ t: 'p', text: para.join(' ') });
+      else i++;
+    }
+    return out;
+  },
+
+  render(blocks, lang){
+    const frag = document.createDocumentFragment();
+    blocks.forEach(b => {
+      if(b.t === 'fig'){ frag.appendChild(buildFigure(b.id, lang)); return; }
+      if(b.t === 'box'){
+        const d = el('div', { class: b.cls });
+        d.appendChild(MD.render(b.blocks, lang));
+        frag.appendChild(d); return;
+      }
+      const fn = BLOCK[b.t];
+      if(fn) frag.appendChild(fn(b));
+    });
+    return frag;
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYER 3 · LOGIC
+   Binds DATA to COMPONENTS. The only layer that touches STATE.
+   Pipeline:  SRC → slice(depth) → split(front | body | footer)
+                  → MD.parse → MD.render → DOM
+   Both the document view and the markdown view read the SAME sliced
+   text, so they cannot drift apart.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* remove the region between the rule before `head` and the rule before `stop` */
+function dropPart(t, head, stop){
+  let a = t.indexOf(head);
+  if(a < 0) return t;
+  a = t.lastIndexOf('\n---\n', a);
+  let b = t.indexOf(stop, a);
+  if(b < 0) return t;
+  b = t.lastIndexOf('\n---\n', b);
+  return (a > -1 && b > a) ? t.slice(0, a) + t.slice(b) : t;
+}
+
+/* remove one footer-note paragraph */
+function dropNote(t, note){
+  const i = t.indexOf(note);
+  if(i < 0) return t;
+  let e = t.indexOf('\n\n', i + note.length);
+  if(e < 0) e = t.length;
+  return t.slice(0, i) + t.slice(e);
+}
+
+/* one source of truth, sliced to the requested depth */
+const _cache = {};
+function sliced(lang, depth){
+  const key = lang + depth;
+  if(_cache[key]) return _cache[key];
+  let t = SRC[lang];
+  const m = CUT[lang];
+  if(depth < 3){ t = dropPart(t, m.p3, m.foot); t = t.replace(m.l3, ''); t = dropNote(t, m.n3); }
+  if(depth < 2){ t = dropPart(t, m.p2, m.foot); t = t.replace(m.l2, ''); t = dropNote(t, m.n2); }
+  return (_cache[key] = t.replace(/\n{3,}$/, '\n'));
+}
+
+/* front matter (title + lede) | body | footer, split on the outer rules */
+function sections(lang, depth){
+  const t = sliced(lang, depth);
+  const first = t.indexOf('\n---\n');
+  const lastRule = t.lastIndexOf('\n---\n');
+  return {
+    lede: t.slice(0, first).split('\n').filter(l => l.startsWith('> ')).map(l => l.slice(2)),
+    body: t.slice(first + 5, lastRule),
+    footer: t.slice(lastRule + 5).split('\n\n').map(p => p.trim()).filter(Boolean)
+  };
+}
+
+/* the copy-out markdown drops the layout directives; prose and ASCII stay */
+function forCopy(lang, depth){
+  return sliced(lang, depth)
+    .split('\n').filter(l => !/^@(fig:|endfig|box:|endbox)/.test(l)).join('\n')
+    .replace(/\n{3,}/g, '\n\n');
+}
+
+/* ── rendering ─────────────────────────────────────────────────────── */
+let heads = [];
+
+function renderDoc(){
+  const { lang, depth } = STATE;
+  const s = sections(lang, depth);
+  const t = I18N[lang];
+
+  document.documentElement.lang = lang;
+  document.getElementById('headline').textContent = t.headline;
+  document.getElementById('lede').innerHTML = s.lede.map(inline).join(' ');
+  document.getElementById('meta').innerHTML =
+    t.meta.map(([k, v]) => '<span><b>' + esc(k) + '</b> ' + esc(v) + '</span>').join('');
+
+  const doc = document.getElementById('doc');
+  doc.textContent = '';
+  doc.appendChild(MD.render(MD.parse(s.body), lang));
+
+  const foot = document.getElementById('foot');
+  foot.textContent = '';
+  s.footer.forEach(p => foot.appendChild(el('p', null, inline(p.replace(/\n/g, ' ')))));
+
+  document.getElementById('mdout').textContent = forCopy(lang, depth);
+  document.getElementById('mdnote').textContent = t.mdNote;
+}
+
+function buildToc(){
+  const toc = document.getElementById('toc');
+  toc.textContent = '';
+  heads = [...document.getElementById('doc').querySelectorAll('h2,h3')];
+  heads.forEach((hd, i) => {
+    hd.id = 'h' + i;
+    const a = el('a', { href: '#h' + i, class: hd.tagName === 'H2' ? 'toc2' : 'toc3' });
+    const num = hd.querySelector('.num');
+    a.textContent = num ? hd.textContent.replace(num.textContent, '').trim() : hd.textContent;
+    a.addEventListener('click', () => { if(!wide()) setNav(false); });
+    toc.appendChild(a);
+  });
+  spy();
+}
+
+function paint(){
+  const t = I18N[STATE.lang];
+  document.getElementById('view-doc').hidden = STATE.view !== 'html';
+  document.getElementById('view-md').hidden  = STATE.view !== 'md';
+
+  document.getElementById('b-vi').setAttribute('aria-pressed', STATE.lang === 'vi');
+  document.getElementById('b-en').setAttribute('aria-pressed', STATE.lang === 'en');
+  const bh = document.getElementById('b-html'), bm = document.getElementById('b-md');
+  bh.textContent = t.doc; bm.textContent = t.md;
+  bh.setAttribute('aria-pressed', STATE.view === 'html');
+  bm.setAttribute('aria-pressed', STATE.view === 'md');
+
+  const sel = document.getElementById('depth');
+  [...sel.options].forEach((o, i) => o.textContent = t.depth[i]);
+  sel.value = String(STATE.depth);
+  sel.setAttribute('aria-label', t.depthLabel);
+
+  const btn = document.getElementById('navbtn');
+  btn.textContent = t.contents;
+  document.querySelectorAll('.copy').forEach(b => {
+    b.dataset.label = t.copy; b.dataset.doneLabel = t.done;
+    if(b.dataset.done !== '1') b.textContent = t.copy;
+  });
+
+  if(STATE.view === 'html'){ btn.hidden = false; buildToc(); if(wide()) setNav(true); }
+  else { btn.hidden = true; setNav(false); }
+}
+
+function render(){ renderDoc(); paint(); }
+
+/* ── controls ──────────────────────────────────────────────────────── */
+const wide = () => (window.innerWidth || 1280) >= 1180;   // no matchMedia dependency
+
+function setLang(v){ STATE.lang = v; render(); }
+function setView(v){ STATE.view = v; paint(); }
+function setDepth(v){ STATE.depth = Math.min(3, Math.max(1, +v || 1)); render(); }
+
+function setNav(force){
+  STATE.nav = (force === undefined) ? !STATE.nav : force;
+  document.body.classList.toggle('nav-open', STATE.nav);
+  document.getElementById('navbtn').setAttribute('aria-expanded', STATE.nav);
+}
+
+function copyMd(btn){
+  const text = document.getElementById('mdout').textContent;
+  const ok = () => {
+    btn.dataset.done = '1';
+    btn.textContent = btn.dataset.doneLabel;
+    setTimeout(() => { btn.dataset.done = '0'; btn.textContent = btn.dataset.label; }, 1800);
+  };
+  const fallback = () => {
+    const ta = el('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); ok(); } catch(e) {}
+    document.body.removeChild(ta);
+  };
+  if(navigator.clipboard && window.isSecureContext)
+    navigator.clipboard.writeText(text).then(ok).catch(fallback);
+  else fallback();
+}
+
+/* ── scrollspy ─────────────────────────────────────────────────────── */
+let tick = false;
+function spy(){
+  const links = document.getElementById('toc').children;
+  if(!heads.length || links.length !== heads.length) return;
+  let active = 0;
+  for(let i = 0; i < heads.length; i++){
+    if(heads[i].getBoundingClientRect().top <= 90) active = i; else break;
+  }
+  for(let i = 0; i < links.length; i++) links[i].classList.toggle('on', i === active);
+}
+addEventListener('scroll', () => {
+  if(tick) return;
+  tick = true;
+  requestAnimationFrame(() => { if(STATE.view === 'html') spy(); tick = false; });
+}, { passive: true });
+
+addEventListener('keydown', e => { if(e.key === 'Escape' && STATE.nav && !wide()) setNav(false); });
+addEventListener('resize', () => { if(STATE.view === 'html' && wide() && !STATE.nav) setNav(true); });
+
+render();
+
+</script>
+</body>
+</html>
