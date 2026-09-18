@@ -29,12 +29,13 @@ sentinel value is used "because a uniqueness constraint does not apply when a
 property is null" is worth more than any amount of API listing.
 
 **READMEs with a section named for a single decision.** Headings like "the one
-design decision worth knowing" or "why X and not Y" are the author handing you
-the spine of the document.
+design decision worth knowing" or "why X and not Y" are the author telling you
+what belongs in section 9.
 
 **Numbers with dates.** Benchmarks, before-and-after counts, measured medians.
 Grep for `ms`, `measured`, dates, and percentage signs. Keep the date attached —
-an undated number ages badly and a dated one stays honest.
+an undated number ages badly and a dated one stays honest. These are supporting
+evidence for section 9, never the opening of the page.
 
 **"Not in this slice" / "Limitations" / "Out of scope".** Shows a scope that was
 cut on purpose, which is instructive in itself.
@@ -60,6 +61,32 @@ When prose and source disagree, the source wins. Say so plainly in your report t
 the user; whether it belongs in the page depends on whether the page is a study
 guide or an assessment.
 
+## Collecting for the ten sections
+
+The page has a fixed skeleton, so read with those slots in mind. Most of a
+rewrite is caused by finishing the reading and only then discovering that four
+sections have nothing in them.
+
+| Section | What to look for while reading |
+|---|---|
+| Mục đích | The manual work the skill replaced. Commit messages and the paragraph above the rules say it more plainly than the rules do. |
+| Use case & output | The example the author chose, and the exact artifact produced — path, extension, and what opening it looks like. |
+| Cấu trúc | `find <skill> -type f` with line counts, and one sentence per file on the job it holds. |
+| Luồng chạy | The entry point, then each step in the order it fires. A numbered procedure in `SKILL.md` is a claim; the script is the fact. |
+| Dữ liệu & trạng thái | Files written, temp directories, manifests, env vars, anything that survives between steps. Note where it lives and who cleans it up. |
+| Đầu–cuối | One example you can follow all the way through. Prefer one the repo already contains over one you invent. |
+| Hook | Grep the settings layers for the skill or script name. Finding nothing is a result — record it as "attaches to nothing". |
+| Guard | Validation, `set -euo pipefail`, refusals, preflight checks, tests that fail the build. For each, what breaks without it. |
+| Đặc trưng | The choice a reasonable person would have made differently, and the sentence where the author defends it. |
+| Glossary | Every term you had to look up, the moment you look it up. |
+
+## External interfaces
+
+List every tool, binary, library or sibling skill the skill reaches for, and for
+each one capture only two things: **what the skill hands it** and **what it gets
+back**. That pair is all that belongs on the page. Resist reading further into
+the external tool — its internals are someone else's document.
+
 ## Things to capture while reading
 
 Keep these as you go — reconstructing them later costs more than noting them.
@@ -69,7 +96,9 @@ Keep these as you go — reconstructing them later costs more than noting them.
 - **Exact identifiers.** Node labels, relationship names, enum values, subcommand
   names, env var names, default values. Spelling them right is most of what makes
   a technical page trustworthy.
-- **The one memorable claim**, and whether it is measured or argued.
+- **Glossary terms, as they surprise you.** The moment a word needs looking up is
+  the only moment you can tell it needed looking up.
+- **The reason the skill exists**, in the author's own words if you can find them.
 - **What you did not read.** A file you skipped, a directory you sampled. This
   becomes the honest gaps list.
 
