@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ascii-diagram: đồ thị đơn giản được mà</title>
+<meta name="description" content="Ghi chép đọc mã một Claude Code skill: vì sao vẽ sơ đồ bằng ASCII lại cần luật, và bộ luật đó cứu được cái gì.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>/* Single-file doc site: ascii-diagram.
+   Palette is ink on cool paper with a terminal blue, and colour carries exactly one
+   distinction: a rule that holds (--est) against one that slipped (--alarm).
+   Two families with different jobs -- a serif for the reading, a monospace for the
+   machine text, which on this subject IS the subject.
+   Six figure renderers are kept; the other five and their classes were deleted. */
+:root{
+  --ground:#F1F2F4; --surface:#FFFFFF; --panel:#E6E8EC; --line:#CDD2DA; --line-soft:#DFE3E9;
+  --ink:#171A1F; --muted:#565D68; --faint:#848B96;
+  --trace:#2B4C7E; --trace-soft:#E1E8F2;
+  --est:#1F6047;  --hyp:#8A5A0E;  --alarm:#9B3A24; --alarm-soft:#F5E4DF;
+  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111318; --surface:#181B21; --panel:#1E222A; --line:#2C323C; --line-soft:#242832;
+  --ink:#E3E6EB; --muted:#98A0AC; --faint:#79808B;
+  --trace:#8FB4E6; --trace-soft:#152232;
+  --est:#6FC0A0;  --hyp:#D6A75A;  --alarm:#E08C77; --alarm-soft:#2B1A16;
+}}
+:root[data-theme="dark"]{
+  --ground:#111318; --surface:#181B21; --panel:#1E222A; --line:#2C323C; --line-soft:#242832;
+  --ink:#E3E6EB; --muted:#98A0AC; --faint:#79808B;
+  --trace:#8FB4E6; --trace-soft:#152232;
+  --est:#6FC0A0;  --hyp:#D6A75A;  --alarm:#E08C77; --alarm-soft:#2B1A16;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+  font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--trace);outline-offset:3px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto}}
+
+/* ── top bar ─────────────────────────────────────────────── */
+.bar{position:sticky;top:0;z-index:40;background:var(--ground);
+  border-bottom:1px solid var(--line);
+  padding:9px 18px;padding-top:calc(9px + env(safe-area-inset-top,0px));
+  display:flex;gap:10px;align-items:center}
+.bar .sp{flex:1}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.03em;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:3px;padding:7px 12px;transition:color .12s,border-color .12s}
+button:hover{color:var(--ink);border-color:var(--trace)}
+button[aria-pressed="true"]{color:var(--ground);background:var(--trace);border-color:var(--trace)}
+#navbtn{display:inline-flex}
+@media (min-width:1180px){#navbtn{display:none}}
+
+/* ── drawer ──────────────────────────────────────────────── */
+#nav{position:fixed;z-index:50;top:0;left:0;width:290px;height:100dvh;overflow-y:auto;
+  background:var(--surface);border-right:1px solid var(--line);
+  padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-100%);transition:transform .2s}
+#nav.open{transform:none}
+#scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.42)}
+@media (min-width:1180px){
+  #nav{transform:none;border-right:1px solid var(--line-soft);background:transparent}
+  #scrim{display:none}
+  body{padding-left:290px}
+  .bar{padding-left:26px}
+}
+#nav .navhead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 12px;padding-left:11px}
+#toc a{display:block;text-decoration:none;color:var(--muted);font-size:13.5px;line-height:1.42;
+  padding:6px 0 6px 11px;border-left:2px solid var(--line-soft)}
+#toc a:hover{color:var(--ink);border-left-color:var(--trace)}
+#toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--faint)}
+#toc a.on{color:var(--ink);border-left-color:var(--trace);font-weight:600}
+#toc a.part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink);margin-top:16px;border-left-color:var(--trace)}
+#toc a.part:first-child{margin-top:0}
+
+/* ── page ────────────────────────────────────────────────── */
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 90px}
+.hero{padding:52px 0 26px;border-bottom:1px solid var(--line)}
+.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--trace);margin:0 0 16px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.1;
+  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance}
+.lede p{font-size:clamp(17px,2.2vw,19.5px);color:var(--muted);margin:0 0 13px;max-width:64ch}
+h2,h3,h4{scroll-margin-top:78px}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,4vw,31px);line-height:1.2;
+  letter-spacing:-.012em;margin:54px 0 18px;text-wrap:balance}
+h2 .eyebrow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--trace);font-weight:400;margin-bottom:11px;letter-spacing:.16em}
+h3{font-family:var(--serif);font-weight:600;font-size:20.5px;margin:38px 0 12px}
+h4{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
+p{margin:0 0 17px;max-width:66ch}
+ul,ol{margin:0 0 18px;padding-left:22px;max-width:66ch}
+li{margin-bottom:8px}
+li::marker{color:var(--trace)}
+strong{font-weight:600}
+blockquote{margin:0 0 20px;padding:2px 0 2px 18px;border-left:2px solid var(--trace);
+  color:var(--muted);max-width:64ch}
+blockquote p:last-child{margin-bottom:0}
+hr{border:0;border-top:1px solid var(--line);margin:46px 0}
+code{font-family:var(--mono);font-size:.845em;background:var(--panel);
+  border-radius:2px;padding:1.5px 5px;color:var(--ink);overflow-wrap:break-word}
+.pre{overflow-x:auto;margin:0 0 22px;background:var(--panel);border-radius:3px;
+  border-left:2px solid var(--line)}
+.pre pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
+.pre code{background:none;padding:0;border-radius:0;font-size:inherit}
+.tw{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:400px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);text-align:left;font-weight:500;padding:10px 13px;
+  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.55}
+tr:last-child td{border-bottom:0}
+
+/* ── figures ─────────────────────────────────────────────── */
+figure{margin:0 0 28px}
+.fig{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:20px 18px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
+.fmono{font-family:var(--mono)}
+
+/* the boldness: delta proof */
+.proof{display:grid;gap:0}
+.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.proof-row:last-child{border-bottom:0}
+.proof-what{font-size:15.5px}
+.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  display:block;margin-top:4px}
+.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
+.proof-row.keep .proof-n{color:var(--est)}
+.proof-row.gone .proof-n{color:var(--alarm)}
+.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
+  font-size:13.5px;color:var(--muted)}
+
+/* levels */
+.lvl{margin-bottom:17px}
+.lvl:last-child{margin-bottom:0}
+.lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--trace);margin-bottom:10px}
+.lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
+.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
+  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+.tool:first-of-type{border-top:0}
+.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
+.tool span{color:var(--muted)}
+
+/* provenance routes */
+.routes{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
+.rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+.rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
+.rt span{font-size:13.5px;color:var(--muted)}
+.routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
+  padding:10px;border-radius:3px}
+.routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
+.routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
+
+/* islands */
+.isl{display:grid;gap:9px}
+.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
+  font-family:var(--mono);font-size:12px}
+.is s{text-decoration:none;color:var(--muted)}
+.is b{color:var(--trace);font-weight:500}
+.is i{font-style:normal;color:var(--faint);font-size:15px}
+.is.shared b{color:var(--hyp)}
+.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* warm bars */
+.bars{display:grid;gap:13px}
+.br b{display:block;font-size:13.5px;margin-bottom:6px}
+.br-track{display:flex;align-items:center;gap:10px}
+.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
+.br.cold .br-fill{background:var(--line);border:1px solid var(--faint)}
+.br.cold b{color:var(--muted)}
+.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* guards */
+.guards{display:grid;gap:12px}
+.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
+.gd.fast{border-left-color:var(--hyp)}
+.gd.bound{border-left-color:var(--est)}
+.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;margin-bottom:7px}
+.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
+.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
+.gd p code{font-size:.9em}
+
+/* ── markdown view ───────────────────────────────────────── */
+#md{padding-top:26px}
+.md-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;
+  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.md-note p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 220px;max-width:none}
+#mdbox{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+#mdbox pre{margin:0;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+  white-space:pre}
+#mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
+footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
+footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <button id="navbtn" type="button" aria-expanded="false" aria-controls="nav"></button>
+  <span class="sp"></span>
+  <button id="viewbtn" type="button" aria-pressed="false"></button>
+</header>
+
+<aside id="nav" aria-label="Mục lục">
+  <p class="navhead" id="navhead"></p>
+  <nav id="toc"></nav>
+</aside>
+<div id="scrim" hidden></div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kick" id="kick"></p>
+    <h1 id="title"></h1>
+    <div class="lede" id="lede"></div>
+  </header>
+
+  <main id="docview">
+    <div id="doc"></div>
+    <footer id="foot"></footer>
+  </main>
+
+  <section id="md" hidden>
+    <div class="md-note">
+      <p id="mdnote"></p>
+      <button id="copybtn" type="button"></button>
+    </div>
+    <div id="mdbox"><pre><code id="mdtext"></code></pre></div>
+  </section>
+</div>
+
+<script type="text/plain" id="src"># ascii-diagram — Đồ thị đơn giản được mà
+
+> Vẽ một cái hộp bằng `+`, `-`, `|` thì có gì mà phải viết thành skill. Đúng — cho tới lúc cái hộp đó đi qua terminal, GitHub, Slack, email và một editor đặt tab bằng 4 space.
+> `ascii-diagram` là 5 file, 704 dòng, không một dòng code. Toàn bộ giá trị của nó nằm ở chỗ: nó tự chấm được chính mình theo luật nó đặt ra — 0 tab, 0 dòng sơ đồ vượt 80 cột, và 33 ký tự Unicode duy nhất trong cả bộ đều nằm đúng ở chỗ đang dạy cách xoá chúng đi.
+
+---
+
+# PHẦN 1 — Vấn đề, và quyết định thiết kế duy nhất đáng nhớ
+
+## Cái bẫy của câu "đồ thị đơn giản được mà"
+
+Một sơ đồ ASCII không phải là hình vẽ. Nó là **văn bản giả vờ là hình vẽ**, và ảo giác đó chỉ đứng vững khi ba điều kiện cùng đúng: mọi ký tự render ra cùng một bề rộng, không ký tự nào bị font thay thế, và không có gì làm dịch cột.
+
+Ba điều kiện đó hỏng rất dễ. Ký tự khung Unicode (`┌ ┐ └ ┘ │ ─`) trông đẹp trong editor của bạn nhưng có thể rơi vào fallback font trên máy khác và lệch nửa cột. Tab render bằng 8 space ở terminal, 4 space ở GitHub, và 2 space ở một số editor. Một dòng 92 ký tự bị wrap trong cửa sổ Slack và khung hộp gãy làm đôi.
+
+Câu mở đầu của `SKILL.md` đặt vấn đề theo hướng ngược với trực giác thẩm mỹ:
+
+> **Portability over aesthetics.** A diagram that breaks when pasted into Slack or a terminal is worse than no diagram.
+
+Sơ đồ hỏng tệ hơn không có sơ đồ — vì sơ đồ hỏng vẫn đòi người đọc tin nó. Đó là lý do tồn tại của toàn bộ 7 luật phía sau: không phải để hình đẹp hơn, mà để nó **tái lập được ở nơi khác**.
+
+## Phép đo: bộ skill có tự tuân luật của nó không
+
+Đây là chỗ đáng nhớ nhất, vì nó đo được chứ không phải lập luận. Lấy cả 5 file của skill, quét toàn bộ 39 khối sơ đồ trong đó, rồi chấm theo đúng checklist mà chính skill này in ra ở cuối `references/character-rules.md`.
+
+@fig:tuChamDiem
+    704 dòng, 5 file, 39 khối sơ đồ
+
+    ký tự tab (luật 3)                       ->  0
+    dòng sơ đồ vượt 80 cột (luật 4)          ->  0   (rộng nhất: 62)
+    khối khung hộp lệch cột (luật 7)         ->  2   trên 32
+@endfig
+
+Hai con số đầu là trần: không phải "hầu hết", mà là **không có cái nào**. Dòng sơ đồ rộng nhất trong cả bộ là 62 ký tự — còn dư 18 cột so với giới hạn 80 mà skill tự đặt.
+
+Con số thứ ba mới là chỗ đáng học. Trong 32 khối có khung hộp đầy đủ, 30 khối thẳng cột tuyệt đối. Hai khối lệch — và lệch **đúng một cột**:
+
+    references/layout-patterns.md:52   | Source  |----> ...   dài 41, khung dài 40
+    references/layout-patterns.md:114  |    Presentation   |   dài 45, khung dài 44
+
+Một space thừa. Đó chính xác là kiểu lỗi mà mắt người không bắt được và rule 7 — *self-validate before output* — sinh ra để bắt. Nếu ngay cả file dạy cách căn cột cũng trượt một space, thì luật "tự kiểm tra trước khi xuất" không phải thủ tục thừa.
+
+## Quyết định đáng nhớ: một skill về ASCII dành trọn một file để bảo bạn đừng dùng ASCII
+
+Điều bất ngờ nhất khi đọc hết bộ này: `references/diagram-type-selector.md` — 114 dòng, dài hơn cả `SKILL.md` — tồn tại gần như chỉ để nói **khi nào ASCII là lựa chọn sai**.
+
+@fig:chonDinhDang
+    Cần vẽ một sơ đồ
+      |
+      +-- terminal / Slack / email / code comment  --> ASCII
+      +-- markdown render, giải thích nhanh <10 node --> ASCII
+      +-- sequence diagram                          --> Mermaid
+      +-- >15 node, quan hệ chằng chịt              --> Mermaid hoặc C4
+      |
+      v
+    ASCII becomes unreadable past ~15 nodes
+@endfig
+
+Skill đặt một ngưỡng cụ thể: **~15 node**. Quá ngưỡng đó, `SKILL.md` xếp "over-detailed ASCII" vào mục anti-pattern chứ không phải mục "cần cố gắng hơn". Bảng so sánh trong file selector nói thẳng trần của từng định dạng: ASCII ~15 node, Mermaid ~50, C4 ~100.
+
+Đây là một skill biết phạm vi của mình kết thúc ở đâu, và viết điều đó ra thành ngưỡng đếm được thay vì thành lời khuyên mềm. Với một skill được model tự gọi (xem Phần 3), ranh giới rõ ràng quan trọng hơn khả năng: nó quyết định khi nào skill **không** nên nói gì.
+
+---
+
+# PHẦN 2 — Bề mặt thực sự dùng
+
+## Bảy luật
+
+`SKILL.md` gói toàn bộ chỉ dẫn hành vi vào 7 luật đánh số. Ba luật đầu nói về ký tự, hai luật giữa nói về hình dạng, hai luật cuối nói về quy trình.
+
+| # | Luật | Nó cứu điều gì |
+|---|---|---|
+| 1 | ASCII-only characters | Font fallback làm lệch cột trên máy khác |
+| 2 | Always in code blocks | Markdown render nuốt space thừa, sơ đồ sập |
+| 3 | Spaces only, no tabs | Tab = 8/4/2 space tuỳ nơi |
+| 4 | Giới hạn 80 ký tự mỗi dòng | Wrap không đoán trước được trong terminal hẹp và cửa sổ chat |
+| 5 | Khung hộp chỉ dùng ba ký tự góc–cạnh–tường; hộp lồng thụt 2 space từ tường cha | Cột giữ được khi lồng nhiều tầng |
+| 6 | Giải thích 1–3 câu **trước**, rồi mới tới sơ đồ | Sơ đồ không tự giải thích được chính nó |
+| 7 | Tự kiểm tra trước khi xuất, tự sửa vi phạm | Lỗi một space không ai nhìn thấy bằng mắt |
+
+Luật 6 là luật duy nhất không nói về kỹ thuật. Nó ép thứ tự trình bày: văn bản dẫn trước, hình sau — vì người đọc cần biết mình đang nhìn cái gì trước khi nhìn.
+
+## Bộ ký tự, và một chỗ vênh giữa hai file
+
+Bộ ký tự được khai báo ở hai nơi, và hai nơi không khớp nhau hoàn toàn.
+
+@fig:boKyTu
+    character-rules.md khai báo:
+      Structure:  + - | / \ _ = ~
+      Direction:  > < ^ v
+      Text:       Any printable ASCII (0x20-0x7E)
+      Spacing:    Space (0x20) only -- never tab
+
+    SKILL.md khai báo:
+      + - | / \ _ > < =        (thiếu ~, ^, v)
+
+    Cấm tuyệt đối:
+      *  (dùng - trong list)
+      emoji
+      { }  như phần tử cấu trúc
+@endfig
+
+`SKILL.md` liệt kê 9 ký tự; `references/character-rules.md` liệt kê 12. Ba ký tự vắng mặt ở bản tóm tắt là `~`, `^`, `v` — trong đó `^` và `v` vẫn được nhắc ở dòng ngay sau, phần arrow patterns, còn `~` thì không xuất hiện ở đâu trong `SKILL.md`.
+
+Chi tiết nhỏ nhưng đáng biết: `~` được khai báo là ký tự **cấu trúc**, nhưng trong toàn bộ 39 khối sơ đồ nó xuất hiện đúng 4 lần, và cả 4 lần đều mang nghĩa "xấp xỉ" — `~15 nodes`, `~50`, `~100`. Chưa lần nào nó thật sự vẽ cái gì.
+
+Ngoại lệ được ghi rõ với `{ }`: cấm làm phần tử cấu trúc, nhưng chấp nhận được khi sơ đồ đang hiển thị JSON hay file config. Đây là loại ngoại lệ phân biệt một luật đã được dùng thật với một luật viết ra cho gọn.
+
+## Bảng quy đổi Unicode: 27 dòng, và nghịch lý của nó
+
+`references/character-rules.md` chứa một bảng 27 dòng ánh xạ từng ký tự Unicode sang ASCII tương đương: 9 ký tự khung nét đơn, 11 ký tự khung nét đôi, 1 ellipsis, 4 mũi tên, 2 đường kẻ.
+
+    Unicode    ASCII    Name
+    -------    -----    ----
+    ┌          +        top-left corner
+    │          |        vertical line
+    ─          -        horizontal line
+    ╔          +        double top-left
+    →          ->       right arrow
+    ↓          v        down arrow
+
+Nghịch lý: đây là file duy nhất trong bộ **buộc phải** vi phạm luật 1 để dạy luật 1. Và nó là gần như toàn bộ lượng Unicode trong cả skill — 27 trên 33 ký tự. Sáu ký tự còn lại nằm ở một dòng duy nhất trong `SKILL.md`, dòng liệt kê anti-pattern `┌ ┐ └ ┘ │ ─`.
+
+Còn hai ký tự nữa, và chúng đáng nhắc vì rất dễ bỏ sót: **hai dấu gạch ngang dài (U+2014) nằm ngay bên trong khối code khai báo bộ ký tự cho phép** — chính khối viết "Any printable ASCII (0x20-0x7E)". Chúng là văn xuôi chú thích, không phải phần tử vẽ, nên không làm lệch cột. Nhưng một validator máy đọc khối đó sẽ báo lỗi, và đó là lời nhắc rằng "ASCII-only" trong skill này được hiểu theo phạm vi sơ đồ, không phải theo phạm vi file: bên ngoài khối code, 29 dấu gạch ngang dài khác được dùng thoải mái trong văn xuôi.
+
+## Kho hình mẫu: 12 pattern và 14 khối dán được
+
+Hai file mang phần "dùng ngay", với hai mục đích khác nhau.
+
+`references/layout-patterns.md` — 252 dòng, **12 pattern có đánh số**, mỗi pattern là một tình huống bố cục kèm ví dụ đầy đủ:
+
+| # | Pattern | # | Pattern |
+|---|---|---|---|
+| 1 | Simple Box | 7 | Layered Architecture |
+| 2 | Nested Boxes | 8 | Side-by-Side Comparison |
+| 3 | Horizontal Flow | 9 | Table / Matrix |
+| 4 | Vertical Flow | 10 | Network Topology |
+| 5 | Branching Flow | 11 | Trust Boundary |
+| 6 | Bidirectional | 12 | Sequence (Simple) |
+
+`templates/common-patterns.txt` — 152 dòng, **14 khối** không đánh số, không giải thích, viết để copy thẳng: `SINGLE BOX`, `BOX WITH CONTENT`, `TWO BOXES HORIZONTAL`, `THREE BOXES HORIZONTAL`, `VERTICAL CHAIN`, `BRANCH`, `NESTED`, `DEEP NESTED`, `LAYERS`, `BIDIRECTIONAL`, `SIMPLE SEQUENCE`, `TABLE`, `TRUST BOUNDARY`, `LEGEND`.
+
+Khác biệt giữa hai file không phải là trùng lặp. `layout-patterns.md` dạy *vì sao* bố cục đó đúng — ví dụ quy tắc lồng hộp thụt 2 space tính từ tường cha. `common-patterns.txt` bỏ hết lời, chỉ còn khung rỗng để điền nhãn vào. Một file để đọc, một file để dán.
+
+Pattern 12 tự giới hạn mình ngay trong tiêu đề: *"For simple sequences only. Use Mermaid for complex ones."* Skill lặp lại ranh giới của nó ở tận cấp pattern, không chỉ ở cấp tổng quan.
+
+## Khi chạm giới hạn 80 cột: bốn cách thoát
+
+Luật 4 là luật dễ đụng nhất trong thực tế, nên `layout-patterns.md` dành một mục riêng cho nó với 4 chiến lược, xếp theo thứ tự ít mất mát nhất trước:
+
+1. **Rút gọn nhãn** — "Authentication Service" thành "Auth Svc", rồi thêm chú giải bên dưới
+2. **Xếp dọc** — đổi luồng ngang thành luồng dọc khi bề ngang căng
+3. **Tách nhiều sơ đồ** — tổng quan trước, rồi mới tới từng vùng chi tiết
+4. **Đánh số tham chiếu** — hộp chỉ chứa `[1]` `[2]` `[3]`, chú giải viết đầy đủ bên dưới
+
+Chiến lược 4 là cách duy nhất giữ được sơ đồ nhiều node mà không phá 80 cột, và nó cũng là khối `LEGEND` trong file template — luật và hình mẫu khớp nhau.
+
+@fig:chieuRong
+    Dòng sơ đồ rộng nhất trong từng file, so với trần 80 cột
+
+    character-rules.md          62   (6 khối)
+    diagram-type-selector.md    61   (3 khối)
+    common-patterns.txt         60   (14 khối)
+    layout-patterns.md          48   (16 khối)
+    SKILL.md                     0   (0 khối)
+    ------------------------------------------
+    tran                        80
+@endfig
+
+---
+
+# PHẦN 3 — Bên trong: cách nó khởi động, và những gì bị cắt
+
+## Toàn bộ bề mặt kích hoạt là 282 ký tự
+
+Frontmatter của skill có một dòng mà 25 skill khác trong cùng thư mục không có:
+
+    ---
+    name: ascii-diagram
+    description: "ASCII-safe diagram generation for technical documentation. ..."
+    user-invocable: false
+    ---
+
+`user-invocable: false`. Không có slash command. Người dùng không gọi được skill này, và trong toàn bộ thư mục `.claude` của dự án không có một rule, agent hay config nào tham chiếu tới nó. Nghĩa là nó chỉ có đúng một cách để chạy: model tự nhận ra nên dùng, từ phần mô tả.
+
+@fig:beMatKichHoat
+    description (282 ký tự, 3 câu)   -- luôn ở trong context
+      cái gì  : ASCII-safe diagram generation for technical documentation
+      khi nào : drawing architecture diagrams, creating system layouts,
+                building flow charts, or rendering any visual
+      vì sao  : copy-paste safety across terminals, GitHub, Slack, email
+
+    SKILL.md (84 dòng)              -- nạp khi skill được kích hoạt
+    references/ + templates/ (620 dòng) -- nạp khi thật sự cần
+@endfig
+
+Ba câu, ba việc: câu một nói skill là gì, câu hai liệt kê các tình huống kích hoạt cụ thể, câu ba nói lợi ích. Đó là toàn bộ ngân sách. Nếu 282 ký tự này không khớp với việc đang làm, 620 dòng hướng dẫn phía sau không bao giờ được đọc tới.
+
+Hệ quả lên cách viết `SKILL.md` cũng rõ: nó **không chứa một sơ đồ nào**. Không một khối code nào trong 84 dòng. Toàn bộ 39 khối sơ đồ nằm trong `references/` và `templates/` — tầng chỉ được nạp khi model đã quyết định sẽ vẽ. Tầng luôn-tải chỉ mang luật, bảng, và ba con trỏ.
+
+## Không có script, không có test — cưỡng chế bằng chỉ dẫn
+
+Đây là giới hạn thật sự của skill, và cần nói thẳng: `find` toàn bộ thư mục trả về **5 file, không có file thực thi nào**. Không `scripts/`, không validator, không hook.
+
+Luật 7 viết "Before finalizing, verify: only ASCII chars, no tabs, line width within 80, inside code block, alignment preserved" và checklist 5 bước ở cuối `character-rules.md` liệt kê rất chính xác các dải cần chặn:
+
+    1. Không ký tự ngoài 0x20-0x7E
+    2. Không tab (0x09)
+    3. Không Unicode box-drawing (U+2500-U+257F, U+2550-U+256C)
+    4. Không Unicode arrows (U+2190-U+2199)
+    5. Không emoji (U+1F000+)
+
+Checklist này chính xác tới mức viết thành 10 dòng Python là chạy được. Nhưng nó không được viết thành code — nó là câu lệnh cho model tự chạy trong đầu. Cơ chế cưỡng chế duy nhất là sự tuân thủ chỉ dẫn.
+
+Và hai khối lệch một cột ở Phần 1 chính là số đo của độ tin cậy đó khi áp lên chính tác giả của nó. 30/32 là tỉ lệ tốt; nó không phải 32/32, và không có gì trong bộ này ngăn được con số đó trượt xuống.
+
+## Ba bản sao, và một bản thiếu ruột
+
+Skill này tồn tại ở nhiều nơi trên máy. Ba bản đáng quan tâm, và sự khác biệt giữa chúng không nằm ở nội dung `SKILL.md`.
+
+@fig:banSao
+    ~/.dotfiles/.claude/skills/ascii-diagram   -> SKILL.md + 3 references + 1 template
+    <project>/.claude/skills/ascii-diagram     -> y hệt, sha256 trùng từng file
+    ~/.../skills/synced/<uuid>/ascii-diagram   -> CHỈ có SKILL.md
+@endfig
+
+Cả ba bản `SKILL.md` giống hệt nhau tới từng byte — cùng sha256 `ecd02311…`. Bốn file còn lại của bản dotfiles và bản trong dự án cũng trùng hash từng cặp. Không có drift nội dung.
+
+Nhưng bản đồng bộ chỉ mang theo `SKILL.md`. Mà `SKILL.md` lại trỏ tới 3 file reference và 1 file template bằng đường dẫn tương đối, ở 7 chỗ khác nhau. Trên bản đó, cả 7 con trỏ đều rỗng: model đọc được 7 luật và bảng chọn định dạng, nhưng không lấy được bảng quy đổi 27 dòng, 12 pattern, hay 14 khối dán sẵn.
+
+Đây là đặc tính của kiến trúc progressive disclosure nói chung: `SKILL.md` gọn được là nhờ đẩy chi tiết xuống tầng dưới, nên một kênh phân phối chỉ chuyển tầng trên sẽ giao đúng phần tóm tắt và bỏ lại phần dùng được.
+
+## Đọc gì nếu chỉ có 5 phút
+
+| Cần gì | Đọc file nào | Dòng |
+|---|---|---|
+| Luật và ranh giới | `SKILL.md` | 84 |
+| Ký tự nào được, quy đổi Unicode, checklist | `references/character-rules.md` | 102 |
+| ASCII hay Mermaid hay C4 | `references/diagram-type-selector.md` | 114 |
+| 12 bố cục kèm giải thích | `references/layout-patterns.md` | 252 |
+| 14 khung rỗng để dán | `templates/common-patterns.txt` | 152 |
+
+Nếu chỉ đọc một file: `character-rules.md`. Nó là file duy nhất có thể dùng độc lập — bảng quy đổi và checklist 5 bước đủ để dọn một sơ đồ Unicode có sẵn thành ASCII mà không cần biết gì thêm về skill.
+
+---
+
+Tài liệu này dựng từ bản canonical tại `~/.dotfiles/.claude/skills/ascii-diagram`, đối chiếu với bản trong dự án và bản đồng bộ bằng `sha256` từng file.
+
+Mọi con số trong bài đều đếm bằng script trên chính 5 file đó, không ước lượng: 704 dòng, 39 khối code, 32 khối có khung hộp đầy đủ, 33 ký tự ngoài ASCII, 0 tab, dòng sơ đồ rộng nhất 62 ký tự. Phép kiểm căn cột nhóm các dòng theo cột bắt đầu của ký tự khung đầu tiên rồi so chiều dài trong từng nhóm, nên các dòng nối (`|`, `v`, `+---+---+`) không bị tính nhầm thành lệch.
+
+Bản thân skill không có test hay script nào để chạy, nên không có hành vi runtime nào được kiểm chứng ở đây — mọi khẳng định về cách nó hoạt động đều đọc từ văn bản của skill, không phải từ một lần chạy thật.
+</script>
+<script>/* ===================================================================
+   LAYER 1 . DATA
+   No DOM, no logic. STATE, I18N, SRC, FIG.
+   =================================================================== */
+
+var STATE = { view: 'doc', nav: false };
+
+var SRC = document.getElementById('src').textContent;
+
+var I18N = {
+  kick: 'Ghi chép: đọc kỹ một Claude Code skill',
+  doc: 'Tài liệu',
+  md: 'Markdown',
+  copy: 'Copy markdown',
+  done: 'Đã copy',
+  contents: 'Mục lục',
+  navHead: 'Trong bài',
+  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+};
+
+/* Figure payloads. `type` picks the renderer; everything else is its data. */
+var FIG = {
+
+  tuChamDiem: {
+    type: 'proof',
+    rows: [
+      { kind: 'keep', n: '0',
+        what: 'ký tự tab trong cả 704 dòng',
+        detail: 'luật 3 — spaces only' },
+      { kind: 'keep', n: '0',
+        what: 'dòng sơ đồ vượt 80 cột',
+        detail: 'luật 4 — dòng rộng nhất đo được: 62' },
+      { kind: 'gone', n: '2',
+        what: 'khối khung hộp lệch cột, trên tổng 32',
+        detail: 'luật 7 — self-validate before output' }
+    ],
+    note: 'Đếm bằng script trên đúng 5 file của skill, 39 khối code. Hai khối lệch đều lệch **đúng một cột** — một space thừa trước tường phải.',
+    cap: 'Chấm chính bộ skill theo checklist 5 bước mà nó in ra ở cuối `references/character-rules.md`. Hai con số đầu là trần, không phải trung bình.'
+  },
+
+  chonDinhDang: {
+    type: 'routes',
+    top: 'Cần vẽ một sơ đồ',
+    routes: [
+      ['ASCII', 'terminal, Slack, email, code comment — hoặc giải thích nhanh dưới 10 node'],
+      ['Mermaid', 'sequence diagram, flowchart có nhánh, ER, state machine — trần `~50` node'],
+      ['C4', 'system context, container diagram, kiến trúc nhiều hệ — trần `~100` node'],
+      ['ASCII rồi link', 'ASCII cho mental model tức thì, trỏ sang Mermaid cho bản đầy đủ']
+    ],
+    bottom: 'ASCII becomes unreadable past ~15 nodes',
+    cap: 'Ma trận quyết định trong `references/diagram-type-selector.md`. Ngưỡng `~15` node là chỗ skill tự nhận nó thua — và nói ra bằng một con số.'
+  },
+
+  boKyTu: {
+    type: 'levels',
+    levels: [
+      { name: 'ĐƯỢC DÙNG', note: 'references/character-rules.md — 12 ký tự',
+        tools: [
+          ['+ - | / \\ _ = ~', 'phần tử cấu trúc: góc, cạnh, tường'],
+          ['> < ^ v', 'chỉ hướng'],
+          ['0x20 – 0x7E', 'mọi ký tự ASCII in được, cho phần chữ'],
+          ['space (0x20)', 'cách thụt lề duy nhất — tuyệt đối không tab']
+        ] },
+      { name: 'BẢN TÓM TẮT', note: 'SKILL.md chỉ liệt kê 9 trong 12',
+        tools: [
+          ['+ - | / \\ _ > < =', 'vắng `~`, `^`, `v` — trong đó `^` và `v` được nhắc lại ở dòng arrow patterns ngay sau, còn `~` thì không xuất hiện ở đâu trong SKILL.md']
+        ] },
+      { name: 'CẤM', note: 'không bao giờ dùng làm phần tử vẽ',
+        tools: [
+          ['*', 'dùng `-` trong danh sách bên trong sơ đồ'],
+          ['emoji', 'không render đồng nhất, và chiếm bề rộng không đoán trước'],
+          ['{ }', 'chỉ cấm khi làm phần tử cấu trúc — vẫn dùng được khi sơ đồ đang hiển thị JSON hay config']
+        ] }
+    ],
+    cap: 'Bộ ký tự được khai báo ở hai nơi và hai nơi không khớp. Bản đầy đủ nằm ở `references/character-rules.md`; bản trong `SKILL.md` là tóm tắt, và thiếu ba ký tự.'
+  },
+
+  chieuRong: {
+    type: 'bars',
+    rows: [
+      { label: 'trần skill tự đặt (luật 4)', ms: 80, val: '80 cột', cold: true },
+      { label: '`references/character-rules.md` · 6 khối', ms: 62, val: '62' },
+      { label: '`references/diagram-type-selector.md` · 3 khối', ms: 61, val: '61' },
+      { label: '`templates/common-patterns.txt` · 14 khối', ms: 60, val: '60' },
+      { label: '`references/layout-patterns.md` · 16 khối', ms: 48, val: '48' },
+      { label: '`SKILL.md` · 0 khối', ms: 0, val: '—' }
+    ],
+    cap: 'Dòng sơ đồ rộng nhất trong từng file. Thanh xám trên cùng là trần 80 cột, không phải một phép đo. `SKILL.md` không chứa khối code nào — mọi sơ đồ đều nằm ở tầng nạp-khi-cần.'
+  },
+
+  beMatKichHoat: {
+    type: 'guards',
+    rows: [
+      { kind: 'fast', tag: 'luôn trong context · 282 ký tự',
+        text: '`description` — ba câu: skill là gì, những tình huống nào kích hoạt nó, và nó cứu điều gì. Vì `user-invocable: false` và không rule nào tham chiếu tới skill, đây là **toàn bộ** thứ quyết định nó có được gọi hay không.' },
+      { kind: 'bound', tag: 'nạp khi cần · 704 dòng',
+        text: '`SKILL.md` 84 dòng khi skill được kích hoạt; 620 dòng `references/` và `templates/` chỉ khi model thật sự cần bảng quy đổi, hình mẫu hay khối dán sẵn.' }
+    ],
+    cap: 'Hai tầng với hai ngân sách rất khác nhau. Tầng trên trả giá bằng context ở **mọi** phiên làm việc, nên nó được nén xuống ba câu; tầng dưới gần như miễn phí cho tới lúc dùng.'
+  },
+
+  banSao: {
+    type: 'islands',
+    rows: [
+      { where: '~/.dotfiles/.claude/skills/', scope: 'SKILL.md + 3 references + 1 template' },
+      { where: '<project>/.claude/skills/', scope: 'y hệt — sha256 trùng từng file' },
+      { where: '~/…/skills/synced/<uuid>/', scope: 'chỉ SKILL.md', shared: true }
+    ],
+    note: 'Cả ba bản SKILL.md cùng sha256 ecd02311… — không drift nội dung, chỉ khác phần đi kèm.',
+    cap: 'Bản đồng bộ mang đúng tầng tóm tắt. Bảy con trỏ tương đối trong `SKILL.md` trỏ vào hư không trên bản đó.'
+  }
+};
+
+
+/* ===================================================================
+   LAYER 2 . COMPONENTS
+   Pure: data in, DOM out. Must not read STATE.
+   =================================================================== */
+
+function esc(s){ return String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function el(tag, attrs, kids){
+  var n = document.createElement(tag);
+  if(attrs) for(var k in attrs){
+    if(k === 'html') n.innerHTML = attrs[k];
+    else if(k === 'text') n.textContent = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(function(c){ if(c) n.appendChild(c); });
+  return n;
+}
+
+/* Code spans are pulled out before escaping and put back after, so that
+   markup inside them is never interpreted. The sentinel is ordinary text,
+   not a control character, so the source stays copy-paste safe. */
+function inline(s){
+  var keep = [];
+  s = String(s).replace(/`([^`]+)`/g, function(_, c){
+    keep.push(c); return 'K0DE' + (keep.length - 1) + 'K0DE';
+  });
+  s = esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*([^*]+)\*(?![*\w])/g, '$1<em>$2</em>');
+  return s.replace(/K0DE(\d+)K0DE/g, function(_, i){
+    return '<code>' + esc(keep[+i]) + '</code>';
+  });
+}
+
+var BLOCK = {
+  h: function(b){
+    var tag = b.level === 1 ? 'h2' : b.level === 2 ? 'h3' : 'h4';
+    var m = /^(PHAN|PHẦN|PART)\s+(\d+)\s*—\s*(.*)$/.exec(b.text);
+    if(tag === 'h2' && m){
+      return el('h2', null, [
+        el('span', { class: 'eyebrow', text: m[1] + ' ' + m[2] }),
+        el('span', { html: inline(m[3]) })
+      ]);
+    }
+    return el(tag, { html: inline(b.text) });
+  },
+  p:  function(b){ return el('p', { html: inline(b.text) }); },
+  ul: function(b){ return el('ul', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  ol: function(b){ return el('ol', null, b.items.map(function(t){
+        return el('li', { html: inline(t) }); })); },
+  quote: function(b){ return el('blockquote', null, b.items.map(function(t){
+        return el('p', { html: inline(t) }); })); },
+  code: function(b){
+    return el('div', { class: 'pre' }, [ el('pre', { text: b.text }) ]);
+  },
+  hr: function(){ return el('hr'); },
+  table: function(b){
+    var head = el('tr', null, b.head.map(function(c){
+      return el('th', { html: inline(c) }); }));
+    var body = b.rows.map(function(r){
+      return el('tr', null, r.map(function(c){ return el('td', { html: inline(c) }); }));
+    });
+    return el('div', { class: 'tw' }, [
+      el('table', null, [ el('thead', null, [head]), el('tbody', null, body) ])
+    ]);
+  },
+  fig: function(b){
+    var f = FIG[b.id];
+    if(!f) return el('p', { text: '[missing figure: ' + b.id + ']' });
+    var render = FIGURE[f.type];
+    if(!render) return el('p', { text: '[no renderer: ' + f.type + ']' });
+    return el('figure', null, [
+      el('div', { class: 'fig' }, [ render(f) ]),
+      f.cap ? el('figcaption', { html: inline(f.cap) }) : null
+    ]);
+  }
+};
+
+/* -- markdown ------------------------------------------------------- */
+
+var MD = {
+  parse: function(src){
+    var lines = src.split('\n'), out = [], i = 0;
+    function blank(s){ return !s.trim(); }
+    function cells(s){
+      return s.trim().replace(/^\|/, '').replace(/\|$/, '')
+              .split('|').map(function(c){ return c.trim(); });
+    }
+
+    while(i < lines.length){
+      var ln = lines[i];
+      if(blank(ln)){ i++; continue; }
+
+      /* figure directive: keep the id, skip the ASCII fallback body */
+      var fm = /^@fig:(\S+)\s*$/.exec(ln);
+      if(fm){
+        var id = fm[1]; i++;
+        while(i < lines.length && !/^@endfig\s*$/.test(lines[i])) i++;
+        i++;
+        out.push({ t: 'fig', id: id });
+        continue;
+      }
+
+      var hm = /^(#{1,4})\s+(.*)$/.exec(ln);
+      if(hm){ out.push({ t: 'h', level: hm[1].length, text: hm[2].trim() }); i++; continue; }
+
+      if(/^---\s*$/.test(ln)){ out.push({ t: 'hr' }); i++; continue; }
+
+      if(/^\|/.test(ln) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])){
+        var head = cells(ln); i += 2;
+        var rows = [];
+        while(i < lines.length && /^\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
+        out.push({ t: 'table', head: head, rows: rows });
+        continue;
+      }
+
+      if(/^>\s?/.test(ln)){
+        var q = [];
+        while(i < lines.length && /^>\s?/.test(lines[i])){
+          q.push(lines[i].replace(/^>\s?/, '')); i++;
+        }
+        out.push({ t: 'quote', items: q });
+        continue;
+      }
+
+      var lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(ln);
+      if(lm){
+        var ordered = /\d/.test(lm[2]), items = [];
+        while(i < lines.length){
+          var m2 = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
+          if(m2){ items.push(m2[3]); i++; }
+          else if(/^\s{2,}\S/.test(lines[i]) && items.length){
+            items[items.length - 1] += ' ' + lines[i].trim(); i++;
+          } else break;
+        }
+        out.push({ t: ordered ? 'ol' : 'ul', items: items });
+        continue;
+      }
+
+      /* Four-space indented code. Blank lines inside one block are kept,
+         then trimmed off the end, so a diagram split by blank lines stays
+         a single block instead of becoming several. */
+      if(/^ {4}\S/.test(ln)){
+        var buf = [];
+        while(i < lines.length){
+          if(/^ {4}/.test(lines[i])){ buf.push(lines[i].slice(4)); i++; }
+          else if(blank(lines[i]) && /^ {4}/.test(lines[i + 1] || '')){ buf.push(''); i++; }
+          else break;
+        }
+        while(buf.length && !buf[buf.length - 1].trim()) buf.pop();
+        out.push({ t: 'code', text: buf.join('\n') });
+        continue;
+      }
+
+      var para = [ln.trim()]; i++;
+      while(i < lines.length && !blank(lines[i]) &&
+            !/^(#{1,4}\s|@fig:|@endfig|---\s*$|\||>\s?|\s*([-*]|\d+\.)\s|\s{4}\S)/.test(lines[i])){
+        para.push(lines[i].trim()); i++;
+      }
+      out.push({ t: 'p', text: para.join(' ') });
+    }
+    return out;
+  },
+
+  render: function(blocks){
+    var frag = document.createDocumentFragment();
+    blocks.forEach(function(b){
+      var fn = BLOCK[b.t];
+      if(fn) frag.appendChild(fn(b));
+    });
+    return frag;
+  }
+};
+
+
+/* -- figure renderers ------------------------------------------------
+   Six of the eleven in the catalog; the rest were deleted rather than
+   carried, along with their CSS. Pure: data in, DOM out, no STATE.
+   ------------------------------------------------------------------- */
+
+var FIGURE = {
+
+  proof: function(f){
+    return el('div', null, [
+      el('div', { class: 'proof' }, f.rows.map(function(r){
+        return el('div', { class: 'proof-row ' + r.kind }, [
+          el('div', { class: 'proof-what' }, [
+            el('span', { html: inline(r.what) }),
+            el('em', { text: r.detail })
+          ]),
+          el('div', { class: 'proof-n', text: r.n })
+        ]);
+      })),
+      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
+    ]);
+  },
+
+  levels: function(f){
+    return el('div', null, f.levels.map(function(L){
+      return el('div', { class: 'lvl' }, [
+        el('div', { class: 'lvl-h' }, [
+          el('span', { text: L.name + '  ' }),
+          el('span', { text: L.note })
+        ])
+      ].concat(L.tools.map(function(t){
+        return el('div', { class: 'tool' }, [
+          el('b', { text: t[0] }), el('span', { html: inline(t[1]) })
+        ]);
+      })));
+    }));
+  },
+
+  routes: function(f){
+    return el('div', null, [
+      el('div', { class: 'routes-top', text: f.top }),
+      el('div', { class: 'routes' }, f.routes.map(function(r){
+        return el('div', { class: 'rt' }, [
+          el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
+        ]);
+      })),
+      el('div', { class: 'routes-bot', text: f.bottom })
+    ]);
+  },
+
+  islands: function(f){
+    var kids = f.rows.map(function(r){
+      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
+        el('s', { text: r.where }),
+        el('i', { text: '->' }),
+        el('b', { text: r.scope })
+      ]);
+    });
+    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
+    return el('div', { class: 'isl' }, kids);
+  },
+
+  bars: function(f){
+    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
+    return el('div', { class: 'bars' }, f.rows.map(function(r){
+      var pct = Math.max(2, Math.round(r.ms / max * 100));
+      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
+        el('b', { html: inline(r.label) }),
+        el('div', { class: 'br-track' }, [
+          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
+          el('span', { class: 'br-val', text: r.val })
+        ])
+      ]);
+    }));
+  },
+
+  guards: function(f){
+    return el('div', { class: 'guards' }, f.rows.map(function(r){
+      return el('div', { class: 'gd ' + r.kind }, [
+        el('b', { text: r.tag }),
+        el('p', { html: inline(r.text) })
+      ]);
+    }));
+  }
+};
+
+
+/* ===================================================================
+   LAYER 3 . LOGIC
+   Binds DATA to COMPONENTS. The only layer that touches STATE.
+   Pipeline:  SRC -> sections(front | body | footer) -> MD.parse
+                  -> MD.render -> DOM -> table of contents
+   Both views read the SAME text, so they cannot drift apart.
+   =================================================================== */
+
+/* front matter (title + lede) | body | footer, split on the outer rules */
+function sections(){
+  var t = SRC.replace(/^﻿/, '');
+  var first = t.indexOf('\n---\n');
+  var last = t.lastIndexOf('\n---\n');
+  var head = t.slice(0, first).split('\n');
+  return {
+    title: (head.filter(function(l){ return l.indexOf('# ') === 0; })[0] || '# ').slice(2),
+    lede: head
+           .filter(function(l){ return l.indexOf('> ') === 0; })
+           .map(function(l){ return l.slice(2); }),
+    body: t.slice(first + 5, last),
+    footer: t.slice(last + 5).split('\n\n')
+             .map(function(p){ return p.trim(); })
+             .filter(Boolean)
+  };
+}
+
+/* the copy-out markdown drops layout directives; prose and ASCII stay */
+function forCopy(){
+  return SRC.split('\n')
+    .filter(function(l){ return !/^@(fig:|endfig|box:|endbox)/.test(l); })
+    .join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function slug(s, i){
+  var base = String(s).toLowerCase()
+    .replace(/[^a-z0-9À-ỹ]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 44);
+  return (base || 'muc') + '-' + i;
+}
+
+/* ---- rendering -------------------------------------------------- */
+
+function buildToc(root){
+  var toc = document.getElementById('toc');
+  toc.textContent = '';
+  var heads = root.querySelectorAll('h2, h3');
+  var n = 0;
+  Array.prototype.forEach.call(heads, function(h){
+    n++;
+    if(!h.id) h.id = slug(h.textContent, n);
+    var isPart = h.tagName === 'H2';
+    var label = h.textContent;
+    if(isPart){
+      var eb = h.querySelector('.eyebrow');
+      if(eb) label = eb.textContent + ' — ' + label.slice(eb.textContent.length);
+    }
+    var a = el('a', {
+      href: '#' + h.id,
+      class: isPart ? 'part' : 'lv3',
+      text: label
+    });
+    a.addEventListener('click', function(){ if(!wide()) setNav(false); });
+    toc.appendChild(a);
+  });
+}
+
+function render(){
+  var s = sections();
+
+  var h1 = document.getElementById('title');
+  h1.textContent = s.title;
+  document.title = s.title;
+
+  var lede = document.getElementById('lede');
+  lede.textContent = '';
+  s.lede.forEach(function(p){ lede.appendChild(el('p', { html: inline(p) })); });
+
+  var doc = document.getElementById('doc');
+  doc.textContent = '';
+  doc.appendChild(MD.render(MD.parse(s.body)));
+
+  var foot = document.getElementById('foot');
+  foot.textContent = '';
+  s.footer.forEach(function(p){ foot.appendChild(el('p', { html: inline(p) })); });
+
+  document.getElementById('mdtext').textContent = forCopy();
+
+  buildToc(doc);
+
+  var isDoc = STATE.view === 'doc';
+  document.getElementById('docview').hidden = !isDoc;
+  document.getElementById('md').hidden = isDoc;
+  var vb = document.getElementById('viewbtn');
+  vb.textContent = isDoc ? I18N.md : I18N.doc;
+  vb.setAttribute('aria-pressed', isDoc ? 'false' : 'true');
+
+  /* no anchors to jump to in the markdown view */
+  var nb = document.getElementById('navbtn');
+  nb.hidden = !isDoc;
+  if(!isDoc && STATE.nav) setNav(false);
+
+  spy();
+}
+
+/* ---- controls ---------------------------------------------------- */
+
+function wide(){ return (window.innerWidth || 1280) >= 1180; }
+
+function setView(v){ STATE.view = v; render(); }
+
+function setNav(open){
+  STATE.nav = open;
+  document.getElementById('nav').classList.toggle('open', open);
+  document.getElementById('scrim').hidden = !open || wide();
+  document.getElementById('navbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function copyMd(){
+  var btn = document.getElementById('copybtn');
+  var text = document.getElementById('mdtext').textContent;
+  function flash(msg){
+    var old = btn.textContent; btn.textContent = msg;
+    setTimeout(function(){ btn.textContent = old; }, 1600);
+  }
+  function fallback(){
+    try{
+      var r = document.createRange();
+      r.selectNodeContents(document.getElementById('mdtext'));
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(r);
+      var ok = false;
+      try{ ok = document.execCommand('copy'); }catch(e){}
+      flash(ok ? I18N.done : 'Đã bôi đen — Cmd/Ctrl+C');
+    }catch(e){ flash('Bôi đen thủ công'); }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ flash(I18N.done); }, fallback);
+  } else fallback();
+}
+
+/* ---- scrollspy ---------------------------------------------------- */
+
+var spyTimer = null;
+function spy(){
+  if(spyTimer) return;
+  spyTimer = setTimeout(function(){
+    spyTimer = null;
+    var links = document.querySelectorAll('#toc a');
+    var best = null, bestTop = -1e9;
+    Array.prototype.forEach.call(links, function(a){
+      var t = document.getElementById(a.getAttribute('href').slice(1));
+      if(!t) return;
+      var top = t.getBoundingClientRect().top - 90;
+      if(top <= 0 && top > bestTop){ bestTop = top; best = a; }
+    });
+    Array.prototype.forEach.call(links, function(a){
+      a.classList.toggle('on', a === best);
+    });
+  }, 90);
+}
+
+/* ---- wiring ------------------------------------------------------- */
+
+function boot(){
+  document.getElementById('kick').textContent = I18N.kick;
+  document.getElementById('navhead').textContent = I18N.navHead;
+  document.getElementById('copybtn').textContent = I18N.copy;
+  document.getElementById('mdnote').textContent = I18N.mdNote;
+  document.getElementById('navbtn').textContent = I18N.contents;
+
+  document.getElementById('viewbtn').addEventListener('click', function(){
+    setView(STATE.view === 'doc' ? 'md' : 'doc');
+  });
+  document.getElementById('navbtn').addEventListener('click', function(){
+    setNav(!STATE.nav);
+  });
+  document.getElementById('scrim').addEventListener('click', function(){ setNav(false); });
+  document.getElementById('copybtn').addEventListener('click', copyMd);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && STATE.nav) setNav(false);
+  });
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', function(){
+    setNav(wide() ? false : STATE.nav);
+  });
+
+  render();
+  setNav(false);
+}
+
+boot();
+</script>
+</body>
+</html>
