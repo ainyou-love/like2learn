@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>video-marker: làm demo video không hao như bạn nghĩ</title>
-<meta name="description" content="Ghi chép đọc mã một Claude Code skill: ảnh tĩnh cộng giọng đọc macOS, ffmpeg ghép lại, và những giới hạn nó chọn mang.">
+<title>video-marker — video demo lắp ra, không quay ra</title>
+<meta name="description" content="Một skill Claude Code biến ảnh chụp màn hình và câu thuyết minh thành video demo — và là ví dụ mẫu về cách một skill được chia thành SKILL.md, references, scripts và templates.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
@@ -15,27 +15,27 @@
    Figure classes at the bottom are a catalog -- keep the ones your figures use,
    delete the rest, add your own. */
 :root{
-  --ground:#F4F2EE; --surface:#FFFFFF; --panel:#EDEAE4; --line:#D8D3CA; --line-soft:#E6E2DB;
-  --ink:#1A1916; --muted:#5E5A52; --faint:#8A857B;
-  --trace:#2C5F63; --trace-soft:#DFEBEB;
-  --est:#2F6B4F;  --hyp:#9A6414;  --unv:#5E5A52;  --asm:#7A4E86;
-  --alarm:#8E2F26; --alarm-soft:#F6E5E2;
+  --ground:#F2F3F5; --surface:#FFFFFF; --panel:#E8EAEE; --line:#CED4DC; --line-soft:#E1E5EA;
+  --ink:#16181D; --muted:#545A65; --faint:#838A95;
+  --trace:#2F4A7A; --trace-soft:#E2E8F4;
+  --est:#2C7A4B;  --hyp:#8A5A12;  --unv:#545A65;  --asm:#6B4E86;
+  --alarm:#A5332A; --alarm-soft:#F8E6E3;
   --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
-  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
-  --trace:#7FBDBF; --trace-soft:#172A2B;
-  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
-  --alarm:#E0897E; --alarm-soft:#2C1B18;
+  --ground:#111318; --surface:#191C22; --panel:#1F232B; --line:#2E333C; --line-soft:#242931;
+  --ink:#E5E7EC; --muted:#99A0AB; --faint:#7A828D;
+  --trace:#93B1E2; --trace-soft:#18202E;
+  --est:#6FC48E;  --hyp:#DDAE64;  --unv:#99A0AB;  --asm:#BFA0D4;
+  --alarm:#E28D80; --alarm-soft:#2B1A17;
 }}
 :root[data-theme="dark"]{
-  --ground:#14150F; --surface:#1C1E18; --panel:#22241D; --line:#32352B; --line-soft:#26291F;
-  --ink:#E8E6DE; --muted:#9B9A90; --faint:#7C7A70;
-  --trace:#7FBDBF; --trace-soft:#172A2B;
-  --est:#77BC93;  --hyp:#DFAE5E;  --unv:#9B9A90;  --asm:#C39AD0;
-  --alarm:#E0897E; --alarm-soft:#2C1B18;
+  --ground:#111318; --surface:#191C22; --panel:#1F232B; --line:#2E333C; --line-soft:#242931;
+  --ink:#E5E7EC; --muted:#99A0AB; --faint:#7A828D;
+  --trace:#93B1E2; --trace-soft:#18202E;
+  --est:#6FC48E;  --hyp:#DDAE64;  --unv:#99A0AB;  --asm:#BFA0D4;
+  --alarm:#E28D80; --alarm-soft:#2B1A17;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -129,133 +129,62 @@ figure{margin:0 0 28px}
 figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
 .fmono{font-family:var(--mono)}
 
-/* four questions + score */
-.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
-.qlist li{counter-increment:q;display:flex;gap:13px;margin:0 0 11px;font-size:16px}
-.qlist li::before{content:counter(q);font-family:var(--mono);font-size:11px;color:var(--trace);
-  border:1px solid var(--trace);border-radius:50%;width:21px;height:21px;flex:none;
-  display:grid;place-items:center;margin-top:3px}
-.score{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:15px;
-  border-top:1px solid var(--line-soft)}
-.sc{flex:1 1 150px;padding:11px 13px;border-radius:3px;background:var(--panel)}
-.sc b{display:block;font-family:var(--mono);font-size:26px;line-height:1;margin-bottom:5px}
-.sc span{font-size:12.5px;color:var(--muted)}
-.sc.good b{color:var(--est)} .sc.bad b{color:var(--alarm)}
-.sc.bad{background:var(--alarm-soft)}
-
-/* the boldness: delta proof */
-.proof{display:grid;gap:0}
-.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
-  padding:16px 0;border-bottom:1px solid var(--line-soft)}
-.proof-row:last-child{border-bottom:0}
-.proof-what{font-size:15.5px}
-.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
-  display:block;margin-top:4px}
-.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
-.proof-row.keep .proof-n{color:var(--est)}
-.proof-row.gone .proof-n{color:var(--alarm)}
-.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
-  font-size:13.5px;color:var(--muted)}
-
-/* graph */
-.gnodes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
-.gn{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:3px;
-  border:1px solid var(--line);background:var(--panel)}
-.gn.core{border-color:var(--trace);color:var(--trace);background:var(--trace-soft)}
-.gedges{display:grid;gap:8px}
-.ge{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;
-  font-family:var(--mono);font-size:11.5px}
-.ge i{font-style:normal;color:var(--muted);text-align:right}
-.ge b{font-weight:500;color:var(--trace);white-space:nowrap;font-size:10.5px;letter-spacing:.04em}
-.ge s{text-decoration:none;color:var(--muted)}
-.gsplit{margin:15px 0 9px;padding-top:13px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
-
-/* loop */
-.loop{display:grid;gap:9px}
-.lp{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:3px;
-  background:var(--panel)}
-.lp em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--trace);
-  flex:none;width:18px;padding-top:3px}
-.lp div{font-size:14.5px}
-.lp code{background:var(--surface)}
-.loop-back{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;
-  padding:8px;border:1px dashed var(--line);border-radius:3px}
-
-/* levels */
+/* levels -- tiers of disclosure */
 .lvl{margin-bottom:17px}
 .lvl:last-child{margin-bottom:0}
 .lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--trace);margin-bottom:10px}
 .lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
-.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
-  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+.tool{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:12px;
+  padding:8px 0;border-top:1px solid var(--line-soft);font-size:14px}
 .tool:first-of-type{border-top:0}
 .tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
 .tool span{color:var(--muted)}
+@media (max-width:560px){.tool{grid-template-columns:1fr;gap:3px}}
 
-/* provenance routes */
+/* stages -- the run, in order */
+.stg{display:grid;gap:11px}
+.st{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;
+  padding:13px 14px;border-radius:3px;background:var(--panel)}
+.st em{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--trace);
+  border:1px solid var(--trace);border-radius:50%;width:24px;height:24px;flex:none;
+  display:grid;place-items:center;margin-top:1px}
+.st-body b{display:flex;flex-wrap:wrap;gap:9px;align-items:baseline;
+  font-size:15px;font-weight:600;margin-bottom:7px}
+.st-body b u{text-decoration:none;font-family:var(--mono);font-size:10px;font-weight:400;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--hyp)}
+.st-io{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;
+  padding:3px 0;font-size:13.5px}
+.st-io i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--faint);
+  min-width:26px}
+.st-io span{color:var(--muted)}
+.st-io s{text-decoration:none;font-family:var(--mono);font-size:10.5px;color:var(--trace);
+  background:var(--trace-soft);border-radius:2px;padding:2px 6px;white-space:nowrap}
+.st-io code{background:var(--surface)}
+@media (max-width:560px){
+  .st-io{grid-template-columns:auto minmax(0,1fr)}
+  .st-io s{grid-column:2;justify-self:start}
+}
+
+/* routes -- one question, several destinations */
 .routes{display:grid;gap:10px;grid-template-columns:1fr}
 @media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
 .rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
 .rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
 .rt span{font-size:13.5px;color:var(--muted)}
 .routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
-  padding:10px;border-radius:3px}
+  padding:10px;border-radius:3px;line-height:1.5}
 .routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
 .routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
 
-/* push hooks */
-.hooks{display:grid;gap:0}
-.hk{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
-.hk:last-child{border-bottom:0}
-.hk b{font-family:var(--mono);font-size:12.5px;font-weight:500}
-.hk i{font-style:normal;font-size:12.5px;color:var(--trace);font-family:var(--mono)}
-.hk span{font-size:14px;color:var(--muted)}
-.hk.none b,.hk.none i{color:var(--faint)}
-
-/* gates */
+/* gates -- a guard, and what breaks without it */
 .gates{display:grid;gap:7px}
-.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
-  padding:9px 12px;border-radius:3px;background:var(--panel);font-size:14px}
+.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;
+  align-items:baseline;padding:10px 13px;border-radius:3px;background:var(--panel);
+  border-left:3px solid var(--est)}
 .gt b{font-family:var(--mono);font-size:12px;font-weight:500}
 .gt span{color:var(--muted);font-size:13px}
-
-/* islands */
-.isl{display:grid;gap:9px}
-.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
-  font-family:var(--mono);font-size:12px}
-.is s{text-decoration:none;color:var(--muted)}
-.is b{color:var(--trace);font-weight:500}
-.is i{font-style:normal;color:var(--faint);font-size:15px}
-.is.shared b{color:var(--hyp)}
-.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-
-/* warm bars */
-.bars{display:grid;gap:13px}
-.br b{display:block;font-size:13.5px;margin-bottom:6px}
-.br-track{display:flex;align-items:center;gap:10px}
-.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
-.br.cold .br-fill{background:var(--alarm)}
-.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
-/* guards */
-.guards{display:grid;gap:12px}
-.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
-.gd.fast{border-left-color:var(--hyp)}
-.gd.bound{border-left-color:var(--est)}
-.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
-  text-transform:uppercase;margin-bottom:7px}
-.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
-.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
-.gd p code{font-size:.9em}
-
-/* legend */
-.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding-top:13px;
-  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.legend i{width:10px;height:10px;border-radius:2px;flex:none;font-style:normal}
+@media (max-width:560px){.gt{grid-template-columns:1fr;gap:4px}}
 
 /* ── markdown view ───────────────────────────────────────── */
 #md{padding-top:26px}
@@ -305,434 +234,508 @@ footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
   </section>
 </div>
 
-<script type="text/plain" id="src"># video-marker — làm demo video không hao như bạn nghĩ
+<script type="text/plain" id="src"># video-marker — video demo lắp ra, không quay ra
 
-> Một skill Claude Code ghép ảnh chụp màn hình với giọng đọc máy thành video demo có phụ đề nung sẵn vào khung hình.
-> Toàn bộ khâu dựng nằm trong 410 dòng bash gọi bốn binary chạy cục bộ. Không API trả phí, không một byte nào rời khỏi máy.
-> Thứ bạn viết tay cho mỗi cảnh chỉ có hai trường bắt buộc; còn độ dài mỗi cảnh thì không phải lựa chọn của bạn.
-> Ghi chép đọc từ mã nguồn ngày 18/09/2026 — SKILL.md, ba file trong `references/`, template manifest, và trọn vẹn script pipeline.
-
----
-
-# PHẦN 1 — Bài toán, và một quyết định thiết kế đáng nhớ
-
-Làm một video demo thường tốn ở chỗ không ai ngờ: không phải khâu quay, mà khâu dựng. Quay màn hình xong là có một file thô dài mười phút, và từ đó trở đi mọi thứ đều thủ công — cắt, lồng tiếng, gõ phụ đề, canh timing, xuất lại khi một bước trong luồng đổi.
-
-`video-marker` giải bài toán đó bằng cách từ chối luôn việc quay. Frontmatter của skill nói thẳng nó làm gì:
-
-> Generate demo videos from (text, snapshot) pairs — narration + still images with title overlays and subtitles burned in
-
-Đầu vào là các cặp (chữ, ảnh tĩnh). Đầu ra là một file MP4. Ở giữa không có timeline nào để kéo.
-
-## Ảnh tĩnh cộng giọng máy, không phải screen recording
-
-Mục `Role` trong SKILL.md tự đặt giới hạn vai trò ngay câu đầu: "You are a video assembly orchestrator. Your job is to turn (text, snapshot) pairs into a narrated demo video — not to edit video content, add effects, or do post-production."
-
-Quyết định thiết kế đáng nhớ nằm ở chỗ này: **độ dài mỗi cảnh không phải một con số bạn chọn, mà là độ dài đoạn audio đọc ra**. Script đưa ảnh vào `ffmpeg` với `-loop 1` (lặp ảnh vô hạn) rồi để cờ `-shortest` cắt clip theo luồng ngắn hơn — luôn là luồng audio.
-
-Hệ quả rất dễ chịu khi viết kịch bản: bạn sửa câu narration, cảnh tự dài ra hoặc ngắn lại theo. Không có timing nào để canh lại, vì không có timing nào được viết ra ngay từ đầu.
-
-## Skill từ chối tự chụp ảnh — và đó là chủ ý
-
-Trong năm ràng buộc mà SKILL.md liệt kê ở mục `Constraints`, có một dòng đáng chú ý: "Does NOT capture screenshots — expects them as input".
-
-Manifest chỉ yêu cầu `image` là đường dẫn tới một file có thật trên đĩa. Hàm `validate_manifest` kiểm tra đúng một điều về ảnh: `[[ ! -f "$image" ]]`. Ảnh đến từ đâu là chuyện của bạn.
-
-@fig:source
-    yêu cầu duy nhất: một đường dẫn file ảnh có thật
-
-      agent-browser / công cụ automation   ->  chụp từng bước của luồng web
-      screencapture (có sẵn trên macOS)    ->  chụp thủ công từng màn hình
-      artifact của test runner             ->  ảnh sinh ra khi test chạy
-      ảnh xuất từ file thiết kế            ->  demo một thứ chưa build xong
-
-    video-marker không tự chụp bất cứ thứ gì
-@endfig
-
-Đây là kiểu ràng buộc dễ bị đọc nhầm là thiếu sót. Thật ra nó cắt đúng chỗ: chụp màn hình là việc phụ thuộc hoàn toàn vào thứ đang được demo — web, app desktop, terminal, thiết kế tĩnh — trong khi khâu dựng thì giống nhau ở mọi trường hợp. Gộp hai việc vào một skill sẽ khiến nửa giá trị của nó chết theo trình duyệt.
-
-Cũng cần nói rõ một điểm: **bản thân skill không nhắc tên một công cụ chụp ảnh nào**. Nó không đề cập `agent-browser`, không đề cập `screencapture`, không đề cập test runner. Nó chỉ đòi một file tồn tại. Những cái tên trong sơ đồ trên là các nguồn tương thích, không phải thứ được viết trong mã nguồn.
-
-## Manifest là toàn bộ kịch bản
-
-Một file JSON mô tả cả video. Điều đáng để ý không nằm ở số trường — chỉ có bảy — mà ở chỗ một trường được dùng lại ở hai nơi khác nhau.
-
-@fig:fields
-    output   -> tên file đích của bước ghép cuối
-    voice    -> say -v <voice>
-    text     -> say (audio)  VÀ  phụ đề nung dưới đáy khung hình
-    image    -> khung hình nền
-    title    -> chữ ở đỉnh khung hình
-    status   -> màu viền + màu chữ title
-@endfig
-
-`text` vừa là kịch bản đọc vừa là phụ đề. Trong `generate_video`, cùng một biến `$text` được truyền cho `text_to_audio` rồi truyền tiếp làm tham số phụ đề cho `image_audio_to_clip` — bạn không thể để lời đọc và phụ đề lệch nhau, vì chỉ có một nguồn.
+> Bạn làm xong một việc và cần cho người khác xem. Viết ra thì không ai đọc; quay màn hình thì phải rảnh, phải nói trơn, và hỏng một câu là quay lại từ đầu.
+> `video-marker` đi từ một nhận xét đơn giản: video demo gần như không bao giờ là phim. Nó là một chuỗi ảnh tĩnh, mỗi ảnh có một câu nói đè lên. Mà thứ không chuyển động thì không cần quay — nó lắp được.
+> Trang này vừa nói về skill đó, vừa dùng nó làm ví dụ mẫu để bạn tự dựng một skill cho mình.
 
 ---
 
-# PHẦN 2 — Bề mặt bạn thật sự chạm vào
+# PHẦN 1 — Nó gánh hộ bạn chuyện gì
 
-## Bảy trường, hai trong đó bắt buộc
+## Mục đích
 
-| Trường | Bắt buộc | Mặc định | Nó làm gì |
+Có một loại công việc mà phần khó nhất không phải là làm, mà là **cho người khác thấy mình đã làm**. Bạn vừa kiểm tra xong một luồng đăng ký. Bạn vừa tìm ra chỗ sai trong một màn hình danh sách. Bạn vừa hoàn thành phần việc của tuần. Kết quả nằm trong đầu bạn và trong một thư mục ảnh chụp màn hình — còn người cần biết thì ở chỗ khác, và họ sẽ không đọc hết mười lăm dòng bạn viết trong chat.
+
+Thứ họ chịu xem là một đoạn video ngắn. Và đây là chỗ mọi người thua.
+
+Quay màn hình bắt bạn phải rảnh đúng lúc, phải có chỗ yên tĩnh, phải nói trôi chảy trong bốn phút liền. Câu thứ ba bạn nói vấp, thế là quay lại từ đầu. Bạn làm được bản ưng ý, gửi đi, rồi hai tuần sau một bước trong luồng thay đổi — bây giờ đoạn video đang nói sai, và để sửa một câu bạn phải quay lại cả bốn phút. Người giỏi tìm ra lỗi thường cũng chính là người ngại nhất chuyện ngồi nói trước micro. Còn người xem thì mở video trong lúc họp, tắt tiếng, và không hiểu gì cả vì không có chữ.
+
+Nhìn kỹ một đoạn demo như vậy sẽ thấy nó rất nghèo về chuyển động. Trong phần lớn thời lượng, hình không nhúc nhích: một ảnh chụp đứng yên trong khi có người nói một câu về nó. Hết câu thì sang ảnh khác.
+
+Nếu đúng là như vậy thì **không có gì để quay cả**. Có thể mô tả cả đoạn video bằng một danh sách rất ngắn: ảnh nào, nói câu gì trên ảnh đó. Từ danh sách ấy, máy đọc câu thành tiếng, ghép tiếng với ảnh, nối các đoạn lại — ra đúng cái video bạn định quay, mà không ai phải nói trước micro.
+
+Đổi lại được ba thứ mà bản quay tay không có. **Sửa rẻ**: đổi một câu rồi dựng lại, những khung còn lại y hệt lần trước. **Lặp lại được**: cùng một danh sách luôn cho ra cùng một video, không phụ thuộc hôm nay bạn có khàn tiếng hay không. **Xem được khi tắt tiếng**: câu nói được in luôn lên hình, nên người xem trong phòng họp vẫn theo được.
+
+Đó là toàn bộ lý do skill này tồn tại. Nó không làm video đẹp hơn. Nó biến việc làm video từ một buổi biểu diễn thành một thứ dựng lại được bất cứ lúc nào.
+
+## Use case & output
+
+Tình huống cụ thể: bạn vừa kiểm tra tay một màn hình đăng ký trên web. Trong lúc làm, bạn chụp lại chín ảnh — form trống, form đã điền, thông báo lỗi khi email sai định dạng, màn hình thành công, v.v. Bạn đặt tên file theo thứ tự đã chụp. Trong đầu bạn đã có sẵn câu cần nói cho từng ảnh, vì bạn vừa mới làm xong.
+
+Bạn viết ra **một file JSON nhỏ**: mỗi khung hình một mục, ghi lấy ảnh nào, nói câu gì, và nếu muốn thì thêm một dòng tiêu đề cùng một nhãn `pass` / `fail`. Cái file ghi mỗi khung nói gì và kèm ảnh nào ấy — từ đây gọi là **manifest**. Bạn gọi skill và chỉ vào file đó.
+
+Cái bạn cầm khi nó chạy xong là **một file `.mp4` duy nhất**, nằm đúng chỗ bạn đã ghi trong manifest, mở được bằng mọi trình phát và gửi qua chat được ngay. Bên trong:
+
+- Mỗi khung hình là ảnh chụp của bạn, **đứng yên đúng bằng thời gian đọc hết câu của nó** — câu dài thì khung ở lâu hơn, không phải căn tay.
+- Câu nói được **in luôn xuống mép dưới ảnh**, tự xuống dòng, chữ vàng viền đen để đọc được trên mọi nền. Tắt tiếng vẫn theo được.
+- Dòng tiêu đề, nếu bạn có ghi, nằm ở mép trên.
+- Khung nào bạn gắn `pass` thì có **viền xanh**, `fail` thì **viền đỏ**, và tiêu đề đổi sang màu đó. Không gắn gì thì không có viền.
+- Terminal in ra đường dẫn file, dung lượng, và bao nhiêu khung thành công trên tổng số.
+
+Và đây là những gì bạn **không** nhận được, nói trước cho khỏi thất vọng: không có chuyển cảnh, không có hiệu ứng, không có con trỏ chuột chạy, không nhạc nền, không cắt ghép. Mỗi khung là một ảnh tĩnh. Nếu thứ bạn cần trình bày chỉ giải thích được bằng chuyển động — một thao tác kéo thả, một hiệu ứng cuộn — thì đây không phải công cụ cho việc đó.
+
+---
+
+# PHẦN 2 — Skill này được xếp ra sao
+
+## Cấu trúc thư mục
+
+Một skill là một thư mục. Thư mục của `video-marker` trông như thế này:
+
+    video-marker/
+    ├─ SKILL.md
+    ├─ references/
+    │  ├─ manifest-format.md
+    │  ├─ ffmpeg-patterns.md
+    │  └─ dependencies.md
+    ├─ scripts/
+    │  └─ video-marker.sh
+    └─ templates/
+       └─ manifest.json
+
+Việc của từng phần, mỗi phần một câu:
+
+| Thành phần | Nó giữ việc gì |
+|---|---|
+| `SKILL.md` — phần đầu (frontmatter) | Tên skill và một dòng mô tả: skill này dùng khi nào |
+| `SKILL.md` — phần thân | Vai trò, bốn bước phải làm, chỗ phải dừng hỏi người dùng, và danh sách những gì skill không làm |
+| `references/manifest-format.md` | Đặc tả manifest: từng trường, bắt buộc hay không, giá trị mặc định, `pass`/`fail` đổi hình ra sao |
+| `references/ffmpeg-patterns.md` | Chi tiết mã hoá video và danh sách giọng đọc — tra khi muốn đổi cách dựng |
+| `references/dependencies.md` | Cần cài những gì, đường dẫn font, bảng lỗi → nguyên nhân → cách sửa |
+| `scripts/video-marker.sh` | Toàn bộ dây chuyền dựng video, chạy bằng một lệnh |
+| `templates/manifest.json` | Một manifest ba khung đã điền sẵn, để copy về sửa |
+
+### Vì sao lại chia như vậy
+
+Cách chia này không tuỳ hứng. Nó theo **giá phải trả để đọc**, và đây là điều đáng học nhất từ skill này.
+
+@fig:tiers
+    LUÔN NẰM SẴN         frontmatter (tên + mô tả)
+                         -> mọi phiên làm việc đều gánh
+
+    ĐỌC KHI KÍCH HOẠT    SKILL.md phần thân
+                         -> mỗi lần dùng skill đều gánh
+
+    ĐỌC KHI CẦN          references/manifest-format.md
+                         references/ffmpeg-patterns.md
+                         references/dependencies.md
+                         -> chỉ gánh khi quy trình chỉ tới
+
+    KHÔNG ĐỌC            scripts/video-marker.sh   (chạy)
+                         templates/manifest.json   (copy)
+                         -> gần như không gánh gì
+@endfig
+
+**Frontmatter** là phần duy nhất lúc nào cũng nằm trong tầm mắt của agent, kể cả những phiên làm việc chẳng liên quan gì đến video. Nó là **mặt kích hoạt**: chính nó quyết định skill có được chọn hay không. Vì vậy nó được viết như một lời mô tả tình huống — "sinh video demo từ các cặp (câu chữ, ảnh chụp)" — chứ không phải một bản tóm tắt tính năng. Ở cuối phần thân còn một chỗ giữ sẵn để nhận nguyên văn câu bạn gõ khi gọi skill, nên skill hoạt động được cả khi bạn chỉ vào file manifest lẫn khi bạn chỉ mô tả bằng lời.
+
+**Phần thân `SKILL.md`** được đọc mỗi lần skill chạy. Mọi dòng trong đó đều tính tiền trên từng lần chạy, nên nó chỉ chứa *quy trình và phán đoán*: làm theo thứ tự nào, chỗ nào phải dừng lại hỏi, cái gì nằm ngoài phạm vi. Không có chi tiết kỹ thuật nào ở đây.
+
+**`references/`** chỉ được đọc khi quy trình chỉ tới. Chiều sâu nằm đây chính vì nó *không phải trả tiền mỗi lần*. Ví dụ rõ nhất là chi tiết mã hoá video: nó dài, nó chính xác, và trong hai mươi lần chạy thì có lẽ một lần cần tới — lúc ai đó muốn đổi chất lượng hay đổi cách xếp chữ. Đặt nó vào `SKILL.md` là bắt mười chín lần chạy kia trả tiền cho một lần. Cơ chế này có tên: **progressive disclosure** — chỉ mở ra phần đang cần.
+
+**`scripts/`** là phần việc được giao hẳn cho mã nguồn. Đây là quyết định đáng giá nhất trong cả skill, nên nói kỹ: dây chuyền dựng video là một chuỗi lệnh cố định, **không có chỗ nào cần phán đoán**. Viết nó ra thành luật bằng lời thì mỗi lần chạy agent lại phải dựng lại chuỗi lệnh đó từ đầu, và những khác biệt nhỏ sẽ len vào — một lần quên mất tham số định dạng điểm ảnh, thế là video ra màu xanh lá và không ai hiểu tại sao. Viết thành script thì nó chạy giống hệt nhau mọi lần, thử riêng được từng khúc, và gọi nó tốn đúng một dòng thay vì một trang chữ. Luật rút ra: **việc nào chỉ có một đáp án đúng thì giao cho mã; việc nào cần cân nhắc thì giữ lại bằng lời.**
+
+**`templates/`** là *vật liệu để copy*, không phải lời giải thích. Chỗ này hay bị lẫn với `references/`, nên so trực tiếp: `references/manifest-format.md` **giải thích** manifest — từng trường tên gì, bắt buộc không, mặc định là gì, `pass` làm hình đổi ra sao. `templates/manifest.json` **là** một manifest, đã điền ba khung, chạy được ngay. Bạn *đọc* cái thứ nhất, và *copy* cái thứ hai. Tách ra thì agent đưa cho bạn một file khởi đầu mà không cần đọc hết bản đặc tả, và tra được bản đặc tả mà không phải lội qua ví dụ.
+
+Đa số skill chỉ có mỗi `SKILL.md`. Skill này có đủ cả bốn phần, và đó là lý do nó đáng dùng làm mẫu: bạn nhìn thấy trọn vẹn sự phân công thay vì phải tưởng tượng ra.
+
+---
+
+# PHẦN 3 — Nó chạy thế nào
+
+## Luồng chạy
+
+Có hai nửa rất khác nhau. Nửa đầu do agent làm, dựa trên lời viết trong `SKILL.md`, và ở đó có phán đoán. Nửa sau do script làm, và ở đó không có phán đoán nào cả.
+
+**Nửa của agent.**
+
+1. **Nhìn lại đã làm tới đâu.** Trước khi bắt đầu, agent xem lại cuộc hội thoại: manifest đã có rồi thì nhảy thẳng tới bước dựng; script đã chạy rồi thì chỉ báo cáo kết quả. Bước này có mặt để một lần chạy dở dang không bắt bạn làm lại từ đầu.
+2. **Chuẩn bị manifest.** Ba đường vào: bạn đưa sẵn đường dẫn file JSON, hoặc bạn mô tả bằng lời và agent viết file đó ra, hoặc bạn chỉ vào một thư mục ảnh kèm một file text và agent ghép lại thành manifest.
+3. **Dừng lại hỏi.** Agent phải đưa nội dung manifest cho bạn xem và chờ bạn xác nhận. Đây là một cái chốt cứng, không phải lời khuyên — sẽ nói thêm ở mục Guard.
+4. **Kiểm tra môi trường** rồi mới gọi script.
+
+**Nửa của script.** Một lệnh duy nhất, nhận đường dẫn manifest, rồi in ra bốn bước được đánh số.
+
+@fig:pipeline
+    [1/4] Kiểm tra công cụ
+          vào:  danh sách 4 lệnh cần có
+          ra:   OK, hoặc danh sách thiếu + lệnh cài
+
+    [2/4] Kiểm tra manifest
+          vào:  file manifest
+          ra:   OK + số khung, hoặc từ chối chạy và chỉ chỗ sai
+
+    [3/4] Dựng từng khung  (lặp cho mỗi khung)
+          a. câu chữ        -> file tiếng nói        (say)
+          b. ảnh + chữ      -> ảnh đã vẽ chữ/viền    (magick)
+          c. ảnh vẽ + tiếng -> một clip              (ffmpeg)
+
+    [4/4] Nối clip
+          vào:  các clip theo thứ tự
+          ra:   file .mp4 cuối cùng                  (ffmpeg)
+          rồi:  xoá thư mục tạm, in đường dẫn + dung lượng
+@endfig
+
+Bước 3 là chỗ duy nhất lặp lại. Với mỗi khung, ba động tác xảy ra đúng theo thứ tự đó, và mỗi động tác giao cho một công cụ bên ngoài. Điểm đáng chú ý: **độ dài của clip do chính đoạn tiếng nói quyết định** — ảnh được giữ nguyên cho tới khi câu đọc xong, nên không ai phải căn thời gian bằng tay.
+
+Cuối cùng agent nhận lại những dòng script in ra, báo cho bạn đường dẫn với dung lượng, và gợi ý lệnh để mở file lên xem.
+
+### Bốn công cụ bên ngoài mà skill nhờ tới
+
+Skill không tự làm bốn việc này. Nó gọi bốn chương trình đã có sẵn trên máy, và đây là toàn bộ những gì cần biết về chúng trong phạm vi trang này:
+
+| Công cụ | Đưa vào | Nhận lại |
+|---|---|---|
+| `say` (lệnh sẵn có của macOS) | một câu chữ và tên một giọng đọc | một file âm thanh đọc câu đó |
+| `magick` (ImageMagick) | một ảnh, dòng chữ, màu viền | ảnh đó đã có chữ và viền vẽ lên |
+| `ffmpeg` | một ảnh tĩnh và một file âm thanh | một clip dài đúng bằng đoạn âm thanh |
+| `jq` | file JSON và tên trường cần lấy | giá trị của trường đó |
+
+`ffmpeg` được gọi lần thứ hai ở bước cuối: đưa vào danh sách clip theo thứ tự, nhận lại một file duy nhất.
+
+Còn **ảnh chụp màn hình thì đến từ đâu?** Từ chỗ khác — skill này nói thẳng là nó không chụp. Ảnh có thể do bạn bấm phím chụp màn hình, hoặc do một công cụ điều khiển trình duyệt như `agent-browser` chụp lại trong lúc nó tự thao tác trên trang web: đưa vào một địa chỉ và các thao tác cần làm, nhận lại các file `.png`. Với `video-marker`, ảnh đến bằng đường nào cũng như nhau — nó chỉ cần đường dẫn tới file.
+
+## Dữ liệu & trạng thái
+
+**Thứ bạn viết ra** là manifest. Đây là toàn bộ các trường của nó:
+
+| Trường | Bắt buộc | Mặc định | Nghĩa là gì |
 |---|---|---|---|
-| `output` | không | `output.mp4` | đường dẫn file video đích |
-| `voice` | không | `Samantha` | tên giọng truyền thẳng cho `say -v` |
-| `slides` | có | — | mảng các cảnh |
-| `slides[].text` | **có** | — | lời đọc, đồng thời là phụ đề |
-| `slides[].image` | **có** | — | ảnh nền của cảnh |
-| `slides[].title` | không | — | chữ ở đỉnh khung hình |
-| `slides[].status` | không | — | `pass` hoặc `fail` |
+| `output` | Không | `output.mp4` | Ghi video ra đâu |
+| `voice` | Không | `Samantha` | Giọng đọc nào |
+| `slides` | **Có** | — | Danh sách khung hình, theo đúng thứ tự sẽ phát |
+| `slides[].text` | **Có** | — | Câu sẽ được đọc lên — *và* in xuống mép dưới làm phụ đề |
+| `slides[].image` | **Có** | — | Đường dẫn tới ảnh của khung này |
+| `slides[].title` | Không | — | Dòng tiêu đề vẽ ở mép trên |
+| `slides[].status` | Không | — | `pass` hoặc `fail` — thêm viền màu và đổi màu tiêu đề |
 
-Một manifest tối thiểu hợp lệ chỉ cần thế này:
+Để ý trường `text`: nó làm hai việc cùng lúc. Một trường, nên lời đọc và phụ đề **không thể lệch nhau**. Đây là một lựa chọn thiết kế, không phải sự tiện tay — sẽ nói lại ở mục Đặc trưng.
+
+**Thứ sinh ra giữa chừng** nằm hết trong một thư mục tạm, được tạo mới cho mỗi lần chạy trong khu vực file tạm của hệ thống. Bên trong nó, mỗi khung để lại hai file mang số thứ tự của khung: một file âm thanh và một clip. Ảnh đã vẽ chữ được ghi cạnh clip và **xoá ngay khi clip có rồi** — nó chỉ sống vài giây. Bước nối clip cũng cần một file danh sách nhỏ, và cũng tự xoá sau khi dùng xong.
+
+**Ai dọn:** chính script, ở cuối đường chạy bình thường và ở cả hai nhánh lỗi mà nó tự bắt. Xong một lần chạy, thứ duy nhất còn lại là file `.mp4` bạn đã yêu cầu.
+
+**Giữa hai lần chạy thì không có gì được nhớ.** Không cache, không file trạng thái, không biến môi trường nào. Chạy lại cùng một manifest sẽ cho ra cùng một video. Đây chính là thứ làm cho "sửa một câu rồi dựng lại" trở nên rẻ.
+
+## Đầu–cuối
+
+Theo trọn một lần chạy. Ba khung hình, kiểm tra màn hình đăng ký.
+
+Bạn đã có ba ảnh trong thư mục `shots/`. Bạn viết file `demo.json`:
 
     {
+      "output": "demo/signup.mp4",
+      "voice": "Samantha",
       "slides": [
-        { "text": "Người dùng mở trang đăng nhập", "image": "shots/01.png" }
+        {
+          "title": "1. Empty form",
+          "text": "The sign up page loads with every field empty.",
+          "image": "shots/01_empty.png",
+          "status": "pass"
+        },
+        {
+          "title": "2. Invalid email",
+          "text": "Typing an address without an at sign shows an inline error under the field.",
+          "image": "shots/02_invalid.png",
+          "status": "pass"
+        },
+        {
+          "title": "3. Duplicate email — BUG",
+          "text": "Submitting an address that already exists returns a server error instead of a friendly message.",
+          "image": "shots/03_duplicate.png",
+          "status": "fail"
+        }
       ]
     }
 
-## `status`: một chữ đổi màu cả khung hình
+*(Lời đọc viết bằng tiếng Anh vì giọng đọc là giọng hệ thống — xem mục Đặc trưng.)*
 
-Trường `status` là thứ khiến skill này hợp với video báo cáo kết quả kiểm thử hơn là video giới thiệu sản phẩm. Ba nhánh, đọc thẳng từ `annotate_image`:
+Bạn gọi skill và chỉ vào file đó. Agent đọc manifest, đọc lại ba câu cho bạn duyệt, bạn gật, rồi nó chạy script. Terminal in ra:
 
-| `status` | Viền | Màu chữ title |
-|---|---|---|
-| `pass` | 6px xanh `#22c55e` | `#22c55e` |
-| `fail` | 6px đỏ `#ef4444` | `#ef4444` |
-| bỏ trống | không viền | trắng |
+    === Video Marker Pipeline ===
 
-Phụ đề thì luôn màu vàng, cỡ 28pt, viền chữ đen — không đổi theo `status`.
+    [1/4] Checking dependencies...
+    OK: All dependencies available (ffmpeg, say, jq, magick)
+    [2/4] Validating manifest...
+    OK: Manifest valid — 3 slide(s)
+    [3/4] Generating clips...
+      Slide 1/3: [pass] The sign up page loads with every field ...
+      Slide 2/3: [pass] Typing an address without an at sign show...
+      Slide 3/3: [fail] Submitting an address that already exists...
+    [4/4] Concatenating 3 clip(s)...
+    OK: Final video — demo/signup.mp4
 
-Có một hệ quả kỹ thuật nằm sau lựa chọn "viền" này. Viền được thêm bằng `magick -border 6`, tức là **phóng to canvas thêm 12px mỗi chiều**, chứ không vẽ đè lên ảnh. Trộn cảnh có viền và cảnh không viền trong cùng một manifest sẽ cho ra các clip khác độ phân giải, trong khi bước ghép cuối chạy `-c copy`. File `manifest-format.md` cảnh báo đúng chỗ này: "All images should ideally be the same resolution for smooth concatenation."
+    === Done ===
+    Output: demo/signup.mp4
+    Size:   2 MB
+    Slides: 3/3 successful
 
-## Hai cách gọi script
+    Play with: open demo/signup.mp4
 
-Không có hệ thống subcommand. Hàm `main` chỉ phân biệt đúng hai dạng:
+Mở `demo/signup.mp4` ra thì thấy: khung một là ảnh form trống, **viền xanh**, tiêu đề xanh ở trên, câu tiếng Anh in vàng ở dưới, và một giọng nữ đọc đúng câu đó — khung đứng yên cho tới khi đọc xong. Khung hai tương tự. Khung ba **viền đỏ**, tiêu đề đỏ, và vì câu dài hơn nên nó ở lâu hơn, phụ đề tự xuống dòng thành hai dòng.
 
-    # dạng 1 — chạy cả pipeline
-    bash .claude/skills/video-marker/scripts/video-marker.sh manifest.json
-
-    # dạng 2 — gọi thẳng một hàm để thử
-    bash .claude/skills/video-marker/scripts/video-marker.sh --fn check_dependencies
-
-Dạng thứ hai đáng giá hơn vẻ ngoài của nó. `--fn` dùng `declare -f "$fn_name"` để kiểm tra hàm có tồn tại rồi gọi thẳng, nên mọi hàm trong file đều gọi được độc lập từ dòng lệnh. Comment ngay trên khối hàm nói rõ ý đồ: "Each function is self-contained and independently testable via --fn flag". Đây là cách rẻ nhất để có tính kiểm thử trong một script bash không có framework test nào.
-
-## Cửa kiểm tra đặt trước lúc đốt CPU
-
-`validate_manifest` chạy trước bất kỳ lời gọi `say` hay `ffmpeg` nào. Nó kiểm sáu điều:
-
-@fig:gate
-    1. file manifest tồn tại
-    2. jq empty parse được (JSON hợp lệ)
-    3. .slides | length khác 0
-    4. mỗi slide có text khác null và khác rỗng
-    5. mỗi slide có image khác null và khác rỗng
-    6. mỗi đường dẫn image trỏ tới file có thật
-
-    -> không dừng ở lỗi đầu tiên: đếm hết rồi mới báo "FAIL: N error(s)"
-@endfig
-
-Chi tiết đáng học ở đây là nó **không dừng ở lỗi đầu tiên**. Vòng lặp tăng biến `errors` rồi đi tiếp, in ra từng dòng `ERROR: Slide N ...`, cuối cùng mới trả về mã lỗi. Với một manifest hai mươi cảnh và ba đường dẫn ảnh gõ sai, bạn sửa một lần thay vì chạy lại ba lần.
+Sang tuần thông báo lỗi được sửa. Bạn đổi đúng một câu trong `demo.json`, đổi `fail` thành `pass`, chạy lại. Hai khung đầu ra giống hệt lần trước. Bạn không phải mở micro lần nào.
 
 ---
 
-# PHẦN 3 — Bên trong 410 dòng
+# PHẦN 4 — Cái gì giữ cho nó không sai, và nó khác thường ở đâu
 
-Script có 9 hàm: 7 hàm nguyên tử, 1 hàm workflow (`generate_video`) và `main`. Bốn bước của pipeline được đánh số ngay trong output để bạn biết nó đang ở đâu.
+## Hook
 
-## Bốn bước, và một vòng lặp nằm trong bước ba
+Skill này **không gắn vào hook nào**. Không có sự kiện nào của Claude Code tự động kích hoạt nó; nó chỉ chạy khi có người gọi tên nó, hoặc khi một skill khác trong cùng dự án đi tới bước "giờ cần một video demo" và chuyển việc sang.
 
-    [1/4] check_dependencies     — ffmpeg, say, jq, magick
-    [2/4] validate_manifest      — sáu kiểm tra ở trên
-    [3/4] mỗi slide -> một clip  — vòng lặp bên dưới
-    [4/4] concat_clips           — ghép, báo dung lượng, gợi ý `open`
+Thứ duy nhất nó để lại trong phần cài đặt của dự án là danh sách lệnh được cho phép chạy sẵn — để lần chạy không bị ngắt giữa chừng bởi một câu hỏi xin phép. Đó là quyền, không phải hook.
 
-Bước 3 làm việc trong một thư mục tạm tạo bằng `mktemp -d`, và thư mục đó bị `rm -rf` ở cả nhánh thành công lẫn nhánh lỗi:
+## Guard
 
-@fig:slideloop
-    với slide thứ i:
-      1. jq đọc 4 trường: text, image, title, status
-      2. say -v <voice> "<text>" -o audio_i.aiff
-      3. magick: viền -> title đỉnh -> phụ đề đáy  (ra file _annotated.png)
-      4. ffmpeg: ảnh đã chú thích + audio -> clip_i.mp4
-      5. xoá _annotated.png
-    -> slide kế tiếp
+Một dây chuyền dựng video có đặc điểm khó chịu: nó **tốn thời gian trước khi lộ ra là sai**. Bạn phát hiện tên file gõ nhầm ở khung thứ bảy sau khi đã ngồi chờ sáu khung. Gần như mọi chốt chặn trong skill này tồn tại để kéo cái sai lên sớm nhất có thể.
+
+@fig:guards
+    CHỐT                         THIẾU NÓ THÌ SAO
+    ------------------------------------------------------------
+    Dừng ngay ở lệnh lỗi         video thiếu khung mà vẫn báo xong
+    Kiểm tra đủ 4 công cụ        chết giữa chừng bằng lỗi khó đọc
+    Soát manifest trước khi dựng chạy nửa đường mới biết manifest sai
+    Ảnh phải có thật trên đĩa    chờ hết sáu khung mới biết sai tên
+    Chốt hỏi người trước khi dựng dựng xong mới biết lời sai
+    Ép kích thước chẵn           ảnh hợp lệ nhưng không mã hoá nổi
+    Clip phải có và khác rỗng    file 0 byte đi tiếp vào bước nối
+    Vẽ chữ hỏng thì bỏ chữ       mất cả khung chỉ vì mất cái tiêu đề
+    Không clip nào thì dừng      ra một file rỗng, tưởng là thành công
 @endfig
 
-## Tham số ffmpeg thật sự được dùng
+Nói rõ từng cái:
 
-Chỉ có đúng hai lời gọi `ffmpeg` trong cả script. Lời gọi thứ nhất, dựng một clip:
+**Dừng ngay ở lệnh lỗi.** Dòng đầu của script bật chế độ dừng lập tức khi có lệnh nào thất bại, và coi việc dùng một biến chưa gán là lỗi chứ không phải chuỗi rỗng. Không có nó, một bước đọc chữ thất bại sẽ để lại file âm thanh trống, bước sau vẫn chạy tiếp, và bạn nhận một video thiếu khung kèm dòng chữ báo thành công. Biến chưa gán mà bị coi là chuỗi rỗng còn tệ hơn: nó lặng lẽ biến thành một đường dẫn sai.
 
-    ffmpeg -y -loop 1 -i "$use_image" -i "$audio" \
-      -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
-      -c:v libx264 -tune stillimage \
-      -c:a aac -b:a 192k \
-      -pix_fmt yuv420p -shortest \
-      -loglevel warning \
-      "$clip_out"
+**Kiểm tra đủ bốn công cụ, ngay từ đầu.** Script kiểm cả bốn cùng lúc rồi in ra tên *tất cả* những cái thiếu kèm luôn lệnh cài. Không có chốt này, thiếu công cụ chỉ lộ ra khi chạy tới chỗ cần nó — ở giữa dây chuyền, dưới dạng một thông báo lỗi mà người không rành sẽ không hiểu.
 
-Hai cờ ít gặp đáng giải thích. `-tune stillimage` báo cho libx264 biết nội dung gần như không đổi giữa các khung, nên bitrate dồn hết vào một khung hình sắc nét thay vì chia đều cho chuyển động không tồn tại. Còn `scale=trunc(iw/2)*2:trunc(ih/2)*2` là để làm tròn xuống số chẵn cho cả hai chiều: libx264 với `yuv420p` không nhận cạnh lẻ, mà ảnh chụp màn hình thì thường xuyên lẻ — nhất là sau khi `magick` cộng thêm 6px viền mỗi bên.
+**Soát manifest trước khi động tới khung nào.** Nó kiểm năm thứ: JSON có hợp lệ không, có ít nhất một khung không, mỗi khung có câu chữ không, có ảnh không, và **file ảnh có thật trên đĩa không**. Sai bất cứ điều nào thì script từ chối chạy và nói ra chỗ sai, thay vì bắt đầu dựng rồi chết ở giữa. Chỗ đáng giá nhất là dòng kiểm file ảnh: sai tên file là lỗi phổ biến nhất khi viết manifest bằng tay, và nếu không kiểm trước thì nó chỉ lộ ra khi dây chuyền chạy tới đúng khung đó.
 
-Lời gọi thứ hai, ghép:
+**Chốt hỏi người trước khi dựng.** Trong quy trình có một chỗ ghi rõ là phải đưa manifest cho người dùng xem và chờ xác nhận. Chốt này không nằm trong script mà nằm trong lời — vì đây là chỗ duy nhất cần một con người đọc và gật. Thiếu nó thì thời gian dựng bị tiêu cho một kịch bản mà chỉ tới lúc xem lại bạn mới nhận ra là không phải cái mình muốn.
 
-    ffmpeg -y -f concat -safe 0 -i "$list_file" -c copy -loglevel warning "$output"
+**Ép kích thước chẵn.** Ảnh chụp màn hình có chiều rộng hoặc cao lẻ là chuyện thường, và định dạng video được dùng ở đây không nhận kích thước lẻ. Script tự làm tròn xuống số chẵn trước khi mã hoá. Không có nó thì một ảnh hoàn toàn bình thường làm cả lần chạy đổ, bằng một lỗi chẳng liên quan gì tới ảnh.
 
-`-c copy` nghĩa là không encode lại: các clip được nối ở mức stream. Nhanh và không mất chất lượng — đổi lại, mọi clip phải cùng codec và cùng độ phân giải, đúng như phần `status` ở trên đã nói.
+**Clip phải tồn tại và khác rỗng.** Công cụ mã hoá có thể thoát ra êm đẹp mà chẳng ghi được gì. Script kiểm cả hai điều kiện sau mỗi khung, nên một file rỗng bị chặn ngay chỗ nó sinh ra thay vì đi tiếp vào bước nối.
 
-## Chữ được nung vào ảnh, không phải vào video
+**Vẽ chữ hỏng thì bỏ chữ, đừng bỏ khung.** Nếu bước vẽ tiêu đề và phụ đề thất bại — thường là vì font — script vẫn dựng clip từ ảnh gốc. Đây là một lựa chọn có chủ ý: **mất một dòng chữ nhẹ hơn mất cả một khung hình**.
 
-Đây là chỗ mã nguồn khác với chính tài liệu của nó, và dấu vết còn lại kể được cả một lần đổi hướng thiết kế.
+**Không clip nào thì dừng hẳn.** Nếu tất cả các khung đều hỏng, script dọn thư mục tạm rồi báo lỗi, thay vì đưa danh sách rỗng sang bước nối và sinh ra một file mà mở lên không có gì.
 
-`SKILL.md` mô tả title là "top bar, white text on semi-transparent dark background", và `manifest-format.md` cũng nói "white text, dark background". Trong `annotate_image` không hề có thanh nền nào. Nó vẽ chữ trực tiếp lên ảnh bằng ba lệnh `magick` nối nhau, và độ đọc được đến từ viền chữ đen (`-stroke black`) chứ không đến từ nền:
+## Đặc trưng
 
-    magick "$output" -font "$font" -pointsize 42 -strokewidth 3 \
-      -stroke black -fill "$title_color" \
-      -gravity North -annotate +0+8 "$title" "$output"
+Những quyết định đáng mang đi chỗ khác — và cái giá của từng cái.
 
-Chỉ có `references/dependencies.md` ghi đúng: "No background bars — text drawn directly over screenshot."
+**Lắp thay vì quay.** Đây là quyết định gốc, mọi thứ còn lại là hệ quả. *Đánh đổi:* không có gì chuyển động được — không con trỏ, không cuộn trang, không chuyển cảnh. *Được lại:* dựng lại không tốn gì, và hai lần dựng cho ra hai file giống nhau.
 
-Vì sao hai file kia lệch? Vì thiết kế ban đầu dùng bộ lọc `drawtext` của `ffmpeg`, và cách làm đó có thanh nền thật (`box=1:boxcolor=black@0.6`). Ba mẩu hoá thạch còn sót lại đủ để dựng lại câu chuyện:
+**Một trường gánh cả lời đọc lẫn phụ đề.** *Đánh đổi:* bạn không thể viết phụ đề khác với lời nói — chẳng hạn không rút gọn phụ đề cho dễ đọc được. *Được lại:* hai thứ đó vĩnh viễn không lệch nhau, mà lệch phụ đề là lỗi rất hay gặp và rất khó thấy.
 
-@fig:fossils
-    10  tên hàm được liệt kê trong usage text của script
-     7  trong số đó thật sự tồn tại
-     3  không tồn tại ở đâu cả: word_wrap_text, escape_drawtext, build_vf_filter
-     1  hàm có thật nhưng không được liệt kê: annotate_image
-    11  hằng số cấu hình khai báo ở đầu file
-     2  không được tham chiếu ở bất cứ đâu khác: OVERLAY_FONT_SIZE, OVERLAY_BAR_ALPHA
-@endfig
+**Chữ được vẽ vào ảnh trước, rồi mới mã hoá.** Cách hiển nhiên hơn là để bộ mã hoá video tự vẽ chữ lên khung hình. Skill này không làm vậy: nó dùng một công cụ xử lý ảnh vẽ chữ lên trước. *Đánh đổi:* thêm một chương trình phải cài. *Được lại:* tự xuống dòng và viền chữ làm dễ hơn hẳn, và bộ mã hoá video không cần bản cài có sẵn thư viện font — một nguồn lỗi kinh điển bị loại bỏ hoàn toàn.
 
-Hai hằng số chết chính là chữ ký. `OVERLAY_BAR_ALPHA=0.6` khớp chính xác với `boxcolor=black@0.6` trong `references/ffmpeg-patterns.md` — file đó tới giờ vẫn chép nguyên công thức `drawtext` cũ. Và bảng troubleshooting trong `dependencies.md` có một dòng chốt lại toàn bộ suy luận:
+**Nối clip bằng cách chép, không mã hoá lại.** *Đánh đổi:* mọi clip phải cùng định dạng và cùng kích thước, nghĩa là ảnh của bạn nên chụp cùng một cỡ. *Được lại:* bước cuối gần như tức thì và không mất chất lượng.
 
-| Lỗi | Nguyên nhân | Cách xử lý |
-|---|---|---|
-| `No such filter: drawtext` | ffmpeg thiếu libfreetype | Not needed — we use ImageMagick instead |
+**Từng mảnh chạy riêng được.** Script cho phép gọi thẳng một hàm bên trong nó thay vì chạy cả dây chuyền. *Đánh đổi:* cách gọi hơi lạ so với một script thông thường. *Được lại:* bạn thử được riêng bước vẽ chữ trên đúng một ảnh, xem kết quả, chỉnh, mà không phải dựng cả video.
 
-Đổi hướng ấy không phải chuyện thẩm mỹ. Với `drawtext`, chữ được vẽ trong lúc encode nên mọi ký tự phải được escape để sống sót qua chuỗi filter của ffmpeg — dấu nháy, dấu hai chấm, dấu phẩy đều là ký tự điều khiển, và đó chính là lý do một hàm tên `escape_drawtext` từng được đặt tên. Đẩy việc vẽ chữ sang ImageMagick ở bước trước khiến bài toán escape biến mất: `magick` nhận chữ như một tham số argv bình thường.
+**Giới hạn được nói thẳng, ngay trong skill.** Và đây là chỗ cần đọc kỹ trước khi bạn định dùng:
 
-Cái giá phải trả là một dependency nữa. Đếm số công cụ trong `check_dependencies` xác nhận điều đó: danh sách hiện tại là `ffmpeg say jq magick`.
+- **Chỉ chạy trên macOS.** Giọng đọc lấy từ một lệnh sẵn có của hệ điều hành này, không có trên Linux hay Windows. Không có lớp thay thế, không gọi dịch vụ đọc trên mạng. Trên máy khác, skill không chạy được — không phải chạy kém, mà là không chạy.
+- **Không có tiếng Việt.** Giọng đọc mặc định là giọng tiếng Anh của hệ thống, và cả bộ tài liệu đi kèm chỉ liệt kê các giọng tiếng Anh. Lời thuyết minh phải viết bằng tiếng Anh. Bạn vẫn dùng được nếu chấp nhận thuyết minh tiếng Anh; còn nếu bắt buộc phải có tiếng Việt thì đây không phải công cụ của bạn.
+- **Nó không chụp ảnh hộ bạn.** Ảnh là đầu vào, phải có trước.
+- **Không hậu kỳ.** Ngoài tiêu đề, phụ đề và viền màu thì không còn gì khác.
 
-Việc xuống dòng phụ đề cũng được viết tay ngay trong `annotate_image` — một vòng `for word in $subtitle` cộng dồn từng từ cho tới khi chạm ngưỡng `SUBTITLE_MAX_CHARS=60`. Không dùng `fold`, không dùng `-caption` của ImageMagick. Đó là lý do cái tên `word_wrap_text` từng có mặt trong usage text.
-
-## Khi một slide hỏng: hai cách bash đối xử với cùng một dòng lệnh
-
-Script mở đầu bằng `set -euo pipefail`, và cả `validate_manifest` lẫn vòng lặp slide đều dùng đúng một thành ngữ để đếm lỗi: `((errors++))` và `((failed++))`. Hai chỗ lại cho hai kết quả khác hẳn nhau — không phải vì dòng lệnh khác, mà vì **cách hàm chứa nó được gọi**.
-
-@fig:seterr
-    validate_manifest "$manifest" || return 1     <- gọi trong ngữ cảnh điều kiện
-        set -e bị vô hiệu bên trong
-        ((errors++)) trả mã 1 khi errors=0 -> bị bỏ qua
-        vòng lặp chạy hết, liệt kê đủ mọi lỗi
-
-    generate_video "$1"                           <- gọi trực tiếp
-        set -e vẫn còn hiệu lực
-        ((failed++)) trả mã 1 khi failed=0 -> shell thoát ngay
-        slide hỏng đầu tiên kết thúc cả lần chạy
-@endfig
-
-Cơ chế nằm ở chỗ `((failed++))` là hậu tố: nó trả về *giá trị cũ*. Khi `failed` đang bằng 0, lệnh số học trả về 0, và một lệnh số học trả về 0 được bash coi là **thất bại** — mã thoát 1. Dưới `set -e`, thế là đủ để dừng script. Còn khi cả lời gọi hàm nằm bên trái một `||`, bash tắt `set -e` cho toàn bộ thân hàm, nên chính dòng đó lại vô hại.
-
-Tôi đã dựng lại đúng khuôn hình này bằng một đoạn bash tối giản để kiểm chứng (18/09/2026): bản gọi trực tiếp thoát ở vòng lặp đầu tiên với mã 1; bản gọi qua `||` chạy hết ba vòng và in ra `failed=3`.
-
-Điều này làm nhánh báo cáo cuối script trở nên không tới được: khối in `Failed: N slide(s)` chỉ chạy khi `failed` lớn hơn 0, mà mọi đường làm `failed` tăng đều kết thúc lần chạy trước đó. Nói cách khác, ý định "bỏ qua slide hỏng rồi đi tiếp" có trong mã nguồn, nhưng thành ngữ đếm lỗi đứng chắn trước nó.
-
-Đây là một bài học bash đáng nhớ hơn là một chi tiết vụn: `((i++))` an toàn ở mọi nơi, trừ dưới `set -e`, trừ khi biến đang bằng 0. Viết `((i++)) || true` hoặc `i=$((i+1))` thì cả hai vị trí hành xử như nhau.
+Danh sách này dài đúng năm dòng trong skill, và nó dập tắt trước mọi cuộc tranh luận về việc "sao không thêm hiệu ứng". Đó là lý do nên viết nó ra.
 
 ---
 
-# PHẦN 4 — Những gì bị cắt có chủ ý
+# PHẦN 5 — Đến lượt bạn
 
-Mục `Constraints` của SKILL.md liệt kê đúng năm dòng, và không dòng nào trong đó là lời xin lỗi. Đọc chúng cạnh mã nguồn sẽ thấy rõ đường biên mà tác giả cố tình vẽ ra.
+## Tự dựng skill của bạn
 
-## Bốn binary, và cái ràng buộc thật sự nằm ở một trong số đó
+Bạn vừa xem một skill được thiết kế. Những quyết định mà tác giả của nó phải chọn cũng chính là những quyết định đang chờ bạn.
 
-@fig:deps
-    check_dependencies chạy `command -v` cho bốn lệnh:
+**Quyết định 1 — Viết dòng mô tả như một tình huống, không phải một bản tóm tắt.** Dòng mô tả trong frontmatter là phần duy nhất lúc nào cũng nằm trong tầm mắt, và nó là thứ quyết định skill có được gọi hay không. Mô tả của skill này nói rõ *đầu vào có hình dạng gì* và *ra cái gì*. Cách viết đó làm nó bật lên đúng lúc có ai đó cầm một đống ảnh chụp, và im lặng khi người ta đang nói chuyện dựng phim. Một dòng kiểu "công cụ xử lý video" thì vừa bật sai lúc vừa không bật đúng lúc.
 
-      ffmpeg   encode + ghép                 brew install ffmpeg
-      say      TTS                           có sẵn trên macOS
-      jq       đọc manifest JSON             brew install jq
-      magick   vẽ title/phụ đề/viền          brew install imagemagick
+**Quyết định 2 — Mỗi mẩu kiến thức đặt vào đâu.** Bạn sẽ gặp câu hỏi này liên tục, và nó luôn là câu hỏi về *giá phải trả để đọc*:
 
-    + một font: /System/Library/Fonts/Helvetica.ttc (macOS 12+)
+@fig:where
+    Một mẩu kiến thức mới — đặt vào đâu?
+
+    frontmatter        <- chỉ khi nó giúp quyết định CÓ DÙNG skill này không
+    SKILL.md phần thân <- chỉ khi lần chạy NÀO cũng cần tới
+    references/        <- khi thỉnh thoảng mới cần, nhưng cần thì cần chính xác
+    scripts/ templates/<- khi nó là việc để chạy hoặc vật liệu để copy
+
+    Không rơi vào ô nào -> nó là kiến thức của dự án, không phải của skill
 @endfig
 
-Ba trong bốn công cụ có trên mọi hệ điều hành. Chỉ `say` là không — nó là TTS dựng sẵn của macOS, và SKILL.md ghi thẳng ràng buộc đó ở dòng đầu mục `Constraints`: "macOS only (depends on `say` command for TTS)". Cùng với đó là một ràng buộc thứ hai đi kèm: "No cloud TTS APIs — uses local `say` only".
+**Quyết định 3 — Khi nào viết script thay vì viết thêm luật.** Phép thử một câu: *hai lần chạy cẩn thận có thể làm việc này theo hai cách khác nhau không?* Nếu **không** — chỉ có một đáp án đúng — thì đó là việc của mã nguồn. Nếu **có** — cần cân nhắc, cần nhìn ngữ cảnh — thì giữ lại bằng lời. Dây chuyền dựng video rơi hẳn vào vế đầu. Việc quyết định câu nào đi với ảnh nào rơi hẳn vào vế sau, và đúng là nó được để lại bằng lời.
 
-Đây chính là chỗ chữ "không hao" trong tiêu đề được trả bằng tiền thật. Grep toàn bộ script tìm `curl`, `wget`, `http`, `api_key`, `token`: không một kết quả nào. Không có khoá API để xin, không có hạn mức để theo dõi, không có đoạn ghi âm nào rời khỏi máy. Đổi lại, script chỉ chạy được trên macOS — và chất giọng là chất giọng mà macOS có sẵn.
+**Quyết định 4 — Đặt chốt hỏi ở chỗ quay lại thì đắt.** Không phải bước nào cũng cần hỏi. Hỏi ở đúng chỗ mà làm sai sẽ tốn của người dùng nhiều thời gian nhất — ở đây là ngay trước khi dựng.
 
-Một điều kiện nữa không được ghi ở đâu nhưng có thật trong mã nguồn: `annotate_image` dùng `${status,,}` để hạ chữ thường, cú pháp này cần **bash 4 trở lên**. Bản `/bin/bash` mà macOS đóng gói là 3.2, và trên đó biểu thức này báo `bad substitution` (kiểm chứng trực tiếp ngày 18/09/2026). Câu lệnh mà SKILL.md hướng dẫn là `bash <script>`, tức là lấy `bash` đầu tiên trên `PATH` — máy nào đã cài bash qua Homebrew thì chạy bình thường, máy chỉ có bash hệ thống thì không.
+**Quyết định 5 — Viết ra những gì skill không làm.** Danh sách giới hạn tốn năm dòng và tiết kiệm cho bạn mọi lần phải giải thích lại. Nó cũng giúp agent biết lúc nào nên từ chối thay vì cố làm bừa.
 
-## Tiếng Việt: chưa bị chặn, nhưng cũng chưa được chứng minh
+**Quyết định 6 — Cho người ta một file để copy, đừng chỉ cho bản đặc tả.** Một ví dụ chạy được đưa người mới tới kết quả đầu tiên nhanh hơn bất kỳ bảng mô tả trường nào.
 
-Không chỗ nào trong skill nhắc tới tiếng Việt, theo cả hai nghĩa: nó không hứa hỗ trợ, và cũng không tuyên bố loại trừ. Đây là những gì mã nguồn thật sự cho phép kết luận.
+**Quyết định 7 — Làm cho từng mảnh chạy riêng được.** Thứ thử riêng được sẽ được sửa; thứ chỉ chạy được trọn gói sẽ bị đoán mò.
 
-Trường `voice` được truyền thẳng, không kiểm tra, vào `say -v "$voice"`. Trên máy tôi kiểm tra ngày 18/09/2026, `say -v '?'` liệt kê 184 giọng, trong đó có `Linh vi_VN`. Về mặt cơ chế, đặt `"voice": "Linh"` trong manifest là hợp lệ và `say` sẽ đọc tiếng Việt.
+### Bắt đầu thế nào
 
-Ba điểm còn lại thì tôi không kiểm chứng được nếu không render thật:
+Tạo một thư mục mang tên skill, đặt trong `.claude/skills/` của dự án. Trong đó viết đúng một file `SKILL.md`: phần đầu ghi tên và một dòng mô tả tình huống, phần thân ghi quy trình bạn thực sự làm, theo thứ tự, bằng lời thường. Chỉ thế thôi — chưa cần thư mục nào khác.
 
-- Phụ đề xuống dòng theo ngưỡng 60 ký tự — con số được chọn cho tiếng Anh. Tiếng Việt nhiều từ ngắn hơn nhưng có dấu, nên số dòng thực tế sẽ khác.
-- Chữ có dấu phải qua được `magick -annotate` với font `Helvetica.ttc`. Tôi không dựng khung hình nào để xem dấu có rơi hay không.
-- Giọng `Linh` phải được cài sẵn trên máy chạy; danh sách giọng của macOS khác nhau tuỳ máy.
+Rồi dùng nó vài lần thật. Hai chuyện sẽ xảy ra, và mỗi chuyện chỉ cho bạn một thư mục cần tạo:
 
-Nói ngắn gọn: skill này được viết cho tiếng Anh, còn tiếng Việt thì không bị chặn ở tầng mã nguồn mà chỉ là chưa ai chứng minh nó chạy được.
+- Bạn thấy mình lặp lại đúng một chuỗi lệnh, không sai một chữ → chuyển nó vào `scripts/`.
+- Bạn thấy mình đang mang theo một mớ chi tiết mà mười lần chạy chỉ dùng một → chuyển nó vào `references/` và để lại trong `SKILL.md` một dòng chỉ đường.
 
-## Không hiệu ứng, không hậu kỳ, không tự chụp ảnh
+Và khi có ai đó hỏi "cho tôi xin cái ví dụ" lần thứ hai → đó là lúc `templates/` ra đời.
 
-Ba ràng buộc còn lại trong danh sách năm dòng đều là những thứ bị cắt để giữ pipeline ở dạng một chiều:
+Bốn phần của skill không phải thứ để thiết kế trước. Chúng là thứ **mọc ra** từ chỗ đau, và lý do `video-marker` đáng đọc là vì nó mọc đủ cả bốn.
 
-| Ràng buộc trong SKILL.md | Điều nó loại trừ |
+---
+
+# PHẦN 6 — Tra cứu
+
+## Glossary
+
+| Từ | Nghĩa |
 |---|---|
-| No animated effects, transitions, or post-production | không fade, không zoom, không chuyển cảnh; mỗi cảnh là một ảnh đứng yên |
-| No cloud TTS APIs — uses local `say` only | không giọng neural, không chọn nhà cung cấp, không chi phí theo ký tự |
-| Does NOT capture screenshots — expects them as input | nguồn ảnh là việc của công cụ khác |
-
-Hãy để ý cái được đổi lấy: vì không có hiệu ứng và không có chuyển cảnh, mọi clip đều cùng codec, cùng khung hình đứng yên, nên bước ghép cuối chạy được `-c copy` — nối stream, không encode lại. Thêm một hiệu ứng chuyển cảnh thôi là buộc phải encode lại toàn bộ, và thời gian dựng sẽ tỉ lệ với độ dài video thay vì gần như bằng không.
-
-Đó là hình dạng chung của mọi lựa chọn trong skill này: cắt bỏ phần mềm dẻo để phần còn lại rẻ và đoán trước được.
-
-## Vậy quy trình dùng nó trông thế nào
-
-SKILL.md mô tả bốn pha, và pha đầu tiên có một cửa chặn: sau khi dựng manifest, agent phải xác nhận nội dung với người dùng trước khi generate. Nguyên văn trong file là "**GATE**: Confirm manifest contents with user before generating".
-
-Cửa chặn đó đặt đúng chỗ. Manifest là toàn bộ kịch bản; đọc lại một file JSON mười dòng thì rẻ, còn render xong mới phát hiện sai câu chữ thì phải chạy lại cả pipeline.
+| `agent-browser` | Một công cụ riêng, điều khiển trình duyệt tự thao tác trên trang web: đưa vào địa chỉ và các thao tác, nhận lại ảnh chụp màn hình. Một trong những nguồn ảnh đầu vào cho `video-marker`. |
+| AIFF | Định dạng file âm thanh mà lệnh đọc chữ của macOS xuất ra. Chỉ tồn tại trong lúc chạy, không còn lại sau đó. |
+| `ffmpeg` | Chương trình xử lý video dòng lệnh. Ở đây được nhờ hai việc: ghép một ảnh với một đoạn tiếng thành clip, và nối các clip thành một file. |
+| frontmatter | Phần đầu file `SKILL.md`, gồm tên skill và dòng mô tả. Là phần duy nhất luôn nằm trong tầm mắt của agent, nên nó quyết định skill có được chọn hay không. |
+| guard | Một chốt chặn đặt sẵn để cái sai lộ ra sớm, thay vì lộ ra sau khi đã tốn thời gian. |
+| H.264 | Định dạng nén video được dùng cho file kết quả. Chọn nó vì gần như mọi trình phát đều mở được. |
+| hook | Cơ chế của Claude Code cho phép một việc tự chạy khi có sự kiện nào đó xảy ra. `video-marker` không dùng cái nào. |
+| ImageMagick / `magick` | Chương trình xử lý ảnh dòng lệnh. Ở đây được nhờ vẽ tiêu đề, phụ đề và viền màu lên ảnh chụp trước khi mã hoá. |
+| `jq` | Chương trình đọc JSON trên dòng lệnh: đưa vào file JSON và tên trường, nhận lại giá trị. Script dùng nó để lấy từng trường trong manifest. |
+| khung hình (slide) | Một mục trong manifest: một ảnh cộng một câu nói đè lên. Trong video, nó thành một đoạn đứng yên. |
+| manifest | File JSON mô tả toàn bộ video: ghi ra đâu, giọng nào, và danh sách khung hình theo thứ tự. Đây là thứ duy nhất bạn thực sự viết ra. |
+| progressive disclosure | Cách sắp xếp sao cho chỉ phần đang cần mới được đọc. Trong một skill, nó là lý do chiều sâu nằm ở `references/` chứ không nằm trong `SKILL.md`. |
+| `say` | Lệnh đọc chữ thành tiếng có sẵn trên macOS: đưa vào một câu và tên giọng, nhận lại một file âm thanh. Đây là lý do skill chỉ chạy trên macOS. |
+| `SKILL.md` | File mô tả một skill: phần đầu là frontmatter, phần thân là quy trình. Đây là file duy nhất bắt buộc phải có. |
+| skill | Một thư mục chứa hướng dẫn (và có thể cả script, tài liệu, mẫu) dạy agent cách làm một loại việc cụ thể. |
+| status (`pass` / `fail`) | Nhãn tuỳ chọn của một khung hình. `pass` cho viền xanh, `fail` cho viền đỏ, và tiêu đề đổi theo màu đó. |
+| TTS | Text-to-speech — đọc chữ thành tiếng. Ở đây do lệnh sẵn có của macOS đảm nhiệm, không gọi dịch vụ trên mạng. |
 
 ---
 
-Tài liệu này được viết từ mã nguồn đọc ngày 18/09/2026: `SKILL.md` (70 dòng), `references/dependencies.md` (67), `references/ffmpeg-patterns.md` (73), `references/manifest-format.md` (70), `templates/manifest.json` (20) và `scripts/video-marker.sh` (410 dòng). Mọi con số trong bài đều đếm từ các file đó.
+Trang này mô tả `video-marker` như một ví dụ về cách một skill được thiết kế. Phần đáng mang đi không phải là dây chuyền dựng video, mà là cách công việc được chia ra: cái gì phải nằm sẵn, cái gì đọc khi chạy, cái gì đọc khi cần, cái gì giao hẳn cho mã.
 
-Ba kết luận đến từ việc chạy lệnh trên máy kiểm tra chứ không từ việc đọc: danh sách giọng `say` (184 giọng, có `Linh vi_VN`), hành vi của `${var,,}` dưới `/bin/bash` 3.2, và khuôn `set -e` với `((i++))` dựng lại bằng một đoạn bash tối giản.
+Tên các chương trình bên ngoài xuất hiện ở đây chỉ với đúng một việc: nói rõ skill đưa gì vào và nhận gì ra. Cách dùng chúng là chuyện của tài liệu khác.
 
-Những gì chưa được kiểm chứng: chưa có video nào được render trong lúc viết bài, nên mọi mô tả về kết quả hình ảnh — vị trí chữ, độ đọc được của viền chữ đen, cách dấu tiếng Việt hiển thị — đều suy ra từ tham số lệnh chứ không từ khung hình thật.
+Bấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới dạng văn bản thuần.
 </script>
 <script>/* ===================================================================
    LAYER 1 . DATA
-   No DOM, no logic. The markdown in #src is the single source of truth;
-   FIG holds only what a figure draws that prose cannot.
+   No DOM, no logic. STATE is mutable view state; I18N is chrome only
+   (never prose); FIG holds one entry per @fig directive in the source.
    =================================================================== */
 
 var STATE = { view: 'doc', nav: false };
 
+/* The single source of truth. It lives in a text/plain block rather than a
+   string literal so that backticks, backslashes and markdown survive untouched. */
 var SRC = document.getElementById('src').textContent;
 
 var I18N = {
-  kick: 'Ghi chép skill . pipeline dựng video',
-  doc: 'Tài liệu',
-  md: 'Markdown',
-  copy: 'Copy markdown',
-  done: 'Đã copy',
+  kick: 'Claude Code · skill study',
+  navHead: 'Mục lục',
   contents: 'Mục lục',
-  navHead: 'Trong bài',
-  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
+  md: 'Markdown',
+  doc: 'Tài liệu',
+  copy: 'Chép toàn bộ',
+  done: 'Đã chép',
+  mdNote: 'Toàn bộ trang dưới dạng markdown thuần — chép về để dán vào ghi chú, ' +
+          'wiki hay repo của bạn.'
 };
 
-/* Figure payloads. `type` picks the renderer; everything else is its data. */
 var FIG = {
 
-  source: {
-    type: 'routes',
-    top: 'manifest chỉ đòi một điều: đường dẫn trỏ tới file ảnh có thật',
-    routes: [
-      ['công cụ automation trình duyệt', 'chụp từng bước của một luồng web'],
-      ['screencapture', 'có sẵn trên macOS — chụp thủ công từng màn hình'],
-      ['artifact của test runner', 'ảnh do chính lần chạy test sinh ra'],
-      ['ảnh xuất từ file thiết kế', 'demo một thứ chưa build xong']
-    ],
-    bottom: 'video-marker không tự chụp bất cứ thứ gì',
-    cap: 'Bốn nguồn ảnh tương thích. Cần nói rõ: **không nguồn nào trong số này được skill nhắc tên** — mã nguồn chỉ kiểm tra `[[ ! -f "$image" ]]`. Cắt khâu chụp ra ngoài là cách giữ cho khâu dựng không chết theo công cụ chụp.'
-  },
-
-  fields: {
-    type: 'graph',
-    nodes: [
-      ['output', false], ['voice', false], ['text', true],
-      ['image', true], ['title', false], ['status', false]
-    ],
-    groups: [
-      { title: 'trường manifest → nơi tiêu thụ nó',
-        edges: [
-          ['text', 'say', 'audio .aiff'],
-          ['text', 'magick', 'phụ đề đáy khung'],
-          ['image', 'ffmpeg', 'khung hình nền'],
-          ['title', 'magick', 'chữ đỉnh khung'],
-          ['status', 'magick', 'viền + màu chữ title'],
-          ['voice', 'say -v', 'giọng đọc'],
-          ['output', 'ffmpeg concat', 'file đích']
-        ] }
-    ],
-    cap: 'Hai node được tô đậm là hai trường bắt buộc. `text` xuất hiện hai lần: cùng một biến `$text` được truyền cho `text_to_audio` rồi truyền tiếp làm tham số phụ đề — lời đọc và phụ đề không thể lệch nhau vì chỉ có một nguồn.'
-  },
-
-  gate: {
-    type: 'gates',
-    rows: [
-      ['file manifest tồn tại', '`[[ ! -f "$manifest" ]]` → `ERROR: Manifest not found`'],
-      ['JSON parse được', '`jq empty "$manifest"`'],
-      ['có ít nhất một slide', '`.slides | length` khác 0'],
-      ['mỗi slide có `text`', 'khác `null` và khác chuỗi rỗng'],
-      ['mỗi slide có `image`', 'khác `null` và khác chuỗi rỗng'],
-      ['mỗi `image` trỏ tới file có thật', '`[[ ! -f "$image" ]]` cho từng slide']
-    ],
-    cap: 'Sáu kiểm tra của `validate_manifest`, chạy trước bất kỳ lời gọi `say` hay `ffmpeg` nào. Vòng lặp tăng biến `errors` rồi đi tiếp thay vì dừng ở lỗi đầu tiên, nên một manifest sai ba đường dẫn chỉ cần sửa một lần.'
-  },
-
-  slideloop: {
-    type: 'loop',
-    steps: [
-      '`jq` đọc bốn trường của slide: `text`, `image`, `title`, `status`',
-      '`say -v <voice> "<text>" -o audio_i.aiff` — đoạn audio này quyết định độ dài cảnh',
-      '`magick` ba lượt: viền màu → chữ title ở đỉnh → phụ đề đã xuống dòng ở đáy',
-      '`ffmpeg` ghép ảnh đã chú thích với audio thành `clip_i.mp4`',
-      'xoá file `_annotated.png` trung gian ngay sau khi clip dựng xong'
-    ],
-    back: '→ slide kế tiếp, trong cùng thư mục `mktemp -d` rồi `rm -rf` ở mọi nhánh thoát',
-    cap: 'Vòng lặp bên trong bước 3. Mọi file trung gian sống trong một thư mục tạm; thư mục đó bị xoá ở cả nhánh thành công lẫn nhánh lỗi.'
-  },
-
-  fossils: {
-    type: 'proof',
-    rows: [
-      { kind: 'keep', n: '7', what: 'tên hàm trong usage text thật sự tồn tại',
-        detail: 'trên tổng số 10 tên được liệt kê' },
-      { kind: 'gone', n: '3', what: 'tên hàm không tồn tại ở bất cứ đâu',
-        detail: 'word_wrap_text · escape_drawtext · build_vf_filter' },
-      { kind: 'gone', n: '1', what: 'hàm có thật nhưng không được liệt kê',
-        detail: 'annotate_image — hàm vẽ toàn bộ phần chữ' },
-      { kind: 'gone', n: '2', what: 'hằng số khai báo mà không nơi nào dùng',
-        detail: 'OVERLAY_FONT_SIZE=24 · OVERLAY_BAR_ALPHA=0.6' }
-    ],
-    note: '`OVERLAY_BAR_ALPHA=0.6` khớp chính xác với `boxcolor=black@0.6` trong công thức `drawtext` mà `references/ffmpeg-patterns.md` tới nay vẫn còn chép lại.',
-    cap: 'Đếm bằng grep trên chính `scripts/video-marker.sh`, 18/09/2026. Bốn con số này dựng lại được một lần đổi hướng: từ vẽ chữ bằng bộ lọc `drawtext` của ffmpeg sang vẽ bằng ImageMagick ở bước trước đó.'
-  },
-
-  seterr: {
-    type: 'guards',
-    rows: [
-      { kind: 'bound', tag: 'gọi trong ngữ cảnh điều kiện',
-        text: '`validate_manifest "$manifest" || return 1` — bash tắt `set -e` cho cả thân hàm, nên `((errors++))` vô hại. Vòng lặp chạy hết và liệt kê đủ mọi lỗi.' },
-      { kind: 'fast', tag: 'gọi trực tiếp',
-        text: '`generate_video "$1"` — `set -e` còn nguyên hiệu lực. `((failed++))` khi `failed` đang bằng 0 trả về mã 1, và shell thoát ngay tại slide hỏng đầu tiên.' }
-    ],
-    cap: 'Cùng một thành ngữ đếm lỗi, hai kết cục khác nhau — khác biệt duy nhất là cách hàm chứa nó được gọi. Kiểm chứng bằng một đoạn bash tối giản dựng lại đúng khuôn hình này, 18/09/2026.'
-  },
-
-  deps: {
+  /* Section 3 — the division of labour, ordered by what it costs to read. */
+  tiers: {
     type: 'levels',
+    cap: 'Bốn tầng, xếp theo **giá phải trả để đọc**. Càng lên trên càng bị gánh ' +
+         'thường xuyên, nên càng phải ngắn. Đây là lý do chiều sâu bị đẩy xuống ' +
+         '`references/` thay vì viết thẳng vào `SKILL.md`.',
     levels: [
-      { name: 'CÓ SẴN TRONG macOS', note: 'không phải cài gì',
-        tools: [
-          ['say', 'TTS — nguồn của cả narration lẫn độ dài mỗi cảnh'],
-          ['Helvetica.ttc', 'font cho title và phụ đề, đường dẫn cứng trong `OVERLAY_FONT`']
-        ] },
-      { name: 'CÀI QUA HOMEBREW', note: 'ba binary',
-        tools: [
-          ['ffmpeg', 'dựng từng clip, rồi ghép stream ở bước cuối'],
-          ['jq', 'đọc từng trường của manifest'],
-          ['magick', 'ImageMagick 7+ — vẽ viền, title và phụ đề lên ảnh']
-        ] }
+      { name: 'Luôn nằm sẵn', note: 'mọi phiên làm việc đều gánh', tools: [
+        ['frontmatter', 'Tên skill và một dòng mô tả tình huống — mặt kích hoạt, quyết định skill có được chọn hay không']
+      ]},
+      { name: 'Đọc khi kích hoạt', note: 'mỗi lần dùng skill đều gánh', tools: [
+        ['SKILL.md (phần thân)', 'Quy trình theo thứ tự, chỗ phải dừng hỏi, và danh sách những gì skill không làm']
+      ]},
+      { name: 'Đọc khi quy trình chỉ tới', note: 'chỉ gánh khi thật sự cần', tools: [
+        ['manifest-format.md', 'Đặc tả manifest: từng trường, bắt buộc hay không, mặc định, `pass`/`fail` đổi hình ra sao'],
+        ['ffmpeg-patterns.md', 'Chi tiết mã hoá video và danh sách giọng đọc — tra khi muốn đổi cách dựng'],
+        ['dependencies.md', 'Cần cài gì, font nằm đâu, bảng lỗi → nguyên nhân → cách sửa']
+      ]},
+      { name: 'Không đọc — chạy hoặc copy', note: 'gần như không gánh gì', tools: [
+        ['scripts/video-marker.sh', 'Cả dây chuyền dựng video, gọi bằng đúng một dòng lệnh'],
+        ['templates/manifest.json', 'Một manifest ba khung đã điền sẵn, để copy về sửa']
+      ]}
+    ]
+  },
+
+  /* Section 4 — the run, trigger to finish. */
+  pipeline: {
+    type: 'stages',
+    cap: 'Bốn bước script in ra, theo đúng thứ tự xảy ra. Chỉ bước 3 lặp lại — ' +
+         'mỗi khung hình ba động tác, mỗi động tác giao cho một công cụ bên ngoài.',
+    rows: [
+      { n: '1', name: 'Kiểm tra công cụ', io: [
+        ['vào', 'danh sách bốn lệnh phải có trên máy'],
+        ['ra', 'OK — hoặc tên **tất cả** cái đang thiếu, kèm lệnh cài']
+      ]},
+      { n: '2', name: 'Kiểm tra manifest', io: [
+        ['vào', 'file manifest'],
+        ['ra', 'OK kèm số khung — hoặc từ chối chạy và chỉ ra chỗ sai']
+      ]},
+      { n: '3', name: 'Dựng từng khung', loop: true, io: [
+        ['a', 'câu chữ → một file tiếng nói', 'say'],
+        ['b', 'ảnh + chữ → ảnh đã vẽ tiêu đề, phụ đề, viền', 'magick'],
+        ['c', 'ảnh đã vẽ + tiếng nói → một clip dài bằng đoạn tiếng', 'ffmpeg']
+      ]},
+      { n: '4', name: 'Nối clip', io: [
+        ['vào', 'các clip theo đúng thứ tự trong manifest'],
+        ['ra', 'file `.mp4` cuối cùng', 'ffmpeg'],
+        ['rồi', 'xoá thư mục tạm, in đường dẫn và dung lượng']
+      ]}
+    ]
+  },
+
+  /* Section 8 — each guard, and the failure it prevents. */
+  guards: {
+    type: 'gates',
+    cap: 'Mỗi chốt chặn kèm chuyện xảy ra khi thiếu nó. Điểm chung: tất cả đều ' +
+         'kéo cái sai lộ ra **sớm hơn**, vì dây chuyền này tốn thời gian trước khi ' +
+         'kịp báo là hỏng.',
+    rows: [
+      ['Dừng ngay ở lệnh lỗi', 'Video thiếu khung mà vẫn in ra dòng báo thành công'],
+      ['Kiểm đủ bốn công cụ trước', 'Chết giữa dây chuyền bằng một lỗi không ai đọc nổi'],
+      ['Soát manifest trước khi dựng', 'Bắt đầu dựng rồi mới chết ở giữa vì manifest sai'],
+      ['Ảnh phải có thật trên đĩa', 'Chờ hết sáu khung mới biết khung bảy gõ sai tên file'],
+      ['Chốt hỏi người trước khi dựng', 'Dựng xong mới phát hiện lời thuyết minh không phải cái mình muốn'],
+      ['Ép kích thước ảnh về số chẵn', 'Một ảnh hoàn toàn bình thường làm đổ cả lần chạy'],
+      ['Clip phải có và khác rỗng', 'Một file 0 byte lọt tiếp sang bước nối'],
+      ['Vẽ chữ hỏng thì bỏ chữ', 'Mất cả khung hình chỉ vì mất một dòng tiêu đề'],
+      ['Không clip nào thì dừng hẳn', 'Sinh ra một file mở lên chẳng có gì, mà vẫn báo xong']
+    ]
+  },
+
+  /* Section 10 — the decision the reader now owns. */
+  where: {
+    type: 'routes',
+    cap: 'Câu hỏi bạn sẽ gặp lại liên tục khi dựng skill của mình. Nó luôn là câu ' +
+         'hỏi về **giá phải trả để đọc**, không phải về chủ đề.',
+    top: 'Một mẩu kiến thức mới — đặt vào đâu?',
+    routes: [
+      ['frontmatter', 'Chỉ khi nó giúp quyết định *có dùng skill này hay không*'],
+      ['SKILL.md (thân)', 'Chỉ khi lần chạy **nào** cũng cần tới'],
+      ['references/', 'Khi thỉnh thoảng mới cần — nhưng cần thì phải chính xác'],
+      ['scripts/ · templates/', 'Khi nó là việc để chạy, hoặc vật liệu để copy']
     ],
-    cap: '`check_dependencies` chạy `command -v` cho bốn lệnh và in ra danh sách còn thiếu kèm câu `brew install` tương ứng. Ba trong bốn có trên mọi hệ điều hành; `say` thì không, và đó là toàn bộ lý do skill này chỉ chạy trên macOS.'
+    bottom: 'Không rơi vào ô nào → đó là kiến thức của dự án, không phải của skill'
   }
 };
 
@@ -914,62 +917,14 @@ var MD = {
 };
 
 
-/* -- figure renderers ---------------------------------------------- */
+/* -- figure renderers ------------------------------------------------
+   Pure: an entry in, DOM out. Must not read STATE.
+   Only the four shapes this page uses are kept.
+   -------------------------------------------------------------------- */
 
 var FIGURE = {
 
-  questions: function(f){
-    return el('div', null, [
-      el('ol', { class: 'qlist' }, f.items.map(function(t){
-        return el('li', { html: inline(t) }); })),
-      el('div', { class: 'score' }, f.scores.map(function(s){
-        return el('div', { class: 'sc ' + s.kind }, [
-          el('b', { text: s.n }), el('span', { text: s.label })
-        ]);
-      }))
-    ]);
-  },
-
-  proof: function(f){
-    return el('div', null, [
-      el('div', { class: 'proof' }, f.rows.map(function(r){
-        return el('div', { class: 'proof-row ' + r.kind }, [
-          el('div', { class: 'proof-what' }, [
-            el('span', { html: inline(r.what) }),
-            el('em', { text: r.detail })
-          ]),
-          el('div', { class: 'proof-n', text: r.n })
-        ]);
-      })),
-      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
-    ]);
-  },
-
-  graph: function(f){
-    var kids = [ el('div', { class: 'gnodes' }, f.nodes.map(function(n){
-      return el('span', { class: 'gn' + (n[1] ? ' core' : ''), text: n[0] }); })) ];
-    f.groups.forEach(function(g){
-      if(g.title) kids.push(el('div', { class: 'gsplit', text: g.title }));
-      kids.push(el('div', { class: 'gedges' }, g.edges.map(function(e){
-        return el('div', { class: 'ge' }, [
-          el('i', { text: e[0] }), el('b', { text: e[1] }), el('s', { text: e[2] })
-        ]);
-      })));
-    });
-    return el('div', null, kids);
-  },
-
-  loop: function(f){
-    var kids = f.steps.map(function(s, i){
-      return el('div', { class: 'lp' }, [
-        el('em', { text: String(i + 1) }),
-        el('div', { html: inline(s) })
-      ]);
-    });
-    if(f.back) kids.push(el('div', { class: 'loop-back', text: f.back }));
-    return el('div', { class: 'loop' }, kids);
-  },
-
+  /* tiers of disclosure: a header per tier, then name + purpose rows */
   levels: function(f){
     return el('div', null, f.levels.map(function(L){
       return el('div', { class: 'lvl' }, [
@@ -985,6 +940,7 @@ var FIGURE = {
     }));
   },
 
+  /* one question, several destinations, and the refusal underneath */
   routes: function(f){
     return el('div', null, [
       el('div', { class: 'routes-top', text: f.top }),
@@ -997,16 +953,7 @@ var FIGURE = {
     ]);
   },
 
-  hooks: function(f){
-    return el('div', { class: 'hooks' }, f.rows.map(function(r){
-      return el('div', { class: 'hk' + (r.none ? ' none' : '') }, [
-        el('b', { text: r.hook }),
-        el('i', { text: r.reaches }),
-        el('span', { html: inline(r.carries) })
-      ]);
-    }));
-  },
-
+  /* a guard on the left, what breaks without it on the right */
   gates: function(f){
     return el('div', { class: 'gates' }, f.rows.map(function(r){
       return el('div', { class: 'gt' }, [
@@ -1015,42 +962,29 @@ var FIGURE = {
     }));
   },
 
-  islands: function(f){
-    var kids = f.rows.map(function(r){
-      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
-        el('s', { text: r.where }),
-        el('i', { text: '→' }),
-        el('b', { text: r.scope })
-      ]);
-    });
-    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
-    return el('div', { class: 'isl' }, kids);
-  },
-
-  bars: function(f){
-    var max = Math.max.apply(null, f.rows.map(function(r){ return r.ms; }));
-    return el('div', { class: 'bars' }, f.rows.map(function(r){
-      var pct = Math.max(2, Math.round(r.ms / max * 100));
-      return el('div', { class: 'br' + (r.cold ? ' cold' : '') }, [
-        el('b', { html: inline(r.label) }),
-        el('div', { class: 'br-track' }, [
-          el('div', { class: 'br-fill', style: 'width:' + pct + '%' }),
-          el('span', { class: 'br-val', text: r.val })
-        ])
-      ]);
-    }));
-  },
-
-  guards: function(f){
-    return el('div', { class: 'guards' }, f.rows.map(function(r){
-      return el('div', { class: 'gd ' + r.kind }, [
-        el('b', { text: r.tag }),
-        el('p', { html: inline(r.text) })
+  /* ordered stages, each listing what goes in, what comes out, and which
+     external tool is asked for it. Written for this page because the run is a
+     pipeline with a repeated middle -- no catalog shape carries that. */
+  stages: function(f){
+    return el('div', { class: 'stg' }, f.rows.map(function(r){
+      return el('div', { class: 'st' }, [
+        el('em', { text: r.n }),
+        el('div', { class: 'st-body' }, [
+          el('b', null, [
+            el('span', { html: inline(r.name) }),
+            r.loop ? el('u', { text: 'lặp mỗi khung' }) : null
+          ])
+        ].concat(r.io.map(function(x){
+          return el('div', { class: 'st-io' }, [
+            el('i', { text: x[0] }),
+            el('span', { html: inline(x[1]) }),
+            x[2] ? el('s', { text: x[2] }) : null
+          ]);
+        })))
       ]);
     }));
   }
 };
-
 
 
 /* ===================================================================
