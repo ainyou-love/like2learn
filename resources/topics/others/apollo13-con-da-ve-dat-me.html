@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Con đã về đất mẹ · Apollo 13 và phương pháp tư duy</title>
+<meta name="description" content="Câu chuyện Apollo 13 và năm phương pháp tư duy: Pólya, Nguyên lý gốc, CCA, OODA, PDCA, viết cho người không làm kỹ thuật.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   TOKENS
+   ========================================================= */
+:root{
+  --bg:#EDF1F5; --surface:#FFFFFF; --ink:#13233A; --muted:#51627A; --line:#CFD8E3;
+  --gold:#8A6810; --gold-soft:#F3E8C6; --sea:#1F6B68; --sea-soft:#DCEEEC;
+  --blue:#2D5C9C; --blue-soft:#DEE7F4; --alert:#A63A2A; --alert-soft:#F5E0DA;
+  --space:#0D1A2B; --space-ink:#E9EEF5; --space-muted:#9FB0C6; --kapton:#D9B440;
+  --font-body:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --topbar-h:56px; --nav-w:292px;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1A2A; --surface:#15253A; --ink:#E6ECF3; --muted:#A2B3C8; --line:#29405C;
+    --gold:#D9B440; --gold-soft:#342C14; --sea:#66BBB5; --sea-soft:#14333A;
+    --blue:#8AB1E8; --blue-soft:#1A2D49; --alert:#E88E7C; --alert-soft:#3B231F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1A2A; --surface:#15253A; --ink:#E6ECF3; --muted:#A2B3C8; --line:#29405C;
+  --gold:#D9B440; --gold-soft:#342C14; --sea:#66BBB5; --sea-soft:#14333A;
+  --blue:#8AB1E8; --blue-soft:#1A2D49; --alert:#E88E7C; --alert-soft:#3B231F;
+  color-scheme:dark;
+}
+html{scroll-padding-top:calc(var(--topbar-h) + 16px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.68;text-rendering:optimizeLegibility}
+@media (min-width:760px){body{font-size:18px}}
+img,svg{max-width:100%}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit}
+strong{font-weight:600}
+.skip{position:absolute;left:-999px;top:8px;background:var(--surface);padding:8px 12px;z-index:100}
+.skip:focus{left:8px}
+
+/* =========================================================
+   CHROME: topbar, progress, nav
+   ========================================================= */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;height:var(--topbar-h);display:flex;align-items:center;gap:8px;padding:0 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.topbar-title{flex:1;min-width:0;font-family:var(--font-display);font-weight:600;font-size:1.25rem;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;border-radius:10px;cursor:pointer}
+.icon-btn:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.icon-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.progress{position:absolute;left:0;right:0;bottom:-1px;height:2px}
+.progress span{display:block;height:100%;width:0;background:var(--gold);transition:width .1s linear}
+
+.shell{display:block}
+.nav{position:fixed;top:0;bottom:0;left:0;width:min(86vw,var(--nav-w));z-index:50;background:var(--surface);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .28s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-head{display:flex;align-items:center;justify-content:space-between;height:var(--topbar-h);padding:0 8px 0 20px;border-bottom:1px solid var(--line);flex:none}
+.nav-head p{margin:0;font-family:var(--font-display);font-weight:600;font-size:1.2rem}
+.nav-list{list-style:none;margin:0;padding:12px 10px 32px;overflow-y:auto;flex:1}
+.nav-list a{display:flex;gap:12px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;line-height:1.35}
+.nav-list a:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.nav-list a.is-active{background:var(--gold-soft);color:var(--ink)}
+.nav-num{font-family:var(--font-display);font-weight:700;color:var(--gold);min-width:1.1em;font-size:1.1rem}
+.nav-sub{list-style:none;margin:2px 0 6px;padding:0 0 0 30px}
+.nav-sub a{font-size:.92rem;padding:6px 12px;color:var(--muted)}
+.nav-sub a.is-active{color:var(--ink)}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(6,12,22,.45);opacity:0;pointer-events:none;transition:opacity .28s ease}
+body.nav-open .nav{transform:none}
+body.nav-open .scrim{opacity:1;pointer-events:auto}
+body.nav-open{overflow:hidden}
+.nav-close{display:grid}
+
+@media (min-width:1100px){
+  .shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr)}
+  .nav{position:sticky;top:calc(var(--topbar-h) + env(safe-area-inset-top,0px));height:calc(100dvh - var(--topbar-h) - env(safe-area-inset-top,0px));transform:none;width:auto;z-index:10;padding-top:0}
+  .nav-head{display:none}
+  .scrim{display:none}
+  body.nav-open{overflow:auto}
+  body.nav-collapsed .shell{grid-template-columns:0 minmax(0,1fr)}
+  body.nav-collapsed .nav{visibility:hidden;border:0}
+}
+@media (prefers-reduced-motion:reduce){.nav,.scrim,.progress span{transition:none}}
+
+/* =========================================================
+   HERO (the one bold moment)
+   ========================================================= */
+.hero{position:relative;background:var(--space);color:var(--space-ink);overflow:hidden;padding:44px 20px 36px;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7) 50%,transparent 51%),
+    radial-gradient(1px 1px at 72% 12%,rgba(255,255,255,.55) 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 86% 64%,rgba(255,255,255,.6) 50%,transparent 51%),
+    radial-gradient(1px 1px at 34% 78%,rgba(255,255,255,.45) 50%,transparent 51%),
+    radial-gradient(1px 1px at 55% 40%,rgba(255,255,255,.4) 50%,transparent 51%),
+    radial-gradient(1px 1px at 22% 52%,rgba(255,255,255,.35) 50%,transparent 51%);}
+.hero-inner{max-width:52rem;margin:0 auto}
+.hero-meta{margin:0 0 14px;color:var(--space-muted);font-size:.92rem}
+.hero h1{margin:0;font-family:var(--font-display);font-weight:700;font-size:clamp(3rem,15vw,8rem);line-height:.88;letter-spacing:-.005em;color:#F4F6FA}
+.hero h1 span{display:block}
+.hero h1 span:last-child{color:var(--kapton)}
+.hero-sub{margin:18px 0 0;font-size:1.12rem;max-width:34rem;color:var(--space-ink)}
+.hero-lead{margin:14px 0 0;max-width:36rem;color:var(--space-muted)}
+.traj{display:block;width:100%;height:auto;margin:22px 0 6px}
+.traj .earth{fill:#2B6CB0}
+.traj .earth-land{fill:#3F9D7A}
+.traj .atmo{fill:none;stroke:#6FA8E8;stroke-opacity:.35;stroke-width:3}
+.traj .moon{fill:#B9C2CF}
+.traj .moon-crater{fill:#98A3B3}
+.traj .path{fill:none;stroke:var(--kapton);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 3.6s cubic-bezier(.45,.1,.3,1) .35s forwards}
+.traj .path-ghost{fill:none;stroke:#fff;stroke-opacity:.12;stroke-width:1;stroke-dasharray:3 5}
+.traj .blast{fill:#F07A5E;opacity:0;animation:pop .5s ease-out 2.2s forwards;transform-origin:438px 176px}
+.traj text{font-family:var(--font-body);font-size:13px;fill:var(--space-muted)}
+.traj .blast-label{fill:#F2A08C;opacity:0;animation:fadein .4s ease-out 2.5s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}70%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@keyframes fadein{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .traj .path{animation:none;stroke-dashoffset:0}
+  .traj .blast,.traj .blast-label{animation:none;opacity:1}
+}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:11px 18px;border-radius:999px;background:var(--kapton);color:#1B1606;text-decoration:none;font-weight:600}
+.hero-cta:hover{filter:brightness(1.06)}
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+.content{max-width:44rem;margin:0 auto;padding:0 20px 80px}
+.chapter{padding:56px 0 8px}
+.chapter + .chapter{border-top:1px solid var(--line)}
+.ch-head{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin-bottom:18px}
+.ch-num{font-family:var(--font-display);font-weight:700;font-size:3.6rem;line-height:.8;color:var(--gold)}
+.ch-head h2{margin:0;font-family:var(--font-display);font-weight:700;font-size:clamp(2rem,7vw,2.6rem);line-height:1;letter-spacing:.005em}
+.ch-lead{margin:10px 0 0;color:var(--muted)}
+h3{font-family:var(--font-display);font-weight:600;font-size:1.55rem;line-height:1.1;margin:36px 0 10px}
+p{margin:0 0 1em}
+
+.callout{margin:24px 0;padding:16px 18px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--gold)}
+.callout p:last-child{margin-bottom:0}
+.callout-title{font-weight:600;margin-bottom:.35em}
+.callout--apollo{border-left-color:var(--blue);background:var(--blue-soft);border-color:transparent}
+.callout--truth{border-left-color:var(--sea);background:var(--sea-soft);border-color:transparent}
+.callout--warn{border-left-color:var(--alert);background:var(--alert-soft);border-color:transparent}
+
+.fig{margin:26px 0;padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.fig figcaption{margin-top:10px;font-size:.9rem;color:var(--muted)}
+.fig--bleed{margin-left:-6px;margin-right:-6px}
+
+/* Spacecraft stack */
+.stack text{font-family:var(--font-body);fill:var(--ink)}
+.stack .t-name{font-size:15px;font-weight:600}
+.stack .t-role{font-size:12.5px;fill:var(--muted)}
+.stack .hull{fill:var(--bg);stroke:var(--ink);stroke-width:1.6}
+.stack .foil{fill:var(--gold-soft);stroke:var(--ink);stroke-width:1.6}
+.stack .blast{fill:var(--alert)}
+.stack .blast-t{font-size:12.5px;fill:var(--alert);font-weight:600}
+.stack .leg{stroke:var(--ink);stroke-width:1.6;fill:none}
+
+/* Timeline */
+.timeline{list-style:none;margin:24px 0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;padding:0 0 22px 32px}
+.tl-item::before{content:"";position:absolute;left:1px;top:8px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--muted)}
+.tl-item.is-key::before{border-color:var(--alert);background:var(--alert)}
+.tl-item.is-home::before{border-color:var(--sea);background:var(--sea)}
+.tl-when{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.tl-date{font-weight:600;color:var(--ink)}
+.tl-item h4{margin:2px 0 4px;font-size:1.05rem;font-weight:600;line-height:1.35}
+.tl-item p{margin:0}
+
+/* Resource bars */
+.bars{display:grid;gap:14px}
+.bar-row{display:grid;gap:6px}
+.bar-label{display:flex;justify-content:space-between;gap:12px;font-size:.95rem}
+.bar-label b{font-weight:600}
+.bar-track{height:14px;border-radius:7px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden}
+.bar-fill{height:100%;border-radius:7px;background:var(--sea)}
+.bar-fill.is-over{background:var(--alert)}
+
+/* Loop (7 steps) */
+.loop-wrap{display:grid;gap:14px}
+.loop-svg{display:block;width:100%;max-width:420px;margin:0 auto;height:auto}
+.loop-ring{fill:none;stroke:var(--line);stroke-width:1}
+.loop-arc{fill:none;stroke:var(--muted);stroke-width:1.6}
+.loop-arc.is-return{stroke:var(--gold);stroke-dasharray:5 5}
+.arrow-head{fill:var(--muted)}
+.loop-node{cursor:pointer;outline:none}
+.loop-node circle{fill:var(--surface);stroke:var(--muted);stroke-width:1.6;transition:fill .2s,stroke .2s}
+.loop-node .n{font-family:var(--font-display);font-weight:700;font-size:20px;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.loop-node .lbl{font-family:var(--font-body);font-size:14.5px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.loop-node:hover circle{stroke:var(--gold)}
+.loop-node.is-sel circle{fill:var(--gold);stroke:var(--gold)}
+.loop-node.is-sel .n{fill:#1B1606}
+.loop-node:focus-visible circle{stroke:var(--blue);stroke-width:3}
+.loop-center{font-family:var(--font-display);text-anchor:middle;fill:var(--muted)}
+.loop-center .big{font-size:30px;font-weight:700;fill:var(--ink)}
+.loop-center .small{font-size:15px}
+
+.panel{padding:18px;border-radius:12px;background:var(--surface);border:1px solid var(--line);min-height:10rem}
+.panel h4{margin:0 0 4px;font-family:var(--font-display);font-weight:600;font-size:1.45rem;line-height:1.1}
+.panel .q{margin:0 0 12px;color:var(--muted);font-style:italic}
+.panel p{margin:0 0 .8em}
+.panel-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+.pager{display:flex;gap:8px}
+.pill-btn{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:.92rem}
+.pill-btn:hover{border-color:var(--gold)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.82rem;background:var(--gold-soft);color:var(--ink)}
+.tag--step{background:var(--sea-soft)}
+.tag--moment{background:var(--blue-soft)}
+.tag--case{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+button.tag{border:0;cursor:pointer}
+button.tag:hover{outline:1px solid var(--gold)}
+
+/* Glossary */
+.gl-controls{position:sticky;top:calc(var(--topbar-h) + env(safe-area-inset-top,0px));z-index:5;background:var(--bg);padding:10px 0 12px;display:grid;gap:10px}
+.gl-search{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:1rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.gl-count{font-size:.88rem;color:var(--muted);margin:0}
+.gl-list{margin:6px 0 0;padding:0}
+.gl-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.gl-item dt{font-weight:600}
+.gl-en{font-weight:400;color:var(--muted);font-style:italic;font-size:.92rem}
+.gl-cat{display:inline-block;margin-left:6px;vertical-align:2px}
+.gl-item dd{margin:4px 0 0}
+.gl-empty{padding:18px;border-radius:10px;background:var(--surface);border:1px dashed var(--line);color:var(--muted)}
+
+/* Venn */
+.venn-svg{display:block;width:100%;max-width:440px;margin:0 auto;height:auto}
+.venn-set{stroke-width:1.6;fill-opacity:.14}
+.venn-set.a{fill:var(--gold);stroke:var(--gold)}
+.venn-set.b{fill:var(--sea);stroke:var(--sea)}
+.venn-set.c{fill:var(--blue);stroke:var(--blue)}
+.venn-setlabel{font-family:var(--font-display);font-weight:600;font-size:19px;fill:var(--ink)}
+.venn-pt{cursor:pointer;outline:none}
+.venn-pt rect{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}
+.venn-pt text{font-family:var(--font-body);font-size:12.5px;font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.venn-pt.is-sel rect{fill:var(--ink)}
+.venn-pt.is-sel text{fill:var(--bg)}
+.venn-pt:focus-visible rect{stroke:var(--gold);stroke-width:3}
+
+/* Graph */
+.graph-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px}
+.graph-svg{display:block;min-width:600px;width:100%;height:auto}
+.gedge{stroke:var(--muted);stroke-opacity:.35;stroke-width:1.2;transition:stroke-opacity .2s}
+.gedge.is-chain{stroke:var(--sea);stroke-opacity:.55;stroke-dasharray:4 4}
+.gnode{cursor:pointer;outline:none;transition:opacity .2s}
+.gnode .dot{stroke:var(--surface);stroke-width:2.5}
+.gnode .hit{fill:transparent;stroke:none}
+.gnode.t-method .dot{fill:var(--gold)}
+.gnode.t-step .dot{fill:var(--sea)}
+.gnode.t-moment .dot{fill:var(--blue)}
+.gnode.t-case .dot{fill:var(--muted)}
+.gnode text{font-family:var(--font-body);font-size:16px;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3.5px;stroke-linejoin:round}
+.gnode.t-method text{font-weight:600;font-size:17px}
+.gnode:focus-visible .dot{stroke:var(--ink)}
+.graph-svg.has-focus .gnode{opacity:.18}
+.graph-svg.has-focus .gnode.is-near,.graph-svg.has-focus .gnode.is-focus{opacity:1}
+.graph-svg.has-focus .gnode.is-focus .dot{stroke:var(--ink);stroke-width:3}
+.graph-svg.has-focus .gedge{stroke-opacity:.06}
+.graph-svg.has-focus .gedge.is-near{stroke-opacity:.9;stroke:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0 0;padding:0;list-style:none;font-size:.88rem;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+
+/* Methods */
+.method{padding:34px 0 10px;border-top:1px dashed var(--line);margin-top:28px}
+.method:first-of-type{border-top:0;margin-top:6px}
+.method-head h3{margin:0;font-size:2.2rem;line-height:1}
+.method-full{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+.method-q{margin:12px 0 18px;font-size:1.2rem;font-weight:500;padding-left:14px;border-left:3px solid var(--gold)}
+.method-origin{font-size:.95rem;color:var(--muted)}
+.flow{list-style:none;margin:18px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center}
+.flow li{display:flex;align-items:center;gap:4px}
+.flow .f-step{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.92rem;font-weight:500}
+.flow .f-arrow{color:var(--muted);padding:0 2px}
+.flow .f-loop{font-size:.88rem;color:var(--gold);font-weight:600;padding-left:6px}
+.use-grid{display:grid;gap:12px;margin:18px 0}
+@media (min-width:640px){.use-grid{grid-template-columns:1fr 1fr}}
+.use-card{padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+.use-card p{margin:0}
+.use-card .k{font-weight:600;margin-bottom:4px}
+.use-card--bad{border-style:dashed}
+.case{margin:22px 0 8px;border-radius:14px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.case-head{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.case-kicker{margin:0 0 2px;font-size:.88rem;color:var(--muted)}
+.case-head h4{margin:0;font-family:var(--font-display);font-weight:600;font-size:1.5rem;line-height:1.1}
+.case-body{padding:14px 18px 6px}
+.case-steps{list-style:none;margin:10px 0 0;padding:0;counter-reset:cs}
+.case-steps li{position:relative;padding:0 0 12px 34px;counter-increment:cs}
+.case-steps li::before{content:counter(cs);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--gold-soft);font-family:var(--font-display);font-weight:700;font-size:.95rem;display:grid;place-items:center}
+.case-steps b{display:block;font-weight:600}
+.case-lesson{margin:0;padding:14px 18px;background:var(--gold-soft);font-weight:500}
+
+/* Closing */
+.table-wrap{overflow-x:auto;margin:20px 0}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:.95rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.88rem}
+td:first-child{font-weight:600}
+.qlist{list-style:none;margin:18px 0;padding:0;counter-reset:q}
+.qlist li{counter-increment:q;display:grid;grid-template-columns:2.2rem 1fr;gap:6px;padding:12px 0;border-bottom:1px solid var(--line)}
+.qlist li::before{content:counter(q);font-family:var(--font-display);font-weight:700;font-size:1.6rem;line-height:1;color:var(--gold)}
+.qlist b{font-weight:600;display:block}
+.qlist span{color:var(--muted);font-size:.95rem}
+.finale{margin:40px -20px 0;padding:44px 20px 52px;background:var(--space);color:var(--space-ink);text-align:left}
+.finale-inner{max-width:40rem;margin:0 auto}
+.finale p{color:var(--space-muted)}
+.finale .last{font-family:var(--font-display);font-weight:700;font-size:clamp(2.4rem,11vw,4rem);line-height:.95;color:var(--kapton);margin:18px 0 0}
+.footer-note{font-size:.85rem;color:var(--muted);margin-top:28px}
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px">Trang này cần JavaScript để hiển thị nội dung. Hãy bật JavaScript trong trình duyệt rồi tải lại trang.</p></noscript>
+<div id="app"></div>
+
+<!-- =========================================================
+     LAYER 1 · DATA CONTENT (JSON)
+     Toàn bộ nội dung nằm ở đây. Sửa chữ, thêm thuật ngữ, thêm case
+     chỉ cần sửa JSON này; component và workflow không đổi.
+     ========================================================= -->
+<script type="application/json" id="content">
+{
+  "meta": {
+    "shortTitle": "Con đã về đất mẹ",
+    "titleLines": ["Con đã về", "đất mẹ"],
+    "kicker": "Apollo 13 · tháng 4 năm 1970",
+    "subtitle": "Câu chuyện về cách con người suy nghĩ khi không còn đường lùi.",
+    "lead": "Ba người đàn ông, cách Trái Đất hơn 300.000 km, nghe một tiếng nổ. Bốn ngày sau họ trở về. Không nhờ phép màu, mà nhờ một cách suy nghĩ mà ai cũng có thể học.",
+    "cta": "Bắt đầu đọc",
+    "trajCaption": "Đường bay hình số 8: đi, vòng qua Mặt Trăng, rồi trở về"
+  },
+  "chapters": [
+    {"id": "story", "num": "1", "title": "Chuyện gì đã xảy ra", "lead": "Bối cảnh cần biết trước khi nói tới phương pháp."},
+    {"id": "thinking", "num": "2", "title": "Cách nghĩ đã đưa họ về", "lead": "Bảy bước lặp lại như một vòng tròn."},
+    {"id": "glossary", "num": "3", "title": "Từ vựng cần biết", "lead": "Những từ sẽ gặp trong câu chuyện và trong các phương pháp."},
+    {"id": "map", "num": "4", "title": "Bản đồ khái niệm", "lead": "Các phương pháp giao nhau và nối với nhau như thế nào."},
+    {"id": "methods", "num": "5", "title": "Năm phương pháp", "lead": "Mỗi phương pháp: ý chính, khoảnh khắc trong Apollo 13 và một case kinh điển."},
+    {"id": "closing", "num": "6", "title": "Mang về đời mình", "lead": "Tóm tắt và bảy câu hỏi dùng được ngay ngày mai."}
+  ],
+  "story": {
+    "paras": [
+      "Apollo 13 là chuyến bay thứ ba của Mỹ dự định đưa người xuống Mặt Trăng. Sau Apollo 11 và 12, nhiều người đã coi việc bay lên Mặt Trăng là chuyện bình thường. Tối 13/4/1970, các đài truyền hình lớn thậm chí không phát trực tiếp buổi truyền hình từ con tàu.",
+      "Chỉ ít phút sau khi buổi phát hình kết thúc, phi hành đoàn nghe một tiếng nổ. Jack Swigert báo về mặt đất câu nói về sau trở thành huyền thoại: **“Houston, we've had a problem.”**",
+      "Bình oxy số 2 phát nổ và làm hỏng luôn bình số 1. Oxy trên tàu không chỉ để thở. Nó còn là nguyên liệu để tạo ra **điện và nước**. Mất oxy nghĩa là module chỉ huy Odyssey, chiếc khoang duy nhất có thể đưa người về Trái Đất, đang chết dần.",
+      "Mục tiêu đổ bộ Mặt Trăng bị bỏ ngay. Một mục tiêu mới, duy nhất, thay thế: **đưa ba người về nhà còn sống**."
+    ],
+    "stackTitle": "Con tàu gồm ba phần",
+    "stackCaption": "Ba phần ghép nối trên đường bay. Vụ nổ xảy ra ở module dịch vụ. Aquarius, vốn để xuống Mặt Trăng, trở thành xuồng cứu sinh.",
+    "stack": [
+      {"id": "sm", "name": "Module dịch vụ", "role": "Động cơ, oxy, điện"},
+      {"id": "cm", "name": "Odyssey", "role": "Khoang chỉ huy, để về nhà"},
+      {"id": "lm", "name": "Aquarius", "role": "Tàu đổ bộ, thành xuồng cứu sinh"}
+    ],
+    "crewTitle": "Bốn ngày, theo từng mốc",
+    "timeline": [
+      {"date": "11/4", "time": "giờ bay 0", "title": "Phóng từ Florida", "body": "Phi hành đoàn gồm Jim Lovell (chỉ huy), Jack Swigert và Fred Haise. Swigert được thay vào chỉ ba ngày trước khi phóng, vì Ken Mattingly từng tiếp xúc với người mắc bệnh sởi. Mattingly ở lại mặt đất và về sau góp sức giải bài toán khởi động lại Odyssey."},
+      {"date": "13/4", "time": "khoảng giờ bay 56", "title": "Tiếng nổ", "body": "Bình oxy số 2 nổ. Odyssey mất dần điện và oxy. Mục tiêu đổi từ “đổ bộ Mặt Trăng” sang “sống sót”.", "kind": "key"},
+      {"date": "13/4", "time": "đêm", "title": "Chuyển sang xuồng cứu sinh", "body": "Ba người chuyển sang Aquarius. Odyssey được tắt hẳn để giữ lại chút pin cuối cùng cho lúc về."},
+      {"date": "14/4", "time": "", "title": "Chọn đường về dài hơn nhưng an toàn hơn", "body": "Thay vì quay đầu ngay, họ đốt động cơ của Aquarius để đưa tàu vào đường bay vòng qua Mặt Trăng rồi tự trở về. Lúc vòng qua mặt sau Mặt Trăng, họ trở thành những người đi xa Trái Đất nhất trong lịch sử."},
+      {"date": "15/4", "time": "", "title": "Khí CO₂ tăng", "body": "Không khí trong Aquarius dần nhiễm CO₂. Mặt đất nghĩ ra cách ghép hộp lọc vuông vào khe tròn bằng túi nhựa, bìa cứng và băng keo, rồi đọc hướng dẫn lên tàu.", "kind": "key"},
+      {"date": "15–16/4", "time": "", "title": "Lạnh, khát và chỉnh hướng bằng mắt", "body": "Cabin lạnh gần mức đóng băng, nước được chia rất dè sẻn. Để chỉnh hướng, phi hành đoàn nhìn Trái Đất qua cửa sổ làm mốc và tự tay giữ tàu khi đốt động cơ."},
+      {"date": "17/4", "time": "khoảng giờ bay 142", "title": "Về tới nhà", "body": "Odyssey được đánh thức với rất ít điện, tách khỏi Aquarius và lao vào khí quyển. Khoảng im lặng mất liên lạc kéo dài hơn dự kiến. Rồi ba chiếc dù hiện ra trên Thái Bình Dương.", "kind": "home"}
+    ],
+    "resourceTitle": "Một chiếc xuồng quá nhỏ",
+    "resource": {
+      "intro": "Aquarius được thiết kế để nuôi 2 người trong khoảng 2 ngày. Giờ nó phải nuôi 3 người trong khoảng 4 ngày.",
+      "rows": [
+        {"label": "Thiết kế", "value": "2 người × ~2 ngày = 4 người-ngày", "pct": 33},
+        {"label": "Thực tế cần", "value": "3 người × ~4 ngày = 12 người-ngày", "pct": 100, "over": true}
+      ],
+      "note": "Con số làm tròn để dễ hình dung. Thứ gì cũng thiếu: điện, nước, khả năng lọc khí."
+    },
+    "callout": {
+      "title": "Điều đáng học ở đây",
+      "body": "Không phải lòng dũng cảm, dù họ có thừa. Mà là cách hàng trăm người trên mặt đất cùng suy nghĩ có kỷ luật khi không có kịch bản nào để làm theo."
+    }
+  },
+  "thinking": {
+    "intro": [
+      "Không có tài liệu nào tên là “cách cứu tàu khi mất oxy trên đường lên Mặt Trăng”. Thứ họ có là một thói quen suy nghĩ: xác định đúng vấn đề, tách điều chắc chắn khỏi điều đoán, không quên điều quan trọng, rồi làm, kiểm tra và làm lại.",
+      "Ngày nay có thể tóm cách làm đó thành một vòng bảy bước. Mỗi bước mượn sức mạnh của một phương pháp khác nhau. Chạm vào từng bước để xem Apollo 13 đã đi qua nó như thế nào."
+    ],
+    "loopTitle": "Vòng bảy bước",
+    "steps": [
+      {"id": "s1", "short": "Xác định", "title": "Xác định vấn đề", "question": "Thật ra mình đang giải quyết điều gì?", "apollo": "Mục tiêu đổi ngay từ “đổ bộ Mặt Trăng” sang “đưa ba người về còn sống”. Gene Kranz, giám đốc chuyến bay, yêu cầu mọi người bám vào số liệu thay vì phỏng đoán, và không làm gì khiến tình hình tệ thêm.", "methods": ["polya"]},
+      {"id": "s2", "short": "Sự thật", "title": "Tách sự thật và giả định", "question": "Mình biết chắc điều gì? Điều gì chỉ là mình đang tin?", "apollo": "Đội mặt đất đếm lại chính xác lượng điện, nước, oxy còn lại. Họ cũng bỏ đi giả định “phải có đúng linh kiện mới sửa được” khi gặp hộp lọc CO₂ không vừa khe.", "methods": ["fp"]},
+      {"id": "s3", "short": "Mối lo", "title": "Liệt kê mối lo", "question": "Điều gì tuyệt đối không được quên?", "apollo": "Điện, nước làm mát thiết bị, CO₂, nhiệt độ, quỹ đạo, sức lực của ba người, và một ràng buộc lớn: chỉ dùng được đồ đang có trên tàu.", "methods": ["cca"]},
+      {"id": "s4", "short": "Thiết kế", "title": "Thiết kế lời giải", "question": "Có những cách nào? Cách nào đơn giản và an toàn nhất?", "apollo": "Quay đầu trực tiếp cần động cơ chính, mà động cơ ấy nằm ngay cạnh chỗ nổ nên không ai dám tin. Họ chọn đường dài hơn: vòng qua Mặt Trăng và để lực hút của nó đưa tàu về.", "methods": ["polya"]},
+      {"id": "s5", "short": "Thực hiện", "title": "Thực hiện", "question": "Làm sao để làm đúng ngay lần đầu?", "apollo": "Mỗi quy trình được thử trên buồng mô phỏng dưới đất trước, sau đó mới đọc từng bước qua radio. Phi hành đoàn chép lại, đọc lại để xác nhận rồi mới làm.", "methods": ["ooda"]},
+      {"id": "s6", "short": "Kiểm tra", "title": "Kiểm tra", "question": "Kết quả thật có khớp với điều mình dự tính?", "apollo": "Sau khi lắp “hộp thư” lọc khí, mọi người theo dõi chỉ số CO₂ cho tới khi nó giảm xuống mức an toàn. Sau mỗi lần đốt động cơ, quỹ đạo được đo lại.", "methods": ["polya", "pdca"]},
+      {"id": "s7", "short": "Điều chỉnh", "title": "Điều chỉnh", "question": "Tình hình đã đổi. Giờ làm gì?", "apollo": "Hơi nước thoát ra từ Aquarius cứ đẩy tàu lệch dần khỏi đường về. Mỗi lần lệch là một vòng mới: quan sát, định hướng lại, quyết định, hành động. Sau chuyến bay, vòng lặp tiếp tục ở quy mô lớn hơn: tìm nguyên nhân và sửa thiết kế.", "methods": ["ooda", "pdca"]}
+    ],
+    "notes": [
+      {"tone": "truth", "title": "Một lời thành thật", "body": "Không ai ở Houston nói “giờ ta dùng phương pháp Pólya”. Tên các phương pháp là cách chúng ta ngày nay gọi lại những gì họ đã làm. Điều đó không làm bài học kém đi, mà cho thấy cách nghĩ tốt có thể được gọi tên, và vì vậy có thể học được."},
+      {"tone": "note", "title": "Về câu “Failure is not an option”", "body": "Câu nói nổi tiếng này là lời thoại trong bộ phim Apollo 13 (1995), không phải điều Gene Kranz nói trong chuyến bay. Nó hay đến mức về sau Kranz lấy làm tên cuốn hồi ký của mình."}
+    ]
+  },
+  "glossary": {
+    "intro": "Gõ để tìm, hoặc lọc theo nhóm. Tìm không cần dấu cũng được, ví dụ “quy dao”.",
+    "cats": [
+      {"value": "all", "label": "Tất cả"},
+      {"value": "space", "label": "Chuyến bay"},
+      {"value": "mind", "label": "Tư duy"}
+    ],
+    "items": [
+      {"cat": "space", "term": "Module chỉ huy Odyssey", "en": "Command Module", "def": "Khoang hình nón nơi ba người ngồi khi phóng và khi về. Là phần duy nhất có tấm chắn nhiệt để chịu được lúc lao vào khí quyển, nên dù hỏng nặng vẫn phải giữ lại."},
+      {"cat": "space", "term": "Module dịch vụ", "en": "Service Module", "def": "Khối hình trụ gắn sau Odyssey, chứa động cơ chính, bình oxy và pin nhiên liệu. Vụ nổ xảy ra ở đây."},
+      {"cat": "space", "term": "Module đổ bộ Aquarius", "en": "Lunar Module", "def": "Con tàu nhỏ dùng để hạ xuống Mặt Trăng. Trong Apollo 13 nó trở thành xuồng cứu sinh cho cả ba người."},
+      {"cat": "space", "term": "Pin nhiên liệu", "en": "Fuel cell", "def": "Thiết bị kết hợp oxy và hydro để tạo ra điện, và tạo ra nước như một sản phẩm phụ. Mất oxy nghĩa là mất cả điện lẫn nước."},
+      {"cat": "space", "term": "Trung tâm điều khiển", "en": "Mission Control", "def": "Phòng điều hành chuyến bay ở Houston, nơi hàng trăm kỹ sư theo dõi và giải quyết sự cố cùng phi hành đoàn."},
+      {"cat": "space", "term": "Giám đốc chuyến bay", "en": "Flight Director", "def": "Người ra quyết định cuối cùng trong phòng điều khiển. Ca trực lúc xảy ra vụ nổ do Gene Kranz phụ trách."},
+      {"cat": "space", "term": "Quỹ đạo tự quay về", "en": "Free-return trajectory", "def": "Đường bay hình số 8 dùng lực hút của Mặt Trăng để bẻ hướng con tàu vòng về Trái Đất mà gần như không cần động cơ."},
+      {"cat": "space", "term": "Đốt động cơ", "en": "Burn", "def": "Mỗi lần bật động cơ trong vài giây đến vài phút để đổi hướng hoặc đổi tốc độ. Nhiên liệu có hạn nên lần nào cũng phải tính kỹ."},
+      {"cat": "space", "term": "Hộp lọc CO₂", "en": "LiOH canister", "def": "Hộp chứa hóa chất hút khí CO₂ do con người thở ra. Hộp của Odyssey hình vuông, còn khe lắp của Aquarius hình tròn."},
+      {"cat": "space", "term": "Vào lại khí quyển", "en": "Re-entry", "def": "Giai đoạn con tàu lao vào khí quyển Trái Đất với tốc độ rất cao, bề mặt nóng hàng nghìn độ."},
+      {"cat": "space", "term": "Mất liên lạc", "en": "Blackout", "def": "Lớp khí cực nóng quanh tàu khi vào khí quyển chặn sóng radio trong vài phút. Với Apollo 13, khoảng im lặng này dài hơn dự kiến."},
+      {"cat": "space", "term": "Hạ nước", "en": "Splashdown", "def": "Con tàu mở dù và hạ xuống biển, sau đó được tàu hải quân vớt lên."},
+      {"cat": "space", "term": "Giờ bay", "en": "Mission elapsed time", "def": "Cách đếm thời gian tính từ lúc phóng. Vụ nổ xảy ra vào khoảng giờ bay thứ 56."},
+      {"cat": "mind", "term": "Sự thật", "en": "Fact", "def": "Điều đã được kiểm chứng, đo được hoặc quan sát trực tiếp. Ví dụ: “pin còn bao nhiêu điện”, đo bằng đồng hồ, không phải đoán."},
+      {"cat": "mind", "term": "Giả định", "en": "Assumption", "def": "Điều ta đang tin là đúng nhưng chưa kiểm chứng. Nguy hiểm nhất là những giả định ta không biết mình đang có."},
+      {"cat": "mind", "term": "Ràng buộc", "en": "Constraint", "def": "Giới hạn không thể vượt qua: thời gian, tiền, vật liệu, luật lệ. Trong Apollo 13: chỉ được dùng đồ có trên tàu."},
+      {"cat": "mind", "term": "Mối lo", "en": "Concern", "def": "Một khía cạnh cần nghĩ tới trước khi làm, dù chưa có vấn đề gì xảy ra. Ví dụ: “nếu sai thì dừng lại bằng cách nào?”."},
+      {"cat": "mind", "term": "Kiểu hỏng", "en": "Failure mode", "def": "Một cách cụ thể mà mọi thứ có thể đổ vỡ. Liệt kê trước các kiểu hỏng giúp phòng ngừa thay vì chữa cháy."},
+      {"cat": "mind", "term": "Mẹo giải quyết", "en": "Heuristic", "def": "Quy tắc kinh nghiệm giúp tìm hướng nhanh, không đảm bảo đúng tuyệt đối. Ví dụ: “thử giải một phiên bản đơn giản hơn trước”."},
+      {"cat": "mind", "term": "Nguyên lý gốc", "en": "First principles", "def": "Những sự thật nền tảng không thể chia nhỏ hơn. Từ đó ta xây lại lời giải thay vì bắt chước cách cũ."},
+      {"cat": "mind", "term": "Vòng phản hồi", "en": "Feedback loop", "def": "Chu trình làm, thấy kết quả, điều chỉnh, rồi làm lại. Vòng càng ngắn, học càng nhanh."},
+      {"cat": "mind", "term": "Vòng lặp", "en": "Iteration", "def": "Một lượt đi qua vòng phản hồi. Cải tiến lớn thường là tổng của rất nhiều lượt nhỏ."},
+      {"cat": "mind", "term": "Nguyên nhân gốc", "en": "Root cause", "def": "Lý do sâu nhất dẫn tới sự cố. Chỉ sửa triệu chứng thì sự cố quay lại, sửa nguyên nhân gốc thì không."},
+      {"cat": "mind", "term": "Kaizen", "en": "Cải tiến liên tục", "def": "Tiếng Nhật, nghĩa là thay đổi để tốt hơn. Triết lý của Toyota: mỗi ngày tốt hơn một chút, do chính người làm việc đề xuất."},
+      {"cat": "mind", "term": "Mô hình ghép", "en": "Meta-model", "def": "Một khung lớn gộp nhiều phương pháp và chỉ rõ mỗi phương pháp nên dùng ở bước nào. Vòng bảy bước ở chương 2 là một mô hình ghép."}
+    ]
+  },
+  "map": {
+    "vennTitle": "Ba việc của một lời giải tốt",
+    "vennIntro": "Mỗi vòng tròn là một việc mà lời giải nào cũng cần. Mỗi phương pháp mạnh ở một vùng khác nhau. Chạm vào từng phương pháp để xem vì sao nó nằm ở đó.",
+    "vennNote": "Đây là một cách xếp để dễ nhớ, không phải phân loại tuyệt đối. Apollo 13 thành công vì đi qua cả ba vùng.",
+    "sets": [
+      {"id": "a", "label": "Nghĩ đúng", "desc": "Hiểu bản chất, tách sự thật khỏi giả định."},
+      {"id": "b", "label": "Thiết kế đúng", "desc": "Chọn cách giải và không quên điều quan trọng."},
+      {"id": "c", "label": "Làm và học", "desc": "Hành động, đo kết quả, điều chỉnh."}
+    ],
+    "vennItems": [
+      {"id": "fp", "label": "Nguyên lý gốc", "x": 94, "y": 126, "region": "Chỉ thuộc “Nghĩ đúng”", "why": "Nguyên lý gốc là công cụ để nghĩ, không phải quy trình để làm. Nó không nói bạn hành động thế nào, chỉ giúp bạn nhìn vấn đề cho đúng."},
+      {"id": "cca", "label": "CCA", "x": 200, "y": 96, "region": "Giữa “Nghĩ đúng” và “Thiết kế đúng”", "why": "CCA vừa là suy nghĩ (nhận ra mối lo), vừa là thiết kế (chọn cách làm dựa trên mối lo)."},
+      {"id": "polya", "label": "Pólya", "x": 200, "y": 178, "region": "Ở giữa cả ba", "why": "Pólya là khung tổng quát đi qua cả ba vùng: hiểu, lập kế hoạch, thực hiện và nhìn lại. Vì thế nó hợp làm vòng ngoài bao các phương pháp khác."},
+      {"id": "ooda", "label": "OODA", "x": 136, "y": 244, "region": "Giữa “Nghĩ đúng” và “Làm và học”", "why": "OODA gắn quan sát và định hướng (phần nghĩ) với hành động liên tục (phần làm), lặp lại rất nhanh."},
+      {"id": "pdca", "label": "PDCA", "x": 264, "y": 244, "region": "Giữa “Thiết kế đúng” và “Làm và học”", "why": "PDCA thiết kế một quy trình, làm thử, đo, rồi chuẩn hóa. Nó sống ở chỗ giao giữa thiết kế và thực thi."}
+    ],
+    "graphTitle": "Mạng lưới liên hệ",
+    "graphIntro": "Mỗi chấm là một khái niệm. Đường nối cho biết chúng liên quan với nhau. Chạm vào một chấm để làm nổi các mối nối của nó. Trên điện thoại có thể vuốt ngang để xem hết.",
+    "types": {
+      "method": "Phương pháp",
+      "step": "Bước trong vòng bảy bước",
+      "moment": "Khoảnh khắc Apollo 13",
+      "case": "Case kinh điển"
+    },
+    "nodes": [
+      {"id": "polya", "type": "method", "label": "Pólya", "desc": "Giải bài toán này thế nào? Khung tổng quát bốn bước."},
+      {"id": "fp", "type": "method", "label": "Nguyên lý gốc", "desc": "Điều gì thực sự đúng? Gỡ giả định, giữ lại sự thật."},
+      {"id": "cca", "type": "method", "label": "CCA", "desc": "Trước khi làm, cần lo những gì?"},
+      {"id": "ooda", "type": "method", "label": "OODA", "desc": "Làm gì tiếp khi tình hình liên tục thay đổi?"},
+      {"id": "pdca", "type": "method", "label": "PDCA", "desc": "Làm sao cải thiện dần qua nhiều lần?"},
+      {"id": "s1", "type": "step", "label": "1 Xác định", "desc": "Thật ra mình đang giải quyết điều gì?"},
+      {"id": "s2", "type": "step", "label": "2 Sự thật", "desc": "Mình biết chắc điều gì?"},
+      {"id": "s3", "type": "step", "label": "3 Mối lo", "desc": "Điều gì không được quên?"},
+      {"id": "s4", "type": "step", "label": "4 Thiết kế", "desc": "Cách nào đơn giản và an toàn nhất?"},
+      {"id": "s5", "type": "step", "label": "5 Thực hiện", "desc": "Làm sao để đúng ngay lần đầu?"},
+      {"id": "s6", "type": "step", "label": "6 Kiểm tra", "desc": "Kết quả có khớp dự tính?"},
+      {"id": "s7", "type": "step", "label": "7 Điều chỉnh", "desc": "Tình hình đổi rồi, giờ làm gì?"},
+      {"id": "m1", "type": "moment", "label": "Tiếng nổ", "desc": "Mục tiêu đổi từ đổ bộ sang sống sót."},
+      {"id": "m2", "type": "moment", "label": "Chọn đường về", "desc": "Vòng qua Mặt Trăng thay vì tin vào động cơ có thể đã hỏng."},
+      {"id": "m3", "type": "moment", "label": "Hộp thư CO₂", "desc": "Hộp vuông vào khe tròn bằng túi nhựa, bìa cứng, băng keo."},
+      {"id": "m4", "type": "moment", "label": "Chỉnh hướng", "desc": "Lấy Trái Đất qua cửa sổ làm mốc để giữ hướng khi đốt động cơ."},
+      {"id": "m5", "type": "moment", "label": "Đánh thức Odyssey", "desc": "Khởi động lại khoang chỉ huy đã tắt lạnh với rất ít điện."},
+      {"id": "m6", "type": "moment", "label": "Điều tra sau bay", "desc": "Tìm nguyên nhân gốc và sửa thiết kế cho các chuyến sau."},
+      {"id": "c1", "type": "case", "label": "Đường chéo hộp", "desc": "Ví dụ mở đầu trong sách của Pólya (1945)."},
+      {"id": "c2", "type": "case", "label": "SpaceX", "desc": "Tính lại giá tên lửa từ giá nguyên liệu."},
+      {"id": "c3", "type": "case", "label": "Knight Capital", "desc": "Lỗ khoảng 440 triệu USD trong 45 phút vì một mối lo bị bỏ sót."},
+      {"id": "c4", "type": "case", "label": "Boyd và F-86", "desc": "Vòng quan sát – hành động nhanh hơn đối thủ."},
+      {"id": "c5", "type": "case", "label": "NUMMI", "desc": "Cùng công nhân, hệ thống khác, chất lượng khác hẳn."}
+    ],
+    "edges": [
+      ["s1","s2"],["s2","s3"],["s3","s4"],["s4","s5"],["s5","s6"],["s6","s7"],["s7","s1"],
+      ["polya","s1"],["polya","s4"],["polya","s6"],
+      ["fp","s2"],["cca","s3"],
+      ["ooda","s5"],["ooda","s7"],
+      ["pdca","s6"],["pdca","s7"],
+      ["c1","polya"],["c2","fp"],["c3","cca"],["c4","ooda"],["c5","pdca"],
+      ["m1","s1"],["m1","ooda"],
+      ["m2","s4"],["m2","cca"],
+      ["m3","fp"],["m3","s2"],["m3","s4"],
+      ["m4","ooda"],["m4","s7"],
+      ["m5","polya"],["m5","s5"],["m5","s6"],
+      ["m6","pdca"],["m6","s7"]
+    ]
+  },
+  "methods": [
+    {
+      "id": "polya",
+      "name": "Pólya",
+      "full": "Phương pháp giải quyết vấn đề của George Pólya",
+      "question": "Giải bài toán này thế nào?",
+      "origin": "George Pólya, nhà toán học gốc Hungary, viết cuốn How to Solve It năm 1945. Đến nay cuốn sách vẫn là một trong những tài liệu nền tảng nhất về cách giải quyết vấn đề.",
+      "essence": [
+        "Pólya cho rằng giải toán, và giải phần lớn vấn đề trong đời, đều đi qua bốn bước. Giá trị thật của ông không nằm ở bốn bước ấy, mà ở **những câu hỏi gợi ý** đi kèm mỗi bước.",
+        "Câu hỏi nổi tiếng nhất: “Bạn đã từng gặp bài nào có cùng ẩn số chưa?”. Rất nhiều vấn đề mới thực ra là vấn đề cũ đổi hình dạng."
+      ],
+      "flow": ["Hiểu vấn đề", "Lập kế hoạch", "Thực hiện", "Nhìn lại"],
+      "cyclic": true,
+      "apollo": "Để về nhà, Odyssey phải được đánh thức sau nhiều ngày tắt lạnh, với rất ít điện. Chưa ai từng làm việc đó. Đội mặt đất chia bài toán thành từng bước nhỏ, thử đi thử lại trên buồng mô phỏng, rồi mới đọc quy trình lên cho phi hành đoàn.",
+      "use": "Khi gặp một vấn đề mà bạn chưa biết bắt đầu từ đâu.",
+      "pitfall": "Nhảy thẳng vào làm khi chưa hiểu đề bài, hoặc bỏ qua bước nhìn lại khi đã xong.",
+      "case": {
+        "kicker": "Case kinh điển · 1945",
+        "title": "Đường chéo của chiếc hộp",
+        "context": "Ví dụ mở đầu trong sách của Pólya: tìm độ dài đường chéo của một hình hộp chữ nhật khi biết chiều dài, chiều rộng và chiều cao.",
+        "steps": [
+          {"k": "Hiểu vấn đề", "t": "Ẩn số là gì? Độ dài đường chéo. Đã biết gì? Ba cạnh a, b, c."},
+          {"k": "Lập kế hoạch", "t": "Đã từng giải bài nào có ẩn số tương tự chưa? Có: đường chéo của hình chữ nhật, dùng định lý Pythagoras."},
+          {"k": "Thực hiện", "t": "Đường chéo mặt đáy là √(a² + b²). Nó cùng cạnh c tạo thành một tam giác vuông mới, nên đường chéo của hộp là √(a² + b² + c²)."},
+          {"k": "Nhìn lại", "t": "Thử cho c = 0: công thức trở về đường chéo hình chữ nhật. Kết quả hợp lý."}
+        ],
+        "lesson": "Đừng bắt đầu từ con số không. Hãy tìm một bài cũ trông giống bài mới."
+      }
+    },
+    {
+      "id": "fp",
+      "name": "Nguyên lý gốc",
+      "full": "First Principles",
+      "question": "Điều gì thực sự đúng?",
+      "origin": "Ý tưởng có từ triết gia Hy Lạp Aristotle: tìm những nguyên lý đầu tiên không thể suy ra từ điều gì khác. Gần đây nó được biết đến rộng rãi qua cách Elon Musk kể về SpaceX và Tesla.",
+      "essence": [
+        "Phần lớn thời gian, chúng ta suy nghĩ bằng **so sánh**: người khác làm thế nào thì mình làm gần như thế. Cách này nhanh và thường đủ tốt.",
+        "Nguyên lý gốc làm ngược lại: gỡ bỏ các giả định, chỉ giữ những gì chắc chắn đúng, rồi xây lại lời giải từ đó. Chậm hơn, nhưng mở ra những cách mà lẽ thường không nhìn thấy."
+      ],
+      "flow": ["Nêu vấn đề", "Liệt kê giả định", "Hỏi “có thật không?”", "Giữ lại sự thật", "Xây lại lời giải"],
+      "cyclic": false,
+      "apollo": "Hộp lọc CO₂ của Odyssey hình vuông, khe của Aquarius hình tròn. Giả định “phải có đúng linh kiện” dẫn tới ngõ cụt. Các kỹ sư hỏi lại: chức năng thật sự cần là gì? Chỉ là **dẫn luồng khí đi qua hóa chất**. Hình dạng không quan trọng. Từ đó họ ghép một bộ chuyển đổi bằng túi nhựa, bìa cứng và băng keo.",
+      "use": "Khi mọi người đều nói “không thể” hoặc “vốn dĩ phải thế”.",
+      "pitfall": "Dùng cho mọi chuyện nhỏ sẽ rất mệt. Việc quen thuộc, rủi ro thấp thì cứ theo kinh nghiệm.",
+      "case": {
+        "kicker": "Case kinh điển · đầu những năm 2000",
+        "title": "SpaceX và giá một chiếc tên lửa",
+        "context": "Elon Musk muốn đưa tàu lên sao Hỏa, nhưng mua một tên lửa tốn tới hàng chục triệu USD. Cả ngành xem đó là chuyện đương nhiên.",
+        "steps": [
+          {"k": "Giả định", "t": "“Tên lửa vốn đắt.”"},
+          {"k": "Hỏi lại", "t": "Tên lửa làm từ gì? Nhôm, titan, đồng, sợi carbon và nhiên liệu."},
+          {"k": "Sự thật", "t": "Theo cách Musk kể, giá nguyên liệu thô chỉ khoảng vài phần trăm giá bán. Phần còn lại đến từ cách sản xuất, và từ việc tên lửa dùng một lần rồi bỏ."},
+          {"k": "Xây lại", "t": "SpaceX tự làm phần lớn linh kiện, sau đó học cách hạ cánh và tái sử dụng tầng đẩy, kéo chi phí phóng xuống đáng kể."}
+        ],
+        "lesson": "Hỏi “về mặt vật lý, bắt buộc phải tốn bao nhiêu?” thay vì “người ta thường tốn bao nhiêu?”."
+      }
+    },
+    {
+      "id": "cca",
+      "name": "CCA",
+      "full": "Context → Concerns → Approach (Bối cảnh → Mối lo → Cách làm)",
+      "question": "Trước khi làm, cần lo những gì?",
+      "origin": "CCA không phải phương pháp kinh điển có tác giả như bốn phương pháp còn lại. Đây là một mô hình làm việc thực dụng, gần với cách kỹ sư thiết kế hệ thống vẫn làm: hiểu bối cảnh, liệt kê những gì không được quên, rồi mới chọn cách.",
+      "essence": [
+        "Rất ít thất bại đến từ việc làm sai điều mình đã nghĩ tới. Phần lớn đến từ **điều mình chưa hề nghĩ tới**.",
+        "CCA buộc bạn dừng lại một nhịp trước khi hành động, để viết ra danh sách mối lo: điều gì có thể hỏng, ai bị ảnh hưởng, nếu sai thì quay lại bằng cách nào."
+      ],
+      "flow": ["Bối cảnh", "Mối lo", "Cách làm"],
+      "cyclic": false,
+      "apollo": "Aquarius được thiết kế cho 2 người trong khoảng 2 ngày, giờ phải nuôi 3 người trong khoảng 4 ngày. Đội mặt đất liệt kê từng mối lo: điện, oxy, nước làm mát thiết bị, CO₂, nhiệt độ, quỹ đạo, sức khỏe phi hành đoàn. Chỉ sau đó mới ra cách làm: tắt gần như mọi thiết bị, chia nước thật dè sẻn, chấp nhận cabin lạnh gần mức đóng băng.",
+      "use": "Trước khi thay đổi một thứ quan trọng: ra mắt sản phẩm, đổi quy trình, triển khai hệ thống mới.",
+      "pitfall": "Danh sách mối lo dài vô tận khiến không dám làm gì. Hãy xếp hạng và xử lý những mối lo có hậu quả lớn nhất trước.",
+      "case": {
+        "kicker": "Case bài học ngược · 2012",
+        "title": "Knight Capital và 45 phút",
+        "context": "Knight Capital là một trong những công ty giao dịch chứng khoán lớn nhất nước Mỹ. Sáng 1/8/2012, họ đưa phần mềm giao dịch mới vào hoạt động.",
+        "steps": [
+          {"k": "Chuyện đã xảy ra", "t": "Bản mới được cài lên 7 trong 8 máy chủ. Máy thứ 8 bị sót."},
+          {"k": "Hậu quả", "t": "Bản mới dùng lại một “công tắc” cũ. Trên máy thứ 8, công tắc ấy đánh thức một đoạn chương trình đã ngừng dùng từ lâu, và nó bắt đầu tự đặt lệnh mua bán liên tục."},
+          {"k": "Con số", "t": "Trong khoảng 45 phút, công ty lỗ khoảng 440 triệu USD, phải gọi vốn cứu trợ gấp và sau đó bị sáp nhập."},
+          {"k": "Nếu có CCA", "t": "Các mối lo lẽ ra đã được viết ra: tất cả máy đã cùng phiên bản chưa? Còn đoạn chương trình cũ nào không? Nếu sai thì dừng khẩn cấp bằng cách nào?"}
+        ],
+        "lesson": "Thảm họa thường nằm ở câu hỏi không ai hỏi."
+      }
+    },
+    {
+      "id": "ooda",
+      "name": "OODA",
+      "full": "Observe → Orient → Decide → Act",
+      "question": "Làm gì tiếp khi tình hình liên tục thay đổi?",
+      "origin": "John Boyd, phi công và nhà chiến lược của Không quân Mỹ, phát triển vòng lặp này từ kinh nghiệm không chiến. Ngày nay nó được dùng trong kinh doanh, xử lý khủng hoảng và vận hành.",
+      "essence": [
+        "OODA gồm bốn bước: **Quan sát**, **Định hướng**, **Quyết định**, **Hành động**, rồi quay lại quan sát.",
+        "Khác biệt lớn nhất: OODA không giả định vấn đề đứng yên. Bạn hành động, xem thế giới phản ứng ra sao, rồi điều chỉnh. Bước quan trọng nhất là **Định hướng**: hiểu điều mình vừa thấy dựa trên kinh nghiệm và bối cảnh."
+      ],
+      "flow": ["Quan sát", "Định hướng", "Quyết định", "Hành động"],
+      "cyclic": true,
+      "apollo": "Hơi nước thoát ra từ Aquarius cứ đẩy tàu lệch dần khỏi đường về. Máy tính dẫn đường đã tắt để tiết kiệm điện. Phi hành đoàn nhìn Trái Đất qua cửa sổ làm mốc, rồi tự tay giữ hướng khi đốt động cơ. Sau mỗi lần chỉnh, mặt đất đo lại quỹ đạo, và vòng lặp bắt đầu lại.",
+      "use": "Khi tình huống thay đổi nhanh hơn tốc độ lập kế hoạch: sự cố, khủng hoảng, cạnh tranh.",
+      "pitfall": "Chạy vòng lặp thật nhanh nhưng không học gì từ mỗi vòng. Tốc độ chỉ có ích khi đi cùng quan sát tốt.",
+      "case": {
+        "kicker": "Case kinh điển · 1950–1953",
+        "title": "John Boyd và những trận không chiến ở Triều Tiên",
+        "context": "Máy bay Mỹ F-86 đối đầu MiG-15. Xét thông số, MiG-15 không hề kém, có mặt còn nhỉnh hơn. Vậy mà phi công F-86 thắng nhiều hơn hẳn.",
+        "steps": [
+          {"k": "Quan sát tốt hơn", "t": "F-86 có buồng lái kính dạng bong bóng, phi công nhìn được nhiều hướng hơn."},
+          {"k": "Chuyển động tác nhanh hơn", "t": "Hệ thống điều khiển thủy lực giúp F-86 đổi từ động tác này sang động tác khác nhanh và nhẹ hơn."},
+          {"k": "Kết luận của Boyd", "t": "Thắng không nhờ máy bay mạnh hơn, mà nhờ đi hết vòng quan sát tới hành động nhanh hơn đối thủ. Khi đối thủ vừa phản ứng xong, tình huống đã khác."},
+          {"k": "Một lưu ý", "t": "Tỷ lệ thắng thường được nhắc là khoảng 10 trên 1, nhưng các nghiên cứu sau này cho rằng con số thật thấp hơn nhiều. Ý tưởng của Boyd vẫn đứng vững."}
+        ],
+        "lesson": "Trong môi trường thay đổi nhanh, tốc độ cập nhật hiểu biết quan trọng hơn một kế hoạch hoàn hảo."
+      }
+    },
+    {
+      "id": "pdca",
+      "name": "PDCA",
+      "full": "Plan → Do → Check → Act",
+      "question": "Làm sao cải thiện dần qua nhiều lần?",
+      "origin": "Walter Shewhart đặt nền móng từ những năm 1920–1930. W. Edwards Deming mang nó tới Nhật Bản sau Thế chiến II, góp phần tạo nên danh tiếng về chất lượng của công nghiệp Nhật. Deming về sau thích gọi là PDSA, với Study thay cho Check.",
+      "essence": [
+        "PDCA gồm **Lập kế hoạch**, **Làm thử**, **Kiểm tra**, **Điều chỉnh**. Nhìn giống OODA, nhưng mục đích khác.",
+        "OODA giúp phản ứng nhanh với một tình huống đang diễn ra. PDCA giúp **cải thiện một việc lặp đi lặp lại**, qua nhiều vòng, mỗi vòng tốt hơn một chút. Vòng OODA tính bằng phút, vòng PDCA thường tính bằng tuần hay tháng."
+      ],
+      "flow": ["Kế hoạch", "Làm thử", "Kiểm tra", "Điều chỉnh"],
+      "cyclic": true,
+      "apollo": "Sau chuyến bay, một hội đồng điều tra lần ngược nguyên nhân. Công tắc nhiệt trong bình oxy chỉ được thiết kế cho điện 28 vôn, nhưng khi thử nghiệm dưới mặt đất lại dùng 65 vôn. Trong một lần xả bình trước ngày phóng, bộ sưởi chạy quá lâu và làm hỏng lớp cách điện của dây. Con tàu đã mang theo mầm sự cố từ trước khi cất cánh. NASA sửa thiết kế và bổ sung thêm một bình oxy cho các chuyến Apollo sau.",
+      "use": "Khi một việc lặp đi lặp lại và bạn muốn nó tốt hơn theo thời gian: quy trình bán hàng, chất lượng sản phẩm, thói quen cá nhân.",
+      "pitfall": "Làm xong mà không kiểm tra, hoặc kiểm tra xong mà không biến điều đã học thành chuẩn mới. Khi đó vòng lặp bị đứt.",
+      "case": {
+        "kicker": "Case kinh điển · 1984",
+        "title": "NUMMI: cùng con người, hệ thống khác",
+        "context": "Nhà máy của General Motors ở Fremont, California từng bị xem là một trong những nhà máy tệ nhất của hãng: chất lượng kém, công nhân vắng mặt nhiều, quan hệ lao động căng thẳng. Nhà máy đóng cửa năm 1982.",
+        "steps": [
+          {"k": "Mở lại", "t": "Năm 1984, GM và Toyota liên doanh mở lại nhà máy với tên NUMMI, tuyển lại phần lớn công nhân cũ."},
+          {"k": "Thay đổi", "t": "Toyota mang theo cách làm dựa trên cải tiến liên tục. Công nhân được quyền kéo dây dừng dây chuyền khi thấy lỗi, rồi cùng nhau tìm cách sửa quy trình."},
+          {"k": "Vòng lặp hằng ngày", "t": "Phát hiện lỗi, đề xuất cách sửa, thử trên dây chuyền, xem lỗi có giảm không. Nếu có, cách mới trở thành quy trình chuẩn."},
+          {"k": "Kết quả", "t": "Chỉ trong vài năm, với cùng những con người đó, chất lượng xe của NUMMI tiến gần các nhà máy Toyota tại Nhật."}
+        ],
+        "lesson": "Vấn đề thường nằm ở hệ thống, không phải ở con người. PDCA là cách sửa hệ thống từng chút một."
+      }
+    }
+  ],
+  "closing": {
+    "summaryTitle": "Một bảng để nhớ",
+    "summaryHead": ["Phương pháp", "Case", "Một câu để nhớ"],
+    "summaryRows": [
+      ["Pólya", "Đường chéo hình hộp", "Bài mới thường là bài cũ đổi dạng."],
+      ["Nguyên lý gốc", "SpaceX", "Hỏi vật lý, đừng hỏi thói quen."],
+      ["CCA", "Knight Capital", "Thảm họa nằm ở câu không ai hỏi."],
+      ["OODA", "Boyd và F-86", "Vòng lặp nhanh hơn thì thắng."],
+      ["PDCA", "NUMMI", "Sửa hệ thống, đừng đổ lỗi con người."],
+      ["Mô hình ghép", "Apollo 13", "Mỗi bước dùng đúng công cụ."]
+    ],
+    "questionsTitle": "Bảy câu hỏi mang theo",
+    "questionsIntro": "Lần tới khi gặp một việc khó, ở chỗ làm hay ở nhà, thử đi qua bảy câu này theo thứ tự. Không cần nhớ tên phương pháp nào cả.",
+    "questions": [
+      {"q": "Thật ra mình đang giải quyết điều gì?", "hint": "Viết mục tiêu trong một câu. Nếu không viết được, chưa nên làm."},
+      {"q": "Mình biết chắc điều gì, và điều gì chỉ là mình đang tin?", "hint": "Chia giấy làm hai cột: sự thật, giả định."},
+      {"q": "Điều gì tuyệt đối không được quên?", "hint": "Ai bị ảnh hưởng? Cái gì có thể hỏng? Nếu sai thì quay lại bằng cách nào?"},
+      {"q": "Có những cách nào? Cách nào đơn giản nhất?", "hint": "Nghĩ ít nhất hai cách trước khi chọn một."},
+      {"q": "Làm sao để làm đúng ngay lần đầu?", "hint": "Thử nhỏ trước khi làm lớn."},
+      {"q": "Kết quả thật có khớp với dự tính không?", "hint": "Quyết định trước mình sẽ nhìn vào con số hay dấu hiệu nào."},
+      {"q": "Tình hình đã đổi chưa? Mình học được gì?", "hint": "Ghi lại một điều để lần sau làm tốt hơn."}
+    ],
+    "finale": [
+      "Ngày 17/4/1970, sau những phút im lặng dài hơn dự kiến, ba chiếc dù mở ra trên Thái Bình Dương. Tàu hải quân vớt Odyssey lên. Ba người bước ra, gầy đi, lạnh và kiệt sức, nhưng còn sống.",
+      "Không có phép màu nào ở đây. Chỉ có những con người chịu hỏi đúng câu hỏi, từng bước một, cho tới khi con tàu chạm nước."
+    ],
+    "finaleLast": "Con đã về đất mẹ.",
+    "footer": "Các con số lịch sử được làm tròn cho dễ đọc. Tên phương pháp gắn với từng khoảnh khắc Apollo 13 là cách diễn giải của trang này, không phải thuật ngữ NASA dùng khi đó."
+  }
+}
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     LAYER 0 · PURE UTILITIES
+     ========================================================= */
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  const cx = (...a) => a.filter(Boolean).join(' ');
+  const r1 = (n) => Math.round(n * 10) / 10;
+  const fold = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+  const byId = (arr) => Object.fromEntries(arr.map((x) => [x.id, x]));
+
+  /* =========================================================
+     LAYER 2 · ATOMS (pure: props -> HTML string, no side effects)
+     ========================================================= */
+  const Atom = {
+    Para: (t) => `<p>${rich(t)}</p>`,
+    Paras: (arr) => [].concat(arr).map(Atom.Para).join(''),
+
+    Icon: (name) => {
+      const paths = {
+        menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+        close: '<path d="M6 6l12 12M18 6L6 18"/>',
+        auto: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>',
+        light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+        dark: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
+      };
+      return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name] || ''}</svg>`;
+    },
+
+    ChapterHead: ({ num, title, lead }) =>
+      `<header class="ch-head"><span class="ch-num" aria-hidden="true">${esc(num)}</span><div><h2>${esc(title)}</h2>${lead ? `<p class="ch-lead">${rich(lead)}</p>` : ''}</div></header>`,
+
+    Callout: ({ tone = 'note', title, body }) =>
+      `<aside class="callout callout--${esc(tone)}">${title ? `<p class="callout-title">${esc(title)}</p>` : ''}${Atom.Paras(body)}</aside>`,
+
+    Figure: ({ content, caption, cls }) =>
+      `<figure class="${cx('fig', cls)}">${content}${caption ? `<figcaption>${rich(caption)}</figcaption>` : ''}</figure>`,
+
+    Tag: ({ label, type, id, asButton }) =>
+      asButton
+        ? `<button type="button" class="tag tag--${esc(type)}" data-goto="${esc(id)}">${esc(label)}</button>`
+        : `<span class="tag tag--${esc(type)}">${esc(label)}</span>`,
+
+    TimelineItem: ({ date, time, title, body, kind }) =>
+      `<li class="${cx('tl-item', kind === 'key' && 'is-key', kind === 'home' && 'is-home')}">
+        <div class="tl-when"><span class="tl-date">${esc(date)}</span>${time ? `<span>${esc(time)}</span>` : ''}</div>
+        <h4>${esc(title)}</h4><p>${rich(body)}</p></li>`,
+    Timeline: (items) => `<ol class="timeline">${items.map(Atom.TimelineItem).join('')}</ol>`,
+
+    Bars: ({ rows }) =>
+      `<div class="bars">${rows.map((r) => `
+        <div class="bar-row">
+          <div class="bar-label"><b>${esc(r.label)}</b><span>${esc(r.value)}</span></div>
+          <div class="bar-track" role="img" aria-label="${esc(r.label + ': ' + r.value)}"><div class="${cx('bar-fill', r.over && 'is-over')}" style="width:${Number(r.pct)}%"></div></div>
+        </div>`).join('')}</div>`,
+
+    Chip: ({ label, value, active }) =>
+      `<button class="chip" type="button" data-value="${esc(value)}" aria-pressed="${active ? 'true' : 'false'}">${esc(label)}</button>`,
+
+    GlossaryItem: ({ term, en, cat, def }, catLabel) =>
+      `<div class="gl-item" data-cat="${esc(cat)}" data-search="${esc(fold(term + ' ' + en + ' ' + def))}">
+        <dt>${esc(term)}${en ? ` <span class="gl-en">${esc(en)}</span>` : ''} <span class="tag ${cat === 'space' ? 'tag--moment' : 'tag--step'} gl-cat">${esc(catLabel)}</span></dt>
+        <dd>${rich(def)}</dd></div>`,
+
+    Flow: ({ steps, cyclic }) =>
+      `<ol class="flow" aria-label="Các bước">${steps.map((s, i) =>
+        `<li><span class="f-step">${esc(s)}</span>${i < steps.length - 1 ? '<span class="f-arrow" aria-hidden="true">→</span>' : ''}</li>`).join('')}
+        ${cyclic ? '<li><span class="f-loop">↺ lặp lại</span></li>' : ''}</ol>`,
+
+    UseGrid: ({ use, pitfall }) =>
+      `<div class="use-grid">
+        <div class="use-card"><p class="k">Dùng khi</p><p>${rich(use)}</p></div>
+        <div class="use-card use-card--bad"><p class="k">Bẫy thường gặp</p><p>${rich(pitfall)}</p></div></div>`,
+
+    CaseStudy: ({ kicker, title, context, steps, lesson }) =>
+      `<article class="case">
+        <header class="case-head"><p class="case-kicker">${esc(kicker)}</p><h4>${esc(title)}</h4></header>
+        <div class="case-body"><p>${rich(context)}</p>
+          <ol class="case-steps">${steps.map((s) => `<li><b>${esc(s.k)}</b>${rich(s.t)}</li>`).join('')}</ol></div>
+        <p class="case-lesson">${rich(lesson)}</p></article>`,
+
+    Table: ({ head, rows }) =>
+      `<div class="table-wrap"><table><thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`,
+
+    QuestionList: (items) =>
+      `<ol class="qlist">${items.map((x) => `<li><div><b>${esc(x.q)}</b><span>${esc(x.hint)}</span></div></li>`).join('')}</ol>`,
+
+    /* ---------- SVG atoms ---------- */
+
+    TrajectorySVG: ({ caption }) =>
+      `<svg class="traj" viewBox="0 0 600 260" role="img" aria-label="${esc(caption)}">
+        <path class="path-ghost" d="M126 118 C260 40,400 230,505 162 C540 140,530 100,495 106 C400 40,260 220,126 142"/>
+        <path class="path" pathLength="1" d="M126 118 C260 40,400 230,505 162 C540 140,530 100,495 106 C400 40,260 220,126 142"/>
+        <circle class="atmo" cx="90" cy="130" r="44"/>
+        <circle class="earth" cx="90" cy="130" r="38"/>
+        <path class="earth-land" d="M70 108c10-6 22-4 26 4s-6 14-2 22 16 8 14 18-18 12-28 6-4-16-12-22-8-22 2-28z"/>
+        <circle class="moon" cx="500" cy="130" r="20"/>
+        <circle class="moon-crater" cx="494" cy="124" r="4"/><circle class="moon-crater" cx="506" cy="138" r="3"/>
+        <g class="blast"><path d="M438 164l3 8 8-3-5 7 8 4-9 1 1 9-6-6-6 6 1-9-9-1 8-4-5-7 8 3z"/></g>
+        <text class="blast-label" x="430" y="210" text-anchor="middle">tiếng nổ</text>
+        <text x="90" y="198" text-anchor="middle">Trái Đất</text>
+        <text x="500" y="84" text-anchor="middle">Mặt Trăng</text>
+      </svg>`,
+
+    StackSVG: ({ parts, title }) => {
+      const p = byId(parts);
+      const label = (x, part) =>
+        `<text class="t-name" x="${x}" y="196" text-anchor="middle">${esc(part.name)}</text>
+         <text class="t-role" x="${x}" y="215" text-anchor="middle">${esc(part.role)}</text>`;
+      return `<svg class="stack" viewBox="0 0 640 230" role="img" aria-label="${esc(title)}">
+        <path class="hull" d="M44 92 L10 72 L10 158 L44 138 Z"/>
+        <rect class="hull" x="44" y="70" width="186" height="90" rx="4"/>
+        <line class="leg" x1="44" y1="100" x2="230" y2="100"/><line class="leg" x1="44" y1="130" x2="230" y2="130"/>
+        <path class="hull" d="M230 70 L322 104 L322 126 L230 160 Z"/>
+        <rect class="hull" x="322" y="106" width="22" height="18"/>
+        <rect class="foil" x="344" y="80" width="66" height="70" rx="6"/>
+        <rect class="foil" x="410" y="66" width="86" height="98" rx="2"/>
+        <path class="leg" d="M496 76 L548 50 M496 154 L548 180 M496 100 L560 104 M496 130 L560 126"/>
+        <path class="leg" d="M540 50 h16 M540 180 h16 M556 98 v12 M556 120 v12"/>
+        <g class="blast"><path d="M150 72l4 10 10-4-6 9 10 5-11 1 1 11-8-8-8 8 1-11-11-1 10-5-6-9 10 4z"/></g>
+        <text class="blast-t" x="150" y="58" text-anchor="middle">nơi xảy ra vụ nổ</text>
+        ${label(130, p.sm)}${label(276, p.cm)}${label(470, p.lm)}
+      </svg>`;
+    },
+
+    LoopSVG: ({ steps, title, sel }) => {
+      const c = 200, R = 118, nr = 24, n = steps.length;
+      const g = steps.map((s, i) => {
+        const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+        return { s, i, a, x: c + R * Math.cos(a), y: c + R * Math.sin(a), lx: c + (R + 50) * Math.cos(a), ly: c + (R + 50) * Math.sin(a) };
+      });
+      const d = (nr + 7) / R;
+      const arcs = g.map((p, i) => {
+        const q = g[(i + 1) % n];
+        const a1 = p.a + d;
+        const a2 = (i === n - 1 ? q.a + 2 * Math.PI : q.a) - d;
+        const x1 = c + R * Math.cos(a1), y1 = c + R * Math.sin(a1), x2 = c + R * Math.cos(a2), y2 = c + R * Math.sin(a2);
+        return `<path class="${cx('loop-arc', i === n - 1 && 'is-return')}" d="M${r1(x1)} ${r1(y1)} A${R} ${R} 0 0 1 ${r1(x2)} ${r1(y2)}" marker-end="url(#loop-arrow)"/>`;
+      }).join('');
+      const nodes = g.map((p) =>
+        `<g class="${cx('loop-node', p.i === sel && 'is-sel')}" data-i="${p.i}" tabindex="0" role="button" aria-label="Bước ${p.i + 1}: ${esc(p.s.title)}" aria-pressed="${p.i === sel}">
+          <circle cx="${r1(p.x)}" cy="${r1(p.y)}" r="${nr}"/>
+          <text class="n" x="${r1(p.x)}" y="${r1(p.y)}">${p.i + 1}</text>
+          <text class="lbl" x="${r1(p.lx)}" y="${r1(p.ly)}">${esc(p.s.short)}</text></g>`).join('');
+      return `<svg class="loop-svg" viewBox="0 0 400 400" role="group" aria-label="${esc(title)}">
+        <defs><marker id="loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+        ${arcs}
+        <g class="loop-center"><text class="big" x="${c}" y="${c - 6}">7 bước</text><text class="small" x="${c}" y="${c + 20}">rồi quay lại bước 1</text></g>
+        ${nodes}</svg>`;
+    },
+
+    StepDetail: ({ step, index, total, methodsById }) =>
+      `<h4>Bước ${index + 1}. ${esc(step.title)}</h4>
+       <p class="q">${esc(step.question)}</p>
+       <p><strong>Trong Apollo 13:</strong> ${rich(step.apollo)}</p>
+       <div class="panel-foot">
+         <div class="tags">${step.methods.map((m) => Atom.Tag({ label: methodsById[m].name, type: 'method', id: 'm-' + m, asButton: true })).join('')}</div>
+         <div class="pager">
+           <button type="button" class="pill-btn" data-step="prev" aria-label="Bước trước">‹ Trước</button>
+           <button type="button" class="pill-btn" data-step="next" aria-label="Bước sau">Sau ›</button>
+         </div>
+       </div>
+       <p class="sr-only" aria-live="polite" style="position:absolute;left:-9999px">Bước ${index + 1} trên ${total}</p>`,
+
+    VennSVG: ({ sets, items, sel }) => {
+      const circles = [
+        { id: 'a', cx: 140, cy: 140 }, { id: 'b', cx: 260, cy: 140 }, { id: 'c', cx: 200, cy: 236 }
+      ];
+      const s = byId(sets);
+      const labelPos = { a: [72, 24, 'middle'], b: [322, 24, 'middle'], c: [200, 374, 'middle'] };
+      const pts = items.map((it) => {
+        const w = Math.max(54, it.label.length * 7.4 + 18);
+        return `<g class="${cx('venn-pt', it.id === sel && 'is-sel')}" data-id="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc(it.label + ', ' + it.region)}" aria-pressed="${it.id === sel}">
+          <rect x="${r1(it.x - w / 2)}" y="${it.y - 14}" width="${r1(w)}" height="28" rx="14"/>
+          <text x="${it.x}" y="${it.y}">${esc(it.label)}</text></g>`;
+      }).join('');
+      return `<svg class="venn-svg" viewBox="0 0 400 386" role="group" aria-label="Sơ đồ Venn ba vùng">
+        ${circles.map((c) => `<circle class="venn-set ${c.id}" cx="${c.cx}" cy="${c.cy}" r="110"/>`).join('')}
+        ${circles.map((c) => { const [x, y, a] = labelPos[c.id]; return `<text class="venn-setlabel" x="${x}" y="${y}" text-anchor="${a}">${esc(s[c.id].label)}</text>`; }).join('')}
+        ${pts}</svg>`;
+    },
+
+    VennDetail: ({ item, sets }) =>
+      item
+        ? `<h4>${esc(item.label)}</h4><p class="q">${esc(item.region)}</p><p>${rich(item.why)}</p>
+           <div class="panel-foot"><div class="tags">${Atom.Tag({ label: 'Đọc chi tiết ' + item.label, type: 'method', id: 'm-' + item.id, asButton: true })}</div></div>`
+        : `<h4>Ba vùng</h4>${sets.map((s) => `<p><strong>${esc(s.label)}:</strong> ${esc(s.desc)}</p>`).join('')}`,
+
+    GraphSVG: ({ nodes, edges, pos, W, H }) => {
+      const R = { method: 18, step: 12, moment: 11, case: 11 };
+      const isStep = (id) => /^s\d$/.test(id);
+      const lines = edges.map(([a, b]) =>
+        `<line class="${cx('gedge', isStep(a) && isStep(b) && 'is-chain')}" data-a="${a}" data-b="${b}" x1="${r1(pos[a].x)}" y1="${r1(pos[a].y)}" x2="${r1(pos[b].x)}" y2="${r1(pos[b].y)}"/>`).join('');
+      const labelAt = (n, p, r) => {
+        const outer = n.type === 'moment' || n.type === 'case';
+        const cs = Math.cos(p.a), sn = Math.sin(p.a);
+        if (outer && Math.abs(cs) > 0.35) return { x: p.x + (cs > 0 ? r + 7 : -(r + 7)), y: p.y + 5, anchor: cs > 0 ? 'start' : 'end' };
+        if (outer && sn < 0) return { x: p.x, y: p.y - r - 8, anchor: 'middle' };
+        return { x: p.x, y: p.y + r + 17, anchor: 'middle' };
+      };
+      const dots = nodes.map((n) => {
+        const p = pos[n.id], r = R[n.type], L = labelAt(n, p, r);
+        return `<g class="gnode t-${n.type}" data-id="${n.id}" tabindex="0" role="button" aria-label="${esc(n.label)}">
+          <circle class="hit" cx="${r1(p.x)}" cy="${r1(p.y)}" r="${r + 14}"/>
+          <circle class="dot" cx="${r1(p.x)}" cy="${r1(p.y)}" r="${r}"/>
+          <text x="${r1(L.x)}" y="${r1(L.y)}" text-anchor="${L.anchor}">${esc(n.label)}</text></g>`;
+      }).join('');
+      return `<svg class="graph-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="Đồ thị liên hệ giữa các khái niệm">${lines}${dots}</svg>`;
+    },
+
+    GraphDetail: ({ node, neighbors, types }) =>
+      node
+        ? `<h4>${esc(node.label)}</h4><p class="q">${esc(types[node.type])}</p><p>${rich(node.desc)}</p>
+           <p style="margin-bottom:6px"><strong>Nối với:</strong></p>
+           <div class="tags">${neighbors.map((nb) => `<button type="button" class="tag tag--${nb.type}" data-node="${esc(nb.id)}">${esc(nb.label)}</button>`).join('')}</div>
+           <div class="panel-foot"><span></span><button type="button" class="pill-btn" data-graph-clear>Bỏ chọn</button></div>`
+        : `<h4>Chọn một chấm</h4><p>Ví dụ, chạm vào <strong>Hộp thư CO₂</strong> để thấy khoảnh khắc ấy dùng Nguyên lý gốc ở bước “Sự thật” và bước “Thiết kế”.</p>`,
+
+    Legend: (types) =>
+      `<ul class="legend">${Object.entries(types).map(([k, v]) => {
+        const col = { method: 'var(--gold)', step: 'var(--sea)', moment: 'var(--blue)', case: 'var(--muted)' }[k];
+        return `<li><i style="background:${col}"></i>${esc(v)}</li>`;
+      }).join('')}</ul>`
+  };
+
+  /* ---------- Pure layout for the graph (deterministic radial rings) ----------
+     Bước ở vòng giữa, phương pháp ở vòng trong, case và khoảnh khắc ở vòng ngoài.
+     Góc của mỗi chấm = trung bình góc các chấm nó nối tới, rồi giãn ra để không chồng nhau. */
+  function layoutGraph(nodes, edges, W, H) {
+    const c = { x: W / 2, y: H / 2 };
+    const ring = { method: 92, step: 172, moment: 258, case: 258 };
+    const TAU = Math.PI * 2;
+    const norm = (a) => ((a % TAU) + TAU) % TAU;
+    const adj = {};
+    edges.forEach(([a, b]) => { (adj[a] = adj[a] || []).push(b); (adj[b] = adj[b] || []).push(a); });
+    const ang = {};
+    const meanAngle = (ids) => {
+      let sx = 0, sy = 0;
+      ids.filter((id) => id in ang).forEach((id) => { sx += Math.cos(ang[id]); sy += Math.sin(ang[id]); });
+      return norm(Math.atan2(sy, sx));
+    };
+    const spread = (ids, minSep) => {
+      for (let pass = 0; pass < 200; pass++) {
+        const order = ids.slice().sort((a, b) => ang[a] - ang[b]);
+        let moved = false;
+        for (let i = 0; i < order.length; i++) {
+          const a = order[i], b = order[(i + 1) % order.length];
+          let gap = norm(ang[b] - ang[a]);
+          if (order.length === 1) break;
+          if (gap < minSep) {
+            const push = (minSep - gap) / 2 + 1e-4;
+            ang[a] = norm(ang[a] - push); ang[b] = norm(ang[b] + push); moved = true;
+          }
+        }
+        if (!moved) break;
+      }
+    };
+    const of = (t) => nodes.filter((n) => n.type === t).map((n) => n.id);
+    const steps = of('step');
+    steps.forEach((id, i) => { ang[id] = norm(-Math.PI / 2 + (i * TAU) / steps.length); });
+    const methods = of('method');
+    methods.forEach((id) => { ang[id] = meanAngle(adj[id] || []); });
+    spread(methods, (TAU / methods.length) * 0.85);
+    const outer = of('moment').concat(of('case'));
+    outer.forEach((id) => { ang[id] = meanAngle(adj[id] || []); });
+    spread(outer, (TAU / outer.length) * 0.9);
+    const type = Object.fromEntries(nodes.map((n) => [n.id, n.type]));
+    const pos = {};
+    nodes.forEach((n) => {
+      const r = ring[type[n.id]], a = ang[n.id];
+      pos[n.id] = { x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a), a };
+    });
+    return pos;
+  }
+
+  /* =========================================================
+     LAYER 2b · SECTIONS (pure compositions of atoms)
+     ========================================================= */
+  const Section = {
+    TopBar: (meta) =>
+      `<header class="topbar">
+        <button class="icon-btn" id="menu-btn" type="button" aria-controls="nav" aria-expanded="false" aria-label="Mở mục lục">${Atom.Icon('menu')}</button>
+        <div class="topbar-title">${esc(meta.shortTitle)}</div>
+        <button class="icon-btn" id="theme-btn" type="button" aria-label="Đổi giao diện">${Atom.Icon('auto')}</button>
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+      </header>`,
+
+    Nav: (chapters, methods) =>
+      `<nav class="nav" id="nav" aria-label="Mục lục">
+        <div class="nav-head"><p>Mục lục</p><button class="icon-btn nav-close" id="nav-close" type="button" aria-label="Đóng mục lục">${Atom.Icon('close')}</button></div>
+        <ul class="nav-list">
+          <li><a href="#top" data-spy-link="top"><span class="nav-num">·</span><span>Mở đầu</span></a></li>
+          ${chapters.map((c) => `<li><a href="#${c.id}" data-spy-link="${c.id}"><span class="nav-num">${esc(c.num)}</span><span>${esc(c.title)}</span></a>
+            ${c.id === 'methods' ? `<ul class="nav-sub">${methods.map((m) => `<li><a href="#m-${m.id}" data-spy-link="m-${m.id}">${esc(m.name)}</a></li>`).join('')}</ul>` : ''}</li>`).join('')}
+        </ul></nav><div class="scrim" id="scrim"></div>`,
+
+    Hero: (meta) =>
+      `<section class="hero" id="top" data-spy="top">
+        <div class="hero-inner">
+          <p class="hero-meta">${esc(meta.kicker)}</p>
+          <h1>${meta.titleLines.map((l) => `<span>${esc(l)}</span>`).join('')}</h1>
+          ${Atom.TrajectorySVG({ caption: meta.trajCaption })}
+          <p class="hero-sub">${esc(meta.subtitle)}</p>
+          <p class="hero-lead">${esc(meta.lead)}</p>
+          <a class="hero-cta" href="#story">${esc(meta.cta)}</a>
+        </div></section>`,
+
+    Chapter: (ch, inner) => `<section class="chapter" id="${ch.id}" data-spy="${ch.id}">${Atom.ChapterHead(ch)}${inner}</section>`,
+
+    Story: (d) =>
+      Atom.Paras(d.paras) +
+      `<h3>${esc(d.stackTitle)}</h3>` +
+      Atom.Figure({ content: Atom.StackSVG({ parts: d.stack, title: d.stackTitle }), caption: d.stackCaption }) +
+      `<h3>${esc(d.crewTitle)}</h3>` + Atom.Timeline(d.timeline) +
+      `<h3>${esc(d.resourceTitle)}</h3>` +
+      Atom.Figure({ content: `<p>${rich(d.resource.intro)}</p>` + Atom.Bars(d.resource), caption: d.resource.note }) +
+      Atom.Callout(d.callout),
+
+    Thinking: (d) =>
+      Atom.Paras(d.intro) +
+      Atom.Figure({ cls: 'fig--bleed', content: `<div class="loop-wrap"><div id="loop-host"></div><div class="panel" id="loop-panel" aria-live="polite"></div></div>` }) +
+      d.notes.map(Atom.Callout).join(''),
+
+    Glossary: (d) =>
+      `<p>${rich(d.intro)}</p>
+       <div class="gl-controls">
+         <label for="gl-q" style="position:absolute;left:-9999px">Tìm thuật ngữ</label>
+         <input id="gl-q" class="gl-search" type="search" placeholder="Tìm thuật ngữ…" autocomplete="off">
+         <div class="chips" role="group" aria-label="Lọc theo nhóm">${d.cats.map((c, i) => Atom.Chip({ ...c, active: i === 0 })).join('')}</div>
+         <p class="gl-count" id="gl-count" aria-live="polite"></p>
+       </div>
+       <dl class="gl-list" id="gl-list">${d.items.map((it) => Atom.GlossaryItem(it, (d.cats.find((c) => c.value === it.cat) || {}).label)).join('')}</dl>
+       <div class="gl-empty" id="gl-empty" hidden></div>`,
+
+    Map: (d) =>
+      `<h3>${esc(d.vennTitle)}</h3><p>${rich(d.vennIntro)}</p>` +
+      Atom.Figure({ cls: 'fig--bleed', content: `<div class="loop-wrap"><div id="venn-host"></div><div class="panel" id="venn-panel" aria-live="polite"></div></div>`, caption: d.vennNote }) +
+      `<h3>${esc(d.graphTitle)}</h3><p>${rich(d.graphIntro)}</p>` +
+      Atom.Figure({ cls: 'fig--bleed', content: `<div class="graph-scroll" id="graph-host"></div>${Atom.Legend(d.types)}<div class="panel" id="graph-panel" style="margin-top:14px" aria-live="polite"></div>` }),
+
+    Method: (m) =>
+      `<section class="method" id="m-${m.id}" data-spy="m-${m.id}">
+        <header class="method-head"><h3>${esc(m.name)}</h3><p class="method-full">${esc(m.full)}</p></header>
+        <p class="method-q">${esc(m.question)}</p>
+        <p class="method-origin">${rich(m.origin)}</p>
+        ${Atom.Paras(m.essence)}
+        ${Atom.Flow({ steps: m.flow, cyclic: m.cyclic })}
+        ${Atom.Callout({ tone: 'apollo', title: 'Khoảnh khắc trong Apollo 13', body: m.apollo })}
+        ${Atom.UseGrid(m)}
+        ${Atom.CaseStudy(m.case)}
+      </section>`,
+
+    Closing: (d) =>
+      `<h3>${esc(d.summaryTitle)}</h3>${Atom.Table({ head: d.summaryHead, rows: d.summaryRows })}
+       <h3>${esc(d.questionsTitle)}</h3><p>${rich(d.questionsIntro)}</p>${Atom.QuestionList(d.questions)}
+       <div class="finale"><div class="finale-inner">${Atom.Paras(d.finale)}<p class="last">${esc(d.finaleLast)}</p></div></div>
+       <p class="footer-note">${esc(d.footer)}</p>`
+  };
+
+  const buildPage = (D) => {
+    const ch = byId(D.chapters);
+    return Section.TopBar(D.meta) +
+      `<div class="shell">${Section.Nav(D.chapters, D.methods)}
+        <main id="main">${Section.Hero(D.meta)}
+          <div class="content">
+            ${Section.Chapter(ch.story, Section.Story(D.story))}
+            ${Section.Chapter(ch.thinking, Section.Thinking(D.thinking))}
+            ${Section.Chapter(ch.glossary, Section.Glossary(D.glossary))}
+            ${Section.Chapter(ch.map, Section.Map(D.map))}
+            ${Section.Chapter(ch.methods, D.methods.map(Section.Method).join(''))}
+            ${Section.Chapter(ch.closing, Section.Closing(D.closing))}
+          </div></main></div>`;
+  };
+
+  /* =========================================================
+     LAYER 3 · BUSINESS WORKFLOW (state + side effects)
+     ========================================================= */
+  const Workflow = {
+    load() {
+      return JSON.parse(document.getElementById('content').textContent);
+    },
+
+    mount(D) {
+      document.getElementById('app').innerHTML = `<a class="skip" href="#main">Bỏ qua tới nội dung</a>` + buildPage(D);
+    },
+
+    goTo(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      history.replaceState(null, '', '#' + id);
+    },
+
+    menu() {
+      const body = document.body, btn = document.getElementById('menu-btn');
+      const mq = matchMedia('(min-width: 1100px)');
+      const sync = () => {
+        const open = mq.matches ? !body.classList.contains('nav-collapsed') : body.classList.contains('nav-open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.setAttribute('aria-label', open ? 'Ẩn mục lục' : 'Mở mục lục');
+      };
+      const close = () => { body.classList.remove('nav-open'); sync(); };
+      btn.addEventListener('click', () => {
+        if (mq.matches) body.classList.toggle('nav-collapsed');
+        else body.classList.toggle('nav-open');
+        sync();
+        if (body.classList.contains('nav-open')) { const first = document.querySelector('.nav-list a'); first && first.focus(); }
+      });
+      document.getElementById('nav-close').addEventListener('click', () => { close(); btn.focus(); });
+      document.getElementById('scrim').addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && body.classList.contains('nav-open')) { close(); btn.focus(); } });
+      document.getElementById('nav').addEventListener('click', (e) => {
+        const a = e.target.closest('a[href^="#"]');
+        if (!a) return;
+        e.preventDefault();
+        if (!mq.matches) close();
+        Workflow.goTo(a.getAttribute('href').slice(1));
+      });
+      (mq.addEventListener ? mq.addEventListener('change', () => { body.classList.remove('nav-open'); sync(); }) : mq.addListener(sync));
+      sync();
+    },
+
+    theme() {
+      const root = document.documentElement, btn = document.getElementById('theme-btn');
+      const order = ['auto', 'light', 'dark'];
+      const names = { auto: 'Tự động theo máy', light: 'Sáng', dark: 'Tối' };
+      let mode = 'auto';
+      try { mode = localStorage.getItem('a13-theme') || 'auto'; } catch (e) { /* storage unavailable */ }
+      if (!order.includes(mode)) mode = 'auto';
+      const apply = (m) => {
+        if (m === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', m);
+        btn.innerHTML = Atom.Icon(m);
+        btn.setAttribute('aria-label', 'Giao diện: ' + names[m] + '. Chạm để đổi');
+        btn.title = 'Giao diện: ' + names[m];
+      };
+      apply(mode);
+      btn.addEventListener('click', () => {
+        mode = order[(order.indexOf(mode) + 1) % order.length];
+        apply(mode);
+        try { localStorage.setItem('a13-theme', mode); } catch (e) { /* ignore */ }
+      });
+    },
+
+    progress() {
+      const bar = document.getElementById('progress-bar');
+      let ticking = false;
+      const update = () => {
+        const h = document.documentElement.scrollHeight - innerHeight;
+        bar.style.width = (h > 0 ? Math.min(100, (scrollY / h) * 100) : 0) + '%';
+        ticking = false;
+      };
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      update();
+    },
+
+    scrollSpy() {
+      const links = [...document.querySelectorAll('[data-spy-link]')];
+      if (!('IntersectionObserver' in window)) return;
+      const set = (id) => links.forEach((l) => l.classList.toggle('is-active', l.dataset.spyLink === id));
+      const io = new IntersectionObserver((entries) => {
+        entries.filter((e) => e.isIntersecting).forEach((e) => set(e.target.dataset.spy));
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      document.querySelectorAll('[data-spy]').forEach((el) => io.observe(el));
+    },
+
+    jumpTags() {
+      document.getElementById('main').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-goto]');
+        if (b) Workflow.goTo(b.dataset.goto);
+      });
+    },
+
+    loop(D) {
+      const steps = D.thinking.steps, methodsById = byId(D.methods);
+      const host = document.getElementById('loop-host'), panel = document.getElementById('loop-panel');
+      let sel = 0;
+      const render = (focusNode) => {
+        host.innerHTML = Atom.LoopSVG({ steps, title: D.thinking.loopTitle, sel });
+        panel.innerHTML = Atom.StepDetail({ step: steps[sel], index: sel, total: steps.length, methodsById });
+        if (focusNode) { const n = host.querySelector(`[data-i="${sel}"]`); n && n.focus(); }
+      };
+      const select = (i, focusNode) => { sel = (i + steps.length) % steps.length; render(focusNode); };
+      host.addEventListener('click', (e) => { const n = e.target.closest('.loop-node'); if (n) select(+n.dataset.i); });
+      host.addEventListener('keydown', (e) => {
+        const n = e.target.closest('.loop-node'); if (!n) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(+n.dataset.i, true); }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); select(sel + 1, true); }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); select(sel - 1, true); }
+      });
+      panel.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-step]'); if (!b) return;
+        select(sel + (b.dataset.step === 'next' ? 1 : -1));
+      });
+      render();
+    },
+
+    venn(D) {
+      const host = document.getElementById('venn-host'), panel = document.getElementById('venn-panel');
+      const items = D.map.vennItems, sets = D.map.sets;
+      let sel = null;
+      const render = (focus) => {
+        host.innerHTML = Atom.VennSVG({ sets, items, sel });
+        panel.innerHTML = Atom.VennDetail({ item: items.find((i) => i.id === sel), sets });
+        if (focus) { const n = host.querySelector(`[data-id="${sel}"]`); n && n.focus(); }
+      };
+      const pick = (id, focus) => { sel = sel === id ? null : id; render(focus); };
+      host.addEventListener('click', (e) => { const g = e.target.closest('.venn-pt'); if (g) pick(g.dataset.id); });
+      host.addEventListener('keydown', (e) => {
+        const g = e.target.closest('.venn-pt');
+        if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(g.dataset.id, true); }
+      });
+      render();
+    },
+
+    graph(D) {
+      const { nodes, edges, types } = D.map;
+      const W = 860, H = 640;
+      const pos = layoutGraph(nodes, edges, W, H);
+      const host = document.getElementById('graph-host'), panel = document.getElementById('graph-panel');
+      const nodeById = byId(nodes);
+      const adj = {};
+      edges.forEach(([a, b]) => { (adj[a] = adj[a] || new Set()).add(b); (adj[b] = adj[b] || new Set()).add(a); });
+      host.innerHTML = Atom.GraphSVG({ nodes, edges, pos, W, H });
+      const svg = host.querySelector('svg');
+      const typeOrder = { method: 0, step: 1, moment: 2, case: 3 };
+      const focus = (id) => {
+        svg.classList.toggle('has-focus', !!id);
+        const near = id ? adj[id] || new Set() : new Set();
+        svg.querySelectorAll('.gnode').forEach((g) => {
+          g.classList.toggle('is-focus', g.dataset.id === id);
+          g.classList.toggle('is-near', near.has(g.dataset.id));
+          g.setAttribute('aria-pressed', String(g.dataset.id === id));
+        });
+        svg.querySelectorAll('.gedge').forEach((l) => l.classList.toggle('is-near', !!id && (l.dataset.a === id || l.dataset.b === id)));
+        const neighbors = [...near].map((n) => nodeById[n]).sort((a, b) => typeOrder[a.type] - typeOrder[b.type]);
+        panel.innerHTML = Atom.GraphDetail({ node: id ? nodeById[id] : null, neighbors, types });
+      };
+      let current = null;
+      const pick = (id) => { current = current === id ? null : id; focus(current); };
+      svg.addEventListener('click', (e) => { const g = e.target.closest('.gnode'); if (g) pick(g.dataset.id); });
+      svg.addEventListener('keydown', (e) => {
+        const g = e.target.closest('.gnode');
+        if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(g.dataset.id); }
+      });
+      panel.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-node]');
+        if (b) { current = b.dataset.node; focus(current); return; }
+        if (e.target.closest('[data-graph-clear]')) { current = null; focus(null); }
+      });
+      focus(null);
+    },
+
+    glossary(D) {
+      const q = document.getElementById('gl-q'), list = document.getElementById('gl-list');
+      const count = document.getElementById('gl-count'), empty = document.getElementById('gl-empty');
+      const chips = [...document.querySelectorAll('.gl-controls .chip')];
+      const items = [...list.querySelectorAll('.gl-item')];
+      const state = { q: '', cat: 'all' };
+      const apply = () => {
+        const needle = fold(state.q.trim());
+        let shown = 0;
+        items.forEach((el) => {
+          const ok = (state.cat === 'all' || el.dataset.cat === state.cat) && (!needle || el.dataset.search.includes(needle));
+          el.hidden = !ok; if (ok) shown++;
+        });
+        count.textContent = `Đang hiện ${shown} trên ${items.length} thuật ngữ`;
+        empty.hidden = shown !== 0;
+        if (!shown) empty.textContent = `Không có thuật ngữ nào khớp “${state.q.trim()}”. Thử từ ngắn hơn hoặc chọn “Tất cả”.`;
+      };
+      q.addEventListener('input', () => { state.q = q.value; apply(); });
+      chips.forEach((c) => c.addEventListener('click', () => {
+        state.cat = c.dataset.value;
+        chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+        apply();
+      }));
+      apply();
+    },
+
+    start() {
+      const D = Workflow.load();
+      Workflow.mount(D);
+      Workflow.menu();
+      Workflow.theme();
+      Workflow.progress();
+      Workflow.jumpTags();
+      Workflow.loop(D);
+      Workflow.venn(D);
+      Workflow.graph(D);
+      Workflow.glossary(D);
+      Workflow.scrollSpy();
+      if (location.hash) { const el = document.getElementById(location.hash.slice(1)); el && el.scrollIntoView(); }
+    }
+  };
+
+  Workflow.start();
+})();
+</script>
+</body>
+</html>
