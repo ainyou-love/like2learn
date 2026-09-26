@@ -1,0 +1,187 @@
+/* @@BEGIN:CSS:BIZ:TopBar */
+/* Phone shape: one row of controls, then the search on a full-width row of its
+   own. Cramming a text field between four buttons at 360px produces a box too
+   narrow to read what you typed, so it gets its own line instead. The
+   arithmetic below has to add up to --bar, or the sticky tab strip parks over
+   the bar or floats below it: 4 + 40 + 6 + 40 + 4 = 94. */
+#topbar{position:sticky;top:0;z-index:30;height:var(--bar);
+  display:flex;flex-wrap:wrap;align-items:center;align-content:center;
+  gap:6px .5rem;padding:4px max(10px,env(safe-area-inset-left)) 4px max(10px,env(safe-area-inset-right));
+  background:var(--panel);border-bottom:1px solid var(--line)}
+#topbar .brand{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;line-height:1.2}
+#topbar .brand b{font:650 14px/1.25 var(--sans);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+#topbar .brand small{font:400 11px/1.25 var(--mono);color:var(--fg-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .grow{display:none}
+#topbar .ctl{flex:none;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;
+  padding:0 .55rem;display:inline-flex;align-items:center;
+  justify-content:center;gap:.3rem;font:600 12.5px/1 var(--sans);color:var(--fg-2)}
+#topbar .ctl:hover{border-color:var(--accent);color:var(--accent)}
+#topbar .ctl[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);
+  border-color:var(--accent)}
+#topbar [data-act=print]{display:none}
+#topbar .search{order:10;flex:1 1 100%;display:flex;align-items:center;gap:.4rem;height:40px;
+  border:1px solid var(--line-2);border-radius:8px;padding:0 .6rem;background:var(--bg)}
+#topbar .search input{border:0;background:none;outline:0;color:var(--fg);width:100%;
+  /* 16px exactly: anything smaller makes iOS Safari zoom the page on focus. */
+  font:400 16px/1 var(--sans);padding:.5rem 0;min-width:0}
+#topbar .search svg{color:var(--fg-3);flex:none}
+
+@media (min-width:900px){
+  #topbar{flex-wrap:nowrap;gap:.5rem;height:var(--bar);padding:0 .7rem}
+  #topbar .brand{flex:0 1 auto}
+  #topbar .grow{display:block;flex:1 1 auto;min-width:.5rem}
+  #topbar [data-act=print]{display:inline-flex}
+  #topbar .search{order:0;flex:0 1 auto;width:min(22rem,30vw);height:32px}
+  #topbar .search input{font-size:13.5px;padding:.4rem 0}
+}
+/* @@END:CSS:BIZ:TopBar */
+
+/* @@BEGIN:CSS:BIZ:Sidebar */
+/* Skin only -- where the sidebar sits, and whether it is a drawer or a column,
+   is a layout question and lives in CSS:LAYOUT. */
+#sidebar{overflow-y:auto;padding:.8rem .7rem 3rem;background:var(--panel);
+  overscroll-behavior:contain}
+#sidebar h4{font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;
+  color:var(--fg-3);margin:1.1rem .4rem .4rem}
+#sidebar h4:first-child{margin-top:0}
+#sidebar a{display:flex;gap:.45rem;align-items:baseline;padding:.3rem .4rem;
+  border-radius:5px;text-decoration:none;color:var(--fg-2);font-size:13.5px}
+#sidebar a:hover{background:var(--sunk);color:var(--fg)}
+#sidebar a[aria-current=true]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar a .k{font:500 11px/1.5 var(--mono);color:var(--fg-3);flex:none;width:1.1em}
+#sidebar a .n{margin-left:auto;font:500 11px/1.5 var(--mono);color:var(--fg-3)}
+#sidebar a[data-n="0"]{opacity:.5}
+#reset{width:100%;margin-top:.6rem;background:var(--sunk);border:1px solid var(--line-2);
+  border-radius:6px;padding:.4rem;font:500 12.5px/1 var(--sans);color:var(--fg-2)}
+/* @@END:CSS:BIZ:Sidebar */
+
+/* @@BEGIN:CSS:BIZ:FilterPanel */
+.fgroup{margin-bottom:.5rem}
+.fgroup>.lbl{font:600 11px/1 var(--sans);color:var(--fg-3);margin:.5rem .4rem .25rem;
+  text-transform:uppercase;letter-spacing:.05em}
+/* @@END:CSS:BIZ:FilterPanel */
+
+/* @@BEGIN:CSS:BIZ:HeroHighlights */
+.hero{margin-bottom:1.6rem}
+.hero h1{margin-bottom:.25rem}
+.hero .sub{color:var(--fg-2);font-size:15px;margin-bottom:1rem}
+.hl{counter-reset:hl;list-style:none;padding:0;margin:0 0 .8rem}
+.hl li{counter-increment:hl;position:relative;padding:.5rem .7rem .5rem 2.3rem;
+  border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:var(--rad);background:var(--panel);margin-bottom:.4rem}
+.hl li::before{content:counter(hl);position:absolute;left:.75rem;top:.55rem;
+  font:650 13px/1.5 var(--mono);color:var(--accent)}
+.hl .refs{margin-left:.3em}
+/* @@END:CSS:BIZ:HeroHighlights */
+
+/* @@BEGIN:CSS:BIZ:StackActionsTable */
+.sa-target{font:600 13px/1.4 var(--mono)}
+/* @@END:CSS:BIZ:StackActionsTable */
+
+/* @@BEGIN:CSS:BIZ:DeadlineTimeline */
+.tl{list-style:none;margin:.8rem 0;padding:0 0 0 1.1rem;border-left:2px solid var(--line-2)}
+.tl li{position:relative;padding:.1rem 0 .9rem .25rem}
+.tl li::before{content:"";position:absolute;left:-1.45rem;top:.5rem;width:9px;height:9px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+.tl li[data-s=passed]{opacity:.6}
+.tl li[data-s=passed]::before{background:var(--mute)}
+.tl li[data-s=tbd]::before{background:var(--panel);border-color:var(--line-2)}
+.tl .when{display:flex;gap:.5rem;align-items:center;margin-bottom:.1rem}
+/* @@END:CSS:BIZ:DeadlineTimeline */
+
+/* @@BEGIN:CSS:BIZ:SectionBlock */
+.sec{margin:0 0 2.2rem}
+.sec>header{display:flex;gap:.55rem;align-items:baseline;
+  border-bottom:1px solid var(--line);padding-bottom:.4rem;margin-bottom:.5rem}
+.sec>header .k{font:650 12px/1.6 var(--mono);color:var(--accent);flex:none}
+.sec>header .n{margin-left:auto;font:500 11px/1.6 var(--mono);color:var(--fg-3)}
+.sec .sum{color:var(--fg-2);font-size:14.5px;margin-bottom:.8rem}
+/* @@END:CSS:BIZ:SectionBlock */
+
+/* @@BEGIN:CSS:BIZ:ItemCard */
+.item{background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);
+  margin:0 0 .5rem}
+/* Dashed edge = the claim is not standing on a verified primary source. It is a
+   property of the data, so it is drawn from the data, never set by hand. */
+.item[data-soft="1"]{border-style:dashed;border-color:var(--line-2)}
+.item>.hd{display:flex;flex-wrap:wrap;gap:.4rem .5rem;align-items:center;width:100%;
+  text-align:left;background:none;border:0;padding:.65rem .75rem;border-radius:var(--rad)}
+.item>.hd:hover{background:var(--sunk)}
+.item .nm{font:650 14.5px/1.35 var(--sans)}
+.item .ver{font:500 12px/1.35 var(--mono);color:var(--fg-3)}
+.item .hl-txt{flex-basis:100%;font-size:14.5px;color:var(--fg-2);margin:0}
+.item .caret{margin-left:auto;color:var(--fg-3);transition:transform .15s}
+.item[data-open="1"] .caret{transform:rotate(90deg)}
+.item>.bd{padding:.2rem .75rem .8rem;max-width:var(--measure)}
+.item>.bd>p:first-child{margin-top:0}
+.item .grp{margin:.55rem 0}
+.item .grp>b{display:block;font:600 11px/1 var(--sans);text-transform:uppercase;
+  letter-spacing:.05em;color:var(--fg-3);margin-bottom:.3rem}
+.item .lnks{list-style:none;padding:0;margin:0}
+.item .lnks li{margin:.2em 0}
+/* @@END:CSS:BIZ:ItemCard */
+
+/* @@BEGIN:CSS:BIZ:ChecklistBlock */
+.ck{list-style:none;padding:0;margin:.6rem 0}
+.ck li{display:flex;gap:.55rem;align-items:flex-start;padding:.4rem .55rem;
+  border:1px solid var(--line);border-radius:var(--rad);margin-bottom:.35rem;
+  background:var(--panel)}
+.ck input{margin:.35rem 0 0;accent-color:var(--accent);flex:none}
+.ck li[data-done="1"] .txt{text-decoration:line-through;color:var(--fg-3)}
+.ck .o{font:650 12px/1.6 var(--mono);color:var(--fg-3);flex:none}
+/* @@END:CSS:BIZ:ChecklistBlock */
+
+/* @@BEGIN:CSS:BIZ:VerifyList */
+.vf{list-style:none;padding:0;margin:.6rem 0}
+.vf li{margin-bottom:.7rem}
+/* @@END:CSS:BIZ:VerifyList */
+
+/* @@BEGIN:CSS:BIZ:ConflictsPanel */
+.cf dl{margin:.3rem 0 .5rem;display:grid;grid-template-columns:auto 1fr;gap:.2rem .6rem}
+.cf dt{font:600 13px/1.5 var(--mono)}
+.cf dd{margin:0;color:var(--fg-2);font-size:14px}
+/* @@END:CSS:BIZ:ConflictsPanel */
+
+/* @@BEGIN:CSS:BIZ:GlossaryBlock */
+.gl{display:grid;grid-template-columns:minmax(7rem,auto) 1fr;gap:.35rem .9rem;
+  margin:.6rem 0;font-size:14.5px}
+.gl dt{font:600 13.5px/1.5 var(--mono)}
+.gl dd{margin:0;color:var(--fg-2)}
+/* @@END:CSS:BIZ:GlossaryBlock */
+
+/* @@BEGIN:CSS:BIZ:SourcesTab */
+.src{border:1px solid var(--line);border-radius:var(--rad);background:var(--panel);
+  padding:.65rem .75rem;margin-bottom:.5rem}
+.src:target{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.src .top{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.2rem}
+.src .no{font:650 12px/1.5 var(--mono);color:var(--accent)}
+.src .ttl{font:600 14.5px/1.4 var(--sans)}
+.src .meta{font-size:12.5px;color:var(--fg-3)}
+.src .back{font-size:12.5px;color:var(--fg-2);margin-top:.35rem}
+.src .back a{margin-right:.35em}
+.grpbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.6rem 0 1rem}
+.grpbar button{background:var(--panel);border:1px solid var(--line-2);border-radius:6px;
+  padding:.3rem .55rem;font:500 12.5px/1 var(--sans);color:var(--fg-2)}
+.grpbar button[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);
+  border-color:var(--accent)}
+/* @@END:CSS:BIZ:SourcesTab */
+
+/* @@BEGIN:CSS:BIZ:JsonTab */
+.jsonbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.7rem}
+.jsonbar .size{margin-left:auto;font:500 12px/1 var(--mono);color:var(--fg-3)}
+#jsonview{background:var(--sunk);border:1px solid var(--line);border-radius:var(--rad);
+  padding:.7rem;overflow-x:auto;font:400 12.5px/1.6 var(--mono);white-space:pre}
+#jsonview details{margin:0}
+#jsonview summary{cursor:pointer;list-style:none;color:var(--accent)}
+#jsonview summary::-webkit-details-marker{display:none}
+#jsonview summary::before{content:"\25b8 ";color:var(--fg-3)}
+#jsonview details[open]>summary::before{content:"\25be "}
+#jsonview .kk{color:var(--accent)}
+#jsonview .vs{color:var(--try)}
+#jsonview .vn{color:var(--now)}
+#jsonview ul{list-style:none;margin:0;padding-left:1.1rem;border-left:1px solid var(--line)}
+/* @@END:CSS:BIZ:JsonTab */
+
+/* @@SLOT:CSS_BIZ */

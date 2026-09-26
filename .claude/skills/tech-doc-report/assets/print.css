@@ -1,0 +1,17 @@
+/* @@BEGIN:CSS:PRINT */
+@media print{
+  #topbar,#sidebar,#tabs,#scrim,.skip,.copy,.grpbar,.jsonbar,.caret,.yt{display:none !important}
+  #main{margin:0}
+  #view{max-width:none;padding:0}
+  #view>*{max-width:none}
+  body{background:#fff;color:#000;font-size:11pt}
+  .item>.bd{display:block !important}
+  .item,.card,.src,.callout{break-inside:avoid;border-color:#bbb}
+  .item>.hd:hover{background:none}
+  /* A printed page loses every href, so print the destination after the text. */
+  .xl::after,.src .ttl a::after{content:" (" attr(href) ")";font:400 9pt var(--mono);
+    color:#444;word-break:break-all}
+  #jsonview{display:none}
+  a{text-decoration:none;color:#000}
+}
+/* @@END:CSS:PRINT */

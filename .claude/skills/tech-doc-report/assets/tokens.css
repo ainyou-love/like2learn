@@ -1,0 +1,55 @@
+/* @@BEGIN:CSS:TOKENS */
+/* Declared three times on purpose: the light default, the dark default that
+   follows the OS, and the two explicit data-theme overrides. A page that only
+   reads prefers-color-scheme cannot honour a manual toggle, and one that only
+   reads data-theme opens in the wrong theme. */
+:root{
+  --bg:#fbfbfa; --panel:#fff; --sunk:#f4f4f2;
+  --fg:#16181d; --fg-2:#4a4f5a; --fg-3:#767c88;
+  --line:#e2e2de; --line-2:#cdcdc7;
+  --accent:#2f5bd0; --accent-soft:#e8eefc;
+  --now:#b23b2e;   --now-soft:#fbeae7;
+  --try:#1d7a56;   --try-soft:#e3f4ec;
+  --watch:#8a6a17; --watch-soft:#fbf1d8;
+  --mute:#6b7280;  --mute-soft:#eef0f3;
+  --focus:#2f5bd0;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --measure:72ch; --rad:8px; --bar:52px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#131519; --panel:#1a1d23; --sunk:#20242b;
+    --fg:#e8eaee; --fg-2:#aeb4bf; --fg-3:#7e8593;
+    --line:#2a2f37; --line-2:#3a4049;
+    --accent:#7aa2f7; --accent-soft:#1e2739;
+    --now:#f07a6a;   --now-soft:#33211f;
+    --try:#5ecfa0;   --try-soft:#162b23;
+    --watch:#e0b95a; --watch-soft:#2e2718;
+    --mute:#9aa1ad;  --mute-soft:#23272e;
+    --focus:#7aa2f7;
+  }
+}
+html[data-theme="light"]{
+  --bg:#fbfbfa; --panel:#fff; --sunk:#f4f4f2;
+  --fg:#16181d; --fg-2:#4a4f5a; --fg-3:#767c88;
+  --line:#e2e2de; --line-2:#cdcdc7;
+  --accent:#2f5bd0; --accent-soft:#e8eefc;
+  --now:#b23b2e;   --now-soft:#fbeae7;
+  --try:#1d7a56;   --try-soft:#e3f4ec;
+  --watch:#8a6a17; --watch-soft:#fbf1d8;
+  --mute:#6b7280;  --mute-soft:#eef0f3;
+  --focus:#2f5bd0;
+}
+html[data-theme="dark"]{
+  --bg:#131519; --panel:#1a1d23; --sunk:#20242b;
+  --fg:#e8eaee; --fg-2:#aeb4bf; --fg-3:#7e8593;
+  --line:#2a2f37; --line-2:#3a4049;
+  --accent:#7aa2f7; --accent-soft:#1e2739;
+  --now:#f07a6a;   --now-soft:#33211f;
+  --try:#5ecfa0;   --try-soft:#162b23;
+  --watch:#e0b95a; --watch-soft:#2e2718;
+  --mute:#9aa1ad;  --mute-soft:#23272e;
+  --focus:#7aa2f7;
+}
+/* @@END:CSS:TOKENS */

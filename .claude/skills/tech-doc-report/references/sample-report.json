@@ -1,0 +1,517 @@
+{
+  "schema_version": "1.0",
+  "meta": {
+    "report_id": "sample_2026-08-01_2026-09-26",
+    "generated_at": "2026-09-26T10:00:00+07:00",
+    "time_window": {
+      "preset": "last_60_days",
+      "from": "2026-08-01",
+      "to": "2026-09-26"
+    },
+    "topics": [
+      "H",
+      "K"
+    ],
+    "stack": [
+      "Postgres",
+      "Python",
+      "TypeScript",
+      "Next.js"
+    ],
+    "depth": "standard",
+    "languages": [
+      "vi",
+      "en"
+    ],
+    "default_language": "vi",
+    "title": {
+      "vi": "Báo cáo mẫu — kiểm thử pipeline",
+      "en": "Sample report — pipeline fixture"
+    },
+    "subtitle": {
+      "vi": "Dữ liệu giả, dùng để chạy thử build và acceptance suite.",
+      "en": "Fabricated data used to exercise the build and the acceptance suite."
+    },
+    "data_quality_note": {
+      "vi": "Toàn bộ nội dung trong file này là dữ liệu mẫu, không phải kết quả research thật.",
+      "en": "Everything in this file is fixture data, not real research output."
+    }
+  },
+  "highlights": [
+    {
+      "id": "HL-1",
+      "rank": 1,
+      "text": {
+        "vi": "Một lỗ hổng trong lockfile cần patch trước khi deploy đợt tới.",
+        "en": "A lockfile vulnerability needs patching before the next deploy."
+      },
+      "item_ids": [
+        "H-001"
+      ]
+    },
+    {
+      "id": "HL-2",
+      "rank": 2,
+      "text": {
+        "vi": "Giá model giảm, nhưng con số vendor công bố chưa được kiểm chứng độc lập.",
+        "en": "Model pricing dropped, though the vendor figure is not independently verified."
+      },
+      "item_ids": [
+        "K-001",
+        "K-002"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "H",
+      "slug": "security-supply-chain",
+      "order": 1,
+      "title": {
+        "vi": "Bảo mật và chuỗi cung ứng",
+        "en": "Security and supply chain"
+      },
+      "summary": {
+        "vi": "Một sự cố preinstall hook và một bản vá đi kèm trong kỳ này.",
+        "en": "One preinstall-hook incident and the patch that followed in this window."
+      },
+      "status": "ok",
+      "items": [
+        {
+          "id": "H-001",
+          "kind": "incident",
+          "name": "example-pkg preinstall hook",
+          "version": "4.2.1",
+          "date": "2026-08-14",
+          "date_precision": "day",
+          "older_context": false,
+          "truth": "FACT",
+          "confidence": null,
+          "tags": [
+            "RISK/SECURITY"
+          ],
+          "action": "patch_now",
+          "stack_relevance": [
+            "TypeScript",
+            "Next.js"
+          ],
+          "headline": {
+            "vi": "Preinstall hook đọc biến môi trường và gửi ra ngoài",
+            "en": "Preinstall hook read environment variables and exfiltrated them"
+          },
+          "body": {
+            "vi": "Bản 4.2.0 chèn một preinstall hook đọc toàn bộ env rồi POST đi. Bản 4.2.1 gỡ hook; lockfile cũ vẫn ghim bản dính lỗi nên phải regenerate.",
+            "en": "Release 4.2.0 added a preinstall hook that read the whole environment and POSTed it out. 4.2.1 removes the hook; an old lockfile still pins the bad build, so it has to be regenerated."
+          },
+          "metrics": [
+            {
+              "key": "downloads_affected",
+              "value": 41000,
+              "unit": "downloads",
+              "label": {
+                "vi": "Lượt tải trong 48 giờ dính bản lỗi",
+                "en": "Downloads of the bad build in 48 hours"
+              },
+              "source_id": "S001"
+            }
+          ],
+          "commands": [
+            "npm ls example-pkg",
+            "npm i example-pkg@4.2.1 && rm -f package-lock.json && npm i"
+          ],
+          "links": [
+            {
+              "url": "https://github.com/example/example-pkg/security/advisories",
+              "label": {
+                "vi": "Advisory trên repo",
+                "en": "Advisory on the repo"
+              }
+            }
+          ],
+          "source_ids": [
+            "S001",
+            "S002"
+          ]
+        },
+        {
+          "id": "H-002",
+          "kind": "pattern",
+          "name": "Pinned CI installs",
+          "version": null,
+          "date": null,
+          "date_precision": "tbd",
+          "older_context": false,
+          "truth": "ASSUMPTION",
+          "confidence": "MEDIUM",
+          "tags": [
+            "TRADE_OFF",
+            "DECISION"
+          ],
+          "action": "watch",
+          "stack_relevance": [
+            "TypeScript"
+          ],
+          "headline": {
+            "vi": "Cài bằng lockfile trong CI chặn được phần lớn sự cố dạng này",
+            "en": "Lockfile-only installs in CI stop most incidents of this shape"
+          },
+          "body": {
+            "vi": "Suy đoán từ hình dạng sự cố, chưa có số liệu đo được: nếu CI chỉ cài theo lockfile thì một bản mới độc hại không tự vào build.",
+            "en": "Inferred from the shape of the incident, with no measured data behind it: if CI installs only from the lockfile, a newly published malicious build cannot enter the build on its own."
+          },
+          "metrics": [],
+          "commands": [
+            "npm ci"
+          ],
+          "links": [],
+          "source_ids": []
+        },
+        {
+          "id": "H-003",
+          "kind": "tool",
+          "name": "npm audit signatures",
+          "version": null,
+          "date": "2026-08-20",
+          "date_precision": "day",
+          "older_context": false,
+          "truth": "FACT",
+          "confidence": null,
+          "tags": [
+            "DECISION"
+          ],
+          "action": "try_now",
+          "stack_relevance": [
+            "TypeScript",
+            "Next.js"
+          ],
+          "headline": {
+            "vi": "Kiểm tra signature của package ngay trong CI",
+            "en": "Verify package signatures as a CI step"
+          },
+          "body": {
+            "vi": "Lệnh này đối chiếu signature của từng package với registry. Chạy được trong CI và trả về exit code khác 0 khi có package không khớp, nên dùng làm gate trước khi build.",
+            "en": "The command checks each package's signature against the registry. It runs in CI and exits non-zero when a package does not match, so it works as a gate before the build."
+          },
+          "metrics": [],
+          "commands": [
+            "npm audit signatures"
+          ],
+          "links": [],
+          "source_ids": [
+            "S001",
+            "S002"
+          ]
+        },
+        {
+          "id": "H-004",
+          "kind": "event",
+          "name": "Registry provenance enforcement",
+          "version": null,
+          "date": "2026-09-08",
+          "date_precision": "day",
+          "older_context": false,
+          "truth": "UNVERIFIED",
+          "confidence": null,
+          "tags": [
+            "RISK/MIGRATION"
+          ],
+          "action": "watch",
+          "stack_relevance": [
+            "TypeScript"
+          ],
+          "headline": {
+            "vi": "Registry dự kiến bắt buộc provenance, chưa có mốc chính thức",
+            "en": "The registry plans to require provenance, with no official date yet"
+          },
+          "body": {
+            "vi": "Chỉ có thông tin từ thread thảo luận, chưa thấy công bố chính thức nên để UNVERIFIED. Nếu thành hiện thực thì các package tự build sẽ phải phát hành lại.",
+            "en": "Only a discussion thread supports this so far, with no official announcement, so it stays unverified. If it lands, self-built packages will have to be republished."
+          },
+          "metrics": [],
+          "commands": [],
+          "links": [],
+          "source_ids": [
+            "S001"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K",
+      "slug": "models-pricing",
+      "order": 2,
+      "title": {
+        "vi": "Model và giá",
+        "en": "Models and pricing"
+      },
+      "summary": {
+        "vi": "Một thay đổi giá và một buổi nói chuyện có ghi hình.",
+        "en": "One pricing change and one recorded talk."
+      },
+      "status": "ok",
+      "items": [
+        {
+          "id": "K-001",
+          "kind": "model",
+          "name": "Example Model Mini",
+          "version": "2026-09",
+          "date": "2026-09-02",
+          "date_precision": "day",
+          "older_context": false,
+          "truth": "VENDOR_CLAIM",
+          "confidence": null,
+          "tags": [
+            "TRADE_OFF"
+          ],
+          "action": "try_now",
+          "stack_relevance": [
+            "Python"
+          ],
+          "headline": {
+            "vi": "Vendor công bố giảm giá input, chưa ai đo lại độc lập",
+            "en": "Vendor announced an input price cut that nobody has re-measured"
+          },
+          "body": {
+            "vi": "Con số trong bài blog của chính vendor. Benchmark kèm theo cũng do vendor chạy, nên coi là VENDOR_CLAIM cho tới khi có bên thứ ba.",
+            "en": "The figure comes from the vendor's own blog post. The benchmark alongside it was run by the vendor too, so treat it as a vendor claim until a third party repeats it."
+          },
+          "metrics": [
+            {
+              "key": "input_price",
+              "value": "0.15",
+              "unit": "USD / 1M tokens",
+              "label": {
+                "vi": "Giá input công bố",
+                "en": "Announced input price"
+              },
+              "source_id": "S003"
+            }
+          ],
+          "commands": [],
+          "links": [],
+          "source_ids": [
+            "S003"
+          ]
+        },
+        {
+          "id": "K-002",
+          "kind": "video",
+          "name": "Talk: what the pricing change actually costs you",
+          "version": null,
+          "date": "2026-09-11",
+          "date_precision": "day",
+          "older_context": false,
+          "truth": "UNVERIFIED",
+          "confidence": null,
+          "tags": [
+            "CONCERN"
+          ],
+          "action": "watch",
+          "stack_relevance": [],
+          "headline": {
+            "vi": "Một buổi nói chuyện phản biện lại con số của vendor",
+            "en": "A talk that pushes back on the vendor's number"
+          },
+          "body": {
+            "vi": "Diễn giả đưa ra con số khác hẳn nhưng không công bố phương pháp đo, nên để UNVERIFIED. Video nhúng ngay dưới đây.",
+            "en": "The speaker gives a very different number but never publishes the method, so it stays unverified. The video is embedded below."
+          },
+          "metrics": [],
+          "commands": [],
+          "links": [],
+          "source_ids": [
+            "S004",
+            "S003"
+          ]
+        }
+      ]
+    }
+  ],
+  "stack_actions": [
+    {
+      "id": "SA-1",
+      "target": "Next.js",
+      "action": "patch_now",
+      "text": {
+        "vi": "Regenerate lockfile rồi deploy lại.",
+        "en": "Regenerate the lockfile and redeploy."
+      },
+      "item_ids": [
+        "H-001"
+      ]
+    },
+    {
+      "id": "SA-2",
+      "target": "Postgres",
+      "action": "ignore",
+      "text": {
+        "vi": "Không có gì ảnh hưởng trong kỳ này.",
+        "en": "Nothing in this window touches it."
+      },
+      "item_ids": []
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "D-1",
+      "date": "2026-10-15",
+      "date_precision": "day",
+      "status": "upcoming",
+      "event": {
+        "vi": "Registry gỡ hẳn các bản dính lỗi",
+        "en": "The registry removes the affected builds entirely"
+      },
+      "source_ids": [
+        "S002"
+      ]
+    },
+    {
+      "id": "D-2",
+      "date": null,
+      "date_precision": "tbd",
+      "status": "tbd",
+      "event": {
+        "vi": "Bên thứ ba công bố benchmark độc lập",
+        "en": "A third party publishes an independent benchmark"
+      },
+      "source_ids": [
+        "S003"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "C-1",
+      "order": 1,
+      "text": {
+        "vi": "Kiểm tra xem repo có ghim bản dính lỗi không.",
+        "en": "Check whether the repo pins the affected build."
+      },
+      "commands": [
+        "npm ls example-pkg"
+      ],
+      "item_ids": [
+        "H-001"
+      ]
+    },
+    {
+      "id": "C-2",
+      "order": 2,
+      "text": {
+        "vi": "Chuyển CI sang cài bằng lockfile.",
+        "en": "Move CI to lockfile-only installs."
+      },
+      "commands": [
+        "npm ci"
+      ],
+      "item_ids": [
+        "H-002"
+      ]
+    }
+  ],
+  "verify": [
+    {
+      "id": "V-1",
+      "text": {
+        "vi": "Xác nhận không còn bản dính lỗi nào trong cây phụ thuộc.",
+        "en": "Confirm no affected build remains anywhere in the dependency tree."
+      },
+      "commands": [
+        "npm ls example-pkg --all"
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "CF-1",
+      "subject": {
+        "vi": "Số lượt tải bản dính lỗi",
+        "en": "Downloads of the affected build"
+      },
+      "values": [
+        {
+          "value": "41,000",
+          "source_id": "S001"
+        },
+        {
+          "value": "63,500",
+          "source_id": "S002"
+        }
+      ],
+      "note": {
+        "vi": "Hai bên đếm trong khoảng thời gian khác nhau; không chọn một con số nào làm chuẩn.",
+        "en": "The two counts cover different periods; neither is treated as the canonical figure."
+      }
+    }
+  ],
+  "glossary": [
+    {
+      "term": "preinstall hook",
+      "definition": {
+        "vi": "Script chạy tự động trước khi package được cài, nên nó chạy với quyền của người cài.",
+        "en": "A script that runs automatically before a package installs, with the installing user's privileges."
+      }
+    },
+    {
+      "term": "lockfile",
+      "definition": {
+        "vi": "File ghim đúng version của từng dependency để mọi lần cài đều ra cùng một cây.",
+        "en": "A file pinning the exact version of every dependency so each install produces the same tree."
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "S001",
+      "title": "Malicious preinstall hook in example-pkg 4.2.0",
+      "publisher": "Example Security Lab",
+      "url": "https://security.example.com/advisories/2026-08-14-example-pkg",
+      "published_at": "2026-08-14",
+      "source_type": "security_lab",
+      "trust": "high",
+      "original_lang": "en",
+      "topics": [
+        "H"
+      ]
+    },
+    {
+      "id": "S002",
+      "title": "example-pkg 4.2.1 release notes",
+      "publisher": "example-pkg maintainers",
+      "url": "https://github.com/example/example-pkg/releases/tag/v4.2.1",
+      "published_at": "2026-08-15",
+      "source_type": "changelog",
+      "trust": "high",
+      "original_lang": "en",
+      "topics": [
+        "H"
+      ]
+    },
+    {
+      "id": "S003",
+      "title": "Introducing Example Model Mini pricing",
+      "publisher": "Example AI",
+      "url": "https://blog.example.ai/model-mini-pricing",
+      "published_at": "2026-09-02",
+      "source_type": "vendor",
+      "trust": "medium",
+      "original_lang": "en",
+      "topics": [
+        "K"
+      ]
+    },
+    {
+      "id": "S004",
+      "title": "What the pricing change actually costs you (conference talk)",
+      "publisher": "ExampleConf",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=1m30s",
+      "published_at": "2026-09-11",
+      "source_type": "video",
+      "trust": "low",
+      "original_lang": "en",
+      "topics": [
+        "K"
+      ]
+    }
+  ]
+}

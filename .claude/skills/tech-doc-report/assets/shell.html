@@ -1,0 +1,69 @@
+<!doctype html>
+<!-- @@BEGIN:MANIFEST
+  file: a tech-doc-report page        schema: 1.0
+  built by: .claude/skills/tech-doc-report/scripts/build_report.py
+  list every region with:  grep -n "@@BEGIN" <file>.html
+
+  CSS:TOKENS  CSS:BASE  CSS:ATOM:<Name>...  @@SLOT:CSS_ATOMS
+              CSS:BIZ:<Name>...  @@SLOT:CSS_BIZ  CSS:LAYOUT  CSS:PRINT
+  SHELL
+  I18N (ends @@SLOT:I18N_KEYS)  JS:UTIL
+  JS:ATOM:<Name>...  @@SLOT:JS_ATOMS   JS:BIZ:<Name>...  @@SLOT:JS_BIZ
+  JS:APP:DATA  JS:APP:FILTER  JS:APP:ROUTER  JS:APP:RENDER  JS:APP:SPY
+  JS:APP:EVENTS  JS:APP:BOOT
+  DATA  (last element before </body>; the report JSON, verbatim)
+
+  Fix a component in .claude/skills/tech-doc-report/assets/ and rebuild --
+  every future report inherits the fix. Patch this file directly only for a
+  one-off tweak to this report. Rebuild without the source JSON:
+      build_report.py --from-html <this file> --out <this file>
+@@END:MANIFEST -->
+<!-- @@BEGIN:EDIT-PROTOCOL
+  REPLACE      one label, colour, or sentence
+               -> grep the key or token -> str_replace. Do not read the file.
+  INSERT       new component, I18N key, data item, or source
+               -> grep the matching @@SLOT or array key -> insert there.
+  READ-REGION  change one component's behaviour or style
+               -> grep "@@BEGIN:<REGION>" and "@@END:<REGION>"
+               -> view only that line range.
+  READ-FULL    only for layout restructure, a new tab, a schema change,
+               or a cross-cutting refactor.
+  Data edits   locate by "id": "<ID>"; each item is a contiguous block.
+  Swap dataset replace the body of the DATA region at the end of the file.
+               Every marker string here is unique on purpose -- do not repeat
+               a region name in prose, or grep stops being able to find it.
+@@END:EDIT-PROTOCOL -->
+<html lang="/*__LANG__*/" data-lang="/*__LANG__2__*/">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>/*__TITLE__*/</title>
+<meta name="description" content="/*__DESC__*/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>/*__CSS__*/</style>
+</head>
+<body>
+
+<!-- @@BEGIN:SHELL -->
+<a class="skip" href="#view">Skip to content</a>
+<header id="topbar"></header>
+<div id="scrim" hidden></div>
+<aside id="sidebar" aria-label="Report navigation"></aside>
+<main id="main">
+  <nav id="tabs"></nav>
+  <section id="view" tabindex="-1"></section>
+</main>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+<!-- @@END:SHELL -->
+
+<script>/*__JS__*/</script>
+
+<!-- @@BEGIN:DATA -->
+<script type="application/json" id="report-data">
+/*__DATA__*/
+</script>
+<!-- @@END:DATA -->
+</body>
+</html>

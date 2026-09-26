@@ -1,0 +1,36 @@
+/* @@BEGIN:CSS:BASE */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font:400 16px/1.62 var(--sans);
+  font-feature-settings:"kern","liga";
+  overflow-wrap:break-word;
+}
+/* [hidden] must win over any display we set on the same element, or a hidden
+   panel keeps rendering and the acceptance suite is the only thing that notices. */
+[hidden]{display:none !important}
+h1,h2,h3,h4{line-height:1.25;font-weight:650;margin:0 0 .4em}
+h1{font-size:1.75rem;letter-spacing:-.015em}
+h2{font-size:1.3rem;letter-spacing:-.01em}
+h3{font-size:1.05rem}
+p{margin:0 0 .85em}
+a{color:var(--accent)}
+a:hover{text-decoration-thickness:2px}
+code,kbd,pre{font-family:var(--mono);font-size:.875em}
+ul,ol{margin:0 0 .85em;padding-left:1.35em}
+li{margin:.2em 0}
+hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:-9999px;top:0;z-index:60;background:var(--panel);
+  padding:.5rem .8rem;border:1px solid var(--line)}
+.skip:focus{left:.5rem;top:.5rem}
+.mark{background:var(--watch-soft);color:var(--fg);border-radius:2px;padding:0 1px}
+[id]{scroll-margin-top:calc(var(--bar) + 44px)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+/* @@END:CSS:BASE */

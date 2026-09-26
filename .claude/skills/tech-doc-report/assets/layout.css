@@ -1,0 +1,81 @@
+/* @@BEGIN:CSS:LAYOUT */
+/* Mobile first. The base rules below are the phone layout -- one column, the
+   nav behind a drawer, the search on its own row where it can be typed in with
+   a thumb. Everything under a min-width query is an enhancement for a screen
+   that happens to be bigger, never a rescue for a broken small one.
+   Reports get read on a phone between other things, and the first thing a
+   reader wants there is "what do I have to act on", not a sidebar. */
+
+:root{ --bar:94px; }            /* two rows on a phone: controls, then search */
+#main{margin-left:0;min-height:calc(100vh - var(--bar))}
+#view{
+  padding:1rem .85rem 4.5rem;
+  padding-left:max(.85rem,env(safe-area-inset-left));
+  padding-right:max(.85rem,env(safe-area-inset-right));
+  padding-bottom:max(4.5rem,env(safe-area-inset-bottom));
+  max-width:100%;
+}
+#view>*{max-width:100%}
+.blk{margin:0 0 1.8rem}
+.blk>h2{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.blk>h2 .n{font:500 12px/1.6 var(--mono);color:var(--fg-3)}
+
+/* Touch first: 44px is the smallest target that a thumb hits reliably, and a
+   report is mostly a page of things to tap open. */
+#topbar .ctl{height:40px;min-width:40px}
+.item>.hd{padding:.75rem .7rem;min-height:44px}
+.chip{padding:.5rem .45rem;min-height:40px}
+#sidebar a{padding:.55rem .45rem;min-height:40px;align-items:center}
+.copy{padding:.45em .7em;min-height:34px}
+.grpbar button{min-height:38px}
+button{-webkit-tap-highlight-color:rgba(47,91,208,.15)}
+
+/* No sideways scrolling of the page itself -- only of the things that opted in. */
+body{overflow-x:hidden}
+.tw,.code pre,#jsonview{-webkit-overflow-scrolling:touch}
+.metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr))}
+.gl{grid-template-columns:1fr;gap:.1rem .9rem}
+.gl dd{margin:0 0 .5rem}
+.cf dl{grid-template-columns:1fr}
+
+/* The drawer. Off-canvas by default, which is the state a phone opens in. */
+#sidebar{
+  position:fixed;top:0;left:0;bottom:0;z-index:45;
+  width:min(19.5rem,88vw);
+  padding-top:calc(.8rem + env(safe-area-inset-top));
+  padding-bottom:calc(3rem + env(safe-area-inset-bottom));
+  transform:translateX(-100%);transition:transform .18s ease;
+  box-shadow:0 0 40px rgba(0,0,0,.28);
+}
+#sidebar.open{transform:none}
+#scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45)}
+
+@media (min-width:600px){
+  #view{padding:1.2rem 1.1rem 5rem}
+  .gl{grid-template-columns:minmax(7rem,auto) 1fr;gap:.35rem .9rem}
+  .gl dd{margin:0}
+  .cf dl{grid-template-columns:auto 1fr}
+}
+
+/* Only here does the sidebar earn permanent space: below this the content
+   column would drop under ~40 characters, which is unreadable. */
+@media (min-width:900px){
+  :root{--bar:52px}
+  #navbtn{display:none}
+  #main{margin-left:17rem}
+  #view{padding:1.4rem 1.2rem 5rem;max-width:calc(var(--measure) + 11rem)}
+  #view>*{max-width:var(--measure)}
+  #view>.tw,#view>.metrics,#view>.yt{max-width:none}
+  #sidebar{top:var(--bar);width:17rem;transform:none;box-shadow:none;transition:none;
+    border-right:1px solid var(--line)}
+  #scrim{display:none}
+  #topbar .ctl{height:32px;min-width:32px}
+  .item>.hd{padding:.65rem .75rem;min-height:0}
+  .chip{padding:.28rem .4rem;min-height:0}
+  #sidebar a{padding:.3rem .4rem;min-height:0;align-items:baseline}
+  .copy{min-height:0;padding:.25em .5em}
+}
+@media (min-width:1280px){
+  #view{padding-left:2rem}
+}
+/* @@END:CSS:LAYOUT */
