@@ -22,6 +22,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html
 import pathlib
 import sys
 
@@ -82,11 +83,11 @@ def main() -> int:
         if shell.count(one) != 1:
             sys.exit("build: cannot place multilingual sources -- shell tag not found")
         shell = shell.replace(one, src_block, 1)
-        subs = [("/*__LANG__*/", a.lang), ("/*__TITLE__*/", a.title),
-                ("/*__DESC__*/", a.desc), ("/*__CSS__*/", css), ("/*__JS__*/", js)]
+        subs = [("/*__LANG__*/", a.lang), ("/*__TITLE__*/", html.escape(a.title)),
+                ("/*__DESC__*/", html.escape(a.desc)), ("/*__CSS__*/", css), ("/*__JS__*/", js)]
     else:
-        subs = [("/*__LANG__*/", a.lang), ("/*__TITLE__*/", a.title),
-                ("/*__DESC__*/", a.desc), ("/*__CSS__*/", css),
+        subs = [("/*__LANG__*/", a.lang), ("/*__TITLE__*/", html.escape(a.title)),
+                ("/*__DESC__*/", html.escape(a.desc)), ("/*__CSS__*/", css),
                 ("/*__SRC__*/", srcs[0][1]), ("/*__JS__*/", js)]
 
     for token, blob in subs:

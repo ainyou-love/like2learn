@@ -25,19 +25,10 @@ function link(href, text) {
 }
 
 function showFolder(key, tree) {
-  const parts = key.split("/");
-  const parent = parts.length > 1 ? `/${parts.slice(0, -1).join("/")}/` : "/";
-  document.title = `${parts.at(-1)} · Like2Learn`;
-
-  const heading = document.createElement("h1");
-  heading.append(link("/", "Like2Learn"));
-
-  const crumbs = document.createElement("nav");
-  crumbs.className = "crumbs";
-  crumbs.append(link("/", "← Trang chủ"));
-  if (parent !== "/") crumbs.append(" · ", link(encodeURI(parent), `↑ Lên thư mục cha (${parts.at(-2)})`));
-
-  document.body.append(heading, crumbs, tree);
+  const dirs = key.split("/").slice(1);
+  const current = dirs.pop() || RESOURCE_ROOT;
+  document.title = `${current} · Like2Learn`;
+  document.body.append(resourceBreadcrumb(dirs, current), tree);
 }
 
 function showNotFound(key) {
@@ -71,11 +62,9 @@ const target = shortLinks[key] || oldBookNote(key)
 const tree = document.createElement("div");
 
 if (target) {
-  location.replace(target);
-} else if (renderResourceTree(tree, key)) {
-  showFolder(key, tree);
+  location.replace(resourceReadUrl(target));
 } else {
-  showNotFound(key);
+  renderResourceTree(tree, key).then((found) => (found ? showFolder(key, tree) : showNotFound(key)));
 }
 </script>
 

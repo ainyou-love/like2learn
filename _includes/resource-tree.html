@@ -5,21 +5,87 @@
 %}
 <style>
   body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 48rem; margin: 2rem auto; padding: 0 16px; }
-  .crumbs { margin: -0.5rem 0 1rem; }
-  .tree, .tree ul { list-style: none; margin: 0; padding-left: 1.25rem; }
+  .crumbs { min-width: 0; font-size: .9rem; }
+  .crumbs ol { display: flex; align-items: center; gap: .35rem; margin: 0; padding: 0; list-style: none; white-space: nowrap; }
+  .crumbs li { display: flex; flex: none; align-items: center; max-width: 6.5em; }
+  .crumbs li:first-child, .crumbs .gap { max-width: none; }
+  .crumbs li + li::before { content: "›"; flex: none; margin-right: .35rem; opacity: .5; }
+  .crumbs li > * { min-width: 0; padding: .7rem 0; overflow: hidden; text-overflow: ellipsis; }
+  .crumbs li[aria-current] { flex: 0 1 auto; min-width: 0; max-width: none; font-weight: 600; }
+  .crumbs .mid { display: none; }
+  @media (min-width: 640px) {
+    .crumbs li { max-width: none; }
+    .crumbs .mid { display: flex; }
+    .crumbs .gap { display: none; }
+  }
+  .tree, .tree ul { list-style: none; margin: 0; padding-left: .75rem; }
   .tree { padding-left: 0; }
   .tree summary { cursor: pointer; font-weight: 600; }
   .tree .count { font-weight: 400; opacity: .6; }
   .tree a { overflow-wrap: anywhere; }
+  .tree .post { margin: .75rem 0; padding-left: .75rem; border-left: 3px solid color-mix(in srgb, currentColor 18%, transparent); }
+  .tree .post-subject { display: block; font-weight: 600; line-height: 1.4; }
+  .tree .post-desc { margin: .15rem 0 0; font-size: .9rem; line-height: 1.5; opacity: .75; }
+  .tree summary, .tree li > a { padding: .7rem 0; }
+  .tree li > a { display: inline-block; }
+  .tree .post-link { font-size: .85rem; }
+  .filter { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+  .filter button { min-height: 44px; padding: 0 .9rem; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: .9rem; cursor: pointer; }
+  .filter .count { opacity: .6; }
+  .filter button[aria-pressed="true"] { background: CanvasText; border-color: CanvasText; color: Canvas; }
+  @media (min-width: 640px) {
+    .tree ul { padding-left: 1.25rem; }
+  }
+  @media (pointer: fine) {
+    .tree summary, .tree li > a { padding: .15rem 0; }
+    .filter button { min-height: 2rem; }
+    .crumbs li > * { padding: .3rem 0; }
+  }
 </style>
 <script>
 const RESOURCE_ROOT = "resources";
+const POST_METADATA_URL = `/${RESOURCE_ROOT}/post_metadata.json`;
 const SHORT_LINK_FOLDER = "/resources/Custom-Post/";
 const RESOURCE_PATHS = [
 {% for file in resource_files %}  {{ file.path | jsonify }},
 {% endfor %}].filter((path) => path.startsWith(`/${RESOURCE_ROOT}/`));
 
 const resourceCollator = new Intl.Collator("vi", { numeric: true });
+
+function resourceKey(path) {
+  return path.slice(RESOURCE_ROOT.length + 2).normalize("NFC");
+}
+
+function resourceReadUrl(path) {
+  return `/read.html?p=${encodeURI(resourceKey(path)).replace(/[#?&+]/g, encodeURIComponent)}`;
+}
+
+function resourceBreadcrumb(dirs, current) {
+  const ol = document.createElement("ol");
+  const crumb = (text, href, className) => {
+    const li = document.createElement("li");
+    if (className) li.className = className;
+    const item = document.createElement(href ? "a" : "span");
+    if (href) item.href = encodeURI(href);
+    item.textContent = text;
+    li.append(item);
+    ol.append(li);
+    return li;
+  };
+  crumb("Like2Learn", "/");
+  const folderHref = (i) => `/${RESOURCE_ROOT}/${dirs.slice(0, i + 1).join("/")}/`;
+  if (dirs.length > 1) crumb("…", folderHref(dirs.length - 2), "gap").title = dirs.slice(0, -1).join(" › ");
+  dirs.forEach((dir, i) => crumb(dir, folderHref(i), i < dirs.length - 1 ? "mid" : ""));
+  const last = crumb(current, "");
+  last.setAttribute("aria-current", "page");
+  last.title = current;
+
+  const nav = document.createElement("nav");
+  nav.className = "crumbs";
+  nav.setAttribute("aria-label", "Breadcrumb");
+  nav.append(ol);
+  return nav;
+}
 
 function resourceTree() {
   const root = { dirs: new Map(), files: [] };
@@ -45,49 +111,116 @@ function resourceShortLinks() {
   return links;
 }
 
-function countResourceFiles(node) {
-  return node.files.length + [...node.dirs.values()].reduce((sum, dir) => sum + countResourceFiles(dir), 0);
-}
-
 function resourceFileLabel(name) {
   const base = name.normalize("NFC").replace(/\.html$/i, "");
   const numbered = base.match(/^(\d+)-(.+)$/);
   return numbered ? `${numbered[1]} — ${numbered[2].replace(/-/g, " ")}` : base.replace(/[-_]/g, " ");
 }
 
-function resourceFolderItem(name, node, open) {
+function loadPostMetadata() {
+  loadPostMetadata.cache ??= fetch(POST_METADATA_URL, { signal: AbortSignal.timeout(3000) })
+    .then((res) => (res.ok ? res.json() : {}))
+    .catch(() => ({}));
+  return loadPostMetadata.cache;
+}
+
+function resourceFolderItem(name, node, metadata) {
   const summary = document.createElement("summary");
   const count = document.createElement("span");
   count.className = "count";
-  count.textContent = ` (${countResourceFiles(node)})`;
   summary.append(name, count);
 
   const details = document.createElement("details");
-  details.open = open;
-  details.append(summary, resourceList(node));
+  details.open = true;
+  details.append(summary, resourceList(node, metadata));
 
   const li = document.createElement("li");
   li.append(details);
   return li;
 }
 
-function resourceList(node) {
+function resourcePostItem(name, path, meta) {
+  const li = document.createElement("li");
+  li.className = "file";
+  li.dataset.category = meta?.categories?.[0] ?? "";
+  const link = document.createElement("a");
+  link.href = resourceReadUrl(path);
+  link.textContent = resourceFileLabel(name);
+  if (!meta?.subject) {
+    li.append(link);
+    return li;
+  }
+  li.classList.add("post");
+  link.className = "post-link";
+  const subject = document.createElement("span");
+  subject.className = "post-subject";
+  subject.textContent = meta.subject;
+  li.append(subject);
+  if (meta.description) {
+    const description = document.createElement("p");
+    description.className = "post-desc";
+    description.textContent = meta.description;
+    li.append(description);
+  }
+  li.append(link);
+  return li;
+}
+
+function resourceList(node, metadata) {
   const ul = document.createElement("ul");
   for (const name of [...node.dirs.keys()].sort(resourceCollator.compare)) {
-    ul.append(resourceFolderItem(name, node.dirs.get(name), false));
+    ul.append(resourceFolderItem(name, node.dirs.get(name), metadata));
   }
   for (const { name, path } of node.files.sort((a, b) => resourceCollator.compare(a.name, b.name))) {
-    const link = document.createElement("a");
-    link.href = encodeURI(path);
-    link.textContent = resourceFileLabel(name);
-    const li = document.createElement("li");
-    li.append(link);
-    ul.append(li);
+    ul.append(resourcePostItem(name, path, metadata[resourceKey(path)]));
   }
   return ul;
 }
 
-function renderResourceTree(container, folder) {
+function applyResourceFilter(tree, category) {
+  for (const li of tree.querySelectorAll("li.file")) {
+    li.hidden = Boolean(category) && li.dataset.category !== category;
+  }
+  for (const details of tree.querySelectorAll("details")) {
+    const visible = details.querySelectorAll("li.file:not([hidden])").length;
+    details.parentElement.hidden = visible === 0;
+    details.querySelector(":scope > summary > .count").textContent = ` (${visible})`;
+  }
+}
+
+function resourceFilterBar(tree) {
+  const files = [...tree.querySelectorAll("li.file")];
+  const counts = new Map();
+  for (const { dataset: { category } } of files) {
+    if (category) counts.set(category, (counts.get(category) ?? 0) + 1);
+  }
+  if (!counts.size) return null;
+  const options = [
+    ["", "Tất cả", files.length],
+    ...[...counts].sort((a, b) => b[1] - a[1] || resourceCollator.compare(a[0], b[0])).map(([c, n]) => [c, c, n]),
+  ];
+
+  const bar = document.createElement("nav");
+  bar.className = "filter";
+  bar.setAttribute("aria-label", "Lọc theo chủ đề");
+  for (const [category, label, total] of options) {
+    const count = document.createElement("span");
+    count.className = "count";
+    count.textContent = ` ${total}`;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(!category));
+    button.append(label, count);
+    button.addEventListener("click", () => {
+      for (const other of bar.children) other.setAttribute("aria-pressed", String(other === button));
+      applyResourceFilter(tree, category);
+    });
+    bar.append(button);
+  }
+  return bar;
+}
+
+async function renderResourceTree(container, folder) {
   const segments = folder.split("/").filter(Boolean);
   if (segments.shift() !== RESOURCE_ROOT) return false;
   let node = resourceTree();
@@ -95,9 +228,13 @@ function renderResourceTree(container, folder) {
     node = node.dirs.get(dir);
     if (!node) return false;
   }
+  const metadata = await loadPostMetadata();
   const tree = document.createElement("ul");
   tree.className = "tree";
-  tree.append(resourceFolderItem(segments.at(-1) || RESOURCE_ROOT, node, true));
+  tree.append(resourceFolderItem(segments.at(-1) || RESOURCE_ROOT, node, metadata));
+  applyResourceFilter(tree, "");
+  const filter = resourceFilterBar(tree);
+  if (filter) container.append(filter);
   container.append(tree);
   return true;
 }

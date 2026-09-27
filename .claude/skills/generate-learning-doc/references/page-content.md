@@ -25,7 +25,7 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 
 - `title`: the notes' `#` heading, tightened if needed. Also becomes the file slug.
 - `kicker`: short mono label, `<Loại sổ> · <Nguồn/tác giả>`. For a book chapter use `<Tên sách> · Chương N` instead (e.g. `Nghệ thuật đàm phán · Chương 4–5`).
-- `subtitle`: 1–2 sentences, based on the notes' `Tóm lược`. Paraphrase it without quoting: meta fields are plain text, so a quote here can't get its `<em>` styling. Put the quote in a section instead.
+- `subtitle`: 1–2 sentences, based on the notes' `Tóm lược`. It is also the page's `<meta name="description">`, which the site index shows under the title. Paraphrase it without quoting: meta fields are plain text, so a quote here can't get its `<em>` styling. Put the quote in a section instead.
 - `pills`: exactly 3 — part count, source, `Ghi chú · No.NN`.
 - `source`: footer line, taken from the notes' `Nguồn`.
 - `chapter` (only for a book chapter): the chapter number as given, e.g. `"1"` or `"4–5"`. The script puts it in the browser tab title and the file name (`NN-chuong-04-05-<slug>.html`). Leave the key out for anything else.

@@ -96,6 +96,21 @@ Do not edit assets/template.html, do not read raw.txt, do not pass --force.
 ## 3. Verify and report
 
 - Confirm the output file exists and `build_doc.py` finished with `OK`. If the subagent stopped at `ERROR`, run the build again yourself after fixing the reported spot in `sections.html`.
+- Sync the site index metadata:
+
+  ```bash
+  python3 _tools/sync_post_metadata.py
+  ```
+
+  It reads the new page's `<title>` and `<meta name="description">` (the subtitle) into `resources/post_metadata.json`, which `index.html` shows under each link. The file tree itself needs no registration. A `WARN` about the head means the page is missing one of the two; fix the page, not the JSON.
+
+  The run also prints the categories in use with their counts and warns that the new post has none. Pick the one existing category that fits (a book chapter takes its earlier chapters' category) and assign it; the index filter row is built from these:
+
+  ```bash
+  python3 _tools/sync_post_metadata.py --set-category "<folder>/<NN-slug>.html" "<category>"
+  ```
+
+  Only invent a new category when none fits, and say so in the report.
 - Tell the user:
   - the output path
   - the section titles
@@ -103,4 +118,4 @@ Do not edit assets/template.html, do not read raw.txt, do not pass --force.
   - the quote-check result (e.g. "18/18 quotes verbatim", or which ones you fixed)
   - where `notes.md` is, so they can proofread the summary
 
-Don't start a dev server or open a browser; the user previews the page themselves. `index.html` lists every HTML file under `resources/` as a folder tree automatically, so there's nothing to register.
+Don't start a dev server or open a browser; the user previews the page themselves.

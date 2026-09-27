@@ -212,7 +212,11 @@ does not.
 **7 — Hand off the rendering.** Write the markdown, then use **`gen-tech-doc-html`**
 to build the page. Do not hand-roll the HTML: that skill carries a tested parser,
 an assembler and a jsdom suite. Default to one language and no depth filter unless
-asked otherwise.
+asked otherwise. Pass a real `--desc`: it becomes the page's
+`<meta name="description">`, the line the site index shows under the title. Once
+the page is written under `resources/`, run `python3 _tools/sync_post_metadata.py`
+to record it in `resources/post_metadata.json`, then give it the category the
+other skill guides use: `--set-category "<path under resources/>" "AI & Claude Code"`.
 
 **8 — Sanitize before it ships.** Absolute home paths become `~/`. Internal project
 codenames, employer-identifying strings and private repo names come out unless they

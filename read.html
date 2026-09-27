@@ -1,0 +1,94 @@
+---
+layout: null
+---
+
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Like2Learn</title>
+  {% include resource-tree.html %}
+  <style>
+    html { height: 100%; }
+    body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: none; margin: 0; padding: 0; }
+    .bar { display: flex; flex: none; align-items: center; gap: .5rem; padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left)); border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); background: Canvas; color: CanvasText; }
+    .bar .crumbs { flex: 1; }
+    .bar .raw { display: grid; flex: none; place-items: center; width: 44px; height: 44px; text-decoration: none; }
+    .reader { display: block; flex: 1; width: 100%; border: 0; }
+    .missing { padding: 0 16px; }
+    @media (pointer: fine) {
+      .bar .raw { width: 2rem; height: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+function readerPath() {
+  const key = (new URLSearchParams(location.search).get("p") || "").normalize("NFC");
+  return RESOURCE_PATHS.find((path) => resourceKey(path) === key);
+}
+
+function followFrameLinks(frame) {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  doc.addEventListener("click", (event) => {
+    const a = event.target.closest?.("a[href]");
+    if (!a || event.defaultPrevented) return;
+    const url = new URL(a.href, doc.baseURI);
+    if (url.origin !== location.origin) {
+      a.target = "_blank";
+      a.rel = "noopener";
+      return;
+    }
+    if (url.pathname === frame.contentWindow.location.pathname) return;
+    event.preventDefault();
+    const pathname = decodeURI(url.pathname);
+    const next = RESOURCE_PATHS.find((p) => p.normalize("NFC") === pathname.normalize("NFC"));
+    location.assign(next ? resourceReadUrl(next) + url.hash : url.href);
+  });
+}
+
+async function showReader(path) {
+  const dirs = path.split("/").slice(2, -1);
+  const meta = (await loadPostMetadata())[resourceKey(path)];
+  const subject = meta?.subject || resourceFileLabel(path.split("/").pop());
+  document.title = `${subject} · Like2Learn`;
+
+  const raw = document.createElement("a");
+  raw.className = "raw";
+  raw.href = encodeURI(path) + location.hash;
+  raw.target = "_blank";
+  raw.rel = "noopener";
+  raw.title = "Mở trang gốc";
+  raw.setAttribute("aria-label", raw.title);
+  raw.textContent = "↗";
+
+  const bar = document.createElement("header");
+  bar.className = "bar";
+  bar.append(resourceBreadcrumb(dirs, subject), raw);
+
+  const frame = document.createElement("iframe");
+  frame.className = "reader";
+  frame.title = subject;
+  frame.src = encodeURI(path) + location.hash;
+  frame.addEventListener("load", () => followFrameLinks(frame));
+  document.body.append(bar, frame);
+}
+
+function showMissing() {
+  document.title = "404 · Like2Learn";
+  const main = document.createElement("main");
+  main.className = "missing";
+  main.innerHTML = '<h1>404</h1><p>Không tìm thấy bài viết.</p><p><a href="/">← Trang chủ</a></p>';
+  document.body.append(main);
+}
+
+const path = readerPath();
+if (path) showReader(path);
+else showMissing();
+</script>
+
+</body>
+</html>

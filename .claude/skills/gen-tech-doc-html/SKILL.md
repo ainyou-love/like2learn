@@ -99,6 +99,14 @@ generated-page tells worth avoiding.
 
 `--content` needs `style.css`, `src.md`, and `layer1.js` / `layer2*.js` /
 `layer3.js`. Copy the bundled assets in as your starting `layer2*` and `layer3`.
+`--desc` becomes `<meta name="description">`; write it as one real sentence.
+
+When `--out` lands under the project's `resources/`, run
+`python3 _tools/sync_post_metadata.py` afterwards so the site index picks up the
+page's title and description in `resources/post_metadata.json`. It prints the
+categories in use and warns that the new page has none; assign the one that fits
+with `--set-category "<path under resources/>" "<category>"`, reusing an existing
+category unless none fits.
 
 **6 — Run the page, do not just read it.**
 

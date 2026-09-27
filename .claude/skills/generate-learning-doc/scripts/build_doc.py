@@ -120,6 +120,7 @@ def main():
         "{{YEAR}}": esc(str(meta["year"])),
         "{{KICKER}}": esc(meta["kicker"], quote=False),
         "{{SUBTITLE}}": esc(meta["subtitle"], quote=False),
+        "{{DESCRIPTION}}": esc(meta["subtitle"]),
         "{{META_PILLS}}": "\n".join(f'        <span class="pill">{esc(p, quote=False)}</span>' for p in meta["pills"]),
         "{{TOC_ITEMS}}": "\n".join(toc),
         "{{SECTIONS}}": "\n\n".join(f"    <!-- SECTION {i} -->\n    {b}" for i, b in enumerate(blocks, 1)),
