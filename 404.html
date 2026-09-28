@@ -9,6 +9,7 @@ layout: null
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Redirecting...</title>
   {% include resource-tree.html %}
+  {% include post-views.html %}
   {% include gallery.html %}
 </head>
 <body>
@@ -25,11 +26,11 @@ function link(href, text) {
   return a;
 }
 
-function showFolder(key, tree) {
+function showFolder(key, posts) {
   const dirs = key.split("/").slice(1);
   const current = dirs.pop() || RESOURCE_ROOT;
   document.title = `${current} · Like2Learn`;
-  document.body.append(resourceBreadcrumb(dirs, current), tree);
+  document.body.append(resourceBreadcrumb(dirs, current), posts);
 }
 
 function showNotFound(key) {
@@ -67,7 +68,7 @@ const oldBookPath = key.startsWith(OLD_BOOK_FOLDER) && key.match(/\/(\d+)-[^/]+$
 const target = shortLinks[key] || oldBookNote(key)
   || (flatNote && (oldBookNote(flatNote[1]) || shortLinks[flatNote[1]]))
   || (oldBookPath && oldBookNote(oldBookPath[1]));
-const tree = document.createElement("div");
+const posts = document.createElement("div");
 
 const gallery = galleryTarget(key);
 
@@ -76,7 +77,7 @@ if (gallery) {
 } else if (target) {
   location.replace(resourceReadUrl(target));
 } else {
-  renderResourceTree(tree, key).then((found) => (found ? showFolder(key, tree) : showNotFound(key)));
+  renderResourcePosts(posts, key).then((found) => (found ? showFolder(key, posts) : showNotFound(key)));
 }
 </script>
 

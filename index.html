@@ -9,6 +9,7 @@ layout: null
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Like2Learn</title>
   {% include resource-tree.html %}
+  {% include post-views.html %}
   {% include gallery.html %}
   <style>
     .tabs { display: flex; gap: .25rem; margin: 0 0 1.25rem; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
@@ -29,7 +30,7 @@ layout: null
 </div>
 
 <section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
-  <div id="tree"></div>
+  <div id="posts"></div>
 </section>
 <section id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden></section>
 
@@ -46,7 +47,7 @@ function selectTab(tab) {
     if (selected && !panel.dataset.rendered) {
       panel.dataset.rendered = "true";
       if (panel.id === "panel-gallery") renderGalleryAlbums(panel);
-      else renderResourceTree(document.getElementById("tree"), RESOURCE_ROOT);
+      else renderResourcePosts(document.getElementById("posts"), RESOURCE_ROOT);
     }
   }
   history.replaceState(null, "", location.pathname + location.search + tab.dataset.hash);

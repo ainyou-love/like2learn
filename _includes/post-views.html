@@ -1,0 +1,213 @@
+<style>
+  .filter { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+  .filter button { min-height: 44px; padding: 0 .9rem; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: .9rem; cursor: pointer; }
+  .filter .count { opacity: .6; }
+  .filter button[aria-pressed="true"] { background: CanvasText; border-color: CanvasText; color: Canvas; }
+  .views { display: flex; width: fit-content; max-width: 100%; margin: 0 0 1rem; padding: 3px; border-radius: 999px; background: color-mix(in srgb, currentColor 8%, transparent); }
+  .views button { flex: 1 1 auto; min-height: 44px; padding: 0 1rem; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: .9rem; white-space: nowrap; opacity: .7; cursor: pointer; }
+  .views button[aria-pressed="true"] { background: Canvas; font-weight: 600; opacity: 1; box-shadow: 0 1px 3px color-mix(in srgb, CanvasText 25%, transparent); }
+  .posts h2 { margin: 1.5rem 0 0; font-size: .85rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+  .posts .group:first-child h2 { margin-top: .5rem; }
+  .posts .count { font-weight: 400; }
+  .posts ul { margin: 0; padding: 0; list-style: none; }
+  .posts .post { position: relative; padding: .9rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
+  .posts .post-subject { display: block; font-weight: 600; line-height: 1.4; text-decoration: none; overflow-wrap: anywhere; }
+  .posts .post-subject::after { content: ""; position: absolute; inset: 0; }
+  .posts .post:hover .post-subject, .posts .post-subject:focus-visible { text-decoration: underline; }
+  .posts .post-desc { margin: .25rem 0 0; font-size: .9rem; line-height: 1.5; opacity: .75; }
+  .posts .post-meta { margin: .3rem 0 0; font-size: .8rem; opacity: .6; }
+  @media (pointer: fine) {
+    .filter button, .views button { min-height: 2rem; }
+  }
+</style>
+<script>
+const RESOURCE_VIEW_KEY = "like2learn:post-view";
+
+function resourcePostFiles(node) {
+  return [...node.dirs.values()].flatMap(resourcePostFiles).concat(node.files);
+}
+
+function resourceCategory(post) {
+  return post.meta?.categories?.[0] ?? "";
+}
+
+function resourceDate(post) {
+  const [year, month, day] = (post.meta?.created_at ?? "").slice(0, 10).split("-").map(Number);
+  return year ? { year, month, day, text: `${day}/${month}/${year}` } : null;
+}
+
+function resourceEntry(post, info) {
+  const li = document.createElement("li");
+  li.className = "file post";
+  li.dataset.category = resourceCategory(post);
+  const link = document.createElement("a");
+  link.className = "post-subject";
+  link.href = resourceReadUrl(post.path);
+  link.textContent = post.meta?.subject || resourceFileLabel(post.name);
+  li.append(link);
+  if (post.meta?.description) {
+    const description = document.createElement("p");
+    description.className = "post-desc";
+    description.textContent = post.meta.description;
+    li.append(description);
+  }
+  const details = info.filter(Boolean).join(" · ");
+  if (details) {
+    const meta = document.createElement("p");
+    meta.className = "post-meta";
+    meta.textContent = details;
+    li.append(meta);
+  }
+  return li;
+}
+
+function resourceGroupedView(groups, info) {
+  const view = document.createElement("div");
+  view.className = "posts";
+  for (const [title, posts] of groups) {
+    const count = document.createElement("span");
+    count.className = "count";
+    const heading = document.createElement("h2");
+    heading.append(title, count);
+    const ul = document.createElement("ul");
+    for (const post of posts) ul.append(resourceEntry(post, info(post)));
+    const section = document.createElement("section");
+    section.className = "group";
+    section.append(heading, ul);
+    view.append(section);
+  }
+  return view;
+}
+
+function resourceGroups(posts, groupOf) {
+  const groups = new Map();
+  for (const post of posts) {
+    const key = groupOf(post);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(post);
+  }
+  return groups;
+}
+
+function resourceLatestView(posts) {
+  const day = (post) => post.meta?.created_at?.slice(0, 10) ?? "";
+  const sorted = [...posts].sort((a, b) => day(b).localeCompare(day(a)) || resourceCollator.compare(a.path, b.path));
+  const months = resourceGroups(sorted, (post) => day(post).slice(0, 7));
+  return resourceGroupedView(
+    [...months].map(([key, items]) => {
+      const date = resourceDate(items[0]);
+      return [key ? `Tháng ${date.month}/${date.year}` : "Chưa rõ ngày", items];
+    }),
+    (post) => [resourceDate(post)?.text, resourceCategory(post)],
+  );
+}
+
+function resourceTopicView(posts) {
+  const sorted = [...posts].sort((a, b) => resourceCollator.compare(a.path, b.path));
+  const topics = [...resourceGroups(sorted, resourceCategory)].sort(([a, x], [b, y]) =>
+    !a - !b || y.length - x.length || resourceCollator.compare(a, b));
+  return resourceGroupedView(
+    topics.map(([category, items]) => [category || "Chưa phân loại", items]),
+    (post) => [resourceDate(post)?.text],
+  );
+}
+
+function applyResourceFilter(view, category) {
+  for (const li of view.querySelectorAll("li.file")) {
+    li.hidden = Boolean(category) && li.dataset.category !== category;
+  }
+  for (const group of view.querySelectorAll(".group")) {
+    const visible = group.querySelectorAll("li.file:not([hidden])").length;
+    group.hidden = visible === 0;
+    group.querySelector(".count").textContent = ` (${visible})`;
+  }
+}
+
+function resourceFilterBar(posts, onSelect) {
+  const counts = new Map();
+  for (const category of posts.map(resourceCategory)) {
+    if (category) counts.set(category, (counts.get(category) ?? 0) + 1);
+  }
+  if (!counts.size) return null;
+  const options = [
+    ["", "Tất cả", posts.length],
+    ...[...counts].sort((a, b) => b[1] - a[1] || resourceCollator.compare(a[0], b[0])).map(([c, n]) => [c, c, n]),
+  ];
+
+  const bar = document.createElement("nav");
+  bar.className = "filter";
+  bar.setAttribute("aria-label", "Lọc theo chủ đề");
+  for (const [category, label, total] of options) {
+    const count = document.createElement("span");
+    count.className = "count";
+    count.textContent = ` ${total}`;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(!category));
+    button.append(label, count);
+    button.addEventListener("click", () => {
+      for (const other of bar.children) other.setAttribute("aria-pressed", String(other === button));
+      onSelect(category);
+    });
+    bar.append(button);
+  }
+  return bar;
+}
+
+function resourceViewSwitch(views) {
+  let saved = "";
+  try { saved = localStorage.getItem(RESOURCE_VIEW_KEY) ?? ""; } catch {}
+  const bar = document.createElement("div");
+  bar.className = "views";
+  bar.setAttribute("role", "group");
+  bar.setAttribute("aria-label", "Kiểu hiển thị");
+  const show = (id) => {
+    for (const [viewId, , view, button] of views) {
+      view.hidden = viewId !== id;
+      button.setAttribute("aria-pressed", String(viewId === id));
+    }
+  };
+  for (const entry of views) {
+    const [id, label] = entry;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.addEventListener("click", () => {
+      show(id);
+      try { localStorage.setItem(RESOURCE_VIEW_KEY, id); } catch {}
+    });
+    entry.push(button);
+    bar.append(button);
+  }
+  show(views.some(([id]) => id === saved) ? saved : views[0][0]);
+  return bar;
+}
+
+async function renderResourcePosts(container, folder) {
+  const segments = folder.split("/").filter(Boolean);
+  if (segments.shift() !== RESOURCE_ROOT) return false;
+  let node = resourceTree();
+  for (const dir of segments) {
+    node = node.dirs.get(dir);
+    if (!node) return false;
+  }
+  const metadata = await loadPostMetadata();
+  const posts = resourcePostFiles(node).map((file) => ({ ...file, meta: metadata[resourceKey(file.path)] }));
+  const tree = document.createElement("ul");
+  tree.className = "tree";
+  tree.append(resourceFolderItem(segments.at(-1) || RESOURCE_ROOT, node, metadata));
+  const views = [
+    ["latest", "Mới nhất", resourceLatestView(posts)],
+    ["topics", "Chủ đề", resourceTopicView(posts)],
+    ["tree", "Thư mục", tree],
+  ];
+  const panes = views.map(([, , view]) => view);
+  const filter = (category) => panes.forEach((view) => applyResourceFilter(view, category));
+  filter("");
+  container.append(resourceViewSwitch(views));
+  const filterBar = resourceFilterBar(posts, filter);
+  if (filterBar) container.append(filterBar);
+  container.append(...panes);
+  return true;
+}
+</script>
