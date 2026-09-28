@@ -1,0 +1,90 @@
+{% assign gallery_files = site.static_files
+  | where_exp: "file", "file.path contains '/resources/galleries/'"
+  | sort: "path"
+%}
+<style>
+  .albums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; margin: 0; padding: 6px 6px 0 0; list-style: none; }
+  .album { display: block; color: inherit; text-decoration: none; }
+  .album-cover { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); box-shadow: 4px -4px 0 -1px Canvas, 4px -4px 0 0 color-mix(in srgb, currentColor 25%, transparent), 8px -8px 0 -2px Canvas, 8px -8px 0 -1px color-mix(in srgb, currentColor 15%, transparent); }
+  .album-title { display: block; margin-top: .5rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+  .album-count { font-size: .85rem; opacity: .65; }
+  .album:hover .album-title, .album:focus-visible .album-title { text-decoration: underline; }
+  @media (min-width: 640px) {
+    .albums { grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 24px 20px; }
+  }
+</style>
+<script>
+const GALLERY_ROOT = `${RESOURCE_ROOT}/galleries`;
+const GALLERY_IMAGE = /\.(jpe?g|png|webp|gif)$/i;
+const GALLERY_PATHS = [
+{% for file in gallery_files %}  {{ file.path | jsonify }},
+{% endfor %}].filter((path) => path.startsWith(`/${GALLERY_ROOT}/`) && GALLERY_IMAGE.test(path));
+
+function galleryAlbums() {
+  const albums = new Map();
+  for (const path of GALLERY_PATHS) {
+    const parts = path.slice(GALLERY_ROOT.length + 2).split("/");
+    if (parts.length !== 2) continue;
+    const [album, name] = parts;
+    if (!albums.has(album)) albums.set(album, []);
+    albums.get(album).push({ name, path });
+  }
+  return [...albums]
+    .sort((a, b) => resourceCollator.compare(a[0], b[0]))
+    .map(([name, images]) => ({ name, images: images.sort((a, b) => resourceCollator.compare(a.name, b.name)) }));
+}
+
+function galleryAlbum(name) {
+  const key = (name || "").normalize("NFC");
+  return galleryAlbums().find((album) => album.name.normalize("NFC") === key);
+}
+
+function galleryAlbumUrl(name) {
+  return `/gallery-preview.html?a=${encodeURIComponent(name.normalize("NFC"))}`;
+}
+
+function galleryImageUrl(path) {
+  return encodeURI(path).replace(/[#?]/g, encodeURIComponent);
+}
+
+function galleryLabel(name) {
+  return resourceFileLabel(name.replace(GALLERY_IMAGE, ""));
+}
+
+function galleryAlbumCard({ name, images }) {
+  const cover = document.createElement("img");
+  cover.className = "album-cover";
+  cover.src = galleryImageUrl(images[0].path);
+  cover.alt = "";
+  cover.loading = "lazy";
+  cover.decoding = "async";
+  const title = document.createElement("span");
+  title.className = "album-title";
+  title.textContent = galleryLabel(name);
+  const count = document.createElement("span");
+  count.className = "album-count";
+  count.textContent = `${images.length} ảnh`;
+
+  const link = document.createElement("a");
+  link.className = "album";
+  link.href = galleryAlbumUrl(name);
+  link.append(cover, title, count);
+  const li = document.createElement("li");
+  li.append(link);
+  return li;
+}
+
+function renderGalleryAlbums(container) {
+  const albums = galleryAlbums();
+  if (!albums.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "Chưa có album nào.";
+    container.append(empty);
+    return;
+  }
+  const list = document.createElement("ul");
+  list.className = "albums";
+  list.append(...albums.map(galleryAlbumCard));
+  container.append(list);
+}
+</script>

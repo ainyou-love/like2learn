@@ -60,7 +60,7 @@ function resourceReadUrl(path) {
   return `/read.html?p=${encodeURI(resourceKey(path)).replace(/[#?&+]/g, encodeURIComponent)}`;
 }
 
-function resourceBreadcrumb(dirs, current) {
+function resourceBreadcrumb(dirs, current, folderHref = (i) => `/${RESOURCE_ROOT}/${dirs.slice(0, i + 1).join("/")}/`) {
   const ol = document.createElement("ol");
   const crumb = (text, href, className) => {
     const li = document.createElement("li");
@@ -73,7 +73,6 @@ function resourceBreadcrumb(dirs, current) {
     return li;
   };
   crumb("Like2Learn", "/");
-  const folderHref = (i) => `/${RESOURCE_ROOT}/${dirs.slice(0, i + 1).join("/")}/`;
   if (dirs.length > 1) crumb("…", folderHref(dirs.length - 2), "gap").title = dirs.slice(0, -1).join(" › ");
   dirs.forEach((dir, i) => crumb(dir, folderHref(i), i < dirs.length - 1 ? "mid" : ""));
   const last = crumb(current, "");

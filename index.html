@@ -9,15 +9,61 @@ layout: null
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Like2Learn</title>
   {% include resource-tree.html %}
+  {% include gallery.html %}
+  <style>
+    .tabs { display: flex; gap: .25rem; margin: 0 0 1.25rem; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+    .tabs [role="tab"] { min-height: 44px; margin-bottom: -1px; padding: 0 1rem; border: 0; border-bottom: 2px solid transparent; background: none; color: inherit; font: inherit; font-weight: 600; opacity: .6; cursor: pointer; }
+    .tabs [aria-selected="true"] { border-bottom-color: currentColor; opacity: 1; }
+    @media (pointer: fine) {
+      .tabs [role="tab"] { min-height: 2.5rem; }
+    }
+  </style>
 </head>
 <body>
 
 <h1>Like2Learn</h1>
 
-<div id="tree"></div>
+<div class="tabs" role="tablist" aria-label="Nội dung">
+  <button type="button" role="tab" id="tab-posts" aria-controls="panel-posts" data-hash="">Bài viết</button>
+  <button type="button" role="tab" id="tab-gallery" aria-controls="panel-gallery" data-hash="#gallery">Thư viện ảnh</button>
+</div>
+
+<section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
+  <div id="tree"></div>
+</section>
+<section id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden></section>
 
 <script>
-renderResourceTree(document.getElementById("tree"), RESOURCE_ROOT);
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+
+function selectTab(tab) {
+  for (const other of tabs) {
+    const selected = other === tab;
+    other.setAttribute("aria-selected", String(selected));
+    other.tabIndex = selected ? 0 : -1;
+    const panel = document.getElementById(other.getAttribute("aria-controls"));
+    panel.hidden = !selected;
+    if (selected && !panel.dataset.rendered) {
+      panel.dataset.rendered = "true";
+      if (panel.id === "panel-gallery") renderGalleryAlbums(panel);
+      else renderResourceTree(document.getElementById("tree"), RESOURCE_ROOT);
+    }
+  }
+  history.replaceState(null, "", location.pathname + location.search + tab.dataset.hash);
+}
+
+for (const tab of tabs) {
+  tab.addEventListener("click", () => selectTab(tab));
+  tab.addEventListener("keydown", (event) => {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+    if (!step) return;
+    const next = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length];
+    next.focus();
+    selectTab(next);
+  });
+}
+
+selectTab(tabs.find((tab) => tab.dataset.hash && tab.dataset.hash === location.hash) || tabs[0]);
 </script>
 
 </body>

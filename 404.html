@@ -9,6 +9,7 @@ layout: null
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Redirecting...</title>
   {% include resource-tree.html %}
+  {% include gallery.html %}
 </head>
 <body>
 
@@ -42,6 +43,13 @@ function showNotFound(key) {
   document.body.append(heading, message, back);
 }
 
+function galleryTarget(key) {
+  const match = key.match(/^resources\/galleries(?:\/([^/]+))?$/);
+  if (!match) return null;
+  const album = match[1] && galleryAlbum(match[1]);
+  return album ? galleryAlbumUrl(album.name) + location.hash : match[1] ? null : "/#gallery";
+}
+
 // The Nghệ thuật đàm phán notes were published as No.13–16 before the book folder restarted at 01.
 const OLD_BOOK_FOLDER = "resources/ebooks/Donald-Trump/Nghe-thuat-dam-phan/";
 const OLD_BOOK_NUMBERS = { "13": "01", "14": "02", "15": "03", "16": "04" };
@@ -61,7 +69,11 @@ const target = shortLinks[key] || oldBookNote(key)
   || (oldBookPath && oldBookNote(oldBookPath[1]));
 const tree = document.createElement("div");
 
-if (target) {
+const gallery = galleryTarget(key);
+
+if (gallery) {
+  location.replace(gallery);
+} else if (target) {
   location.replace(resourceReadUrl(target));
 } else {
   renderResourceTree(tree, key).then((found) => (found ? showFolder(key, tree) : showNotFound(key)));

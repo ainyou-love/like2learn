@@ -1,0 +1,539 @@
+---
+layout: null
+---
+
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Thư viện ảnh · Like2Learn</title>
+  {% include resource-tree.html %}
+  {% include gallery.html %}
+  <style>
+    body { margin-top: 0; padding: 0 max(16px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px, env(safe-area-inset-left)); }
+    .album-page h1 { margin: .5rem 0 .25rem; font-size: 1.5rem; line-height: 1.3; overflow-wrap: anywhere; }
+    .album-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 1rem; }
+    .album-bar .album-count { font-size: 1rem; }
+    .play-all { min-height: 44px; padding: 0 1.1rem; border: 1px solid CanvasText; border-radius: 999px; background: CanvasText; color: Canvas; font: inherit; font-weight: 600; cursor: pointer; }
+    .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0 0 2rem; padding: 0; list-style: none; }
+    .thumbs button { display: block; width: 100%; aspect-ratio: 1; padding: 0; overflow: hidden; border: 0; border-radius: 4px; background: color-mix(in srgb, currentColor 8%, transparent); cursor: zoom-in; }
+    .thumbs img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .missing h1 { margin-top: 1rem; }
+
+    .viewer { width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; background: #0b0b0c; color: #f2f2f2; }
+    .viewer[open] { display: flex; flex-direction: column; }
+    .viewer::backdrop { background: #000; }
+    .viewer [hidden] { display: none; }
+    .viewer:focus { outline: none; }
+    .viewer button { display: grid; flex: none; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer; }
+    .viewer button:hover { background: rgb(255 255 255 / .12); }
+    .viewer button:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+    .viewer button[aria-pressed="true"] { background: rgb(255 255 255 / .2); }
+    .v-bar { display: flex; flex: none; align-items: center; gap: .25rem; padding: 4px max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left)); }
+    .v-top { padding-top: max(4px, env(safe-area-inset-top)); }
+    .v-bottom { justify-content: center; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+    .v-caption { flex: 1; min-width: 0; overflow: hidden; font-size: .9rem; text-overflow: ellipsis; white-space: nowrap; }
+    .v-counter { flex: none; opacity: .75; font-size: .9rem; font-variant-numeric: tabular-nums; }
+    .v-bottom .v-counter { min-width: 4.5em; text-align: center; }
+
+    .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: pan-y; }
+    .frame { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transition: transform .45s ease, opacity .45s ease; }
+    .frame img { max-width: calc(var(--scale, 100) * 1%); max-height: calc(var(--scale, 100) * 1%); object-fit: contain; cursor: zoom-in; user-select: none; -webkit-user-drag: none; }
+    .stage[data-transition="slide"] .frame[data-state="before"] { transform: translateX(-100%); }
+    .stage[data-transition="slide"] .frame[data-state="after"] { transform: translateX(100%); }
+    .stage[data-transition="fade"] .frame:not([data-state="current"]) { opacity: 0; }
+    .stage[data-transition="none"] .frame { transition: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .frame { transition: none; }
+    }
+
+    .settings { position: absolute; right: 0; bottom: 0; left: 0; z-index: 2; max-height: 80%; margin: 0; padding: 1rem max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); overflow: auto; border: 0; border-radius: 16px 16px 0 0; background: #1c1c1f; box-shadow: 0 -8px 32px rgb(0 0 0 / .5); }
+    .settings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+    .settings h2 { margin: 0; font-size: 1rem; }
+    .settings fieldset { margin: 0 0 1rem; padding: 0; border: 0; }
+    .settings legend, .settings .field-label { display: flex; justify-content: space-between; width: 100%; margin-bottom: .35rem; padding: 0; font-size: .9rem; opacity: .85; }
+    .segmented { display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; border: 1px solid rgb(255 255 255 / .25); border-radius: 10px; }
+    .segmented label { display: grid; place-items: center; min-height: 44px; font-size: .95rem; cursor: pointer; }
+    .segmented label + label { border-left: 1px solid rgb(255 255 255 / .25); }
+    .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+    .segmented label:has(input:checked) { background: #f2f2f2; color: #111; font-weight: 600; }
+    .segmented label:has(input:focus-visible) { outline: 2px solid #fff; outline-offset: -3px; }
+    .settings input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: #f2f2f2; }
+
+    .zoom { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; background: #000; }
+    .zoom-surface { position: relative; flex: 1; min-height: 0; overflow: hidden; cursor: grab; touch-action: none; }
+    .zoom-surface:active { cursor: grabbing; }
+    .zoom-surface img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: center; user-select: none; -webkit-user-drag: none; }
+    .zoom .v-bar { justify-content: center; }
+    .zoom-level { min-width: 3.5em; text-align: center; font-size: .9rem; font-variant-numeric: tabular-nums; }
+
+    @media (min-width: 640px) {
+      .thumbs { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 8px; }
+      .settings { right: 16px; bottom: 72px; left: auto; width: 22rem; border-radius: 16px; }
+    }
+    @media (pointer: fine) {
+      .play-all { min-height: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+const SETTINGS_KEY = "like2learn.gallery.settings";
+const TRANSITIONS = { slide: "Trượt", fade: "Mờ dần", none: "Không" };
+const DEFAULT_SETTINGS = { transition: "slide", delaySec: 5, scalePct: 100 };
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 5;
+
+function clamp(value, min, max, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : fallback;
+}
+
+function normalizeSettings(raw) {
+  return {
+    transition: Object.hasOwn(TRANSITIONS, raw?.transition) ? raw.transition : DEFAULT_SETTINGS.transition,
+    delaySec: clamp(raw?.delaySec, 1, 60, DEFAULT_SETTINGS.delaySec),
+    scalePct: clamp(raw?.scalePct, 20, 100, DEFAULT_SETTINGS.scalePct),
+  };
+}
+
+function loadSettings() {
+  try {
+    return normalizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY)));
+  } catch (e) {
+    return normalizeSettings(null);
+  }
+}
+
+function el(tag, props = {}, ...children) {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...children);
+  return node;
+}
+
+function iconButton(icon, label, onClick) {
+  const button = el("button", { type: "button", title: label, textContent: icon });
+  button.setAttribute("aria-label", label);
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function createZoom(onClose) {
+  const view = { scale: 1, x: 0, y: 0 };
+  const pointers = new Map();
+  let pinch = null;
+
+  const img = el("img", { alt: "", draggable: false });
+  const surface = el("div", { className: "zoom-surface" }, img);
+  const level = el("span", { className: "zoom-level" });
+  const root = el("div", { className: "zoom", hidden: true },
+    el("div", { className: "v-bar v-top" },
+      el("span", { className: "v-caption", textContent: "Phóng to" }),
+      iconButton("✕", "Đóng phóng to (Esc)", onClose)),
+    surface,
+    el("div", { className: "v-bar v-bottom" },
+      iconButton("−", "Thu nhỏ (-)", () => zoomBy(1 / 1.5)),
+      level,
+      iconButton("+", "Phóng to (+)", () => zoomBy(1.5)),
+      iconButton("↺", "Về kích thước gốc (0)", reset)));
+
+  function apply() {
+    if (view.scale === ZOOM_MIN) view.x = view.y = 0;
+    const maxX = (surface.clientWidth * (view.scale - 1)) / 2;
+    const maxY = (surface.clientHeight * (view.scale - 1)) / 2;
+    view.x = Math.min(maxX, Math.max(-maxX, view.x));
+    view.y = Math.min(maxY, Math.max(-maxY, view.y));
+    img.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.scale})`;
+    level.textContent = `${Math.round(view.scale * 100)}%`;
+  }
+
+  function zoomTo(scale) {
+    const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, scale));
+    view.x *= next / view.scale;
+    view.y *= next / view.scale;
+    view.scale = next;
+    apply();
+  }
+
+  function zoomBy(factor) {
+    zoomTo(view.scale * factor);
+  }
+
+  function reset() {
+    Object.assign(view, { scale: 1, x: 0, y: 0 });
+    apply();
+  }
+
+  const distance = () => {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+
+  surface.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    zoomBy(Math.exp(-(event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY) * 0.002));
+  }, { passive: false });
+  surface.addEventListener("dblclick", () => (view.scale > ZOOM_MIN ? reset() : zoomTo(2.5)));
+  surface.addEventListener("pointerdown", (event) => {
+    surface.setPointerCapture(event.pointerId);
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.size === 2) pinch = { distance: distance(), scale: view.scale };
+  });
+  surface.addEventListener("pointermove", (event) => {
+    const last = pointers.get(event.pointerId);
+    if (!last) return;
+    const point = { x: event.clientX, y: event.clientY };
+    pointers.set(event.pointerId, point);
+    if (pinch && pointers.size === 2) {
+      zoomTo(pinch.scale * (distance() / pinch.distance));
+    } else if (pointers.size === 1) {
+      view.x += point.x - last.x;
+      view.y += point.y - last.y;
+      apply();
+    }
+  });
+  const release = (event) => {
+    pointers.delete(event.pointerId);
+    if (pointers.size < 2) pinch = null;
+  };
+  surface.addEventListener("pointerup", release);
+  surface.addEventListener("pointercancel", release);
+
+  return {
+    root,
+    open(src) {
+      img.src = src;
+      root.hidden = false;
+      reset();
+    },
+    close() {
+      root.hidden = true;
+      pointers.clear();
+      pinch = null;
+    },
+    key(event) {
+      const action = { "+": () => zoomBy(1.5), "=": () => zoomBy(1.5), "-": () => zoomBy(1 / 1.5), 0: reset }[event.key];
+      if (!action) return false;
+      action();
+      return true;
+    },
+  };
+}
+
+function createSettingsPanel(settings, onChange, onClose) {
+  const radios = Object.entries(TRANSITIONS).map(([value, label]) => {
+    const input = el("input", { type: "radio", name: "transition", value, checked: settings.transition === value });
+    return el("label", {}, input, label);
+  });
+  const delayOut = el("output");
+  const delay = el("input", { type: "range", min: 1, max: 60, step: 1, value: settings.delaySec });
+  const scaleOut = el("output");
+  const scale = el("input", { type: "range", min: 20, max: 100, step: 5, value: settings.scalePct });
+  delay.setAttribute("aria-label", "Thời gian mỗi ảnh (giây)");
+  scale.setAttribute("aria-label", "Kích thước ảnh (%)");
+
+  const form = el("form", { className: "settings", hidden: true },
+    el("div", { className: "settings-head" },
+      el("h2", { textContent: "Cài đặt trình chiếu" }),
+      iconButton("✕", "Đóng cài đặt", onClose)),
+    el("fieldset", {}, el("legend", { textContent: "Hiệu ứng chuyển ảnh" }), el("div", { className: "segmented" }, ...radios)),
+    el("div", { className: "field-label" }, el("span", { textContent: "Thời gian mỗi ảnh" }), delayOut),
+    delay,
+    el("div", { className: "field-label" }, el("span", { textContent: "Kích thước ảnh" }), scaleOut),
+    scale);
+  form.addEventListener("submit", (event) => event.preventDefault());
+
+  function read() {
+    return normalizeSettings({
+      transition: form.elements.transition.value,
+      delaySec: delay.value,
+      scalePct: scale.value,
+    });
+  }
+
+  function label(next) {
+    delayOut.textContent = `${next.delaySec} giây`;
+    scaleOut.textContent = `${next.scalePct}%`;
+  }
+
+  form.addEventListener("input", () => {
+    const next = read();
+    label(next);
+    onChange(next);
+  });
+  label(settings);
+  return form;
+}
+
+function createViewer(album) {
+  const images = album.images;
+  let settings = loadSettings();
+  let index = 0;
+  let playing = false;
+  let timer = 0;
+  let pushedHistory = false;
+
+  const caption = el("span", { className: "v-caption" });
+  const counter = el("span", { className: "v-counter" });
+  const stage = el("div", { className: "stage" });
+  const playButton = iconButton("▶", "Chạy (Space)", () => setPlaying(!playing));
+  const prevButton = iconButton("‹", "Ảnh trước (←)", () => go(-1));
+  const nextButton = iconButton("›", "Ảnh sau (→)", () => go(1));
+  for (const button of [prevButton, playButton, nextButton]) button.hidden = images.length < 2;
+  const settingsButton = iconButton("⚙", "Cài đặt trình chiếu", () => toggleSettings());
+  const fullscreenButton = iconButton("⛶", "Toàn màn hình (F)", toggleFullscreen);
+  fullscreenButton.hidden = !document.fullscreenEnabled;
+  const zoom = createZoom(() => closeZoom());
+  const settingsPanel = createSettingsPanel(settings, saveSettings, () => toggleSettings(false));
+
+  const dialog = el("dialog", { className: "viewer" },
+    el("div", { className: "v-bar v-top" },
+      caption,
+      fullscreenButton,
+      iconButton("✕", "Đóng (Esc)", () => dialog.close())),
+    stage,
+    el("div", { className: "v-bar v-bottom" },
+      prevButton,
+      playButton,
+      counter,
+      nextButton,
+      iconButton("⤢", "Phóng to", () => openZoom()),
+      settingsButton),
+    settingsPanel,
+    zoom.root);
+  dialog.setAttribute("aria-label", galleryLabel(album.name));
+  dialog.tabIndex = -1;
+  document.body.append(dialog);
+
+  function applySettings() {
+    stage.dataset.transition = settings.transition;
+    stage.style.setProperty("--scale", settings.scalePct);
+  }
+
+  function saveSettings(next) {
+    settings = next;
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {}
+    applySettings();
+    schedule();
+  }
+
+  function paused() {
+    return !settingsPanel.hidden || !zoom.root.hidden;
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (playing && images.length > 1 && dialog.open && !paused()) timer = setTimeout(() => go(1), settings.delaySec * 1000);
+  }
+
+  function setPlaying(value) {
+    playing = value;
+    playButton.textContent = playing ? "❚❚" : "▶";
+    const label = playing ? "Tạm dừng (Space)" : "Chạy (Space)";
+    playButton.title = label;
+    playButton.setAttribute("aria-label", label);
+    schedule();
+  }
+
+  function frame(image, state) {
+    const img = el("img", { src: galleryImageUrl(image.path), alt: galleryLabel(image.name), draggable: false, decoding: "async" });
+    const node = el("div", { className: "frame" }, img);
+    node.dataset.state = state;
+    return node;
+  }
+
+  function show(next, direction) {
+    index = (next + images.length) % images.length;
+    const image = images[index];
+    caption.textContent = galleryLabel(image.name);
+    counter.textContent = `${index + 1} / ${images.length}`;
+    history.replaceState(history.state, "", `#${index + 1}`);
+
+    for (const stale of stage.querySelectorAll('.frame:not([data-state="current"])')) stale.remove();
+    const previous = stage.querySelector(".frame");
+    if (!previous || !direction || settings.transition === "none") {
+      previous?.remove();
+      stage.append(frame(image, "current"));
+    } else {
+      const incoming = frame(image, direction > 0 ? "after" : "before");
+      stage.append(incoming);
+      incoming.getBoundingClientRect();
+      incoming.dataset.state = "current";
+      previous.dataset.state = direction > 0 ? "before" : "after";
+      const remove = () => previous.remove();
+      previous.addEventListener("transitionend", remove, { once: true });
+      setTimeout(remove, 600);
+    }
+    for (const offset of [1, -1]) new Image().src = galleryImageUrl(images[(index + offset + images.length) % images.length].path);
+    schedule();
+  }
+
+  function go(step) {
+    show(index + step, step);
+  }
+
+  function toggleSettings(open = settingsPanel.hidden) {
+    if (open === !settingsPanel.hidden) return;
+    settingsPanel.hidden = !open;
+    settingsButton.setAttribute("aria-pressed", String(open));
+    if (open) settingsPanel.querySelector("input:checked").focus();
+    else settingsButton.focus();
+    schedule();
+  }
+
+  function openZoom() {
+    toggleSettings(false);
+    zoom.open(galleryImageUrl(images[index].path));
+    zoom.root.querySelector("button").focus();
+    schedule();
+  }
+
+  function closeZoom() {
+    if (zoom.root.hidden) return;
+    zoom.close();
+    if (dialog.open) dialog.focus();
+    schedule();
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  let swipe = null;
+  stage.addEventListener("pointerdown", (event) => {
+    swipe = { x: event.clientX, y: event.clientY };
+  });
+  stage.addEventListener("pointerup", (event) => {
+    if (!swipe) return;
+    const dx = event.clientX - swipe.x;
+    const dy = event.clientY - swipe.y;
+    swipe = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    else if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && event.target.tagName === "IMG") openZoom();
+  });
+  stage.addEventListener("pointercancel", () => (swipe = null));
+
+  dialog.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!zoom.root.hidden) {
+      if (zoom.key(event)) event.preventDefault();
+      return;
+    }
+    if (event.target.closest(".settings")) return;
+    const onButton = event.target.tagName === "BUTTON";
+    const action = {
+      ArrowLeft: () => go(-1),
+      ArrowRight: () => go(1),
+      f: toggleFullscreen,
+      " ": onButton ? null : () => setPlaying(!playing),
+    }[event.key];
+    if (!action) return;
+    event.preventDefault();
+    action();
+  });
+
+  dialog.addEventListener("cancel", (event) => {
+    if (!zoom.root.hidden) {
+      event.preventDefault();
+      closeZoom();
+    } else if (!settingsPanel.hidden) {
+      event.preventDefault();
+      toggleSettings(false);
+    }
+  });
+
+  dialog.addEventListener("close", () => {
+    setPlaying(false);
+    closeZoom();
+    toggleSettings(false);
+    stage.replaceChildren();
+    if (document.fullscreenElement) document.exitFullscreen();
+    if (pushedHistory) {
+      pushedHistory = false;
+      history.back();
+    } else {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  });
+
+  function open(start, { play = false, fromHistory = false } = {}) {
+    if (!dialog.open) {
+      if (fromHistory) {
+        pushedHistory = Boolean(history.state?.viewer);
+      } else {
+        history.pushState({ viewer: true }, "", `#${start + 1}`);
+        pushedHistory = true;
+      }
+      dialog.showModal();
+      dialog.focus();
+    }
+    show(start, 0);
+    setPlaying(play);
+  }
+
+  function openFromHash() {
+    const start = Number(location.hash.slice(1));
+    if (Number.isInteger(start) && start >= 1 && start <= images.length) open(start - 1, { fromHistory: true });
+  }
+
+  addEventListener("popstate", () => {
+    if (!dialog.open) {
+      openFromHash();
+    } else if (!/^#\d+$/.test(location.hash)) {
+      pushedHistory = false;
+      dialog.close();
+    }
+  });
+
+  applySettings();
+
+  return { open, openFromHash };
+}
+
+function showAlbum(album) {
+  const title = galleryLabel(album.name);
+  document.title = `${title} · Thư viện ảnh · Like2Learn`;
+  const viewer = createViewer(album);
+
+  const thumbs = el("ul", { className: "thumbs" });
+  album.images.forEach((image, i) => {
+    const img = el("img", { src: galleryImageUrl(image.path), alt: galleryLabel(image.name), loading: "lazy", decoding: "async" });
+    const button = el("button", { type: "button", title: galleryLabel(image.name) }, img);
+    button.addEventListener("click", () => viewer.open(i));
+    thumbs.append(el("li", {}, button));
+  });
+
+  const playAll = el("button", { type: "button", className: "play-all", textContent: "▶ Trình chiếu" });
+  playAll.addEventListener("click", () => viewer.open(0, { play: true }));
+
+  const main = el("main", { className: "album-page" },
+    el("h1", { textContent: title }),
+    el("div", { className: "album-bar" },
+      el("span", { className: "album-count", textContent: `${album.images.length} ảnh` }),
+      playAll),
+    thumbs);
+  document.body.append(resourceBreadcrumb(["Thư viện ảnh"], title, () => "/#gallery"), main);
+  viewer.openFromHash();
+}
+
+function showMissing() {
+  document.title = "404 · Like2Learn";
+  const main = el("main", { className: "missing" },
+    el("h1", { textContent: "404" }),
+    el("p", { textContent: "Không tìm thấy album." }),
+    el("p", {}, el("a", { href: "/#gallery", textContent: "← Thư viện ảnh" })));
+  document.body.append(main);
+}
+
+const album = galleryAlbum(new URLSearchParams(location.search).get("a"));
+if (album) showAlbum(album);
+else showMissing();
+</script>
+
+</body>
+</html>
