@@ -15,8 +15,13 @@ layout: null
     .bar { display: flex; flex: none; align-items: center; gap: .5rem; padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left)); border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); background: Canvas; color: CanvasText; }
     .bar .crumbs { flex: 1; }
     .bar .raw { display: grid; flex: none; place-items: center; width: 44px; height: 44px; text-decoration: none; }
+    .feature { display: grid; flex: none; place-items: center; margin: 0; background: color-mix(in srgb, currentColor 8%, transparent); }
+    .feature img { display: block; max-width: 100%; max-height: 24dvh; }
     .reader { display: block; flex: 1; width: 100%; border: 0; }
     .missing { padding: 0 16px; }
+    @media (min-width: 640px) and (min-height: 500px) {
+      .feature img { max-height: 30dvh; }
+    }
     @media (pointer: fine) {
       .bar .raw { width: 2rem; height: 2rem; }
     }
@@ -50,9 +55,23 @@ function followFrameLinks(frame) {
   });
 }
 
+function featureImage(metadata, meta) {
+  if (metadata.feature_image_enabled === false || !meta?.feature_img) return null;
+  const figure = document.createElement("figure");
+  figure.className = "feature";
+  const img = document.createElement("img");
+  img.src = resourceFileUrl(`/${RESOURCE_ROOT}/${meta.feature_img}`);
+  img.alt = "";
+  img.decoding = "async";
+  img.addEventListener("error", () => figure.remove());
+  figure.append(img);
+  return figure;
+}
+
 async function showReader(path) {
   const dirs = path.split("/").slice(2, -1);
-  const meta = (await loadPostMetadata())[resourceKey(path)];
+  const metadata = await loadPostMetadata();
+  const meta = metadata[resourceKey(path)];
   const subject = meta?.subject || resourceFileLabel(path.split("/").pop());
   document.title = `${subject} · Like2Learn`;
 
@@ -74,7 +93,8 @@ async function showReader(path) {
   frame.title = subject;
   frame.src = encodeURI(path) + location.hash;
   frame.addEventListener("load", () => followFrameLinks(frame));
-  document.body.append(bar, frame);
+  const hero = featureImage(metadata, meta);
+  document.body.append(bar, ...(hero ? [hero] : []), frame);
 }
 
 function showMissing() {

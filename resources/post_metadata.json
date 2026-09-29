@@ -1,11 +1,13 @@
 {
+  "feature_image_enabled": true,
   "Custom-Post/01-tam-ly-hoc-ve-tien.html": {
     "subject": "Tâm Lý Học Về Tiền",
     "description": "Tiền không phải toán học — tiền là hành vi. 20 ghi chú cốt lõi về cách con người nghĩ, cảm và cư xử với tiền bạc, ghi lại theo từng ý của sách.",
     "created_at": "2026-08-08T09:55:26+07:00",
     "categories": [
       "Tài chính & Giàu có"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/02-deep-work.html": {
     "subject": "Deep Work: Làm ra làm, chơi ra chơi (bản giữ ngữ cảnh)",
@@ -13,7 +15,8 @@
     "created_at": "2026-08-08T10:43:01+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/03-bon-thoi-quen-buoi-toi.html": {
     "subject": "Bốn thói quen buổi tối thay đổi cuộc đời",
@@ -21,7 +24,8 @@
     "created_at": "2026-08-08T20:53:13+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/04-tu-duy-toi-uu.html": {
     "subject": "Tư duy tối ưu (First Things First)",
@@ -29,7 +33,8 @@
     "created_at": "2026-08-08T21:39:25+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/05-ky-luat-cua-binh-minh.html": {
     "subject": "Kỷ luật của bình minh",
@@ -37,7 +42,8 @@
     "created_at": "2026-08-08T21:39:25+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/06-dat-muc-tieu-hieu-qua.html": {
     "subject": "Cách đặt mục tiêu hiệu quả",
@@ -45,7 +51,8 @@
     "created_at": "2026-08-08T22:22:38+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/07-xay-dung-hẹ-thong-thay-vi-muc-tieu.html": {
     "subject": "Xây dựng hệ thống thay vì đặt mục tiêu",
@@ -53,7 +60,8 @@
     "created_at": "2026-08-08T22:22:38+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/08-cach-bạn-noi-quyet-dinh-cuoc-doi-ban.html": {
     "subject": "Cách bạn nói quyết định cuộc đời bạn",
@@ -61,7 +69,8 @@
     "created_at": "2026-08-09T07:19:42+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/09-xay-dung-khi-chat-cho-su-giau-co.html": {
     "subject": "Giàu có bắt đầu từ khí chất",
@@ -69,7 +78,8 @@
     "created_at": "2026-08-09T07:19:42+07:00",
     "categories": [
       "Tài chính & Giàu có"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/11-diemtinh-yenlang-kyluat-suc-mạnh-lam-chu-ban-than.html": {
     "subject": "Làm Chủ Bản Thân",
@@ -77,7 +87,8 @@
     "created_at": "2026-08-09T07:19:42+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/12-de-thong-minh-hon.html": {
     "subject": "Thông minh hơn gấp 10 lần",
@@ -85,7 +96,8 @@
     "created_at": "2026-08-09T07:19:42+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "Custom-Post/13-chan-ly-vu-tru-nam-duoi-day-su-tan-tam.html": {
     "subject": "Chân lý vũ trụ nằm dưới đáy sự tận tâm",
@@ -93,7 +105,8 @@
     "created_at": "2026-09-18T13:47:43+07:00",
     "categories": [
       "Phát triển bản thân"
-    ]
+    ],
+    "feature_img": ""
   },
   "ebooks/Donald-Trump/Nghe-thuat-dam-phan/01-chuong-01-mot-tuan-lam-viec-cua-donald-trump.html": {
     "subject": "Chương 1: Một tuần làm việc của Donald Trump",
@@ -101,7 +114,8 @@
     "created_at": "2026-09-17T16:59:08+07:00",
     "categories": [
       "Kinh doanh & Đàm phán"
-    ]
+    ],
+    "feature_img": ""
   },
   "ebooks/Donald-Trump/Nghe-thuat-dam-phan/02-chuong-02-nhung-quan-bai-cua-trump.html": {
     "subject": "Chương 2: Những quân bài của Trump",
@@ -109,7 +123,8 @@
     "created_at": "2026-09-17T19:12:25+07:00",
     "categories": [
       "Kinh doanh & Đàm phán"
-    ]
+    ],
+    "feature_img": ""
   },
   "ebooks/Donald-Trump/Nghe-thuat-dam-phan/03-chuong-03-thoi-ky-truong-thanh-su-hinh-thanh-mot-ca-tinh.html": {
     "subject": "Chương 3: Thời kỳ trưởng thành: sự hình thành một cá tính",
@@ -117,7 +132,8 @@
     "created_at": "2026-09-17T20:12:13+07:00",
     "categories": [
       "Kinh doanh & Đàm phán"
-    ]
+    ],
+    "feature_img": ""
   },
   "ebooks/Donald-Trump/Nghe-thuat-dam-phan/04-chuong-04-05-thuong-vu-cincinnati-va-buoc-vao-manhattan.html": {
     "subject": "Chương 4–5: Thương vụ Cincinnati và bước vào Manhattan",
@@ -125,7 +141,8 @@
     "created_at": "2026-09-17T22:41:29+07:00",
     "categories": [
       "Kinh doanh & Đàm phán"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/agentic-engineering-fullstack-app.html": {
     "subject": "Building a Full-Stack App with Agentic Engineering — Learning Notes",
@@ -133,7 +150,8 @@
     "created_at": "2026-09-17T22:59:03+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/agentic_workflow.html": {
     "subject": "The Captain's Agentic Engineering Workflow",
@@ -141,7 +159,8 @@
     "created_at": "2026-09-17T22:59:03+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/akm-hay-de-toi-bo-sung-thong-tin.html": {
     "subject": "AKM — skill giữ lại lý do, không chỉ giữ kết luận",
@@ -149,7 +168,8 @@
     "created_at": "2026-09-18T13:51:52+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/ascii-diagram-do-thi-don-gian-duoc-ma.html": {
     "subject": "ascii-diagram — sơ đồ không vỡ, và một skill được dựng ra sao",
@@ -157,7 +177,8 @@
     "created_at": "2026-09-18T19:06:38+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao.html": {
     "subject": "Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI",
@@ -165,7 +186,8 @@
     "created_at": "2026-09-18T13:51:52+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/cach-su-dung-claude-code.html": {
     "subject": "Cách sử dụng Claude Code trong dự án phần mềm",
@@ -173,7 +195,8 @@
     "created_at": "2026-09-17T22:59:03+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/cach-toi-tao-compose-research-claude-skill.html": {
     "subject": "Cách tôi tạo skill research-compose cho Claude Code",
@@ -181,7 +204,8 @@
     "created_at": "2026-09-18T08:25:02+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/nguoi-va-ai-agent.html": {
     "subject": "Người & AI-Agent — Sổ tay Phối hợp",
@@ -189,7 +213,8 @@
     "created_at": "2026-09-17T22:59:03+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/claude/video-maker-lam-demo-video-khong-hao-nhu-ban-nghi.html": {
     "subject": "video-marker — video demo lắp ra, không quay ra",
@@ -197,7 +222,8 @@
     "created_at": "2026-09-18T13:51:52+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/ai/typesafe-jev-brief-v3.html": {
     "subject": "TypeSafe AI / Jev — Engineering Brief · v3",
@@ -205,7 +231,8 @@
     "created_at": "2026-09-18T11:55:29+07:00",
     "categories": [
       "AI & Claude Code"
-    ]
+    ],
+    "feature_img": ""
   },
   "topics/others/apollo13-con-da-ve-dat-me.html": {
     "subject": "Con đã về đất mẹ · Apollo 13 và phương pháp tư duy",
@@ -213,7 +240,8 @@
     "created_at": "2026-09-26T21:57:33+07:00",
     "categories": [
       "Tư duy giải quyết vấn đề"
-    ]
+    ],
+    "feature_img": "topics/others/apollo13-con-da-ve-dat-me.webp"
   },
   "topics/tech-reports/26-09-26--ai-dev--2026-07-01_2026-09-26.html": {
     "subject": "Phát triển phần mềm với AI — Quý 3/2026",
@@ -221,6 +249,7 @@
     "created_at": "2026-09-26T22:34:05+07:00",
     "categories": [
       "Báo cáo công nghệ"
-    ]
+    ],
+    "feature_img": ""
   }
 }

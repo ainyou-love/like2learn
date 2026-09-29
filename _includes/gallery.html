@@ -43,10 +43,6 @@ function galleryAlbumUrl(name) {
   return `/gallery-preview.html?a=${encodeURIComponent(name.normalize("NFC"))}`;
 }
 
-function galleryImageUrl(path) {
-  return encodeURI(path).replace(/[#?]/g, encodeURIComponent);
-}
-
 function galleryLabel(name) {
   return resourceFileLabel(name.replace(GALLERY_IMAGE, ""));
 }
@@ -54,7 +50,7 @@ function galleryLabel(name) {
 function galleryAlbumCard({ name, images }) {
   const cover = document.createElement("img");
   cover.className = "album-cover";
-  cover.src = galleryImageUrl(images[0].path);
+  cover.src = resourceFileUrl(images[0].path);
   cover.alt = "";
   cover.loading = "lazy";
   cover.decoding = "async";

@@ -340,7 +340,7 @@ function createViewer(album) {
   }
 
   function frame(image, state) {
-    const img = el("img", { src: galleryImageUrl(image.path), alt: galleryLabel(image.name), draggable: false, decoding: "async" });
+    const img = el("img", { src: resourceFileUrl(image.path), alt: galleryLabel(image.name), draggable: false, decoding: "async" });
     const node = el("div", { className: "frame" }, img);
     node.dataset.state = state;
     return node;
@@ -368,7 +368,7 @@ function createViewer(album) {
       previous.addEventListener("transitionend", remove, { once: true });
       setTimeout(remove, 600);
     }
-    for (const offset of [1, -1]) new Image().src = galleryImageUrl(images[(index + offset + images.length) % images.length].path);
+    for (const offset of [1, -1]) new Image().src = resourceFileUrl(images[(index + offset + images.length) % images.length].path);
     schedule();
   }
 
@@ -387,7 +387,7 @@ function createViewer(album) {
 
   function openZoom() {
     toggleSettings(false);
-    zoom.open(galleryImageUrl(images[index].path));
+    zoom.open(resourceFileUrl(images[index].path));
     zoom.root.querySelector("button").focus();
     schedule();
   }
@@ -502,7 +502,7 @@ function showAlbum(album) {
 
   const thumbs = el("ul", { className: "thumbs" });
   album.images.forEach((image, i) => {
-    const img = el("img", { src: galleryImageUrl(image.path), alt: galleryLabel(image.name), loading: "lazy", decoding: "async" });
+    const img = el("img", { src: resourceFileUrl(image.path), alt: galleryLabel(image.name), loading: "lazy", decoding: "async" });
     const button = el("button", { type: "button", title: galleryLabel(image.name) }, img);
     button.addEventListener("click", () => viewer.open(i));
     thumbs.append(el("li", {}, button));

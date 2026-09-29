@@ -51,6 +51,10 @@ function resourceKey(path) {
   return path.slice(RESOURCE_ROOT.length + 2).normalize("NFC");
 }
 
+function resourceFileUrl(path) {
+  return encodeURI(path).replace(/[#?]/g, encodeURIComponent);
+}
+
 function resourceReadUrl(path) {
   return `/read.html?p=${encodeURI(resourceKey(path)).replace(/[#?&+]/g, encodeURIComponent)}`;
 }
