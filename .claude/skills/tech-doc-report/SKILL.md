@@ -177,24 +177,24 @@ The iframe is what gives the page a genuine 390px viewport — `--window-size` i
 clamped on macOS and silently renders at ~485px, which makes a broken mobile
 layout look fine.
 
-Then sync the site index metadata. It reads the page's `<title>` and
-`<meta name="description">` into `resources/post_metadata.json`, which
-`index.html` shows under each link:
+Then register the report on the site index. The `page-structure` skill is the
+contract for the filing and registration step — the report filename shape, what
+the `<head>` must carry, and how the entry is recorded. Follow it rather than
+working from memory:
 
 ```bash
 python3 <project>/_tools/sync_post_metadata.py
-```
-
-A new report also needs its category, the one earlier reports already use
-(the run prints the categories in use and warns about the new page):
-
-```bash
 python3 <project>/_tools/sync_post_metadata.py \
     --set-category "topics/tech-reports/<file>.html" "Báo cáo công nghệ"
 ```
 
-Run it again after any in-place edit or re-render that touches the title or
-subtitle; the JSON only follows the page's `<head>`.
+A new report takes the category earlier reports already use. Run the sync again
+after any in-place edit or re-render that touches the title or subtitle; the
+JSON only follows the page's `<head>`.
+
+A report can also carry a lead image shown above it in the reader. It is
+optional and most have none; add one only when the user supplies an image,
+following the `feature_img` convention in `page-structure`.
 
 ### 7 — Report back
 

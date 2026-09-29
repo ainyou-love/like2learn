@@ -101,12 +101,14 @@ generated-page tells worth avoiding.
 `layer3.js`. Copy the bundled assets in as your starting `layer2*` and `layer3`.
 `--desc` becomes `<meta name="description">`; write it as one real sentence.
 
-When `--out` lands under the project's `resources/`, run
-`python3 _tools/sync_post_metadata.py` afterwards so the site index picks up the
-page's title and description in `resources/post_metadata.json`. It prints the
-categories in use and warns that the new page has none; assign the one that fits
-with `--set-category "<path under resources/>" "<category>"`, reusing an existing
-category unless none fits.
+When `--out` lands under the project's `resources/`, the page has to be filed and
+registered before the site can see it. The `page-structure` skill is the contract
+for that step — where the file belongs, what its `<head>` must carry, how the
+entry is recorded, and the optional `feature_img` lead image. Follow it rather
+than working from memory; in short, run `python3 _tools/sync_post_metadata.py`,
+then assign the one category that fits with
+`--set-category "<path under resources/>" "<category>"`, reusing an existing
+category unless none does.
 
 **6 — Run the page, do not just read it.**
 
