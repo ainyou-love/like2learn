@@ -243,6 +243,15 @@
     ],
     "feature_img": "topics/others/apollo13-con-da-ve-dat-me.webp"
   },
+  "topics/radars/ai-repo-radar.html": {
+    "subject": "AI Repo Radar",
+    "description": "Trending AI repositories on GitHub ranked by rising and total stars for today, this week and this month, grouped into customizable categories.",
+    "created_at": "2026-10-01T15:43:44+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/tech-reports/26-09-26--ai-dev--2026-07-01_2026-09-26.html": {
     "subject": "Phát triển phần mềm với AI — Quý 3/2026",
     "description": "Stack thay đổi gì, và cách làm việc với agent trên stack đó thay đổi gì, từ 01/07 đến 26/09/2026.",
