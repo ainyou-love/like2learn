@@ -144,6 +144,15 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/ai-agent-playbook-2026-10.html": {
+    "subject": "Agent field manual: from principles to practice",
+    "description": "A field manual for building AI agents: the fundamentals of the agent loop, eleven design principles from minimum context to the lethal trifecta, and how each one diagnoses real production failures.",
+    "created_at": "2026-10-09T20:55:26+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/claude/agentic-engineering-fullstack-app.html": {
     "subject": "Building a Full-Stack App with Agentic Engineering — Learning Notes",
     "description": "A principal engineer builds a full-stack iOS app from an empty terminal by talking to one orchestrator agent that delegates research, UX, backend, iOS and infra to parallel crewmates.",
