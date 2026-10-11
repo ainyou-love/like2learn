@@ -234,6 +234,24 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/claude-research-report-26-11-11.html": {
+    "subject": "Claude Code Field Notes",
+    "description": "Nghiên cứu harness Claude Code qua mô hình 8 view, kiểm chứng bằng 24 thí nghiệm có dự đoán trước: tầng context, chi phí theo lượt, hook và threat model, mọi kết luận gắn nhãn bằng chứng.",
+    "created_at": "2026-10-11T12:54:37+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
+  "topics/ai/claude-team-guide-26-11-11.html": {
+    "subject": "Claude Code Team Guide",
+    "description": "Hướng dẫn Claude Code cho team: từ hệ quả business tới kiến trúc C4, bốn lát cắt end-to-end và cấu hình copy được, số liệu đo trong lab trên model haiku theo giá list.",
+    "created_at": "2026-10-11T12:55:29+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/typesafe-jev-brief-v3.html": {
     "subject": "TypeSafe AI / Jev — Engineering Brief · v3",
     "description": "Đánh giá TypeSafe AI và model Jev như một decision layer, thiết kế một custom context reasoning tracker, và chi phí cơ hội của ngôn ngữ functional type-safe trong agent tooling.",
