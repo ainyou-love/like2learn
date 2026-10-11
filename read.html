@@ -30,8 +30,11 @@ layout: null
 <body>
 
 <script>
-function readerPath() {
-  const key = (new URLSearchParams(location.search).get("p") || "").normalize("NFC");
+function readerKey() {
+  return (new URLSearchParams(location.search).get("p") || "").normalize("NFC");
+}
+
+function readerPath(key) {
   return RESOURCE_PATHS.find((path) => resourceKey(path) === key);
 }
 
@@ -105,8 +108,11 @@ function showMissing() {
   document.body.append(main);
 }
 
-const path = readerPath();
+const key = readerKey();
+const path = readerPath(key);
+const moved = !path && resourceRedirect(key);
 if (path) showReader(path);
+else if (moved) location.replace(resourceReadUrl(moved) + location.hash);
 else showMissing();
 </script>
 

@@ -67,7 +67,8 @@ const flatNote = key.match(/^resources\/(\d+)-[^/]+$/);
 const oldBookPath = key.startsWith(OLD_BOOK_FOLDER) && key.match(/\/(\d+)-[^/]+$/);
 const target = shortLinks[key] || oldBookNote(key)
   || (flatNote && (oldBookNote(flatNote[1]) || shortLinks[flatNote[1]]))
-  || (oldBookPath && oldBookNote(oldBookPath[1]));
+  || (oldBookPath && oldBookNote(oldBookPath[1]))
+  || resourceRedirect(key.slice(RESOURCE_ROOT.length + 1));
 const posts = document.createElement("div");
 
 const gallery = galleryTarget(key);

@@ -44,11 +44,21 @@ const SHORT_LINK_FOLDER = "/resources/Custom-Post/";
 const RESOURCE_PATHS = [
 {% for file in resource_files %}  {{ file.path | jsonify }},
 {% endfor %}].filter((path) => path.startsWith(`/${RESOURCE_ROOT}/`));
+const RESOURCE_REDIRECTS = {{ site.data.redirects | jsonify }} ?? {};
 
 const resourceCollator = new Intl.Collator("vi", { numeric: true });
 
 function resourceKey(path) {
   return path.slice(RESOURCE_ROOT.length + 2).normalize("NFC");
+}
+
+function resourceRedirect(key) {
+  const seen = new Set();
+  while (Object.hasOwn(RESOURCE_REDIRECTS, key) && !seen.has(key)) {
+    seen.add(key);
+    key = RESOURCE_REDIRECTS[key].normalize("NFC");
+  }
+  return seen.size ? RESOURCE_PATHS.find((path) => resourceKey(path) === key) : undefined;
 }
 
 function resourceFileUrl(path) {
