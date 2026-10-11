@@ -234,6 +234,15 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/claude-inside-26-11-11.html": {
+    "subject": "Claude Inside",
+    "description": "Nhìn vào bên trong Claude Code qua ba lăng kính: onion cho cấu trúc lớp, flow cho phối hợp theo thời gian, companion cho các cơ chế đồng hành với goal, dựng từ hành vi đo được thay vì mã nguồn.",
+    "created_at": "2026-10-11T15:06:37+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/claude-research-report-26-11-11.html": {
     "subject": "Claude Code Field Notes",
     "description": "Nghiên cứu harness Claude Code qua mô hình 8 view, kiểm chứng bằng 24 thí nghiệm có dự đoán trước: tầng context, chi phí theo lượt, hook và threat model, mọi kết luận gắn nhãn bằng chứng.",
