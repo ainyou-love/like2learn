@@ -252,10 +252,28 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/claude-response-8-lop-2026-11-11.html": {
+    "subject": "Claude trả về gì? 8 lớp của một response",
+    "description": "Hướng dẫn dễ hiểu về 8 lớp của một response từ Claude API, dành cho người thiết kế sản phẩm và AI agent.",
+    "created_at": "2026-10-11T15:59:52+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/claude-team-guide-26-11-11.html": {
     "subject": "Claude Code Team Guide",
     "description": "Hướng dẫn Claude Code cho team: từ hệ quả business tới kiến trúc C4, bốn lát cắt end-to-end và cấu hình copy được, số liệu đo trong lab trên model haiku theo giá list.",
     "created_at": "2026-10-11T12:55:29+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
+  "topics/ai/engineer-va-claude-code-26-11-11.html": {
+    "subject": "Engineer trong giai đoạn AI và cách Claude Code hoạt động",
+    "description": "Engineer nên tập trung vào gì lúc này, và tổng quan cách Claude Code hoạt động: dữ liệu, ngữ cảnh, luồng xử lý, hook.",
+    "created_at": "2026-10-11T16:02:38+07:00",
     "categories": [
       "AI & Claude Code"
     ],

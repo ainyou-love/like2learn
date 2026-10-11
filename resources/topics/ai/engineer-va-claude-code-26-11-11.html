@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engineer trong giai đoạn AI và cách Claude Code hoạt động</title>
+<meta name="description" content="Engineer nên tập trung vào gì lúc này, và tổng quan cách Claude Code hoạt động: dữ liệu, ngữ cảnh, luồng xử lý, hook.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F2; --surface:#FFFFFF; --ink:#1D2422; --muted:#56615C; --line:#D6DCD5;
+  --accent:#2457C5; --accent-soft:#E7EEFC; --mark:#D9A93A; --mark-soft:#FBF3DF;
+  --code-bg:#EEF1ED;
+  --sidebar:288px; --topbar:56px;
+  --font:"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121614; --surface:#191E1C; --ink:#E3E8E5; --muted:#9BA6A0; --line:#2D3532;
+    --accent:#8AABF3; --accent-soft:#1D2840; --mark:#D2AE57; --mark-soft:#2A2516;
+    --code-bg:#1F2522;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(var(--topbar) + 16px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.65}
+a{color:var(--accent);text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+  min-height:calc(var(--topbar) + env(safe-area-inset-top,0px));
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));
+  background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.icon-btn:hover{border-color:var(--accent)}
+.icon-btn svg{width:20px;height:20px}
+.brand{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.tabs{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tab{font:inherit;font-size:14px;font-weight:500;padding:6px 14px;border:0;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){.tab[aria-selected="true"]{color:#0E1424}}
+
+/* layout */
+.shell{display:flex;min-height:calc(100vh - var(--topbar))}
+.sidebar{width:var(--sidebar);flex:none;position:sticky;top:calc(var(--topbar) + env(safe-area-inset-top,0px));
+  height:calc(100vh - var(--topbar) - env(safe-area-inset-top,0px));overflow:auto;
+  border-right:1px solid var(--line);padding:20px 12px 40px 16px;background:var(--bg);
+  transition:margin-left .2s ease}
+body:not(.menu-open) .sidebar{margin-left:calc(-1 * var(--sidebar))}
+.toc-title{font-size:13px;font-weight:600;color:var(--muted);margin:0 8px 8px}
+.toc{list-style:none;margin:0;padding:0}
+.toc a{display:block;padding:6px 10px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:14.5px;line-height:1.4}
+.toc a:hover{background:var(--accent-soft)}
+.toc a.lvl3{padding-left:24px;font-size:14px;color:var(--muted)}
+.toc a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.scrim{display:none}
+main{flex:1;min-width:0;padding:32px max(20px,env(safe-area-inset-right,0px)) calc(64px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.panel[hidden]{display:none}
+.doc{max-width:74ch;margin:0 auto}
+
+@media (max-width:1023px){
+  .sidebar{position:fixed;left:0;top:calc(var(--topbar) + env(safe-area-inset-top,0px));z-index:25;
+    height:calc(100% - var(--topbar) - env(safe-area-inset-top,0px));background:var(--surface);
+    box-shadow:2px 0 18px rgba(0,0,0,.18);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+  body:not(.menu-open) .sidebar{margin-left:calc(-1 * var(--sidebar) - 24px)}
+  body.menu-open .scrim{display:block;position:fixed;inset:0;z-index:20;background:rgba(10,14,12,.38)}
+  body.menu-open{overflow:hidden}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .brand{font-size:14px}
+  .tab{padding:6px 10px}
+  main{padding-top:20px}
+}
+
+/* document typography */
+.doc h1{font-size:clamp(30px,5vw,44px);line-height:1.15;letter-spacing:-.01em;font-weight:700;margin:8px 0 18px;text-wrap:balance}
+.doc h2{font-size:clamp(23px,3.2vw,29px);line-height:1.25;font-weight:700;margin:64px 0 14px;padding-top:20px;border-top:2px solid var(--ink)}
+.doc h3{font-size:19px;line-height:1.35;font-weight:600;margin:36px 0 10px}
+.doc h4{font-size:17px;font-weight:600;margin:24px 0 8px}
+.doc p{margin:0 0 14px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:1.4em}
+.doc li{margin:4px 0}
+.doc ol li::marker{font-weight:600;color:var(--accent)}
+.doc strong{font-weight:600}
+.doc code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:.1em .35em;border-radius:4px}
+.doc hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+.doc .lead{font-size:1.12em;color:var(--muted)}
+pre.code{font-family:var(--mono);font-size:13.5px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);
+  border-radius:8px;padding:14px 16px;overflow-x:auto;margin:0 0 18px;white-space:pre}
+pre.code code{background:none;padding:0;font-size:inherit}
+.table-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--accent-soft)}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500}
+.note{margin:0 0 20px;padding:12px 16px;background:var(--mark-soft);border-left:4px solid var(--mark);border-radius:0 8px 8px 0}
+.note p:last-child{margin-bottom:0}
+
+/* glossary: the list right after its heading */
+#bang-thuat-ngu + ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--line)}
+#bang-thuat-ngu + ul li{margin:0;padding:12px 0;border-bottom:1px solid var(--line)}
+#bang-thuat-ngu + ul li strong{color:var(--accent)}
+@media (min-width:900px){#bang-thuat-ngu + ul{grid-template-columns:1fr 1fr;column-gap:32px}}
+
+/* hero figure */
+.hero-fig{margin:6px 0 28px;padding:18px 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.hero-fig svg{display:block;width:100%;height:auto}
+.hero-fig .fig-narrow{display:none;max-width:360px;margin:0 auto}
+@media (max-width:600px){.hero-fig .fig-wide{display:none}.hero-fig .fig-narrow{display:block}}
+.hero-fig figcaption{font-size:14px;color:var(--muted);padding:6px 4px 6px}
+.f-box{fill:none;stroke:var(--ink);stroke-width:1.4}
+.f-main{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+.f-cloud{fill:var(--mark-soft);stroke:var(--mark);stroke-width:2}
+.f-name{font:600 15px var(--font);fill:var(--ink)}
+.f-sub{font:400 12.5px var(--font);fill:var(--muted)}
+.f-lab{font:500 12.5px var(--font);fill:var(--ink)}
+.f-line{stroke:var(--muted);stroke-width:1.4;fill:none}
+.f-head{fill:var(--muted)}
+
+/* markdown panel */
+.md-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
+.md-tools p{margin:0;color:var(--muted);font-size:14.5px;flex:1 1 260px}
+.btn{font:inherit;font-size:14.5px;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--accent);cursor:pointer;background:var(--accent);color:#fff}
+.btn.secondary{background:var(--surface);color:var(--accent)}
+@media (prefers-color-scheme: dark){.btn{color:#0E1424}.btn.secondary{color:var(--accent)}}
+.md-source{font-family:var(--font);font-size:14.5px;line-height:1.65;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;margin:0;white-space:pre-wrap;word-break:break-word;max-width:100%}
+
+.footer{max-width:74ch;margin:64px auto 0;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14.5px;pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;z-index:40}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;scroll-behavior:auto !important}}
+@media print{.topbar,.sidebar,.scrim,#panel-md,.toast{display:none !important}main{padding:0}.doc{max-width:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn" id="menuBtn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Mở hoặc đóng mục lục">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="brand">Engineer &amp; Claude Code</div>
+  <div class="tabs" role="tablist" aria-label="Chọn dạng hiển thị">
+    <button class="tab" role="tab" id="tab-html" aria-controls="panel-html" data-view="html" type="button">HTML</button>
+    <button class="tab" role="tab" id="tab-md" aria-controls="panel-md" data-view="md" type="button">Markdown</button>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Mục lục">
+    <p class="toc-title">Mục lục</p>
+    <ul class="toc" id="toc"></ul>
+  </nav>
+  <div class="scrim" id="scrim" aria-hidden="true"></div>
+
+  <main>
+    <section class="panel" id="panel-html" role="tabpanel" aria-labelledby="tab-html">
+      <article class="doc" id="doc"></article>
+      <footer class="footer">Tổng hợp từ một buổi trao đổi kỹ thuật, tháng 10/2026. Thông tin về Claude Code có thể thay đổi theo phiên bản; hãy đối chiếu với tài liệu chính thức trong mục Nguồn tham khảo.</footer>
+    </section>
+    <section class="panel" id="panel-md" role="tabpanel" aria-labelledby="tab-md" hidden>
+      <div class="doc">
+        <div class="md-tools">
+          <p>Toàn bộ nội dung ở dạng Markdown, dùng để dán vào wiki, Notion hoặc repo.</p>
+          <button class="btn" id="copyMd" type="button">Sao chép Markdown</button>
+          <button class="btn secondary" id="downloadMd" type="button">Tải file .md</button>
+        </div>
+        <pre class="md-source" id="mdSource" tabindex="0"></pre>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px;max-width:70ch;margin:auto">Trang này cần JavaScript để hiển thị nội dung.</p></noscript>
+
+<!-- ===================== CONTENT (single source of truth) ===================== -->
+<script type="text/markdown" id="content">
+# Engineer trong giai đoạn AI: nên tập trung vào đâu, và Claude Code hoạt động ra sao
+
+Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì lúc này, và một công cụ lập trình bằng AI như Claude Code thực sự làm việc thế nào. Nội dung được viết để cả người không làm kỹ thuật cũng đọc được.
+
+<!-- figure:loop -->
+
+## Tài liệu này để làm gì
+
+**Mục đích:** giúp mọi người có chung một bức tranh về hai điều. Thứ nhất, hướng phát triển kỹ năng khi AI đang thay đổi nghề làm phần mềm. Thứ hai, cách một "AI agent" lập trình vận hành, để dùng nó an toàn và hiệu quả.
+
+**Lợi ích cho từng người đọc:**
+
+| Người đọc | Nhận được gì |
+| --- | --- |
+| Engineer | Biết nên ưu tiên học gì; hiểu Claude Code đủ sâu để dự đoán, gỡ lỗi và tùy chỉnh nó |
+| Tech lead, quản lý | Hiểu rủi ro dữ liệu, chi phí, và cách đặt quy tắc chung cho cả team |
+| Người không làm kỹ thuật | Hiểu AI agent làm gì trên máy tính, dữ liệu đi đâu, và vì sao cần quy tắc |
+
+**Cách đọc:** Phần 1 và Phần 2 là tổng quan, đọc khoảng 10 phút. Tiếp theo là bảng thuật ngữ. Phần chi tiết ở cuối dành cho người muốn đi sâu.
+
+## Phần 1. Engineer nên tập trung vào gì lúc này
+
+### Thay đổi lớn nhất
+
+AI đã viết được phần lớn code thông thường. Vì vậy, giá trị của engineer đang dịch chuyển: từ "tự tay viết từng dòng" sang "thiết kế hệ thống, giao việc cho AI, kiểm soát và chịu trách nhiệm về kết quả".
+
+Người làm tốt giai đoạn này là người biết AI giỏi ở đâu, yếu ở đâu, và biết dựng "lan can an toàn" quanh nó.
+
+### Cách chọn thứ đáng học
+
+Một kỹ năng đáng đầu tư nếu đạt ít nhất 2 trong 3 điều sau:
+
+- **Dùng được ngay** trong công việc hiện tại.
+- **Thị trường đang cần**, thể hiện trong mô tả tuyển dụng ở vị trí bạn nhắm tới.
+- **Sống lâu**, ít nhất 5 năm. Nghĩa là học khái niệm nền tảng, không chỉ học thuộc một công cụ.
+
+### Năm hướng ưu tiên
+
+| Hướng | Nói đơn giản | Vì sao quan trọng |
+| --- | --- | --- |
+| Làm việc cùng AI | Giao việc cho AI viết code, kiểm tra kết quả, và xây sản phẩm có AI bên trong | Đây là thay đổi lớn nhất của nghề; ai chưa biết sẽ tụt lại |
+| Nền tảng hệ thống | Hiểu cách phần mềm lớn chịu tải, lưu dữ liệu và xử lý lỗi | AI viết code nhanh, nhưng chưa thay được phán đoán khi thiết kế và khi xử lý sự cố |
+| Cloud và hạ tầng | Đưa phần mềm lên máy chủ, tự động hóa việc phát hành, quay lui an toàn khi lỗi | Sản phẩm nào cũng phải chạy ổn định ở đâu đó |
+| Ngôn ngữ lập trình, chọn theo hướng | Python và TypeScript cho backend và AI; Go hoặc Rust cho hạ tầng; TypeScript cho full-stack | Hiểu sâu 2–3 ngôn ngữ có giá trị hơn biết sơ 5–6 ngôn ngữ |
+| Kỹ năng không phải code | Viết tài liệu thiết kế rõ ràng, đánh giá rủi ro, review code (kể cả code do AI viết) | Quyết định khả năng lên vị trí senior và lead |
+
+### Cụ thể trong từng hướng
+
+**Làm việc cùng AI:**
+
+- Dùng công cụ lập trình bằng AI (như Claude Code) hằng ngày, và học cách kiểm soát, review code do AI viết.
+- Hiểu các khái niệm: gọi công cụ (tool use), MCP, RAG, dữ liệu trả về có cấu trúc.
+- Vận hành: đo chất lượng (eval), theo dõi chi phí và độ trễ, phòng tấn công prompt injection.
+
+**Nền tảng hệ thống:**
+
+- Thiết kế hệ thống: cache, hàng đợi, xử lý lặp lại an toàn (idempotency), chịu tải khi quá đông (backpressure).
+- Cơ sở dữ liệu, đặc biệt PostgreSQL: index, đọc query plan, cơ chế khóa.
+- Quan sát hệ thống (observability): log, metric, trace, OpenTelemetry.
+
+**Cloud và hạ tầng:**
+
+- Thành thạo một nhà cung cấp cloud ở mức thiết kế được, không chỉ triển khai được.
+- Docker là bắt buộc. Kubernetes học đủ hiểu, trừ khi bạn đi theo hướng hạ tầng.
+- Hạ tầng dưới dạng code (Terraform hoặc OpenTofu), CI/CD, và các cách phát hành an toàn: feature flag, canary, rollback.
+
+### Thứ tự gợi ý khi thời gian có hạn
+
+1. Làm việc cùng AI.
+2. Lấp các lỗ hổng trong nền tảng hệ thống.
+3. Cloud và hạ tầng, theo nhu cầu công việc thực tế.
+
+> **Lưu ý:** công cụ AI thay đổi theo tháng. Hãy học khái niệm (đo chất lượng, quản lý ngữ cảnh, các kiểu lỗi thường gặp) thay vì học thuộc một framework cụ thể. Thứ tự ưu tiên cũng khác nhau tùy vị trí hiện tại, định hướng nghề và thị trường mục tiêu của mỗi người.
+
+## Phần 2. Claude Code hoạt động như thế nào
+
+### Hình dung đơn giản
+
+Hãy hình dung Claude Code như một kỹ sư làm việc trên máy tính của bạn, nhưng được tách làm hai nửa:
+
+- **Bộ não** là mô hình AI (model), đặt trên máy chủ của Anthropic. Nó chỉ suy nghĩ và quyết định bước tiếp theo.
+- **Đôi tay** là phần mềm Claude Code chạy trên máy bạn, thường gọi là harness. Nó đọc file, chạy lệnh, sửa code, và hỏi bạn khi cần cấp quyền.
+
+Mỗi khi cần suy nghĩ, đôi tay gửi lên bộ não mọi thứ liên quan: yêu cầu của bạn, các file đã đọc, kết quả lệnh vừa chạy. Bộ não trả lời "hãy làm việc này". Đôi tay làm, rồi gửi kết quả lên. Vòng này lặp lại đến khi việc xong.
+
+### Vòng lặp làm việc
+
+Mỗi yêu cầu đi qua ba nhịp, đan xen nhau:
+
+1. **Thu thập thông tin:** đọc file, tìm kiếm trong code, chạy lệnh để hiểu tình hình.
+2. **Hành động:** sửa file, chạy lệnh, gọi công cụ bên ngoài.
+3. **Kiểm tra:** chạy test, đọc lỗi, sửa tiếp cho đến khi đạt.
+
+Bạn có thể can thiệp bất cứ lúc nào: nhấn Esc để dừng, hoặc gõ thêm chỉ dẫn. Claude sẽ đọc chỉ dẫn mới ngay khi xong bước hiện tại.
+
+### Điều quan trọng nhất về dữ liệu
+
+Việc *làm* diễn ra trên máy bạn, nhưng mọi thứ AI *nhìn thấy* đều được gửi lên máy chủ. Nếu Claude đọc một file chứa mật khẩu, nội dung file đó đã nằm trong yêu cầu gửi đi.
+
+> **Hệ quả thực tế:** đừng để AI đọc file chứa bí mật, ví dụ `.env`. Hãy cấu hình quy tắc chặn đọc những file này ngay từ đầu.
+
+Lịch sử mỗi phiên làm việc được lưu thành file văn bản thường trên máy bạn. Nhờ đó có thể mở lại phiên cũ, quay lui, hoặc rẽ nhánh.
+
+### Trí nhớ làm việc có giới hạn
+
+AI có một "bàn làm việc" với diện tích cố định, gọi là context window. Mọi thứ nó cần để suy nghĩ phải nằm trên bàn: hướng dẫn, file đã đọc, cuộc trò chuyện. Bàn càng đầy thì mỗi lượt càng tốn chi phí, và AI càng dễ bỏ sót chi tiết.
+
+Khi bàn gần đầy, Claude Code tự dọn: xóa bớt kết quả cũ, rồi tóm tắt cuộc trò chuyện. Việc này gọi là compaction. Những chỉ dẫn chỉ nói trong chat có thể bị mất khi đó.
+
+> **Hệ quả thực tế:** quy tắc nào quan trọng thì ghi vào file `CLAUDE.md` (sổ tay của dự án). File này được nạp lại sau mỗi lần dọn bàn.
+
+### Sáu cách điều chỉnh hành vi của Claude Code
+
+| Công cụ | Ví von | Dùng khi |
+| --- | --- | --- |
+| CLAUDE.md | Sổ tay dự án, AI đọc mỗi đầu phiên | Quy tắc luôn phải theo: cách build, chuẩn code, điều cấm |
+| Skill | Quy trình mẫu, chỉ lấy ra khi cần | Việc lặp lại có các bước cố định, ví dụ review theo checklist |
+| Hook | Quy tắc tự động "trước hoặc sau khi làm X thì làm Y" | Bắt buộc chạy test, chặn lệnh nguy hiểm, tự định dạng code |
+| MCP | Ổ cắm nối với công cụ bên ngoài | Đọc ticket, tài liệu, dữ liệu từ hệ thống khác |
+| Subagent | Trợ lý phụ làm việc riêng rồi báo cáo tóm tắt | Việc cần đọc nhiều, để giữ bàn làm việc chính gọn gàng |
+| Permissions | Quyền hạn được cấp | Quy định AI được tự làm gì, phải hỏi gì, bị cấm gì |
+
+### Hiểu những điều này để làm gì
+
+- **Dự đoán được:** biết AI sẽ làm gì trước khi chạy.
+- **Gỡ lỗi nhanh:** khi AI làm điều lạ, biết tìm nguyên nhân ở đâu: sổ tay, hook hay skill.
+- **Tùy chỉnh đúng chỗ:** chọn đúng một trong sáu công cụ ở trên.
+- **Kiểm soát chi phí và bảo mật:** biết dữ liệu nào rời khỏi máy, và vì sao bàn làm việc đầy thì tốn tiền.
+
+## Bài viết nghiên cứu chi tiết
+
+Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến trúc Claude Code, được thực hiện theo đặc tả xây dựng trong buổi trao đổi này.
+
+- [Bên trong Claude Code](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-inside-26-11-11.html)
+- [Hướng dẫn áp dụng Claude Code cho team](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-11-11.html)
+- [Báo cáo nghiên cứu](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-11-11.html)
+
+## Bảng thuật ngữ
+
+- **Agent (tác tử AI)**: chương trình AI tự lên kế hoạch và tự làm nhiều bước để hoàn thành một việc, thay vì chỉ trả lời một câu.
+- **Agentic loop (vòng lặp tác tử)**: chu trình "suy nghĩ, hành động, xem kết quả, suy nghĩ tiếp" lặp đến khi xong việc.
+- **Harness**: phần mềm bao quanh mô hình AI, cung cấp công cụ và quản lý những gì AI được nhìn thấy. Claude Code là một harness.
+- **Model (mô hình AI)**: "bộ não" chạy trên máy chủ, đọc thông tin được gửi lên và quyết định bước tiếp theo.
+- **Prompt**: yêu cầu hoặc chỉ dẫn bạn gửi cho AI.
+- **Context, context window**: toàn bộ thông tin AI nhìn thấy trong một lần suy nghĩ, và giới hạn dung lượng của nó. Ví như diện tích bàn làm việc.
+- **Token**: đơn vị đo lượng chữ mà AI xử lý; chi phí tính theo token.
+- **Compaction**: việc tự động dọn bàn làm việc khi gần đầy, bằng cách xóa kết quả cũ và tóm tắt hội thoại.
+- **CLAUDE.md**: file "sổ tay dự án" viết bằng chữ thường, được nạp vào đầu mỗi phiên.
+- **Memory (MEMORY.md)**: ghi chú Claude tự lưu lại giữa các phiên; phần đầu file được nạp khi bắt đầu phiên.
+- **Skill**: gói hướng dẫn cho một loại việc. Ban đầu chỉ có mô tả ngắn được nạp; nội dung đầy đủ chỉ nạp khi dùng.
+- **Hook**: đoạn lệnh do bạn cài, tự chạy tại các thời điểm cố định (trước khi dùng công cụ, khi kết thúc lượt...). Có thể chặn hành động hoặc bổ sung thông tin.
+- **MCP (Model Context Protocol)**: chuẩn kết nối giúp AI dùng công cụ và dữ liệu từ hệ thống khác.
+- **Subagent**: một AI phụ làm việc trong bàn làm việc riêng, xong thì chỉ gửi bản tóm tắt về.
+- **Tool, tool call**: công cụ AI được dùng (đọc file, chạy lệnh, tìm kiếm...) và mỗi lần AI yêu cầu dùng một công cụ.
+- **Permission mode (chế độ quyền)**: mức độ AI được tự làm mà không cần hỏi bạn.
+- **Plan mode**: chế độ AI chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.
+- **Session, transcript**: một phiên làm việc, và bản ghi đầy đủ của phiên đó trên máy bạn.
+- **Checkpoint**: bản lưu trạng thái file trước khi AI sửa, để có thể quay lui.
+- **Prompt cache**: cơ chế tái sử dụng phần thông tin lặp lại giữa các lần gửi, giúp giảm chi phí.
+- **System reminder**: ghi chú do Claude Code tự chèn vào hội thoại, ví dụ báo file vừa thay đổi.
+- **Prompt injection**: kiểu tấn công giấu chỉ dẫn độc hại trong file, trang web hay dữ liệu để AI làm theo.
+- **Eval**: bài đo chất lượng đầu ra của AI một cách có hệ thống.
+- **RAG**: kỹ thuật tìm tài liệu liên quan rồi đưa cho AI đọc trước khi trả lời.
+- **Observability**: khả năng nhìn vào bên trong hệ thống đang chạy qua log, metric và trace.
+- **Idempotency**: tính chất "làm lại nhiều lần vẫn cho cùng kết quả", giúp hệ thống an toàn khi phải thử lại.
+- **CI/CD**: quy trình tự động kiểm tra và phát hành phần mềm.
+- **Feature flag, canary, rollback**: bật tắt tính năng không cần phát hành lại; phát hành cho một nhóm nhỏ trước; quay về bản cũ khi có lỗi.
+
+## Chi tiết: luồng khởi động
+
+Đây là những gì xảy ra khi bạn gõ lệnh `claude` trong terminal.
+
+1. **Nạp cấu hình.** Claude Code gộp settings từ nhiều tầng: quản trị tổ chức (managed), người dùng (`~/.claude/settings.json`), dự án (`.claude/settings.json`), cá nhân trong dự án (`.claude/settings.local.json`) và plugin. Hook từ các tầng được cộng dồn, không ghi đè nhau. Hook của tầng quản trị không thể bị tắt từ các tầng khác.
+2. **Kiểm tra tin cậy thư mục.** Với thư mục lạ, Claude Code hỏi bạn có tin cậy không (workspace trust). Một số hook của dự án chỉ chạy sau khi bạn chấp nhận.
+3. **Lập danh mục skill, plugin, cấu hình MCP.** Mới chỉ lập danh mục, chưa nạp nội dung.
+4. **Chạy hook SessionStart** (nếu có). Hook chạy nền; câu trả lời đầu tiên phải chờ nó xong. Những gì hook in ra được đưa vào context. MCP chưa sẵn sàng ở bước này, nên hook muốn gọi MCP sẽ bị bỏ qua.
+5. **Nạp hướng dẫn.** `CLAUDE.md`, các rule trong `.claude/rules/`, và 200 dòng hoặc 25KB đầu của `MEMORY.md`, tùy cái nào đến trước. Hook InstructionsLoaded báo lại việc này, chỉ để quan sát.
+6. **Kết nối MCP.** Chỉ tên công cụ được đưa vào context. Mô tả chi tiết của công cụ chỉ nạp khi nó được dùng lần đầu.
+7. **Chờ yêu cầu của bạn.** Đến lúc này chưa có gì được gửi lên máy chủ.
+
+**Kết quả sau khởi động:**
+
+| Ở đâu | Có gì |
+| --- | --- |
+| Bộ nhớ trên máy | Settings đã gộp, danh sách hook, danh mục skill, kết nối MCP |
+| Context ban đầu | CLAUDE.md, memory, trạng thái git, mô tả ngắn của skill, kết quả SessionStart |
+| Máy chủ (cloud) | Chưa nhận gì |
+
+## Chi tiết: luồng xử lý một yêu cầu
+
+Ví dụ: bạn gõ "review PR này theo checklist của team", và team có sẵn skill `team-review`.
+
+### Giai đoạn 1: trên máy, trước khi gửi đi
+
+1. **Nếu bạn gõ `/team-review` trực tiếp:** hook UserPromptExpansion chạy, có thể chặn hoặc thêm thông tin; nội dung skill được chèn vào yêu cầu.
+2. **Nếu yêu cầu có `@tên-file`:** nội dung file được chèn thẳng vào yêu cầu, không đi qua hook PreToolUse.
+3. **Hook UserPromptSubmit chạy** (mặc định tối đa 30 giây): có thể chặn yêu cầu, thêm thông tin hoặc đặt tên phiên, nhưng không sửa được nội dung bạn gõ.
+4. **Đóng gói yêu cầu cuối cùng** và gửi lên mô hình.
+
+Cấu trúc yêu cầu được gửi lên:
+
+```
+system   : hướng dẫn của Claude Code
+tools    : công cụ có sẵn + tên công cụ MCP + công cụ Skill
+messages :
+  [đầu phiên] CLAUDE.md, memory, git, mô tả skill, kết quả SessionStart
+  [lịch sử]   yêu cầu, trả lời, yêu cầu dùng công cụ, kết quả công cụ...
+  [lượt này]  yêu cầu của bạn + nội dung @file
+              + ghi chú hệ thống + thông tin do hook thêm
+```
+
+Phần ổn định thường đặt ở đầu để tận dụng prompt cache. Thứ tự chính xác và nội dung hướng dẫn nội bộ không được công bố.
+
+### Giai đoạn 2: vòng lặp làm việc
+
+1. **Mô hình trả lời**, bằng chữ, hoặc bằng yêu cầu dùng công cụ (ví dụ Skill, Bash, Edit).
+2. **Hook PreToolUse:** cho phép, từ chối, hỏi bạn, hoặc sửa đầu vào của công cụ.
+3. **Kiểm tra quyền** theo chế độ và quy tắc. Nếu cần hỏi, hook PermissionRequest chạy rồi Claude Code hỏi bạn.
+4. **Thực thi trên máy bạn.** Với Skill: nội dung `SKILL.md` được nạp vào context, và hook khai báo trong skill được đăng ký.
+5. **Hook PostToolUse** (hoặc PostToolUseFailure khi lỗi): có thể thêm thông tin hoặc thay kết quả. Khi xong một loạt công cụ chạy song song, hook PostToolBatch chạy.
+6. **Kết quả được nối vào lịch sử** và gửi lên mô hình lần nữa. Vòng lặp tiếp tục.
+
+### Giai đoạn 3: kết thúc lượt
+
+1. **Mô hình không gọi công cụ nữa** thì hook Stop chạy. Hook có thể buộc Claude làm tiếp, ví dụ khi test chưa qua. Sau 8 lần bị chặn liên tiếp, lượt tự kết thúc để tránh lặp vô hạn.
+2. **Lịch sử được ghi** vào file JSONL trên máy, theo kiểu bất đồng bộ.
+3. **Nếu bàn làm việc gần đầy:** PreCompact chạy, Claude Code dọn bàn, rồi PostCompact chạy. Hướng dẫn trong CLAUDE.md được nạp lại.
+
+## Chi tiết: dữ liệu nằm ở đâu
+
+```
+ĐĨA (trên máy, lâu dài)
+  Cấu hình      settings.json (quản trị / người dùng / dự án / cá nhân)
+  Hướng dẫn     CLAUDE.md, .claude/rules/*.md
+  Ghi nhớ       MEMORY.md
+  Khả năng      skills/, plugins/, cấu hình MCP, agents/
+  Phiên làm việc  transcript JSONL, checkpoint
+
+BỘ NHỚ (trên máy, trong một phiên)
+  Lịch sử hội thoại đang mở, danh sách hook, chế độ quyền
+
+TỪ XA
+  Máy chủ mô hình  không giữ hội thoại giữa các lần gửi
+  Máy chủ MCP      có dữ liệu riêng của chúng
+```
+
+| Dữ liệu | Ai ghi | Khi nào được dùng |
+| --- | --- | --- |
+| Cấu hình | Bạn, quản trị viên, plugin | Lúc khởi động và khi file thay đổi |
+| CLAUDE.md, rules | Bạn | Đầu phiên, khi vào thư mục con, sau khi dọn bàn |
+| MEMORY.md | Claude tự ghi | Đầu phiên, giới hạn 200 dòng hoặc 25KB |
+| Skill | Bạn, plugin | Đầu phiên chỉ có mô tả; nội dung nạp khi dùng |
+| Transcript, checkpoint | Claude Code | Khi mở lại phiên, quay lui, rẽ nhánh |
+| Lịch sử hội thoại | Claude Code | Gửi lại toàn bộ lên mô hình ở mỗi lần gọi |
+
+> **Điểm then chốt:** máy chủ mô hình không nhớ gì giữa các lần gửi. "Trí nhớ" của phiên là lịch sử hội thoại, được gửi lại đầy đủ mỗi lần. Ranh giới bảo mật thực sự vì thế là context: thứ gì vào context là đã rời khỏi máy; thứ gì ghi vào transcript thì nằm trên đĩa ở dạng văn bản thường.
+
+## Chi tiết: các tầng của context
+
+| Tầng | Gồm | Sau khi dọn bàn |
+| --- | --- | --- |
+| C0. Phần cố định | Hướng dẫn hệ thống, định nghĩa công cụ | Còn nguyên |
+| C1. Đầu phiên | CLAUDE.md, MEMORY.md, git, mô tả skill, kết quả SessionStart | Được nạp lại |
+| C2. Hội thoại | Yêu cầu, trả lời, kết quả công cụ; tăng dần theo lượt | Kết quả cũ bị xóa trước, sau đó hội thoại bị tóm tắt |
+| C3. Theo lượt | Nội dung @file, ghi chú hệ thống, thông tin hook thêm | Có thể chỉ còn dạng tóm tắt (suy luận) |
+| C4. Theo nhu cầu | Nội dung skill, mô tả công cụ MCP, CLAUDE.md trong thư mục con | Có thể chỉ còn dạng tóm tắt (suy luận) |
+| C5. Riêng biệt | Bàn làm việc của subagent | Không ảnh hưởng phiên chính |
+
+**Hệ quả khi thiết kế cách dùng:**
+
+- Quy tắc bắt buộc thì đặt ở C1 (CLAUDE.md), vì nó sống qua lần dọn bàn.
+- Quy trình dài, ít dùng thì đặt ở C4 (skill), chỉ tốn chỗ khi cần.
+- Việc phải đọc nhiều file thì giao cho subagent (C5), giữ bàn chính gọn.
+- Chi phí mỗi lần gửi tăng theo kích thước lịch sử, nên lượt thứ 30 của một phiên tốn hơn lượt thứ 3 nhiều lần, kể cả khi có prompt cache.
+
+## Chi tiết: hook và nên can thiệp ở đâu
+
+| Hook | Chạy khi | Chặn được không |
+| --- | --- | --- |
+| SessionStart | Bắt đầu, mở lại, xóa, hoặc sau khi dọn bàn | Không; dùng để thêm thông tin |
+| InstructionsLoaded | Nạp CLAUDE.md hoặc rules | Không; chỉ để quan sát |
+| UserPromptExpansion | Bạn gõ trực tiếp `/tên-skill` | Có |
+| UserPromptSubmit | Gửi một yêu cầu | Có |
+| PreToolUse | Trước mỗi lần dùng công cụ | Có |
+| PostToolUse | Sau khi công cụ chạy xong | Không chặn; có thể thêm thông tin hoặc thay kết quả |
+| Stop | Khi Claude định kết thúc lượt | Có; buộc làm tiếp |
+| PreCompact, PostCompact | Trước và sau khi dọn bàn | PreCompact chặn được |
+
+**Nhu cầu nào thì can thiệp ở đâu:**
+
+| Nhu cầu | Điểm can thiệp |
+| --- | --- |
+| Quy tắc cố định cho mọi phiên | CLAUDE.md |
+| Thông tin động lúc khởi động (nhánh git, ticket đang làm) | SessionStart |
+| Thông tin động theo từng yêu cầu | UserPromptSubmit |
+| Chặn hoặc ghi log việc dùng skill | UserPromptExpansion và PreToolUse cho Skill |
+| Chặn lệnh nguy hiểm | Quy tắc deny trong permissions trước, PreToolUse bổ sung |
+| Tự định dạng code sau khi sửa file | PostToolUse cho Edit và Write |
+| Bắt buộc test phải qua | Stop |
+
+## Chi tiết: chế độ quyền và các bẫy thường gặp
+
+**Chế độ quyền** (chuyển bằng Shift+Tab):
+
+- **Auto:** một bộ phân loại xem xét phần lớn hành động ở chế độ nền và chặn những hành động rủi ro, thay vì hỏi bạn.
+- **Manual:** hỏi trước khi sửa file hoặc chạy lệnh.
+- **Accept edits:** tự sửa file, vẫn hỏi với các lệnh khác.
+- **Plan:** chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.
+
+**Các bẫy thường gặp:**
+
+- Hook PreToolUse im lặng (không in gì, thoát mã 0) không có nghĩa là cho phép; hành động vẫn đi qua bước kiểm tra quyền như bình thường.
+- Muốn hook chặn thật thì phải thoát mã 2 hoặc trả JSON từ chối. Thoát mã 1 hoặc hết thời gian chờ đều không chặn.
+- File đưa vào bằng `@tên-file` không đi qua PreToolUse. Muốn chặn phải dùng quy tắc deny cho Read trong permissions.
+- Hook khai báo trong skill sống đến hết phiên, cả ở các lượt sau, trừ khi đặt `once: true`.
+- Checkpoint không quay lui được hành động bên ngoài như ghi database, gọi API hay deploy. Với những việc này, quyền hạn là lớp bảo vệ duy nhất.
+- Đầu ra của hook bị giới hạn 10.000 ký tự. Dài hơn thì được lưu ra file, và chỉ đường dẫn cùng 2.000 ký tự đầu vào context.
+
+## Chi tiết: tự kiểm chứng trên máy của bạn
+
+1. Gõ `/context` để xem thứ gì đang chiếm bàn làm việc.
+2. Mở file JSONL trong `~/.claude/projects/` để thấy chuỗi thật: yêu cầu, yêu cầu dùng công cụ, kết quả.
+3. Gõ `/hooks` để xem mỗi hook đến từ tầng cấu hình nào.
+4. Cài một hook ghi log cho mọi sự kiện, rồi chạy một yêu cầu có dùng skill. Thứ tự trong log chính là các luồng đã mô tả ở trên.
+
+**Bốn câu hỏi thử hiểu biết** (đoán trước, rồi chạy để so):
+
+- Dùng một skill có hook, rồi sang lượt sau làm việc khác: hook đó còn chạy không?
+- Đưa một file vào bằng `@tên-file` trong khi PreToolUse đang chặn Read: file có lọt vào không?
+- Sau `/compact`, chỉ dẫn nào còn được tuân thủ, chỉ dẫn nào bị quên?
+- Nghỉ 2 giờ rồi mở lại phiên: chi phí lần gửi đầu tiên thay đổi thế nào?
+
+## Chi tiết: cách tìm hiểu một hệ thống như thế này
+
+Đi từ ngoài vào trong, từ tĩnh sang động. Mỗi góc nhìn trả lời một loại câu hỏi và có dạng tài liệu đi kèm.
+
+| Góc nhìn | Trả lời câu hỏi | Dạng tài liệu |
+| --- | --- | --- |
+| Ranh giới | Hệ thống nói chuyện với ai, dữ liệu vượt ranh giới nào | Sơ đồ ngữ cảnh, sơ đồ ranh giới tin cậy |
+| Cấu trúc | Gồm những khối nào, khối nào làm gì | Sơ đồ thành phần, bảng trách nhiệm |
+| Hành vi | Các khối tương tác theo thứ tự nào, có những trạng thái nào | Sơ đồ tuần tự, sơ đồ trạng thái, lưu đồ |
+| Dữ liệu | Dữ liệu nằm đâu, chảy đi đâu, sống bao lâu | Bảng kho dữ liệu, sơ đồ luồng dữ liệu |
+| Context | AI thấy gì, khi nào, tốn bao nhiêu | Sơ đồ tầng, biểu đồ token theo lượt |
+| Điểm can thiệp | Móc vào đâu, cấu hình nào thắng | Bảng hook, ma trận lựa chọn |
+| Chất lượng | Bảo mật, độ trễ, chi phí, kiểu hỏng | Bảng mối đe dọa, biểu đồ độ trễ, bảng lỗi |
+| Quyết định | Vì sao thiết kế như vậy, đánh đổi gì | Ghi chú quyết định, bảng đánh đổi |
+
+**Phương pháp bốn bước:**
+
+1. Đọc tài liệu chính thức, viết bản nháp; mọi điều chưa kiểm chứng đều là giả thuyết.
+2. Gắn công cụ đo: hook ghi log và đọc transcript.
+3. Dựng lại sơ đồ và biểu đồ từ log thật.
+4. Dự đoán trước, chạy, so sánh, rồi sửa mô hình hiểu biết.
+
+## Nguồn tham khảo
+
+- [How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works): tài liệu chính thức về vòng lặp, công cụ, phiên làm việc và context.
+- [Hooks reference](https://code.claude.com/docs/en/hooks): danh sách hook, thời điểm chạy, mã thoát, dữ liệu vào ra.
+- [Best practices for Claude Code](https://code.claude.com/docs/en/best-practices): cách dùng hiệu quả, quản lý context.
+- [Effective context engineering for AI agents](https://anthropic.com/engineering/effective-context-engineering-for-ai-agents): nguyên lý quản lý context cho AI agent của Anthropic.
+</script>
+
+<script>
+(function(){
+'use strict';
+
+/* ========================= 1. STATE: shared atoms ========================= */
+function atom(initial){
+  let value = initial; const subs = new Set();
+  return {
+    get: () => value,
+    set: (next) => {
+      const v = typeof next === 'function' ? next(value) : next;
+      if (Object.is(v, value)) return;
+      value = v; subs.forEach(fn => fn(value));
+    },
+    sub: (fn) => { subs.add(fn); fn(value); return () => subs.delete(fn); }
+  };
+}
+const desktopMQ = window.matchMedia('(min-width: 1024px)');
+const store = {
+  doc:      atom(null),                  // { md, html, toc }
+  view:     atom('html'),                // 'html' | 'md'
+  menuOpen: atom(desktopMQ.matches),     // sidebar / drawer
+  active:   atom(null),                  // id of current heading
+  toast:    atom('')                     // transient message
+};
+
+/* ========================= 2. PURE: markdown -> html ========================= */
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const slugify = s => s.toLowerCase().replace(/đ/g,'d').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[`*_\[\]()]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+const stripMd = s => s.replace(/`([^`]+)`/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1');
+
+function inline(src){
+  return src.split(/(`[^`]+`)/g).map(part => {
+    if (/^`[^`]+`$/.test(part)) return '<code>' + esc(part.slice(1,-1)) + '</code>';
+    let s = esc(part);
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m,t,u) => '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + t + '</a>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s.,;:)]|$)/g, '$1<em>$2</em>');
+    return s;
+  }).join('');
+}
+
+const FIGURE_TEXT = {
+  loop: '> **Hình:** Bạn giao việc cho Claude Code ("đôi tay", chạy trên máy bạn: đọc file, chạy lệnh, sửa code). Claude Code gửi những gì đã thấy lên mô hình AI ("bộ não", trên cloud) và nhận lại bước tiếp theo. Vòng này lặp đến khi xong việc.'
+};
+const FIGURES = {
+  loop: '<figure class="hero-fig">' +
+  '<svg class="fig-wide" viewBox="0 28 720 202" role="img" aria-label="Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo">' +
+  '<defs><marker id="hd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-head"/></marker></defs>' +
+  '<rect x="16" y="64" width="120" height="64" rx="10" class="f-box"/>' +
+  '<text x="76" y="92" text-anchor="middle" class="f-name">Bạn</text>' +
+  '<text x="76" y="112" text-anchor="middle" class="f-sub">giao việc, duyệt</text>' +
+  '<rect x="194" y="48" width="214" height="96" rx="10" class="f-main"/>' +
+  '<text x="301" y="80" text-anchor="middle" class="f-name">Claude Code</text>' +
+  '<text x="301" y="100" text-anchor="middle" class="f-sub">"đôi tay", chạy trên máy bạn</text>' +
+  '<text x="301" y="122" text-anchor="middle" class="f-sub">đọc file, chạy lệnh, sửa code</text>' +
+  '<rect x="556" y="48" width="150" height="96" rx="10" class="f-cloud"/>' +
+  '<text x="631" y="80" text-anchor="middle" class="f-name">Mô hình AI</text>' +
+  '<text x="631" y="100" text-anchor="middle" class="f-sub">"bộ não", trên cloud</text>' +
+  '<text x="631" y="122" text-anchor="middle" class="f-sub">quyết định bước tiếp</text>' +
+  '<path d="M136 96H190" class="f-line" marker-end="url(#hd)"/>' +
+  '<path d="M408 82H552" class="f-line" marker-end="url(#hd)"/>' +
+  '<path d="M556 112H412" class="f-line" marker-end="url(#hd)"/>' +
+  '<text x="482" y="72" text-anchor="middle" class="f-lab">gửi điều đã thấy</text>' +
+  '<text x="482" y="132" text-anchor="middle" class="f-lab">trả bước tiếp theo</text>' +
+  '<path d="M267 144 C267 196, 335 196, 335 148" class="f-line" marker-end="url(#hd)"/>' +
+  '<text x="301" y="214" text-anchor="middle" class="f-lab">lặp lại đến khi xong việc</text>' +
+  '</svg>' +
+  '<svg class="fig-narrow" viewBox="0 0 360 392" role="img" aria-label="Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo">' +
+  '<defs><marker id="hd2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-head"/></marker></defs>' +
+  '<rect x="79" y="10" width="140" height="56" rx="10" class="f-box"/>' +
+  '<text x="149" y="34" text-anchor="middle" class="f-name">Bạn</text>' +
+  '<text x="149" y="54" text-anchor="middle" class="f-sub">giao việc, duyệt</text>' +
+  '<path d="M149 66V102" class="f-line" marker-end="url(#hd2)"/>' +
+  '<rect x="24" y="106" width="250" height="92" rx="10" class="f-main"/>' +
+  '<text x="149" y="134" text-anchor="middle" class="f-name">Claude Code</text>' +
+  '<text x="149" y="156" text-anchor="middle" class="f-sub">"đôi tay", chạy trên máy bạn</text>' +
+  '<text x="149" y="178" text-anchor="middle" class="f-sub">đọc file, chạy lệnh, sửa code</text>' +
+  '<path d="M274 128 C318 128, 318 176, 278 176" class="f-line" marker-end="url(#hd2)"/>' +
+  '<text x="300" y="216" text-anchor="middle" class="f-lab">lặp đến khi xong</text>' +
+  '<path d="M119 198V286" class="f-line" marker-end="url(#hd2)"/>' +
+  '<path d="M179 290V202" class="f-line" marker-end="url(#hd2)"/>' +
+  '<text x="109" y="248" text-anchor="end" class="f-lab">gửi điều đã thấy</text>' +
+  '<text x="189" y="248" class="f-lab">trả bước tiếp theo</text>' +
+  '<rect x="39" y="290" width="220" height="92" rx="10" class="f-cloud"/>' +
+  '<text x="149" y="318" text-anchor="middle" class="f-name">Mô hình AI</text>' +
+  '<text x="149" y="340" text-anchor="middle" class="f-sub">"bộ não", trên cloud</text>' +
+  '<text x="149" y="362" text-anchor="middle" class="f-sub">quyết định bước tiếp</text>' +
+  '</svg><figcaption>Việc làm diễn ra trên máy bạn; mọi thứ AI nhìn thấy được gửi lên cloud để suy nghĩ.</figcaption></figure>'
+};
+
+function parseMarkdown(md){
+  const lines = md.replace(/\r/g,'').split('\n');
+  const out = [], toc = [], used = new Set();
+  const blank = l => /^\s*$/.test(l);
+  const blockStart = /^(#{1,4}\s|```|>|\||[-*]\s|\d+\.\s|<!--|---+$)/;
+  let i = 0;
+  while (i < lines.length){
+    const l = lines[i]; let m;
+    if (blank(l)) { i++; continue; }
+    if ((m = l.match(/^<!--\s*figure:(\w+)\s*-->$/))) { out.push(FIGURES[m[1]] || ''); i++; continue; }
+    if (l.startsWith('```')) {
+      const buf = []; i++;
+      while (i < lines.length && !lines[i].startsWith('```')) { buf.push(lines[i]); i++; }
+      i++; out.push('<pre class="code" tabindex="0"><code>' + esc(buf.join('\n')) + '</code></pre>'); continue;
+    }
+    if ((m = l.match(/^(#{1,4})\s+(.*)$/))) {
+      const lvl = m[1].length, text = m[2];
+      const base = slugify(stripMd(text)) || 'muc'; let id = base, n = 2;
+      while (used.has(id)) id = base + '-' + (n++);
+      used.add(id);
+      if (lvl === 2 || lvl === 3) toc.push({ id, text: stripMd(text), lvl });
+      out.push('<h' + lvl + ' id="' + id + '">' + inline(text) + '</h' + lvl + '>');
+      if (lvl === 1) { i++; /* first paragraph after h1 becomes lead */
+        while (i < lines.length && blank(lines[i])) i++;
+        const buf = []; while (i < lines.length && !blank(lines[i]) && !blockStart.test(lines[i])) { buf.push(lines[i]); i++; }
+        if (buf.length) out.push('<p class="lead">' + inline(buf.join(' ')) + '</p>');
+        continue; }
+      i++; continue;
+    }
+    if (/^---+$/.test(l)) { out.push('<hr>'); i++; continue; }
+    if (l.startsWith('>')) {
+      const buf = []; while (i < lines.length && lines[i].startsWith('>')) { buf.push(lines[i].replace(/^>\s?/,'')); i++; }
+      out.push('<aside class="note"><p>' + inline(buf.join(' ')) + '</p></aside>'); continue;
+    }
+    if (l.startsWith('|')) {
+      const rows = []; while (i < lines.length && lines[i].startsWith('|')) { rows.push(lines[i]); i++; }
+      const cells = r => r.trim().replace(/^\||\|$/g,'').split('|').map(c => c.trim());
+      const head = cells(rows[0]), body = rows.slice(2).map(cells);
+      out.push('<div class="table-wrap" tabindex="0"><table><thead><tr>' +
+        head.map(h => '<th scope="col">' + inline(h) + '</th>').join('') + '</tr></thead><tbody>' +
+        body.map(r => '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div>');
+      continue;
+    }
+    const listKind = /^[-*]\s+/.test(l) ? 'ul' : (/^\d+\.\s+/.test(l) ? 'ol' : null);
+    if (listKind) {
+      const re = listKind === 'ul' ? /^[-*]\s+/ : /^\d+\.\s+/;
+      const items = [];
+      while (i < lines.length && re.test(lines[i])) {
+        let t = lines[i].replace(re,''); i++;
+        while (i < lines.length && /^\s{2,}\S/.test(lines[i])) { t += ' ' + lines[i].trim(); i++; }
+        items.push(t);
+      }
+      out.push('<' + listKind + '>' + items.map(t => '<li>' + inline(t) + '</li>').join('') + '</' + listKind + '>');
+      continue;
+    }
+    const buf = [];
+    while (i < lines.length && !blank(lines[i]) && (buf.length === 0 || !blockStart.test(lines[i]))) { buf.push(lines[i]); i++; }
+    out.push('<p>' + inline(buf.join(' ')) + '</p>');
+  }
+  return { html: out.join('\n'), toc };
+}
+
+/* ========================= 3. BUSINESS COMPONENTS (workflow + events) ========================= */
+const $ = s => document.querySelector(s);
+const isMobile = () => !desktopMQ.matches;
+
+/* Content loader: source script -> doc atom */
+const ContentLoader = {
+  mount(){
+    const source = $('#content').textContent.replace(/^\s*\n/,'').replace(/\s+$/,'') + '\n';
+    const { html, toc } = parseMarkdown(source);
+    /* Markdown export: figures become their text equivalent */
+    const md = source.replace(/^<!--\s*figure:(\w+)\s*-->$/gm, (m, k) => FIGURE_TEXT[k] || '');
+    store.doc.set({ md, html, toc });
+  }
+};
+
+/* Document view: renders HTML once doc is ready */
+const DocumentView = {
+  mount(){
+    store.doc.sub(doc => { if (doc) $('#doc').innerHTML = doc.html; });
+  }
+};
+
+/* Menu: toggle button, scrim, Esc, breakpoint change */
+const Menu = {
+  mount(){
+    const btn = $('#menuBtn');
+    store.menuOpen.sub(open => {
+      document.body.classList.toggle('menu-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+    });
+    btn.addEventListener('click', () => store.menuOpen.set(v => !v));
+    $('#scrim').addEventListener('click', () => store.menuOpen.set(false));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && isMobile() && store.menuOpen.get()) { store.menuOpen.set(false); btn.focus(); }
+    });
+    desktopMQ.addEventListener('change', e => store.menuOpen.set(e.matches));
+  }
+};
+
+/* Table of contents: render, navigate (switching to HTML view if needed), highlight active */
+const Toc = {
+  mount(){
+    const list = $('#toc');
+    store.doc.sub(doc => {
+      if (!doc) return;
+      list.innerHTML = doc.toc.map(t =>
+        '<li><a href="#' + t.id + '" class="lvl' + t.lvl + '" data-id="' + t.id + '">' + esc(t.text) + '</a></li>').join('');
+    });
+    list.addEventListener('click', e => {
+      const a = e.target.closest('a[data-id]'); if (!a) return;
+      e.preventDefault();
+      const id = a.dataset.id;
+      store.view.set('html');
+      if (isMobile()) store.menuOpen.set(false);
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); }
+        store.active.set(id);
+      });
+    });
+    store.active.sub(id => {
+      list.querySelectorAll('a').forEach(a => {
+        const on = a.dataset.id === id;
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+      });
+    });
+  }
+};
+
+/* Scroll spy: headings in view -> active atom */
+const ScrollSpy = {
+  mount(){
+    let observer = null;
+    store.doc.sub(doc => {
+      if (!doc || !('IntersectionObserver' in window)) return;
+      if (observer) observer.disconnect();
+      observer = new IntersectionObserver(entries => {
+        entries.forEach(en => { if (en.isIntersecting) store.active.set(en.target.id); });
+      }, { rootMargin: '-72px 0px -70% 0px' });
+      document.querySelectorAll('#doc h2[id], #doc h3[id]').forEach(h => observer.observe(h));
+    });
+  }
+};
+
+/* Tabs: HTML / Markdown view switch with keyboard support */
+const Tabs = {
+  mount(){
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    store.view.sub(view => {
+      tabs.forEach(t => {
+        const on = t.dataset.view === view;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      });
+      $('#panel-html').hidden = view !== 'html';
+      $('#panel-md').hidden = view !== 'md';
+    });
+    tabs.forEach((t, idx) => {
+      t.addEventListener('click', () => { store.view.set(t.dataset.view); window.scrollTo({ top: 0 }); });
+      t.addEventListener('keydown', e => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const next = tabs[(idx + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus(); store.view.set(next.dataset.view);
+      });
+    });
+  }
+};
+
+/* Markdown panel: show source, copy and download workflows */
+const MarkdownPanel = {
+  mount(){
+    store.doc.sub(doc => { if (doc) $('#mdSource').textContent = doc.md; });
+    $('#copyMd').addEventListener('click', () => this.copy(store.doc.get().md));
+    $('#downloadMd').addEventListener('click', () => this.download(store.doc.get().md));
+  },
+  copy(text){
+    const done = () => store.toast.set('Đã sao chép toàn bộ Markdown');
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { store.toast.set('Không sao chép được. Hãy chọn nội dung và nhấn Ctrl+C.'); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  },
+  download(text){
+    try {
+      const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'engineer-va-claude-code.md';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      store.toast.set('Đã tải file engineer-va-claude-code.md');
+    } catch (e) { store.toast.set('Không tải được file. Hãy dùng nút Sao chép Markdown.'); }
+  }
+};
+
+/* Toast: show transient message */
+const Toast = {
+  mount(){
+    const el = $('#toast'); let timer = null;
+    store.toast.sub(msg => {
+      if (!msg) { el.classList.remove('show'); return; }
+      el.textContent = msg; el.classList.add('show');
+      clearTimeout(timer); timer = setTimeout(() => store.toast.set(''), 2400);
+    });
+  }
+};
+
+/* Deep link: open at #id on load */
+const DeepLink = {
+  mount(){
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    requestAnimationFrame(() => { const el = document.getElementById(id); if (el) el.scrollIntoView(); });
+  }
+};
+
+/* ========================= 4. BOOT ========================= */
+[DocumentView, Menu, Toc, Tabs, MarkdownPanel, Toast, ScrollSpy].forEach(c => c.mount());
+ContentLoader.mount();
+DeepLink.mount();
+})();
+</script>
+</body>
+</html>
