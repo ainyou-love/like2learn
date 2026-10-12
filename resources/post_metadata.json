@@ -270,6 +270,15 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/claude-tool-call-deep-dive-26-10-12.html": {
+    "subject": "Deep Dive: Tool Call trong Claude",
+    "description": "Tool call trong Claude: là gì, bao nhiêu loại, dùng ở đâu, nguyên tắc, ranh giới, best/bad practice và ví dụ từ atomic đến workflow.",
+    "created_at": "2026-10-12T09:33:34+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/engineer-va-claude-code-26-10-11.html": {
     "subject": "Engineer trong giai đoạn AI và cách Claude Code hoạt động",
     "description": "Engineer nên tập trung vào gì lúc này, và tổng quan cách Claude Code hoạt động: dữ liệu, ngữ cảnh, luồng xử lý, hook.",
