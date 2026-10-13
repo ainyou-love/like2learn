@@ -1,0 +1,1053 @@
+{
+ "meta": {
+  "title": "Humans & AI Agents — Collaboration Handbook",
+  "brand": "Humans & AI Agents",
+  "desc": "From the evolving relationship between humans and AI assistants, to cognitive traps history already recorded, to the two-way communication craft that lets both sides collaborate well.",
+  "lang": "en",
+  "md_filename": "nguoi-va-ai-agent.en.md"
+ },
+ "hero": {
+  "kicker": "Handbook · Synthesis · 2026",
+  "title": "Humans & AI Agents: *Trends, Traps, and Collaboration Craft*",
+  "lede": "From the evolving relationship between humans and AI assistants, to cognitive traps history already recorded, to the two-way communication craft that lets both sides collaborate well. The through-line: every technique aims to **lower the receiver's cost of verification**.",
+  "stats": [
+   {
+    "n": "4",
+    "l": "axes of tool change"
+   },
+   {
+    "n": "4",
+    "l": "trap families, each with a historical precedent"
+   },
+   {
+    "n": "4",
+    "l": "soft-skill stages"
+   },
+   {
+    "n": "1",
+    "l": "cross-cutting principle"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "sec1",
+   "no": "01",
+   "title": "Human–machine evolution trends",
+   "intro": "Where the tool is heading, and where humans must shift focus.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "Four axes of machine change and the human shift of focus."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Split roles by each side's true advantage."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "As the machine does more, the bottleneck moves to human review and clarity of intent."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### The tool's trajectory"
+    },
+    {
+     "type": "md",
+     "text": "```text\n2023-2024          2025               2026 (now)\n-------------      -------------      ---------------------\nChat + edit files -> Autonomous loop -> Background \"crew\"\n1 session, 1 task, calls tools,       many tasks in parallel,\nhuman watches      fixes own errors   runs in background,\nevery step                            sets its own goals\n```"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Axis",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Parallelization",
+       "One person steers many agents at once; no longer 1-to-1."
+      ],
+      [
+       "Long-horizon autonomy",
+       "Runs across many steps unattended."
+      ],
+      [
+       "Verify by execution",
+       "The machine runs the real product to prove itself, not just trust automated tests."
+      ],
+      [
+       "Context economy",
+       "Knowledge packaged, loaded only when needed."
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### The human focus shift"
+    },
+    {
+     "type": "md",
+     "text": "```text\nGIVING WAY                     RISING\n----------------------         ------------------------------\nDoing every step by hand  ->   Stating intent + constraints\nCrafting each prompt      ->   Preparing good background context\nEyeballing every change   ->   Designing how to verify\nOne task at a time        ->   Orchestrating parallel streams\n```"
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "HUMAN: defines \"what is right\""
+      },
+      {
+       "title": "MACHINE: executes & self-fixes"
+      },
+      {
+       "title": "HUMAN: final verify & ownership"
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "Three compounding investments: (1) package repeated knowledge into reusable tools; (2) build automated verification before delegating big work; (3) delegate in units with measurable done-conditions."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "AI agent",
+       "AI software that carries out chains of tasks for you, not just answers."
+      ],
+      [
+       "Autonomy",
+       "How far the machine runs without human intervention."
+      ],
+      [
+       "Context",
+       "The background the machine needs to understand and act correctly."
+      ],
+      [
+       "Orchestration",
+       "Steering many streams/agents in controlled parallel."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec2",
+   "no": "02",
+   "title": "Known traps",
+   "intro": "Not new traps — old ones now erupting far faster.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "Four families: cognition, throughput, organization, ecosystem."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Spot them early to place counterweights before they tighten."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "Traps stay invisible because fluent, high-volume output hides the flaws."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### The root law: removing effort also removes where skill is forged"
+    },
+    {
+     "type": "md",
+     "text": "```text\nThe tool removes FRICTION\n        |\n        +-- gain : faster, able to do more\n        +-- loss : that very friction is where skill,\n                   attention & deep understanding are forged\n```"
+    },
+    {
+     "type": "md",
+     "text": "*\"Friction\" = every obstacle that forces us to think and do it ourselves. An old law; what's new is speed, coverage, and how persuasive the output is.*"
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "A",
+       "title": "Cognitive traps — personal skills atrophy",
+       "fields": [
+        [
+         "Covers",
+         "Skill atrophy, over-trusting the machine (automation bias), being fooled by fluent prose, and skimming ever more."
+        ],
+        [
+         "History",
+         "Plato feared writing would ruin memory. More recently, drivers relying on GPS lose their sense of direction; students with calculators weaken at mental math. Engineer Lisanne Bainbridge called it the \"irony of automation\" (1983): the person who must rescue a failed machine is the very one who lost the skill because the machine did it for them."
+        ],
+        [
+         "Problem",
+         "Delegate everything → your own skills dull, and when the machine errs you can't catch it."
+        ],
+        [
+         "Solution",
+         "Keep \"deliberate friction\": periodically do critical work by hand."
+        ],
+        [
+         "Benefit",
+         "Always retain the capacity to supervise and catch errors.",
+         "val"
+        ],
+        [
+         "Success example",
+         "Aviation requires pilots to hand-fly periodically despite autopilot, so reflexes don't fade — which is what saves the day when automation fails.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "B",
+       "title": "Throughput traps — producing too much",
+       "fields": [
+        [
+         "Covers",
+         "The Jevons paradox, the generate-vs-verify asymmetry, and pushing the burden onto people downstream."
+        ],
+        [
+         "History",
+         "In 1865, economist William Jevons found that more efficient steam engines raised total coal use — cheaper meant people used more. Likewise, widening highways rarely ends congestion; it draws more cars (\"induced demand\")."
+        ],
+        [
+         "Problem",
+         "The machine produces far faster while human checking stays slow → either a bottleneck, or sloppy approvals piling up invisible quality debt."
+        ],
+        [
+         "Solution",
+         "Let the machine run only as far as you can verify; cap the number of things in progress at once."
+        ],
+        [
+         "Benefit",
+         "Real speed, not illusory speed trailed by rework.",
+         "val"
+        ],
+        [
+         "Success example",
+         "The Toyota Production System (Lean/Kanban) caps work-in-progress and lets anyone stop the line on a defect — so faults aren't pushed downstream, and both quality and speed rise.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "C",
+       "title": "Organizational traps — losing successors, misplaced blame",
+       "fields": [
+        [
+         "Covers",
+         "The apprenticeship gap, the \"moral crumple zone\", and measuring the wrong metric."
+        ],
+        [
+         "History",
+         "As factories automated, many master-to-apprentice crafts lost their chain. In automation-related accidents (aircraft, self-driving cars), the operator is often blamed despite little real control — researcher Madeleine Elish calls it the \"moral crumple zone\", like a car's crumple zone absorbing the impact."
+        ],
+        [
+         "Problem",
+         "Cut the \"boring\" junior work AI can do → juniors lose the ladder to expertise; approvers absorb the machine's faults."
+        ],
+        [
+         "Solution",
+         "Redesign the learning path (verification & oversight as the core craft); measure real outcomes, not output volume."
+        ],
+        [
+         "Benefit",
+         "Preserve the pipeline of experts for the next 5–10 years.",
+         "val"
+        ],
+        [
+         "Success example",
+         "Medicine keeps supervised residencies; aviation runs a \"just culture\" — investigating to learn from errors instead of finding someone to blame, which is why safety has improved steadily for decades.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "D",
+       "title": "Ecosystem traps — everyone thinking alike",
+       "fields": [
+        [
+         "Covers",
+         "Solution homogenization, self-polluting content, and erratic trust swings."
+        ],
+        [
+         "History",
+         "The Irish Potato Famine (1845) is the classic lesson in \"monoculture\": a nation planting one potato variety, wiped out by one disease. Diversity is insurance against systemic risk — true for farming and for ways of thinking alike."
+        ],
+        [
+         "Problem",
+         "Everyone asks the same AI → solutions converge, diversity fades; AI then trains on AI-written content → source quality drifts down."
+        ],
+        [
+         "Solution",
+         "Keep primary sources for key work; deliberately seek off-consensus thinking."
+        ],
+        [
+         "Benefit",
+         "Avoid the risk of a whole group \"being wrong the same way\".",
+         "val"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Quick dependency check\n\nAsk: *\"If this tool vanished for a week, what could my team and I still do?\"* — the gap between the answer today and a year ago shows how deep you've fallen into traps [A](#a)/[C](#c)."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Friction",
+       "Resistance that forces thinking and doing yourself — where skill is forged."
+      ],
+      [
+       "Automation bias",
+       "The tendency to trust machine output over your own observation."
+      ],
+      [
+       "Fluency trap",
+       "Smooth writing feels trustworthy even when the content is wrong."
+      ],
+      [
+       "Jevons paradox",
+       "More efficiency leads to more use; total consumption rises, not falls."
+      ],
+      [
+       "Moral crumple zone",
+       "The operator absorbs blame for machine errors despite little control."
+      ],
+      [
+       "Monoculture",
+       "All alike → one shared weakness can wipe out the whole system."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec3",
+   "no": "03",
+   "title": "Where to slow down · Where to stay flexible",
+   "toc_label": "Slow down / Stay flexible",
+   "intro": "One rule governs both sides.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "Where to be careful, and where to let go."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Concentrate caution where leverage is highest."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "People often do it backwards: rushed on decisions, rigid on habits."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "```text\nSLOW DOWN      where a mistake is EXPENSIVE + HARD TO REVERSE\n\nSTAY FLEXIBLE  where attachment is COSTLY + quickly OBSOLETE\n```"
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "History",
+     "text": "The ancient Romans said \"festina lente\" — \"make haste slowly\". Carpenters say \"measure twice, cut once\". Same idea: spend a little at the un-redoable step to save a lot later."
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "SLOW",
+       "title": "Where to SLOW DOWN",
+       "fields": [
+        [
+         "Problem",
+         "The machine offers 5 options in a minute, tempting us to decide in a minute too. But the cost of fixing a wrong choice is unchanged — only the cost of creating it dropped."
+        ],
+        [
+         "Solution",
+         "Slow down on: irreversible decisions (architecture, data, commitments); clear intent up front; output verification; building the background to judge by."
+        ],
+        [
+         "Benefit",
+         "Avoid the most expensive mistakes — the kind that eat all your later speed.",
+         "val"
+        ],
+        [
+         "Success example",
+         "Amazon distinguishes \"one-way doors\" from \"two-way doors\": deliberate carefully on irreversible calls, move fast on reversible ones — careful and nimble at once. Surgeon Atul Gawande showed a short pre-surgery checklist (a few slow minutes) sharply cuts complications and deaths.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "FLEX",
+       "title": "Where to STAY FLEXIBLE",
+       "fields": [
+        [
+         "Problem",
+         "Tools and methods change monthly. Anyone who ties their self-worth to a specific operation will resist exactly when that operation gets replaced."
+        ],
+        [
+         "Solution",
+         "Stay flexible on: tools & process; professional identity; the human–machine task boundary; how you learn (just-in-time). Treat them as variables, review periodically."
+        ],
+        [
+         "Benefit",
+         "Not stuck in outdated methods; adapt fast to change.",
+         "val"
+        ],
+        [
+         "Success example",
+         "Netflix moved from mailing DVDs to streaming to producing its own shows — dropping the old model at the right time while still profitable. Kodak, by contrast, invented the digital camera but clung to film for fear of losing revenue, and collapsed. Flexible identity (\"we sell entertainment\", not \"we sell discs\") decides who survives.",
+         "ex"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "The paradox to accept",
+     "text": "Being slow on judgment is what lets you be fast everywhere else — only solid verification makes it safe to run many parallel streams."
+    },
+    {
+     "type": "md",
+     "text": "### Quick-check matrix"
+    },
+    {
+     "type": "table",
+     "key": false,
+     "head": [
+      "Question",
+      "If YES →"
+     ],
+     "rows": [
+      [
+       "Is a mistake here expensive or hard to fix?",
+       "Slow down"
+      ],
+      [
+       "Is this a manual operation or a judgment?",
+       "Operation → let go; judgment → keep & hone"
+      ],
+      [
+       "Keeping this because it's right, or just familiar?",
+       "Familiar → be flexible"
+      ]
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Irreversible decision",
+       "A choice whose later reversal cost is very high — deliberate carefully."
+      ],
+      [
+       "One-way / two-way door",
+       "Amazon's terms for a decision you can't / can undo."
+      ],
+      [
+       "Intent",
+       "What you truly want to achieve, stated clearly for the machine."
+      ],
+      [
+       "Meta-skill",
+       "A foundational skill (judgment, specification, learning) that stays valuable."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec4",
+   "no": "04",
+   "title": "Soft-skill clusters",
+   "intro": "What to hone so you won't be obsoleted.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "Skills across four stages of a work cycle with an AI agent."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Invest in skills that complement the machine; drop those it replaces."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "Operational skills lose value, yet many still identify by them."
+      }
+     ]
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Shape",
+       "text": "before delegating"
+      },
+      {
+       "title": "Coordinate",
+       "text": "while the machine runs"
+      },
+      {
+       "title": "Judge",
+       "text": "when receiving results"
+      },
+      {
+       "title": "Adapt",
+       "text": "the long-term base"
+      }
+     ]
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "1",
+       "title": "Shape (before delegating)",
+       "fields": [
+        [
+         "Covers",
+         "Define the right problem · state requirements clearly (clear writing = clear thinking) · split big work into delegable parts."
+        ],
+        [
+         "Problem",
+         "The machine solves the stated problem fast — even when the problem is stated wrong."
+        ],
+        [
+         "Solution",
+         "Spend effort clarifying \"what the real problem is\" and the done-criteria before hitting go."
+        ],
+        [
+         "Benefit",
+         "No cleanup of output that's technically right but misses the point.",
+         "val"
+        ],
+        [
+         "Example & classic quote",
+         "A quote often attributed to Einstein: \"If I had an hour to save the world, I'd spend 55 minutes defining the problem and 5 minutes on the solution.\" Amazon \"works backwards\": writing a product's press release *before* building it, to lock in the value to be delivered.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "2",
+       "title": "Coordinate (while the machine runs)",
+       "fields": [
+        [
+         "Covers",
+         "Delegate the right task at the right autonomy · attention discipline (choose what to read closely vs skim)."
+        ],
+        [
+         "Problem",
+         "Steering many streams overloads; sheer volume drags us into skimming everything."
+        ],
+        [
+         "Solution",
+         "Think like a manager/conductor: cap the streams, deliberately pick where attention goes."
+        ],
+        [
+         "Benefit",
+         "Control quality across parallel work without burning out.",
+         "val"
+        ],
+        [
+         "Example",
+         "A conductor plays no instrument yet sets the tempo, balance, and emphasis of the whole orchestra — value in coordination, not operation. This is exactly the human role now shifting into place.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "3",
+       "title": "Judge (when receiving results)",
+       "fields": [
+        [
+         "Covers",
+         "Calibrated skepticism · telling \"fluent\" from \"correct\" · owning the final call."
+        ],
+        [
+         "Problem",
+         "Smooth-looking output invites a nod; whoever approves owns what they approved."
+        ],
+        [
+         "Solution",
+         "Set doubt by what the machine is good/bad at; be willing to say \"I don't understand this yet, so I won't approve it\"."
+        ],
+        [
+         "Benefit",
+         "Catch errors early, keep credibility and safety.",
+         "val"
+        ],
+        [
+         "Example & classic quote",
+         "News editors verify sources before publishing — their craft is methodical skepticism. The maxim popularized by President Reagan: \"Trust, but verify.\"",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "4",
+       "title": "Adapt (the long-term base)",
+       "fields": [
+        [
+         "Covers",
+         "Learn the new fast, unlearn selectively · tolerate ambiguity · keep purely human skills (building trust, leading, reading context)."
+        ],
+        [
+         "Problem",
+         "The human–machine boundary keeps shifting; \"learn once, use forever\" no longer suffices."
+        ],
+        [
+         "Solution",
+         "Treat learning as continuous; tie self-worth to outcomes, not a fixed operation."
+        ],
+        [
+         "Benefit",
+         "Stay steady through each tech wave instead of being swept away.",
+         "val"
+        ],
+        [
+         "Example & classic quote",
+         "A principle often linked to Darwin: it's not the strongest or smartest that survive, but those most adaptable to change. The more the machine carries the technical load, the more a person's value concentrates in human skills.",
+         "ex"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "head": [
+      "Stage",
+      "Core skills",
+      "Counters trap"
+     ],
+     "rows": [
+      [
+       "Before",
+       "Problem framing, specification, decomposition",
+       "[B](#b)"
+      ],
+      [
+       "During",
+       "Orchestration, attention discipline",
+       "[A](#a)"
+      ],
+      [
+       "After",
+       "Calibrated skepticism, ownership",
+       "[A](#a) · [C](#c)"
+      ],
+      [
+       "Base",
+       "Adaptability, purely human skills",
+       "[C](#c)"
+      ]
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Common denominator",
+     "text": "All are *judgment and human-relational* skills, not operational ones — precisely the line between what the machine complements and what it replaces."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Problem framing",
+       "Pinning down the right problem before solving it."
+      ],
+      [
+       "Decomposition",
+       "Cutting big work into small, clearly bounded, delegable parts."
+      ],
+      [
+       "Calibrated skepticism",
+       "Neither blind trust nor blind rejection — doubt set by evidence."
+      ],
+      [
+       "Ownership",
+       "Taking final responsibility for what you approve."
+      ],
+      [
+       "Learning agility",
+       "Learning the new quickly and boldly dropping the obsolete."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec5",
+   "no": "05",
+   "title": "Communication: Human → Machine",
+   "intro": "Express so the machine gets it right the first time.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "Three information layers and how to choose language."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Convey a testable intent so the machine self-runs to a correct result."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "Vague requests get replicated into wrong output at machine speed."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Three layers, three lifespans"
+    },
+    {
+     "type": "md",
+     "text": "```text\nINTENT   (prompt)   - lives 1 turn    -> what you want this time\nCONTEXT  (context)  - lives 1 project -> stable facts of the environment\nWORKFLOW (workflow) - lives long-term -> mechanisms that let the machine\n                                         self-correct without being told again\n```"
+    },
+    {
+     "type": "md",
+     "text": "### Language choice — priority by leverage"
+    },
+    {
+     "type": "md",
+     "text": "```text\nTESTABLE  (done-condition) ****  machine self-checks & loops to correct\nSUBJECT   (named clearly)  ***   no guessing what it's about\nVERB      (narrow meaning) ***   locks the scope of action\nADJECTIVE (quantified)     **    turns a feeling into a threshold\nConcise                    *     is a CONSEQUENCE, not a goal\n```"
+    },
+    {
+     "type": "md",
+     "text": "- **Verb:** use narrow verbs (\"reduce X to Y\", \"merge A into B\") over broad ones (\"improve\", \"optimize\").\n- **Subject:** name it specifically (file path, function name, number) over vague description; repeat the noun instead of \"it\".\n- **Adjective:** convert qualitative adjectives to numbers — \"fast\" → \"responds under 200 ms\".\n- **Concise:** measured by *constraint density per line*, not line count. Cut pleasantries, keep constraints."
+    },
+    {
+     "type": "md",
+     "text": "### The full template"
+    },
+    {
+     "type": "md",
+     "text": "```text\n[narrow VERB] [clearly named SUBJECT]\n[quantified CONSTRAINTS]\n[BOUNDARY: what must not be touched]\n[DONE WHEN: a command to run + an observable result]\n```"
+    },
+    {
+     "type": "md",
+     "text": "*Example (coding, but the principle applies to any task):* \"Rewrite `parsePayment()` in `src/billing.ts`, keep the public interface, cut to ≤50 lines, add no library. Done when `npm test -- billing` fully passes.\""
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Self-check before sending",
+     "text": "Hide the \"Done when\" part and ask \"could the machine satisfy every word here and still miss my intent?\" — if yes, the missing constraint sits exactly there."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Prompt",
+       "What you type to the AI to state the task right now."
+      ],
+      [
+       "Done-condition",
+       "A criterion the machine can run and observe to know it's finished."
+      ],
+      [
+       "Constraint",
+       "A limit to obey while doing the work (time, scope, prohibitions)."
+      ],
+      [
+       "Constraint density",
+       "Useful constraints per line — the real measure of \"concise\"."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec6",
+   "no": "06",
+   "title": "Communication: Machine → Human",
+   "intro": "Pick the presentation form by the data's structure.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "When to use table / tree / diagram / prose, and when to summarize first."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Match the form to data structure + real reading habits."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "Readers skim, get interrupted, and stop anytime."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Choose by the data's relationship type"
+    },
+    {
+     "type": "md",
+     "text": "```text\nUnrelated items, shared attributes -> TABLE\nParent-child, one parent each      -> TREE\nMany-to-many, directed, cyclic     -> DIAGRAM\nCause-effect, needs reasoning      -> PROSE\nSequential steps                   -> LIST\n```"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Form",
+      "Use when",
+      "Switch signal"
+     ],
+     "rows": [
+      [
+       "Table",
+       "Many uniform items compared on shared attributes.",
+       "Many blank or bloated cells → split into sections."
+      ],
+      [
+       "Tree",
+       "Containment, one parent per branch.",
+       "An item with two parents → use a diagram; deeper than 3 levels → split."
+      ],
+      [
+       "Diagram",
+       "Many-to-many, directed or cyclic.",
+       "More than ~15 nodes → layer it (overview then zoom)."
+      ],
+      [
+       "Prose",
+       "Value lives in the causal reasoning.",
+       "Bulleting it = severing the reasoning chain."
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### When to go \"summary first, detail later\"\n\nApply when **any of 4** holds: (1) longer than one screen (~30 lines); (2) answers 3+ topics; (3) contains a decision/action for the person; (4) read in bad conditions (phone, mid-meeting, easily interrupted)."
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Summary (3–5 lines)",
+       "text": "conclusion + action + risk warning"
+      },
+      {
+       "title": "Independent sections",
+       "text": "each fully answers one sub-question"
+      },
+      {
+       "title": "Detail / appendix",
+       "text": "numbers, evidence — read when needed"
+      }
+     ],
+     "note": "**Quick test:** \"If the reader stops at line 5, do they leave with the conclusion and the action?\""
+    },
+    {
+     "type": "md",
+     "text": "### Three layers to label explicitly"
+    },
+    {
+     "type": "cards",
+     "cols": 3,
+     "items": [
+      {
+       "title": "Fact or guess?",
+       "text": "With confidence."
+      },
+      {
+       "title": "What's needed?",
+       "text": "Decide / review / just FYI."
+      },
+      {
+       "title": "Anomaly & risk",
+       "text": "Surface first."
+      }
+     ],
+     "note": "Because AI prose is uniformly fluent, these three layers get hidden unless labeled clearly."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "BLUF",
+       "\"Bottom Line Up Front\" — state the conclusion first, detail later."
+      ],
+      [
+       "Progressive disclosure",
+       "Reveal in layers: summary → highlights → detail on request."
+      ],
+      [
+       "Informative header",
+       "A heading that is a mini-conclusion, not a generic label."
+      ],
+      [
+       "Self-contained section",
+       "Understandable on its own, with a local context reminder."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec7",
+   "no": "07",
+   "title": "Cross-cutting principles",
+   "intro": "One principle recurring in every section.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Topic",
+       "kind": "info",
+       "text": "The thread tying all sections together."
+      },
+      {
+       "title": "Goal",
+       "kind": "ok",
+       "text": "Hold one memorable, applicable north star."
+      },
+      {
+       "title": "Pain",
+       "kind": "warn",
+       "text": "Scattered principles are hard to recall and use under pressure."
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "hl": [
+      4
+     ],
+     "head": [
+      "Theme",
+      "Reduces to"
+     ],
+     "rows": [
+      [
+       "[Machine trend](#sec1)",
+       "Autonomy scales with verification capacity."
+      ],
+      [
+       "[Traps](#sec2)",
+       "Removing friction = removing skill."
+      ],
+      [
+       "[Slow / flexible](#sec3)",
+       "Slow on judgment, let go on operation."
+      ],
+      [
+       "[Soft skills](#sec4)",
+       "Complements appreciate; substitutes depreciate."
+      ],
+      [
+       "2-way comms ([→](#sec5) · [←](#sec6))",
+       "Lower the receiver's cost of verification."
+      ]
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "The meeting point",
+     "text": "The best communication gradually leaves transient chat and moves into *durable assets* (specs with measurable criteria, project docs, reusable tools, test suites). A human–AI pair's collaboration quality is measured by *the declining rate of misunderstandings that must be fixed with words* — because each fix has become a mechanism."
+    },
+    {
+     "type": "table",
+     "caption": "Terms used in this section",
+     "head": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Durable artifact",
+       "A verifiable, retained object (spec, tool, test) replacing transient chat."
+      ],
+      [
+       "Cost of verification",
+       "The effort the receiver spends to trust the information."
+      ],
+      [
+       "Primary source",
+       "The direct origin, used for important claims."
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "footer": "Static document · runs standalone in the browser · bilingual VI/EN"
+}

@@ -1,0 +1,1057 @@
+{
+ "meta": {
+  "title": "Người & AI-Agent — Sổ tay Phối hợp",
+  "brand": "Người & AI-Agent",
+  "desc": "Từ xu hướng tiến hóa giữa người và trợ lý AI, các bẫy nhận thức đã được lịch sử ghi nhận, đến kỹ thuật giao tiếp hai chiều giúp hai bên phối hợp hiệu quả.",
+  "lang": "vi",
+  "md_filename": "nguoi-va-ai-agent.md",
+  "date": "2026-09-17",
+  "storage_key": "nguoi-va-ai-agent",
+  "strict_paths": true,
+  "alt": "post.en.json"
+ },
+ "hero": {
+  "kicker": "Sổ tay · Tài liệu tổng hợp · 2026",
+  "title": "Người & AI-Agent: *Xu hướng, Bẫy, và Kỹ thuật Phối hợp*",
+  "lede": "Từ xu hướng tiến hóa giữa người và trợ lý AI, các bẫy nhận thức đã được lịch sử ghi nhận, đến kỹ thuật giao tiếp hai chiều giúp hai bên phối hợp hiệu quả. Nguyên tắc xuyên suốt: mọi kỹ thuật đều nhằm **giảm công sức kiểm chứng của người tiếp nhận** *(cost of verification)*.",
+  "stats": [
+   {
+    "n": "4",
+    "l": "trục thay đổi của công cụ"
+   },
+   {
+    "n": "4",
+    "l": "nhóm bẫy, mỗi nhóm có tiền lệ lịch sử"
+   },
+   {
+    "n": "4",
+    "l": "giai đoạn kỹ năng mềm"
+   },
+   {
+    "n": "1",
+    "l": "nguyên tắc xuyên suốt"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "sec1",
+   "no": "01",
+   "title": "Xu hướng tiến hóa người–máy",
+   "intro": "Công cụ tiến về đâu, con người phải dịch trọng tâm về đâu.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Bốn trục thay đổi của máy và trọng tâm dịch chuyển của người."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Phân vai người–máy theo đúng lợi thế của từng bên."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Máy làm nhiều hơn → nút cổ chai chuyển sang việc review và độ rõ yêu cầu của người."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Quỹ đạo của công cụ"
+    },
+    {
+     "type": "md",
+     "text": "```text\n2023-2024          2025               2026 (now)\n-------------      -------------      ---------------------\nChat + sửa file -> Vòng tự động   ->  \"Đội hình\" chạy nền\n1 phiên, 1 việc,   tự gọi công cụ,    nhiều việc song song,\nngười xem          tự sửa lỗi         chạy nền, tự đặt mục tiêu\ntừng bước\n```"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Trục",
+      "Ý nghĩa"
+     ],
+     "rows": [
+      [
+       "Song song hóa *(parallelization)*",
+       "1 người điều nhiều trợ lý cùng lúc, không còn kèm 1-1."
+      ],
+      [
+       "Tự trị dài hơi *(long-horizon autonomy)*",
+       "Máy chạy qua nhiều bước không cần người ngồi canh."
+      ],
+      [
+       "Kiểm chứng bằng thực thi *(verify by execution)*",
+       "Máy chạy thử sản phẩm thật để tự chứng minh, không chỉ tin bài kiểm tra tự động."
+      ],
+      [
+       "Kinh tế ngữ cảnh *(context economy)*",
+       "Kiến thức được đóng gói, chỉ nạp vào đúng lúc cần."
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Trọng tâm con người dịch chuyển"
+    },
+    {
+     "type": "md",
+     "text": "```text\nGIẢM DẦN                       TĂNG DẦN\n----------------------         ------------------------------\nTự tay làm từng thao tác  ->   Nói rõ ý định + ràng buộc\nPrompt khéo từng câu       ->   Chuẩn bị ngữ cảnh nền tốt\nXem tay từng thay đổi      ->   Thiết kế cách kiểm chứng\nLàm tuần tự 1 việc         ->   Điều phối nhiều luồng song song\n```"
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "NGƯỜI: định nghĩa \"đúng là gì\""
+      },
+      {
+       "title": "MÁY: thực thi & tự sửa"
+      },
+      {
+       "title": "NGƯỜI: kiểm chứng cuối & chịu trách nhiệm"
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "Ba đầu tư sinh lời kép theo thời gian: (1) đóng gói kiến thức lặp lại thành công cụ tái dùng; (2) xây cơ chế tự kiểm chứng trước khi giao việc lớn; (3) giao việc theo đơn vị có tiêu chí hoàn thành đo được."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Trợ lý / tác tử AI (AI agent)",
+       "Phần mềm AI tự thực hiện chuỗi việc thay người, không chỉ trả lời."
+      ],
+      [
+       "Tự trị (autonomy)",
+       "Mức độ máy được chạy mà không cần người can thiệp."
+      ],
+      [
+       "Ngữ cảnh (context)",
+       "Thông tin nền máy cần để hiểu và làm đúng việc."
+      ],
+      [
+       "Điều phối (orchestration)",
+       "Việc điều nhiều luồng/trợ lý làm song song có kiểm soát."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec2",
+   "no": "02",
+   "title": "Các bẫy đã biết",
+   "intro": "Không phải bẫy mới — chỉ là những bẫy cũ nay bùng phát nhanh hơn nhiều.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Bốn nhóm bẫy: nhận thức, năng suất, tổ chức, hệ sinh thái."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Nhận diện sớm để đặt đối trọng, không để bẫy tự siết chặt."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Bẫy vô hình vì kết quả trông trơn tru và đến với số lượng lớn che mất sai sót."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Quy luật gốc: bỏ đi sự vất vả cũng là bỏ đi nơi rèn kỹ năng"
+    },
+    {
+     "type": "md",
+     "text": "```text\nCông cụ bỏ đi SỰ VẤT VẢ (friction)\n        |\n        +-- được : nhanh hơn, làm được nhiều hơn\n        +-- mất  : chính sự vất vả đó là nơi kỹ năng,\n                   sự chú ý & hiểu sâu được tôi luyện\n```"
+    },
+    {
+     "type": "md",
+     "text": "*\"Sự vất vả\" (friction) = mọi trở ngại buộc ta phải nghĩ và tự làm. Đây là quy luật cũ; điểm khác lần này là tốc độ, độ phủ và sức thuyết phục của kết quả.*"
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "A",
+       "title": "Bẫy nhận thức — kỹ năng cá nhân mai một",
+       "fields": [
+        [
+         "Gồm",
+         "Teo kỹ năng, tin máy quá mức (thiên kiến tự động hóa), bị văn trôi chảy đánh lừa, và ngày càng lười đọc kỹ."
+        ],
+        [
+         "Lịch sử",
+         "Triết gia Plato từng lo chữ viết làm hỏng trí nhớ. Gần hơn: tài xế phụ thuộc bản đồ dẫn đường (GPS) dần mất khả năng tự định hướng; học sinh dùng máy tính bỏ túi yếu dần tính nhẩm. Kỹ sư Lisanne Bainbridge gọi đây là \"nghịch lý của tự động hóa\" (1983): người phải cứu khi máy hỏng lại chính là người đã mất kỹ năng vì máy làm thay."
+        ],
+        [
+         "Vấn đề",
+         "Giao hết cho máy → kỹ năng của chính mình cùn đi, đến lúc máy sai thì không đủ sức phát hiện."
+        ],
+        [
+         "Giải pháp",
+         "Giữ \"sự vất vả có chủ đích\": định kỳ tự làm tay những việc quan trọng."
+        ],
+        [
+         "Lợi ích",
+         "Luôn đủ năng lực để giám sát và bắt lỗi máy.",
+         "val"
+        ],
+        [
+         "Ví dụ thành công",
+         "Ngành hàng không buộc phi công bay tay định kỳ dù đã có lái tự động, để phản xạ không bị thui chột — nhờ đó xử lý được sự cố khi hệ thống tự động thất bại.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "B",
+       "title": "Bẫy năng suất — làm ra quá nhiều",
+       "fields": [
+        [
+         "Gồm",
+         "Nghịch lý Jevons, bất đối xứng giữa \"sinh ra\" và \"kiểm tra\", và việc đẩy gánh nặng xuống người phía sau."
+        ],
+        [
+         "Lịch sử",
+         "Năm 1865, kinh tế gia William Jevons phát hiện: máy hơi nước dùng than hiệu quả hơn lại khiến tổng lượng than tiêu thụ tăng vọt — vì rẻ nên người ta dùng nhiều hơn. Tương tự, mở rộng đường cao tốc thường không hết kẹt xe mà hút thêm xe (hiện tượng \"cầu cảm ứng\")."
+        ],
+        [
+         "Vấn đề",
+         "Máy tạo kết quả nhanh gấp bội, nhưng người kiểm vẫn chậm → hoặc thành nút cổ chai, hoặc duyệt ẩu và tích nợ chất lượng vô hình."
+        ],
+        [
+         "Giải pháp",
+         "Chỉ giao máy tự chạy tới mức mình kiểm nổi; đặt giới hạn số việc làm dở cùng lúc."
+        ],
+        [
+         "Lợi ích",
+         "Tốc độ thật, không phải tốc độ ảo đi kèm đống việc phải sửa lại.",
+         "val"
+        ],
+        [
+         "Ví dụ thành công",
+         "Hệ sản xuất Toyota (Lean/Kanban) giới hạn lượng \"việc đang làm dở\" và cho phép dừng cả dây chuyền khi phát hiện lỗi — nhờ đó không đẩy hàng lỗi xuống công đoạn sau, chất lượng và tốc độ cùng tăng.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "C",
+       "title": "Bẫy tổ chức — mất người kế cận, đổ lỗi sai chỗ",
+       "fields": [
+        [
+         "Gồm",
+         "Đứt gãy đào tạo nghề, \"vùng chịu tội thay\", và đo nhầm chỉ số."
+        ],
+        [
+         "Lịch sử",
+         "Khi nhà máy tự động hóa, nhiều nghề thủ công truyền từ thầy sang thợ bị đứt mạch. Trong các tai nạn liên quan tự động hóa (máy bay, xe tự lái), người vận hành thường bị quy trách nhiệm dù thực tế kiểm soát rất ít — nhà nghiên cứu Madeleine Elish gọi đó là \"vùng chịu tội thay\" (moral crumple zone), như vùng biến dạng hấp thụ va chạm của xe hơi."
+        ],
+        [
+         "Vấn đề",
+         "Cắt việc \"nhàm\" của người mới mà AI làm được → người mới mất nấc thang để trở thành chuyên gia; người duyệt gánh lỗi của máy."
+        ],
+        [
+         "Giải pháp",
+         "Thiết kế lại lộ trình học nghề (kiểm chứng & giám sát thành nghề chính); đo kết quả thật, không đo sản lượng."
+        ],
+        [
+         "Lợi ích",
+         "Giữ được nguồn chuyên gia cho 5–10 năm tới.",
+         "val"
+        ],
+        [
+         "Ví dụ thành công",
+         "Ngành y giữ chế độ bác sĩ nội trú làm việc dưới giám sát; hàng không áp dụng \"văn hóa công bằng\" (just culture) — điều tra để học từ lỗi thay vì tìm người đổ tội, nhờ đó an toàn tăng đều qua các thập kỷ.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "D",
+       "title": "Bẫy hệ sinh thái — mọi người nghĩ giống nhau",
+       "fields": [
+        [
+         "Gồm",
+         "Đồng nhất hóa lời giải, nội dung tự nhiễm, và niềm tin dao động thất thường."
+        ],
+        [
+         "Lịch sử",
+         "Nạn đói khoai tây Ireland (1845) là bài học kinh điển về \"độc canh\": cả nước trồng cùng một giống khoai, một loại bệnh quét sạch. Đa dạng là lớp bảo hiểm trước rủi ro hệ thống — điều đúng cho cả nông nghiệp lẫn cách tư duy."
+        ],
+        [
+         "Vấn đề",
+         "Mọi người hỏi cùng một AI → lời giải hội tụ về một kiểu, mất đa dạng; AI lại học từ nội dung do AI viết → chất lượng nguồn trôi dần."
+        ],
+        [
+         "Giải pháp",
+         "Giữ nguồn gốc trực tiếp cho việc quan trọng; chủ động tìm cách nghĩ khác chuẩn mực."
+        ],
+        [
+         "Lợi ích",
+         "Tránh rủi ro cả tập thể \"cùng sai một kiểu\".",
+         "val"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Kiểm nhanh mức độ phụ thuộc\n\nHỏi: *\"Nếu công cụ này biến mất 1 tuần, tôi và đội còn làm được việc gì?\"* — khoảng cách giữa câu trả lời hôm nay và một năm trước cho biết mình đã rơi vào bẫy nhóm [A](#a)/[C](#c) sâu tới đâu."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Sự vất vả (friction)",
+       "Trở ngại buộc ta phải suy nghĩ và tự làm — nơi kỹ năng được rèn."
+      ],
+      [
+       "Thiên kiến tự động hóa (automation bias)",
+       "Xu hướng tin kết quả của máy hơn quan sát của chính mình."
+      ],
+      [
+       "Bẫy trôi chảy (fluency trap)",
+       "Văn viết mượt tạo cảm giác đáng tin dù nội dung có thể sai."
+      ],
+      [
+       "Nghịch lý Jevons",
+       "Càng hiệu quả càng dùng nhiều, tổng tiêu thụ tăng chứ không giảm."
+      ],
+      [
+       "Vùng chịu tội thay (moral crumple zone)",
+       "Người vận hành gánh trách nhiệm cho lỗi của máy dù kiểm soát rất ít."
+      ],
+      [
+       "Độc canh (monoculture)",
+       "Tất cả cùng một kiểu → một điểm yếu chung có thể quét sạch cả hệ."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec3",
+   "no": "03",
+   "title": "Chậm hơn ở đâu · Linh hoạt hơn ở đâu",
+   "toc_label": "Chậm hơn / Linh hoạt hơn",
+   "intro": "Một quy tắc chi phối cả hai vế.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Nơi cần cẩn trọng và nơi cần buông bỏ."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Dồn sự cẩn trọng vào đúng chỗ có đòn bẩy cao nhất."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Con người thường làm ngược: vội ở quyết định, cứng nhắc ở thói quen."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "```text\nCHẬM HƠN    nơi sai lầm ĐẮT + KHÓ ĐẢO NGƯỢC\n\nLINH HOẠT   nơi gắn bó ĐẮT + chóng LỖI THỜI\n```"
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Lịch sử",
+     "text": "Người La Mã cổ có châm ngôn \"festina lente\" — \"nhanh mà chậm\". Thợ mộc có câu \"đo hai lần, cắt một lần\". Cùng một ý: bỏ chút thời gian ở khâu không thể làm lại để tiết kiệm rất nhiều về sau."
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "SLOW",
+       "title": "Cần CHẬM hơn",
+       "fields": [
+        [
+         "Vấn đề",
+         "Máy sinh 5 phương án trong 1 phút khiến ta tưởng phải chọn cũng trong 1 phút. Nhưng chi phí sửa sai vẫn y nguyên — chỉ chi phí tạo ra là giảm."
+        ],
+        [
+         "Giải pháp",
+         "Chậm lại ở: quyết định khó đảo (kiến trúc, dữ liệu, cam kết); nói rõ ý định đầu vào; kiểm chứng đầu ra; nạp kiến thức nền để đủ sức phán xét."
+        ],
+        [
+         "Lợi ích",
+         "Tránh những sai lầm đắt nhất — thứ ăn mòn toàn bộ tốc độ về sau.",
+         "val"
+        ],
+        [
+         "Ví dụ thành công",
+         "Amazon phân biệt \"cửa một chiều\" và \"cửa hai chiều\": quyết định khó đảo (cửa một chiều) thì cân nhắc kỹ, quyết định đảo được (cửa hai chiều) thì làm nhanh. Nhờ vậy họ vừa cẩn trọng vừa nhanh nhẹn. Bác sĩ Atul Gawande cũng chứng minh: một bảng kiểm ngắn trước phẫu thuật (chậm vài phút) giảm mạnh biến chứng và tử vong.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "FLEX",
+       "title": "Cần LINH HOẠT hơn",
+       "fields": [
+        [
+         "Vấn đề",
+         "Công cụ và cách làm đổi theo tháng. Ai gắn giá trị bản thân vào một thao tác cụ thể sẽ kháng cự đúng lúc thao tác đó bị thay thế."
+        ],
+        [
+         "Giải pháp",
+         "Linh hoạt ở: công cụ & quy trình; danh tính nghề nghiệp; ranh giới việc người–máy; cách học (học theo nhu cầu). Coi chúng là biến số, xem lại định kỳ."
+        ],
+        [
+         "Lợi ích",
+         "Không bị mắc kẹt trong cách làm đã lỗi thời; thích nghi nhanh với thay đổi.",
+         "val"
+        ],
+        [
+         "Ví dụ thành công",
+         "Netflix chuyển từ cho thuê đĩa DVD sang phát trực tuyến rồi tự sản xuất phim — buông mô hình cũ đúng lúc dù đang có lãi. Ngược lại, Kodak phát minh ra máy ảnh số nhưng bám lấy phim truyền thống vì sợ mất doanh thu, và sụp đổ. Linh hoạt về danh tính (\"chúng ta bán trải nghiệm giải trí\", không phải \"chúng ta bán đĩa\") quyết định ai sống sót.",
+         "ex"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Nghịch lý cần chấp nhận",
+     "text": "Chậm ở phán đoán chính là thứ cho phép nhanh ở mọi chỗ khác — vì chỉ khi kiểm chứng chắc chắn ta mới dám giao máy chạy song song nhiều luồng."
+    },
+    {
+     "type": "md",
+     "text": "### Ma trận kiểm nhanh"
+    },
+    {
+     "type": "table",
+     "key": false,
+     "head": [
+      "Câu hỏi",
+      "Nếu CÓ →"
+     ],
+     "rows": [
+      [
+       "Sai ở đây có đắt hoặc khó sửa không?",
+       "Chậm lại"
+      ],
+      [
+       "Đây là thao tác hay là phán đoán?",
+       "Thao tác → buông; phán đoán → giữ & rèn"
+      ],
+      [
+       "Giữ cách này vì nó đúng hay vì nó quen?",
+       "Quen → cần linh hoạt"
+      ]
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Quyết định khó đảo ngược",
+       "Lựa chọn mà chi phí sửa về sau rất cao — nên cân nhắc kỹ."
+      ],
+      [
+       "Cửa một chiều / hai chiều",
+       "Cách Amazon gọi quyết định không thể / có thể đảo ngược."
+      ],
+      [
+       "Ý định (intent)",
+       "Điều ta thực sự muốn đạt được, phát biểu rõ ràng cho máy."
+      ],
+      [
+       "Kỹ năng nền (meta-skill)",
+       "Kỹ năng gốc (phán đoán, đặc tả, học) giữ giá trị dài lâu."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec4",
+   "no": "04",
+   "title": "Nhóm kỹ năng mềm đồng hành",
+   "intro": "Rèn gì thì không sợ lỗi thời.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Kỹ năng theo 4 giai đoạn của một vòng làm việc với trợ lý AI."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Đầu tư vào kỹ năng bổ trợ cho máy, buông kỹ năng máy thay được."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Kỹ năng thao tác mất giá dần, nhưng nhiều người vẫn định danh mình bằng nó."
+      }
+     ]
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Định hình",
+       "text": "trước khi giao việc"
+      },
+      {
+       "title": "Điều phối",
+       "text": "trong khi máy chạy"
+      },
+      {
+       "title": "Phán xét",
+       "text": "khi nhận kết quả"
+      },
+      {
+       "title": "Thích nghi",
+       "text": "nền dài hạn"
+      }
+     ]
+    },
+    {
+     "type": "fcards",
+     "items": [
+      {
+       "id": "1",
+       "title": "Định hình (trước khi giao việc)",
+       "fields": [
+        [
+         "Gồm",
+         "Định nghĩa đúng vấn đề · nói rõ yêu cầu (viết rõ = nghĩ rõ) · chia việc lớn thành phần nhỏ giao được."
+        ],
+        [
+         "Vấn đề",
+         "Máy giải rất nhanh vấn đề được nêu ra — kể cả khi vấn đề đó nêu sai."
+        ],
+        [
+         "Giải pháp",
+         "Dành công sức làm rõ \"vấn đề thật là gì\" và tiêu chí hoàn thành trước khi bấm nút."
+        ],
+        [
+         "Lợi ích",
+         "Không phải dọn hàng loạt kết quả đúng-hình-thức-nhưng-sai-ý.",
+         "val"
+        ],
+        [
+         "Ví dụ & câu nói kinh điển",
+         "Câu thường gán cho Einstein: \"Nếu có 1 giờ để cứu thế giới, tôi dành 55 phút định nghĩa vấn đề và 5 phút tìm lời giải.\" Amazon áp dụng lối \"làm ngược\" (working backwards): viết thông cáo báo chí cho sản phẩm *trước khi* bắt tay làm, để chốt rõ giá trị cần đạt.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "2",
+       "title": "Điều phối (trong khi máy chạy)",
+       "fields": [
+        [
+         "Gồm",
+         "Giao đúng việc cho đúng mức tự trị · kỷ luật chú ý (chọn cái gì đọc kỹ, cái gì lướt)."
+        ],
+        [
+         "Vấn đề",
+         "Điều nhiều luồng cùng lúc dễ quá tải; khối lượng lớn kéo ta vào đọc lướt tất cả."
+        ],
+        [
+         "Giải pháp",
+         "Tư duy như người quản lý/nhạc trưởng: giới hạn số luồng, chủ động chọn điểm cần chú ý."
+        ],
+        [
+         "Lợi ích",
+         "Kiểm soát được chất lượng nhiều việc song song mà không kiệt sức.",
+         "val"
+        ],
+        [
+         "Ví dụ",
+         "Nhạc trưởng không tự chơi nhạc cụ nào, nhưng quyết định nhịp độ, sự cân bằng và điểm nhấn của cả dàn nhạc — giá trị nằm ở điều phối, không ở thao tác. Đây chính là vai trò con người đang dịch chuyển tới.",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "3",
+       "title": "Phán xét (khi nhận kết quả)",
+       "fields": [
+        [
+         "Gồm",
+         "Hoài nghi có hiệu chỉnh · phân biệt \"trôi chảy\" với \"đúng\" · dám chịu trách nhiệm cuối."
+        ],
+        [
+         "Vấn đề",
+         "Kết quả trông trơn tru dễ khiến ta gật đầu; ai duyệt cũng gánh trách nhiệm cho thứ mình duyệt."
+        ],
+        [
+         "Giải pháp",
+         "Đặt mức nghi ngờ theo loại việc máy giỏi/kém; dám nói \"tôi chưa hiểu chỗ này nên chưa duyệt\"."
+        ],
+        [
+         "Lợi ích",
+         "Bắt được lỗi sớm, giữ được uy tín và an toàn.",
+         "val"
+        ],
+        [
+         "Ví dụ & câu nói kinh điển",
+         "Biên tập viên báo chí luôn kiểm chứng nguồn trước khi đăng — nghề của họ là hoài nghi có phương pháp. Châm ngôn được Tổng thống Reagan làm nổi tiếng: \"Tin, nhưng phải kiểm chứng\" (trust, but verify).",
+         "ex"
+        ]
+       ]
+      },
+      {
+       "id": "4",
+       "title": "Thích nghi (nền dài hạn)",
+       "fields": [
+        [
+         "Gồm",
+         "Học nhanh cái mới, quên có chọn lọc cái cũ · chịu được mơ hồ · giữ kỹ năng thuần con người (xây niềm tin, dẫn dắt, đọc bối cảnh)."
+        ],
+        [
+         "Vấn đề",
+         "Ranh giới việc người–máy dịch chuyển liên tục; kiến thức \"học một lần dùng mãi\" không còn đủ."
+        ],
+        [
+         "Giải pháp",
+         "Coi việc học là liên tục; gắn giá trị bản thân vào kết quả, không vào một thao tác cố định."
+        ],
+        [
+         "Lợi ích",
+         "Vững vàng qua mỗi làn sóng công nghệ thay vì bị nó cuốn đi.",
+         "val"
+        ],
+        [
+         "Ví dụ & câu nói kinh điển",
+         "Nguyên tắc thường gắn với thuyết Darwin: không phải loài mạnh nhất hay thông minh nhất sống sót, mà là loài thích nghi tốt nhất với thay đổi. Máy càng gánh phần kỹ thuật, phần quyết định giá trị của một người càng dồn về kỹ năng con người.",
+         "ex"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "head": [
+      "Giai đoạn",
+      "Kỹ năng lõi",
+      "Đối trọng bẫy"
+     ],
+     "rows": [
+      [
+       "Trước",
+       "Định nghĩa vấn đề, đặc tả, phân rã việc",
+       "[B](#b)"
+      ],
+      [
+       "Trong",
+       "Điều phối, kỷ luật chú ý",
+       "[A](#a)"
+      ],
+      [
+       "Sau",
+       "Hoài nghi hiệu chỉnh, chịu trách nhiệm",
+       "[A](#a) · [C](#c)"
+      ],
+      [
+       "Nền",
+       "Thích nghi, kỹ năng thuần người",
+       "[C](#c)"
+      ]
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Mẫu số chung",
+     "text": "Tất cả đều là kỹ năng *phán đoán và quan hệ con người*, không phải thao tác — đây chính là ranh giới giữa phần máy bổ trợ và phần máy thay thế."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Định nghĩa vấn đề (problem framing)",
+       "Xác định đúng vấn đề cần giải trước khi bắt tay giải."
+      ],
+      [
+       "Phân rã việc (decomposition)",
+       "Cắt việc lớn thành các phần nhỏ có ranh giới rõ, giao được."
+      ],
+      [
+       "Hoài nghi có hiệu chỉnh",
+       "Không tin mù cũng không bác bỏ mù — đặt mức nghi theo bằng chứng."
+      ],
+      [
+       "Chịu trách nhiệm (ownership)",
+       "Nhận trách nhiệm cuối cùng cho thứ mình phê duyệt."
+      ],
+      [
+       "Nhanh nhạy học hỏi (learning agility)",
+       "Học cái mới nhanh và mạnh dạn bỏ cái đã lỗi thời."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec5",
+   "no": "05",
+   "title": "Giao tiếp Người → Máy",
+   "intro": "Diễn đạt để máy hiểu đúng ngay lần đầu.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Ba tầng thông tin và cách chọn ngôn ngữ diễn đạt."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Truyền ý định kiểm được để máy tự chạy tới kết quả đúng."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Yêu cầu mơ hồ bị nhân bản thành kết quả sai với tốc độ máy."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Ba tầng, ba vòng đời"
+    },
+    {
+     "type": "md",
+     "text": "```text\nÝ ĐỊNH    (prompt)   - sống 1 lượt  -> điều muốn đạt lần này\nNGỮ CẢNH  (context)  - sống 1 dự án -> sự thật ổn định của môi trường\nQUY TRÌNH (workflow) - sống dài hạn -> cơ chế để máy tự sửa\n                                       mà không cần nói lại\n```"
+    },
+    {
+     "type": "md",
+     "text": "### Lựa chọn ngôn ngữ — ưu tiên theo đòn bẩy"
+    },
+    {
+     "type": "md",
+     "text": "```text\nKIỂM ĐƯỢC (điều kiện xong) ****  máy tự kiểm & tự lặp tới đúng\nĐỐI TƯỢNG (gọi tên rõ)     ***   khỏi phải đoán đang nói về cái gì\nĐỘNG TỪ  (nghĩa hẹp)       ***   khóa chặt phạm vi hành động\nTÍNH TỪ  (định lượng)      **    đổi cảm tính thành ngưỡng đo\nSúc tích                   *     là HỆ QUẢ, không phải mục tiêu\n```"
+    },
+    {
+     "type": "md",
+     "text": "- **Động từ:** dùng động từ hẹp (\"giảm X còn Y\", \"gộp A vào B\") thay vì rộng (\"cải thiện\", \"tối ưu\").\n- **Đối tượng:** gọi tên cụ thể (đường dẫn tệp, tên hàm, số hiệu) thắng mô tả chung; lặp lại danh từ thay vì dùng \"nó\".\n- **Tính từ:** quy đổi tính từ định tính thành con số — \"nhanh\" → \"phản hồi dưới 200 mili-giây\".\n- **Súc tích:** đo bằng *mật độ ràng buộc trên mỗi dòng*, không phải số dòng. Cắt lời khách sáo, giữ ràng buộc."
+    },
+    {
+     "type": "md",
+     "text": "### Khuôn ghép đủ bộ"
+    },
+    {
+     "type": "md",
+     "text": "```text\n[ĐỘNG TỪ hẹp] [ĐỐI TƯỢNG gọi tên rõ]\n[RÀNG BUỘC định lượng]\n[RANH GIỚI: không được đụng vào cái gì]\n[XONG KHI: lệnh chạy + kết quả quan sát được]\n```"
+    },
+    {
+     "type": "md",
+     "text": "*Ví dụ (dành cho lập trình, nhưng nguyên tắc áp dụng cho mọi việc):* \"Viết lại hàm `parsePayment()` trong tệp `src/billing.ts`, giữ nguyên giao diện công khai, rút còn tối đa 50 dòng, không thêm thư viện. Xong khi bộ kiểm tra `npm test -- billing` chạy đạt toàn bộ.\""
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Cách tự kiểm trước khi gửi",
+     "text": "Che phần \"Xong khi\" và hỏi \"máy có thể làm ra một thứ thỏa mãn mọi chữ trong câu này mà vẫn sai ý mình không?\" — nếu có, ràng buộc còn thiếu nằm đúng ngay chỗ đó."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Câu lệnh yêu cầu (prompt)",
+       "Nội dung ta gõ cho AI để nêu việc cần làm ngay lúc này."
+      ],
+      [
+       "Điều kiện hoàn thành (done-condition)",
+       "Tiêu chí máy tự chạy được và quan sát được để biết đã xong."
+      ],
+      [
+       "Ràng buộc (constraint)",
+       "Giới hạn cần tuân thủ khi làm (thời gian, phạm vi, điều cấm)."
+      ],
+      [
+       "Mật độ ràng buộc",
+       "Lượng ràng buộc hữu ích trên mỗi dòng — thước đo \"súc tích\" thật."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec6",
+   "no": "06",
+   "title": "Giao tiếp Máy → Người",
+   "intro": "Chọn cách trình bày theo cấu trúc thông tin.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Khi nào dùng bảng / cây / sơ đồ / văn xuôi, và khi nào tóm tắt trước."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Cách trình bày khớp cấu trúc dữ liệu + thói quen đọc thật."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Người đọc lướt, bị ngắt quãng, và dừng bất cứ lúc nào."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Chọn dạng theo kiểu quan hệ của dữ liệu"
+    },
+    {
+     "type": "md",
+     "text": "```text\nKhông quan hệ, cùng thuộc tính     -> BẢNG\nCha-con, mỗi con một cha           -> CÂY\nNhiều-nhiều, có hướng, có vòng     -> SƠ ĐỒ\nNhân-quả, cần lập luận             -> VĂN XUÔI\nTuần tự theo bước                  -> DANH SÁCH\n```"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Dạng",
+      "Dùng khi",
+      "Dấu hiệu cần đổi dạng"
+     ],
+     "rows": [
+      [
+       "Bảng",
+       "Nhiều mục đồng nhất, so cùng vài thuộc tính.",
+       "Nhiều ô trống hoặc phình dài → tách thành đoạn."
+      ],
+      [
+       "Cây",
+       "Quan hệ bao-chứa, mỗi nhánh một gốc.",
+       "Một mục có hai gốc → chuyển sơ đồ; sâu quá 3 tầng → cắt nhỏ."
+      ],
+      [
+       "Sơ đồ",
+       "Quan hệ nhiều-nhiều, có chiều hoặc có vòng lặp.",
+       "Quá ~15 nút → tách lớp (tổng quan rồi phóng to)."
+      ],
+      [
+       "Văn xuôi",
+       "Giá trị nằm ở mạch lập luận nhân-quả.",
+       "Bẻ thành gạch đầu dòng = chặt đứt mạch suy luận."
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "### Khi nào cần \"tóm tắt trước, chi tiết sau\"\n\nÁp dụng khi chạm **1 trong 4**: (1) dài quá một màn hình (~30 dòng); (2) trả lời từ 3 chủ đề trở lên; (3) có quyết định/việc cần người làm; (4) đọc trong hoàn cảnh bất lợi (điện thoại, giữa cuộc họp, dễ bị ngắt)."
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Tóm tắt (3–5 dòng)",
+       "text": "kết luận + việc cần làm + cảnh báo rủi ro"
+      },
+      {
+       "title": "Các đoạn độc lập",
+       "text": "mỗi đoạn trả trọn một câu hỏi con"
+      },
+      {
+       "title": "Chi tiết / phụ lục",
+       "text": "số liệu, bằng chứng — đọc khi cần"
+      }
+     ],
+     "note": "**Kiểm nhanh:** \"Nếu người đọc dừng ở dòng thứ 5, họ có mang đi được kết luận và việc cần làm không?\""
+    },
+    {
+     "type": "md",
+     "text": "### Ba lớp phải ghi nhãn rõ ràng"
+    },
+    {
+     "type": "cards",
+     "cols": 3,
+     "items": [
+      {
+       "title": "Sự thật hay phỏng đoán?",
+       "text": "Kèm độ tự tin."
+      },
+      {
+       "title": "Cần người làm gì?",
+       "text": "Quyết định / xem lại / chỉ để biết."
+      },
+      {
+       "title": "Bất thường & rủi ro",
+       "text": "Đưa lên đầu."
+      }
+     ],
+     "note": "Vì văn AI trôi chảy đều giọng, ba lớp này dễ bị che mất nếu không ghi nhãn rõ."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Kết luận trước (BLUF)",
+       "\"Bottom Line Up Front\" — nêu kết luận ngay đầu, chi tiết để sau."
+      ],
+      [
+       "Tiết lộ dần (progressive disclosure)",
+       "Đưa thông tin theo lớp: tóm tắt → điểm chính → chi tiết khi hỏi."
+      ],
+      [
+       "Tiêu đề mang thông tin",
+       "Tiêu đề là một kết luận thu nhỏ, không phải nhãn chung chung."
+      ],
+      [
+       "Đoạn tự đứng được",
+       "Đọc riêng vẫn hiểu, có nhắc lại bối cảnh cục bộ."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sec7",
+   "no": "07",
+   "title": "Chỉ số xuyên suốt",
+   "intro": "Một nguyên tắc lặp lại ở mọi phần.",
+   "blocks": [
+    {
+     "type": "status",
+     "items": [
+      {
+       "title": "Chủ đề",
+       "kind": "info",
+       "text": "Sợi chỉ nối tất cả các phần trên."
+      },
+      {
+       "title": "Mục tiêu",
+       "kind": "ok",
+       "text": "Có một kim chỉ nam duy nhất, dễ nhớ, dễ áp dụng."
+      },
+      {
+       "title": "Nỗi đau",
+       "kind": "warn",
+       "text": "Nhiều nguyên tắc rời rạc khó nhớ và khó dùng khi vội."
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "hl": [
+      4
+     ],
+     "head": [
+      "Chủ đề",
+      "Đều quy về"
+     ],
+     "rows": [
+      [
+       "[Xu hướng máy](#sec1)",
+       "Mức tự trị tỷ lệ với sức kiểm chứng."
+      ],
+      [
+       "[Các bẫy](#sec2)",
+       "Bỏ đi sự vất vả = bỏ đi kỹ năng."
+      ],
+      [
+       "[Chậm / linh hoạt](#sec3)",
+       "Chậm ở phán đoán, buông ở thao tác."
+      ],
+      [
+       "[Kỹ năng mềm](#sec4)",
+       "Kỹ năng bổ trợ máy tăng giá, kỹ năng bị thay mất giá."
+      ],
+      [
+       "Giao tiếp 2 chiều ([→](#sec5) · [←](#sec6))",
+       "Giảm công sức kiểm chứng của người tiếp nhận."
+      ]
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Điểm gặp nhau",
+     "text": "Giao tiếp tốt nhất dần rời khỏi hội thoại tạm thời, đi vào *tài sản bền vững* (bản đặc tả có tiêu chí đo được, tài liệu dự án, công cụ tái dùng, bộ kiểm tra). Chất lượng phối hợp của một cặp người–AI đo bằng *tỷ lệ hiểu lầm phải sửa bằng lời giảm dần theo thời gian* — vì mỗi lần sửa đã được chuyển thành một cơ chế."
+    },
+    {
+     "type": "table",
+     "caption": "Thuật ngữ dùng trong phần này",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "Tài sản bền vững (durable artifact)",
+       "Vật phẩm kiểm được, giữ lại được (đặc tả, công cụ, bộ kiểm tra) thay cho hội thoại tạm."
+      ],
+      [
+       "Công sức kiểm chứng",
+       "Sức lực người tiếp nhận bỏ ra để tin được thông tin."
+      ],
+      [
+       "Nguồn gốc (primary source)",
+       "Nguồn trực tiếp, dùng cho các khẳng định quan trọng."
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "footer": "Tài liệu tĩnh · chạy độc lập trong trình duyệt · song ngữ VI/EN"
+}
