@@ -20,7 +20,8 @@
     "filter": "Filter",
     "all": "All",
     "recommended": "recommended",
-    "watch_on_youtube": "Watch on YouTube"
+    "watch_on_youtube": "Watch on YouTube",
+    "toggle_lang": "Switch language"
   },
   "vi": {
     "toggle_menu": "Mở / đóng mục lục",
@@ -43,6 +44,7 @@
     "filter": "Lọc",
     "all": "Tất cả",
     "recommended": "đề xuất",
-    "watch_on_youtube": "Xem trên YouTube"
+    "watch_on_youtube": "Xem trên YouTube",
+    "toggle_lang": "Đổi ngôn ngữ"
   }
 }

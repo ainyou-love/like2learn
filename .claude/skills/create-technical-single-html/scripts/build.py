@@ -30,9 +30,9 @@ import sys
 SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 SHELL = SKILL_DIR / "assets" / "shell.html"
 UI_STRINGS = SKILL_DIR / "assets" / "ui-strings.json"
-ONCE = ["__LANG__", "__TITLE__", "__DESC__", "__BRAND__", "__DATE__", "__TOC__",
-        "__SIDEBAR_NOTE__", "__BODY__", "__MD_SOURCE__", "__NOTATION__"]
-MANY = ["__MD_FILENAME__", "__STORAGE_KEY__"]
+ONCE = ["__TITLE__", "__DESC__", "__BRAND__", "__DATE__", "__TOC__", "__SIDEBAR_NOTE__", "__BODY__",
+        "__MD_SOURCE__", "__NOTATION__", "__LANG_SWITCH__", "__ALT_LANG__", "__UI_ALT__", "__MD_ALT__"]
+MANY = ["__LANG__", "__MD_FILENAME__", "__STORAGE_KEY__"]
 
 
 def fail(msg: str) -> None:
@@ -70,11 +70,19 @@ def build_toc(body: str) -> tuple[str, int]:
     return "\n".join(items), sum('class="grp"' not in i for i in items)
 
 
+def prefix_ids(fragment: str, prefix: str) -> str:
+    """Give every id in an alternate-language body a prefix, and point its links and references at the new ids."""
+    fragment = re.sub(r'\bid="([^"]+)"', lambda m: f'id="{prefix}{m.group(1)}"', fragment)
+    fragment = re.sub(r'\b((?:xlink:)?href)="#([^"]+)"', lambda m: f'{m.group(1)}="#{prefix}{m.group(2)}"', fragment)
+    fragment = re.sub(r"url\(#([^)]+)\)", lambda m: f"url(#{prefix}{m.group(1)})", fragment)
+    return re.sub(r'\b(aria-labelledby|aria-describedby|aria-controls|for)="([^"]+)"',
+                  lambda m: f'{m.group(1)}="{" ".join(prefix + t for t in m.group(2).split())}"', fragment)
+
+
 def check(out: str, md: str, bans: list[str], strict_paths: bool) -> list[str]:
     problems = []
     own = "|".join(t.strip("_") for t in ONCE + MANY)
-    before, _, rest = out.partition('id="md-source">')
-    outside_md = before + rest.partition("</script>")[2]
+    outside_md = re.sub(r'<script type="text/plain"[^>]*>.*?</script>', "", out, flags=re.S)
     left = sorted(set(re.findall(rf"__(?:{own}|UI:[a-z0-9_]+|CODE:[a-z0-9_-]+)__", outside_md)))
     if left:
         problems.append(f"unreplaced placeholders: {left}")
@@ -100,8 +108,12 @@ def check(out: str, md: str, bans: list[str], strict_paths: bool) -> list[str]:
 def assemble(*, body: str, md: str, out_path: str, title: str, brand: str, date: str, desc: str = "",
              lang: str = "en", ui_lang: str = "", md_filename: str = "report.md", storage_key: str = "report",
              sidebar_note: str = "", code: dict[str, str] | None = None, bans: list[str] | None = None,
-             strict_paths: bool = False, notation: dict[str, str] | None = None) -> None:
-    """Fill the shell, run every check, and write out_path only when all pass."""
+             strict_paths: bool = False, notation: dict[str, str] | None = None, alt: dict | None = None) -> None:
+    """Fill the shell, run every check, and write out_path only when all pass.
+
+    alt: a second language of the same page — {lang, body, md, md_filename, title, brand?,
+    sidebar_note?, notation?}. Its body gets "<lang>-"-prefixed ids and its interface text from
+    ui-strings; a header button switches between the two, the first language being the default."""
     shell = SHELL.read_text()
     for ph in ONCE:
         if shell.count(ph) != 1:
@@ -110,10 +122,18 @@ def assemble(*, body: str, md: str, out_path: str, title: str, brand: str, date:
     ui_lang = ui_lang or (lang if lang in strings else "en")
     if ui_lang not in strings:
         fail(f"no UI strings for {ui_lang!r}; add them to {UI_STRINGS.name} (have: {', '.join(strings)})")
-    if "</script" in md.lower() or ("<!--" in md and "<script" in md.lower()):
-        fail("markdown contains </script, or <!-- together with <script, and cannot be embedded safely")
-    if not re.fullmatch(r"[A-Za-z0-9._-]+\.md", md_filename):
-        fail(f"md filename {md_filename!r} must be ascii letters, digits, . _ - and end in .md")
+    for text, name in [(md, md_filename)] + ([(alt["md"], alt["md_filename"])] if alt else []):
+        if "</script" in text.lower() or ("<!--" in text and "<script" in text.lower()):
+            fail("markdown contains </script, or <!-- together with <script, and cannot be embedded safely")
+        if not re.fullmatch(r"[A-Za-z0-9._-]+\.md", name):
+            fail(f"md filename {name!r} must be ascii letters, digits, . _ - and end in .md")
+    if alt:
+        if alt["lang"] == lang:
+            fail(f"alt language {alt['lang']!r} is the same as the page language")
+        if alt["lang"] not in strings:
+            fail(f"no UI strings for alt language {alt['lang']!r}; add them to {UI_STRINGS.name}")
+        if alt["md_filename"] == md_filename:
+            fail("the two languages need different md filenames")
     for lang_key, table in strings.items():
         gap = sorted(set(strings["en"]) ^ set(table))
         if gap:
@@ -125,20 +145,46 @@ def assemble(*, body: str, md: str, out_path: str, title: str, brand: str, date:
         body = body.replace(token, html.escape(text, quote=False))
 
     toc, n_sections = build_toc(body)
+    lv = f' data-lv="{lang}"' if alt else ""
+    toc = f'    <ul class="toc"{lv}>\n{toc}\n    </ul>'
+    lang_switch = alt_lang = ui_alt = md_alt = ""
+    notes = {lang: notation or {}}
+    if alt:
+        a = alt["lang"]
+        alt_body = prefix_ids(alt["body"].rstrip("\n"), f"{a}-")
+        for key, val in strings[a].items():
+            alt_body = alt_body.replace(f"__UI:{key}__", val)
+        alt_toc, _ = build_toc(alt_body)
+        toc += f'\n    <ul class="toc" data-lv="{a}" hidden>\n{alt_toc}\n    </ul>'
+        lang_box = lambda code, t, b: (f'<div class="lang-body" data-lang="{code}" data-lv="{code}"'
+                                        f' data-title="{html.escape(t)}" data-brand="{html.escape(b)}"')
+        body = (f'{lang_box(lang, title, brand)}>\n{body.rstrip()}\n</div>\n'
+                f'{lang_box(a, alt["title"], alt.get("brand") or brand)} hidden>\n{alt_body}\n</div>')
+        sidebar_note = (f'<div data-lv="{lang}">{sidebar_note.strip()}</div>'
+                        f'<div data-lv="{a}" hidden>{prefix_ids(alt.get("sidebar_note", "").strip(), f"{a}-")}</div>')
+        lang_switch = (f'  <button class="icon-btn lang-btn" data-action="lang:toggle" aria-label="__UI:toggle_lang__"'
+                       f' data-ui-aria="toggle_lang">{html.escape(a.upper())}</button>\n')
+        alt_lang = a
+        ui_alt = json.dumps(strings[a], ensure_ascii=False)
+        md_alt = (f'\n<script type="text/plain" id="md-source-{a}" data-lang="{a}" data-file="{html.escape(alt["md_filename"])}">'
+                  f'\n{alt["md"]}</script>')
+        notes[a] = alt.get("notation") or {}
     out = shell
-    for ph, val in [("__LANG__", lang), ("__TITLE__", html.escape(title)), ("__DESC__", html.escape(desc or title)),
+    for ph, val in [("__TITLE__", html.escape(title)), ("__DESC__", html.escape(desc or title)),
                     ("__BRAND__", html.escape(brand, quote=False)), ("__DATE__", html.escape(date)),
-                    ("__TOC__", toc), ("__SIDEBAR_NOTE__", sidebar_note.strip()), ("__BODY__", body.rstrip("\n"))]:
+                    ("__TOC__", toc), ("__SIDEBAR_NOTE__", sidebar_note.strip()), ("__BODY__", body.rstrip("\n")),
+                    ("__LANG_SWITCH__", lang_switch), ("__ALT_LANG__", alt_lang), ("__UI_ALT__", ui_alt)]:
         out = out.replace(ph, val, 1)
+    out = out.replace("__LANG__", lang)
     for key, val in strings[ui_lang].items():
         if re.search(r'[<>&"`\\]', val):
             fail(f"UI string {ui_lang}.{key} must not contain < > & \" ` or \\ (it lands in HTML and JS)")
         out = out.replace(f"__UI:{key}__", val)
     out = out.replace("__MD_FILENAME__", html.escape(md_filename)).replace("__STORAGE_KEY__", re.sub(r"[^a-z0-9-]", "-", storage_key.lower()))
-    out = out.replace("__NOTATION__", json.dumps(notation or {}, ensure_ascii=False).replace("<", "\\u003c"), 1)
-    out = out.replace("__MD_SOURCE__", "\n" + md, 1)
+    out = out.replace("__NOTATION__", json.dumps(notes, ensure_ascii=False).replace("<", "\\u003c"), 1)
+    out = out.replace("__MD_SOURCE__", "\n" + md, 1).replace("__MD_ALT__", md_alt, 1)
 
-    problems = check(out, md, [w.strip() for w in bans or []], strict_paths)
+    problems = check(out, md + ("\n" + alt["md"] if alt else ""), [w.strip() for w in bans or []], strict_paths)
     if problems:
         fail("refusing to write:\n  - " + "\n  - ".join(problems))
     pathlib.Path(out_path).write_text(out)

@@ -35,7 +35,7 @@ finished page, Markdown tab included.
 | `assets/ui-strings.json` | Interface text per language (`en`, `vi`): tab names, buttons, toasts, checklist counter. Add a language here, never in the shell |
 | `assets/components.json` | **Block registry.** For every block type: `purpose`, `use_when`, `required` and `optional` fields (with their format). Read it to pick blocks; `render.py` validates every block against it |
 | `assets/blocks/<type>.j2` | One template per block, each with two macros: `html` (the page) and `md` (the Markdown tab). `_lib.j2` / `_fcard.j2` hold shared pieces |
-| `assets/example/` | A worked review (`post.json`, `scope.svg`, `schema.sql`) — copy its shape — and `all-blocks.post.json`, a fixture that renders every block and the edge cases that broke before |
+| `assets/example/` | A worked review (`post.json`, `scope.svg`, `schema.sql`) — copy its shape — `all-blocks.post.json`, a fixture that renders every block and the edge cases that broke before, and `bilingual/`, a two-language page (`post.json` + `post.en.json`) |
 | `scripts/render.py` | `post.json` → body HTML + Markdown → `build.assemble()` |
 | `scripts/build.py` | Fills the shell, generates the TOC, refuses on broken links, duplicate ids, leftover tokens, banned words or home paths. Still usable on its own with a hand-written body |
 
@@ -58,6 +58,15 @@ a shape (`steps` for a sequence, `cards` for parallel items, `kv` for one object
 `tags` for values with a status, `findings` / `fcards` for ID'd items, `checklist` for things to
 work through). Keep section ids stable — the TOC and cross-links (`["L2", "#l2"]`) use them.
 Use pills only with their fixed meanings (`references/design-system.md`).
+
+**Two languages on one page.** Put `"alt": "post.en.json"` in the default language's `meta` and
+write that file as the same page in the other language: same sections, ids and blocks, with its
+own `meta` (title, lang, md_filename; optional brand, desc, sidebar_note, notation). Diagrams with
+words in them get a per-language `.svg` (e.g. `loop.vi.svg`). The page opens in the default
+language; a header button switches, remembers the choice, and keeps the reader on the same
+section. Each language has its own TOC, Markdown tab and `.md` download; checklist ticks are
+shared. The other language's ids are prefixed with its code (`#en-s2`), so a link to `#en-s2`
+opens that language.
 
 **3 — Draw the diagrams.** Diagrams that already exist as files (a rendered Mermaid chart, a
 screenshot) go in an `image` block, with a dark variant when there is one. New ones: hand-write SVG with the theme classes only, one idea per diagram,

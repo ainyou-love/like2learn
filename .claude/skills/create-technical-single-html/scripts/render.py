@@ -4,14 +4,16 @@
     python3 render.py post.json --out page.html [--keep-dir build/]
 
 post.json holds the page as data: `meta` (title, brand, date, desc, lang, md_filename,
-storage_key, optional ui_lang, sidebar_note, ban, strict_paths), an optional `hero`, a list of
+storage_key, optional ui_lang, sidebar_note, ban, strict_paths, notation, alt), an optional `hero`, a list of
 `sections` (each with `blocks`) and an optional `footer`. Every block has a `type` from
 assets/components.json; its fields are checked against that registry, then the block's
 template in assets/blocks/<type>.j2 renders it twice — once as HTML for the page, once as
 Markdown for the Markdown tab. build.assemble() then fills the shell and runs every check.
 
 --keep-dir writes the intermediate body.html and the generated Markdown for inspection.
-Paths in a block's `file` field are relative to post.json.
+Paths in a block's `file` field are relative to post.json. `meta.alt` names a second page spec
+(e.g. "post.en.json") in another language: same blocks, its own meta (title, lang, md_filename,
+optional brand, desc, sidebar_note, notation); both languages render into one page with a switch.
 Requires jinja2 and markdown-it-py.
 """
 
@@ -33,7 +35,8 @@ from build import SKILL_DIR, assemble, fail  # noqa: E402
 BLOCKS = SKILL_DIR / "assets" / "blocks"
 REGISTRY = json.loads((SKILL_DIR / "assets" / "components.json").read_text())["components"]
 META_FIELDS = {"title", "brand", "date", "desc", "lang", "ui_lang", "md_filename", "storage_key",
-               "sidebar_note", "ban", "strict_paths", "notation"}
+               "sidebar_note", "ban", "strict_paths", "notation", "alt"}
+ALT_META_FIELDS = {"title", "brand", "desc", "lang", "md_filename", "sidebar_note", "notation"}
 IMAGE_TYPES = {".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg",
                ".jpeg": "image/jpeg", ".gif": "image/gif"}
 TOP_FIELDS = {"$schema", "meta", "hero", "sections", "footer"}
@@ -301,18 +304,35 @@ def main() -> None:
         if not meta.get(field):
             fail(f"meta.{field} is required")
 
-    body, md = Renderer(post_path.parent).page(spec)
+    renderer = Renderer(post_path.parent)
+    body, md = renderer.page(spec)
+    alt = None
+    if "alt" in meta:
+        alt_path = post_path.parent / meta["alt"]
+        alt_spec = json.loads(alt_path.read_text())
+        alt_meta = alt_spec.get("meta") or fail(f"{alt_path.name}: meta is required")
+        unknown = set(alt_meta) - ALT_META_FIELDS
+        if unknown:
+            fail(f"{alt_path.name} meta: unknown fields {sorted(unknown)}; allowed: {sorted(ALT_META_FIELDS)}")
+        for field in ("title", "lang", "md_filename"):
+            if not alt_meta.get(field):
+                fail(f"{alt_path.name}: meta.{field} is required")
+        alt_body, alt_md = renderer.page(alt_spec)
+        alt = {**alt_meta, "body": alt_body, "md": alt_md}
     if a.keep_dir:
         keep = pathlib.Path(a.keep_dir)
         keep.mkdir(parents=True, exist_ok=True)
         (keep / "body.html").write_text(body)
         (keep / meta["md_filename"]).write_text(md)
+        if alt:
+            (keep / f"body.{alt['lang']}.html").write_text(alt["body"])
+            (keep / alt["md_filename"]).write_text(alt["md"])
     assemble(body=body, md=md, out_path=a.out, title=meta["title"], brand=meta["brand"], date=meta["date"],
              desc=meta.get("desc", ""), lang=meta.get("lang", "en"), ui_lang=meta.get("ui_lang", ""),
              md_filename=meta["md_filename"], storage_key=meta["storage_key"],
              sidebar_note=meta.get("sidebar_note", ""),
              bans=meta["ban"].split(",") if isinstance(meta.get("ban"), str) else meta.get("ban", []),
-             strict_paths=meta.get("strict_paths", False), notation=meta.get("notation", {}))
+             strict_paths=meta.get("strict_paths", False), notation=meta.get("notation", {}), alt=alt)
 
 
 if __name__ == "__main__":

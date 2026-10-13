@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "title": "Trang song ngữ",
+    "lang": "vi",
+    "md_filename": "bilingual.md",
+    "sidebar_note": "<p>Ghi chú tiếng Việt</p>",
+    "notation": {
+      "K1": "Thành phần một"
+    },
+    "brand": "Song ngữ",
+    "date": "2026-10-13",
+    "desc": "Fixture cho meta.alt.",
+    "storage_key": "bilingual-fixture",
+    "alt": "post.en.json"
+  },
+  "hero": {
+    "kicker": "Fixture",
+    "title": "Hai ngôn ngữ, *một trang*"
+  },
+  "sections": [
+    {
+      "id": "ck",
+      "no": "✓",
+      "title": "Kiểm tra",
+      "head": false,
+      "blocks": [
+        {
+          "type": "checklist",
+          "title": "Hai bước",
+          "steps": [
+            {
+              "title": "Đọc phần một",
+              "where": [
+                [
+                  "§1",
+                  "#s1"
+                ]
+              ]
+            },
+            {
+              "title": "Lọc findings",
+              "where": [
+                [
+                  "§2",
+                  "#s2"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s1",
+      "no": "01",
+      "title": "Phần một",
+      "blocks": [
+        {
+          "type": "md",
+          "text": "K1 trỏ sang [phần hai](#s2) và [X1](#x1)."
+        },
+        {
+          "type": "figure",
+          "svg": "<svg viewBox=\"0 0 680 90\" role=\"img\" aria-labelledby=\"bl-t\"><title id=\"bl-t\">Hai hộp</title><defs><marker id=\"bl-ah\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M2 1L8 5L2 9z\" fill=\"var(--ink-3)\"/></marker></defs><rect class=\"n-box\" x=\"20\" y=\"16\" width=\"200\" height=\"56\" rx=\"8\"/><text class=\"t\" x=\"120\" y=\"44\" text-anchor=\"middle\" dominant-baseline=\"central\">K1</text><line class=\"w\" x1=\"220\" y1=\"44\" x2=\"458\" y2=\"44\" marker-end=\"url(#bl-ah)\"/><rect class=\"n-new\" x=\"460\" y=\"16\" width=\"200\" height=\"56\" rx=\"8\"/><text class=\"t\" x=\"560\" y=\"44\" text-anchor=\"middle\" dominant-baseline=\"central\">K2</text></svg>",
+          "caption": "Sơ đồ có id riêng.",
+          "ascii": "K1 → K2"
+        },
+        {
+          "type": "explain",
+          "summary": "Xem thêm",
+          "items": [
+            {
+              "id": "X1",
+              "title": "Mục có chi tiết",
+              "rows": [
+                [
+                  "Quy tắc",
+                  "K1"
+                ]
+              ],
+              "detail": [
+                [
+                  "Ví dụ",
+                  "Mở ra."
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "no": "02",
+      "title": "Findings",
+      "blocks": [
+        {
+          "type": "findings",
+          "filters": [
+            "P0",
+            "P1"
+          ],
+          "items": [
+            {
+              "id": "F1",
+              "title": "Lỗi một",
+              "tags": [
+                "P0"
+              ],
+              "fields": [
+                [
+                  "Là gì",
+                  "K1"
+                ]
+              ]
+            },
+            {
+              "id": "F2",
+              "title": "Lỗi hai",
+              "tags": [
+                "P1"
+              ],
+              "fields": [
+                [
+                  "Là gì",
+                  "K2"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "footer": "Hết."
+}

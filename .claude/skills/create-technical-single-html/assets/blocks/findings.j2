@@ -6,7 +6,7 @@
   <button class="fbtn" data-action="filter:{{ t }}" aria-pressed="false">{{ t }}</button>
 {% endfor %}
 </div>
-<div id="findings">
+<div id="findings" class="flist">
 {% for c in b['items'] %}{{ card(c) }}{% endfor %}
 </div>
 {% endmacro %}
