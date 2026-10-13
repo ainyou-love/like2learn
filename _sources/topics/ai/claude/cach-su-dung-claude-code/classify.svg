@@ -1,0 +1,17 @@
+<svg viewBox="0 0 640 250" role="img" aria-labelledby="classify-t"><title id="classify-t">Phép thử phân loại skill</title>
+  <rect x="90" y="8" width="460" height="62" rx="3" class="n-box"/>
+  <text class="t" x="320" y="32" text-anchor="middle">Bỏ hết tên dự án, tên công cụ, tên stack ra khỏi skill.</text>
+  <text class="t t-b" x="320" y="55" text-anchor="middle">Skill đó CÒN NGHĨA không?</text>
+  <path class="w" d="M320 70 L320 98 M320 98 L165 98 L165 126 M320 98 L475 98 L475 126"/>
+  <text class="t-s" x="240" y="92" text-anchor="middle">CÒN</text>
+  <text class="t-s" x="404" y="92" text-anchor="middle">KHÔNG CÒN</text>
+  <polygon points="165,134 160,124 170,124" fill="var(--ink-3)"/>
+  <polygon points="475,134 470,124 480,124" fill="var(--ink-3)"/>
+  <rect x="45" y="134" width="240" height="66" rx="3" class="n-new"/>
+  <text class="t t-b t-acc" x="165" y="163" text-anchor="middle">CÂY 1 · WORKFLOW</text>
+  <text class="t-s" x="165" y="185" text-anchor="middle">mang sang dự án khác được</text>
+  <rect x="355" y="134" width="240" height="66" rx="3" class="n-warn"/>
+  <text class="t t-b t-warn" x="475" y="163" text-anchor="middle">CÂY 2 · DOMAIN</text>
+  <text class="t-s" x="475" y="185" text-anchor="middle">chết cứng với dự án này</text>
+  <text class="t-s" x="320" y="230" text-anchor="middle">Một phép thử duy nhất — không cần tranh luận.</text>
+</svg>

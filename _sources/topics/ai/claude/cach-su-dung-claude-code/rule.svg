@@ -1,0 +1,21 @@
+<svg viewBox="0 0 640 262" role="img" aria-labelledby="rule-t"><title id="rule-t">Cây quyết định chọn lớp</title>
+  <rect x="150" y="8" width="340" height="44" rx="3" class="n-box"/>
+  <text class="t" x="320" y="35" text-anchor="middle">Yêu cầu này nếu bị vi phạm thì sao?</text>
+  <path class="w" d="M320 52 L320 78 M320 78 L170 78 L170 104 M320 78 L470 78 L470 104"/>
+  <polygon points="170,112 165,102 175,102" fill="var(--ink-3)"/>
+  <polygon points="470,112 465,102 475,102" fill="var(--ink-3)"/>
+  <rect x="30" y="112" width="280" height="56" rx="3" class="n-bad"/>
+  <text class="t" x="170" y="136" text-anchor="middle">Hỏng thật sự</text>
+  <text class="t-s" x="170" y="156" text-anchor="middle">mất data · lộ secret · deploy nhầm</text>
+  <rect x="330" y="112" width="280" height="56" rx="3" class="n-info"/>
+  <text class="t" x="470" y="136" text-anchor="middle">Khó chịu / kém chất lượng</text>
+  <text class="t-s" x="470" y="156" text-anchor="middle">sai style · thiếu bước</text>
+  <path class="w" d="M170 168 L170 196"/>
+  <polygon points="170,204 165,194 175,194" fill="var(--ink-3)"/>
+  <path class="w" d="M470 168 L470 196"/>
+  <polygon points="470,204 465,194 475,194" fill="var(--ink-3)"/>
+  <rect x="60" y="204" width="220" height="46" rx="3" class="n-bad"/>
+  <text class="t t-b t-bad" x="170" y="233" text-anchor="middle">CƠ CHẾ</text>
+  <rect x="360" y="204" width="220" height="46" rx="3" class="n-new"/>
+  <text class="t t-b t-acc" x="470" y="233" text-anchor="middle">VĂN BẢN</text>
+</svg>

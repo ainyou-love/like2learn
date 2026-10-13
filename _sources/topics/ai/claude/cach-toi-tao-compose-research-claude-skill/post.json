@@ -1,0 +1,213 @@
+{
+ "meta": {
+  "title": "Cách tôi tạo skill research-compose cho Claude Code",
+  "brand": "research-compose — kiến trúc, workflow, interface",
+  "date": "2026-09-18",
+  "desc": "Kiến trúc, workflow và interface của research-compose — một Claude Code skill chạy nhiều lăng kính phân tích song song rồi tổng hợp.",
+  "lang": "vi",
+  "md_filename": "cach-toi-tao-compose-research-claude-skill.md",
+  "storage_key": "cach-toi-tao-compose-research-claude-skill",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Ghi chép nội bộ · thiết kế skill",
+  "title": "Cách tôi tạo skill research-compose cho Claude Code",
+  "lede": "Một skill chạy nhiều lăng kính phân tích **song song** rồi hợp nhất kết quả thành một báo cáo. Tài liệu đi từ kiến trúc, qua workflow đầu-cuối, tới các biên giao tiếp với sub-agent và với AKM."
+ },
+ "sections": [
+  {
+   "id": "s0",
+   "no": "0",
+   "title": "Bản đồ đọc",
+   "blocks": [
+    {
+     "type": "callout",
+     "kind": "note",
+     "text": "Study guide về `research-compose` — một Claude Code skill chạy nhiều lăng kính phân tích\nsong song rồi hợp nhất kết quả. Mọi khẳng định được đọc trực tiếp từ file nguồn của skill,\nkhông lấy từ trí nhớ.\n\nĐọc được theo hai kiểu: như **tài liệu tham chiếu** cho chính skill này, hoặc như một\n**case study** về cách dựng một hệ nhiều sub-agent sao cho kết quả còn kiểm được.\n\nNhãn trong sơ đồ để tiếng Anh vì quy ước ASCII-only (không dấu) cho diagram."
+    },
+    {
+     "type": "md",
+     "text": "| Muốn gì | Đọc mục |\n|---|---|\n| Hiểu tại sao skill tồn tại | 1 |\n| Sửa/thêm một lăng kính | 2.3, 2.4, 6 |\n| Hiểu một run chạy ra sao | 3 |\n| Viết code nói chuyện với skill hoặc AKM | 4 |\n| Tránh phá vỡ hệ thống | **5** |\n| Tra nghĩa một thuật ngữ | 7 |"
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "no": "1",
+   "title": "Ý tưởng cốt lõi",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Một chủ đề được soi bằng nhiều lăng kính phân tích **độc lập**, chạy **song song**, mỗi\nlăng kính trả về JSON có schema cố định; sau đó một bước tổng hợp **hợp nhất các output\nđó** thay vì phân tích lại từ đầu.\n\nĐòn bẩy nằm ở chữ \"hợp nhất\". Nếu bước cuối phải tự suy luận lại thì fan-out chỉ tốn thêm\ntiền. Giá trị sinh ra vì bước tổng hợp nhận vào **kết quả đã có cấu trúc** của sáu góc nhìn\nkhác nhau và chỉ còn việc đối chiếu — tìm điểm đồng thuận, chỉ ra mâu thuẫn, nêu khoảng\ntrống.\n\nBa pattern được gọi đúng tên, không phải từ vựng tự chế:\n\n| Pattern | Ở đây là | Nguồn |\n|---|---|---|\n| orchestrator-workers | client điều phối, lăng kính là worker | Anthropic, *Building Effective Agents* |\n| parallelization | fan-out 6 lăng kính trong một message | nt |\n| evaluator-optimizer | validate schema → retry với lỗi đính kèm | nt |\n| typed signature `input -> output` | `inputs` + `output_schema` của atom | DSPy \"signatures\" |\n| atom thuần, không state ẩn | prompt-atom | Atomic Design, layer A |"
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "no": "2",
+   "title": "Kiến trúc",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 2.1 Bố cục file\n\nMỗi lăng kính luôn là **một cặp** `.md` + `.schema.json`. Đó là đơn vị nhỏ nhất, và là lý do\nthêm lăng kính không phải sửa code."
+    },
+    {
+     "type": "figure",
+     "file": "fig01.svg",
+     "caption": "Mỗi lăng kính là một cặp `.md` + `.schema.json` — đơn vị nhỏ nhất, và là lý do thêm lăng kính không phải sửa code.",
+     "ascii": "research-compose/\n+-- SKILL.md                     orchestrator playbook, 5 steps\n+-- atoms/                       L1: the composable units\n|   +-- concept.md    + concept.schema.json      lens\n|   +-- irb.md        + irb.schema.json          lens (topic+goal+depth)\n|   +-- paccaya.md    + paccaya.schema.json      lens\n|   +-- hara_naya.md  + hara_naya.schema.json    lens\n|   +-- causality.md  + causality.schema.json    lens\n|   +-- inquiry.md    + inquiry.schema.json      lens\n|   +-- synthesis.md  + synthesis.schema.json    synthesis\n+-- references/\n|   +-- prompt-atom-contract.md  L2: the 4 prompt-atom rules\n+-- scripts/\n    +-- compose.py               L3: control plane, 8 subcommands\n    +-- stop_hook.py             L3: Stop-hook adapter\n\n.claude/agents/research-lens.md  the worker type (outside the skill)"
+    },
+    {
+     "type": "md",
+     "text": "### 2.2 Ba lớp\n\nL1 là dữ liệu thuần (prompt), L2 là quy ước được viết thành văn, L3 là code tất định. Tính\nchất chịu lực: **L3 không bao giờ hỏi model xem tiến độ tới đâu** — nó đọc file trạng thái."
+    },
+    {
+     "type": "figure",
+     "file": "fig02.svg",
+     "caption": "L3 không bao giờ hỏi model xem tiến độ tới đâu; nó đọc file trạng thái. Đó là tính chất chịu lực của cả hệ.",
+     "ascii": "+----------------------------------------------------------------+\n| L3  CONTROL PLANE      scripts/compose.py + stop_hook.py       |\n|     deterministic -- never asks the model to trust itself      |\n|     init | mark | complete | abort | status | pending | runs   |\n|     validate                                                   |\n|     state: $COMPOSE_HOME/runs/<run_id>.json                    |\n|            default ~/.claude-compose -- store machine-wide,    |\n|            but `pending` only blocks its OWN project           |\n+----------------------------------------------------------------+\n      | enforces completion          ^ marks progress\n      v                                |\n+----------------------------------------------------------------+\n| L2  CONTRACT           references/prompt-atom-contract.md      |\n|     1 explicit input only    2 declared output, FLAT schema    |\n|     3 self-contained         4 substitutable                   |\n+----------------------------------------------------------------+\n      | governs\n      v\n+----------------------------------------------------------------+\n| L1  ATOMS              atoms/<id>.md + <id>.schema.json        |\n|     6 lens + 1 synthesis -- pure prompt, zero hidden state     |\n|     add a file pair -> new lens, no orchestration change       |\n+----------------------------------------------------------------+"
+    },
+    {
+     "type": "md",
+     "text": "### 2.3 Bảy atom\n\n| atom | kind | inputs | required fields (schema) |\n|---|---|---|---|\n| `concept` | lens | `topic` | `distilled`, `foundational`, `knowledge_tree`, `relationships` |\n| `irb` | lens | `topic`, `goal`, `recursion_depth` | `overview`, `table_markdown`, `tree` |\n| `paccaya` | lens | `topic` | `overview`, `conditions_markdown`, `key_solutions` |\n| `causality` | lens | `topic` | `overview`, `relations_markdown`, `key_solutions` |\n| `hara_naya` | lens | `topic` | `hara_markdown`, `naya_markdown`, `synthesis` |\n| `inquiry` | lens | `topic` | `methods_markdown`, `strategies_markdown`, `synthesis` |\n| `synthesis` | synthesis | `topic`, `goal`, `lens_outputs` | `context_structure`, `causal_approaches`, `recommendation` |\n\nHai cặp sinh đôi: `paccaya`↔`causality` (24 duyên hệ Pāli ↔ bản thế tục hoá) và\n`hara_naya`↔`inquiry` (16 hārā + 5 nayā ↔ 16 phương pháp + 5 chiến lược). Mỗi cặp **cùng\n`inputs`**, nên theo luật 4 chúng hoán đổi được trong cùng một slot — và sửa một cái thì\nphải cân nhắc cái kia.\n\nPrompt của cả sáu lăng kính viết bằng tiếng Việt, và cả sáu đều có một dòng\n*\"QUAN TRỌNG: viết SÚC TÍCH… mỗi mục CHỈ 1-2 câu\"*. Dòng đó không phải văn phong — nó là\nngân sách thời gian, vì `paccaya` và `causality` mỗi cái phải phủ 24 mục.\n\nĐã kiểm cả 7 schema: **tất cả đều phẳng** — chỉ `string` và `array of string`. Bảng và cây\nnằm *bên trong* field string dưới dạng markdown/ASCII dựng sẵn.\n\n### 2.4 Prompt-atom contract\n\nBốn luật, mỗi luật có một lý do vận hành cụ thể:\n\n| Luật | Nội dung | Vì sao |\n|---|---|---|\n| 1 | Chỉ input tường minh, qua `$placeholder` | atom chạy trong sub-agent cô lập, **không thấy hội thoại cha** — thứ gì không substitute vào thì không tồn tại |\n| 2 | Khai báo output, schema **phẳng** | schema lồng sâu là nơi structured-output hỏng nhiều nhất |\n| 3 | Tự chứa — đọc mỗi file này là hiểu trọn việc | không có skill nào được load vào context của sub-agent |\n| 4 | Thay thế được — cùng `inputs` thì hoán đổi được | đây là thứ làm cho composition trở nên cấu hình được |\n\nAtom `kind: synthesis` nhận thêm `lens_outputs` và có nhiệm vụ **kết hợp, không suy luận\nlại**; prompt của nó bị ép ngắn (~200 từ/mục) vì input vào đã rất lớn."
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "no": "3",
+   "title": "Workflow",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 3.1 Toàn tuyến\n\nBảy chặng. Chặng 0 và 6 là tuỳ chọn (chỉ khi kết quả sẽ dẫn dắt quyết định hoặc phiên sau);\nchặng 1–5 bắt buộc, và mỗi chặng để lại dấu vết trong file trạng thái."
+    },
+    {
+     "type": "figure",
+     "file": "fig03.svg",
+     "caption": "Bảy chặng. Chặng 0 và 6 tuỳ chọn; 1–5 bắt buộc và mỗi chặng để lại dấu vết trong file trạng thái.",
+     "ascii": "USER: \"deep dive on X\" / /research-compose X\n   |\n   v\n[0] PRE-FLIGHT   akm find \"<topic words>\"\n    already concluded before? -> tell user, narrow the topic\n   |\n   v\n[1] INIT         run_id = `date +%Y%m%d%H%M%S`   (fresh, never guessed)\n    compose.py init <run_id> --topic \"X\" --atoms concept,irb,...\n    => runs/<run_id>.json : status active, every atom = pending\n    => workspace tmp/research-compose/<run_id>/\n   |\n   v\n[2] FAN-OUT      mark each atom running, then dispatch ALL in ONE\n                 message -> 6 research-lens sub-agents in parallel\n   |\n   v\n[3] GATE         per returned atom: save <id>.json -> validate\n                 VALID -> mark done | INVALID -> 1 retry -> mark error\n   |\n   v\n[4] SYNTHESIS    lens_outputs = concat of the successful lenses\n                 research-lens: synthesis(topic, goal, lens_outputs)\n                 validate -> mark synthesis done\n   |\n   v\n[5] COMPLETE     compose.py complete <run_id>  => status complete\n                 present report, offer the per-lens reports\n   |\n   v\n[6] RECORD       only if it steers a decision or a later session\n                 akm: hypothesis / question + evidence -> run files"
+    },
+    {
+     "type": "md",
+     "text": "### 3.2 Chặng 2–3: fan-out và cổng schema\n\nSong song **chỉ xảy ra nếu cả sáu lời gọi nằm trong một message**. Vòng retry là\nevaluator-optimizer: validator tất định chấm, model sửa."
+    },
+    {
+     "type": "figure",
+     "file": "fig04.svg",
+     "caption": "Song song chỉ xảy ra nếu cả sáu lời gọi nằm trong một message. Vòng retry là evaluator-optimizer: validator tất định chấm, model sửa.",
+     "ascii": "                      ONE message, 6 tool calls\n                                 |\n     +-------------+-------------+-------------+-------------+\n     v             v             v             v             v\n  concept        irb         paccaya      hara_naya   causality + inquiry\n     |             |             |             |             |\n     |  each: research-lens sub-agent, isolated, no parent context\n     |             |             |             |             |\n     v             v             v             v             v\n  concept.json  irb.json    paccaya.json    ...           ...\n     |             |             |             |             |\n     +-------------+------+------+-------------+-------------+\n                          v\n              compose.py validate --schema atoms/<id>.schema.json\n                          |\n             +------------+------------+\n             v                         v\n          VALID                     INVALID: <error>\n             |                         |\n             v                    re-dispatch that ONE lens\n       mark <id> done             with the error appended\n                                       |\n                                  still bad? -> mark <id> error\n                                  (a dead lens must NOT block the rest)"
+    },
+    {
+     "type": "md",
+     "text": "Một lăng kính chết **không được** chặn các lăng kính còn lại — sau lần hỏng thứ hai thì\n`mark error` và đi tiếp.\n\n### 3.3 `assemble_atom` — atom thành prompt sub-agent\n\nBa nguồn ghép thành một prompt tự đủ."
+    },
+    {
+     "type": "figure",
+     "file": "fig05.svg",
+     "caption": "Ba nguồn ghép thành một prompt tự đủ. File JSON do client ghi sau khi nhận — nên lăng kính không cần tool Write.",
+     "ascii": "  atoms/concept.md          run inputs            concept.schema.json\n  (body after frontmatter)  topic = \"...\"         {\"required\": [...]}\n  uses only $topic          goal  = \"...\"         flat: strings +\n  $goal $recursion_depth    recursion_depth = 2   arrays of strings\n          |                       |                       |\n          +-----------+-----------+                       |\n                      v                                   |\n             substitute every $var                        |\n                      |                                   |\n                      +-----------------+-----------------+\n                                        v\n                         + \"Return ONLY JSON conforming\n                            to this schema:\" + schema text\n                                        |\n                                        v\n                   +---------------------------------------+\n                   | sub-agent  research-lens              |\n                   | Read Grep Glob WebSearch WebFetch     |\n                   | no view of the parent conversation    |\n                   | akm-push is configured to SKIP it     |\n                   +---------------------------------------+\n                                        |\n                                        v\n                    tmp/research-compose/<run_id>/concept.json"
+    },
+    {
+     "type": "md",
+     "text": "File `<id>.json` do **client** ghi sau khi nhận giá trị trả về, không phải lens ghi. Đó là\nlý do agent type này không có tool `Write` và không cần có.\n\n### 3.4 Máy trạng thái\n\n| cấp | trạng thái | đặt bởi |\n|---|---|---|\n| atom | `pending` | `init`, mặc định |\n| atom | `running` | `mark … running`, ngay trước khi dispatch |\n| atom | `done` | `mark … done`, **chỉ sau khi** `validate` in `VALID` |\n| atom | `error` | hỏng lần thứ hai ở cổng schema |\n| atom | `skipped` | được chọn nhưng không chạy, **hoặc** bị `abort` quét qua |\n| run | `active` | `init` |\n| run | `complete` | `complete`, **hoặc** `abort` |\n\n`abort <run_id> [--note]` là lối ra cho một run mà bạn quyết định không chạy tiếp: mọi atom\nchưa terminal thành `skipped`, run thành `complete` (kèm cờ `aborted: true`).\n\n`ATOM_DONE = {done, error, skipped}`. **`running` không thuộc tập terminal** — nên mọi run\nđều phải kết thúc bằng `complete` hoặc `abort`.\n\n### 3.5 Bảo đảm hoàn tất\n\nChạy khi agent định kết thúc lượt. Ba lớp chống kẹt đều dẫn về `exit 0`; đúng một nhánh tới\n`exit 2`."
+    },
+    {
+     "type": "figure",
+     "file": "fig06.svg",
+     "caption": "Ba lớp chống kẹt đều dẫn về exit 0; đúng một nhánh tới exit 2 — hook chặn lượt và nói rõ còn thiếu gì.",
+     "ascii": "  agent tries to end the turn\n            |\n            v\n     stop_hook.py   <-- hook payload on stdin\n            |\n     stop_hook_active ? ------ yes ------> exit 0   allow stop\n            | no                                    (loop breaker)\n            v\n     compose.py pending    reads runs/*.json, THIS project only\n            |\n            +--> status complete ?        -> skip\n            +--> another project's run ?  -> skip  (scoped)\n            +--> updated_at > 30 min ?    -> skip  (stale)\n            +--> nudge_count >= 5 ?       -> skip  (safety valve)\n            |\n            v\n     any atom not in {done, error, skipped}\n            |\n            +-- no --> exit 0   allow stop\n            |\n            +-- yes -> nudge_count++ , exit 1\n                            |\n                            v\n                  exit 2 + list on stderr -> turn BLOCKED,\n                  model must finish the atoms and complete the run\n\n  any failure inside the hook -> exit 0   (fail open, never wedge)"
+    },
+    {
+     "type": "md",
+     "text": "Hook đăng ký ở **`~/.claude-<config>/settings.json`** (tầng config dir, `timeout: 15`), trỏ tới\nbản trong `~/.dotfiles/.claude/skills/research-compose/scripts/stop_hook.py`. Tìm ở\n`.claude/settings.json` của project sẽ **không** thấy — và sẽ dẫn tới kết luận sai rằng cơ\nchế này chưa được đấu dây."
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "no": "4",
+   "title": "Interface",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 4.1 Ba counterpart\n\nBa phía, ba transport, ba vòng đời. Chênh lệch vòng đời ở dòng cuối chính là lý do SKILL.md\ndặn chỉ record vào AKM khi kết quả sẽ dẫn dắt việc về sau — workspace `tmp/` không sống lâu."
+    },
+    {
+     "type": "figure",
+     "file": "fig07.svg",
+     "caption": "Ba phía, ba transport, ba vòng đời. Chênh lệch ở hàng cuối là lý do chỉ record vào AKM khi kết quả dẫn dắt việc về sau.",
+     "ascii": "                   +---------------------------------+\n                   |  CLIENT = the orchestrator      |\n                   |  the session running the skill  |\n                   +---------------------------------+\n                     |             |              |\n      Agent dispatch |        Bash |              | MCP tools / Bash\n      prompt -> JSON |  argv->JSON |              | + INBOUND push\n                     v             v              v\n        +----------------+  +--------------+  +-------------------+\n        | EXTERNAL LENS  |  | compose.py   |  | AKM               |\n        | research-lens  |  | control plane|  | serve.py + Neo4j  |\n        | x6, isolated   |  | local, sync  |  | cross-session     |\n        +----------------+  +--------------+  +-------------------+\n                |                   |                   |\n                v                   v                   v\n         <id>.json in         runs/<run_id>.json   reasoning graph\n         tmp/ workspace       project-scoped       scoped by repo\n         (this run only)      (survives session)   (survives all)\n\n  lifetime:   minutes           until aborted        indefinite"
+    },
+    {
+     "type": "md",
+     "text": "### 4.2 Biên với lăng kính\n\nMột chiều đi, một chiều về, **không state chung**. Quan trọng hơn cái gì đi qua là cái gì bị\ncấm đi qua — luật 1 của contract được thực thi ở tầng hạ tầng chứ không nhờ tác giả atom\ncẩn thận."
+    },
+    {
+     "type": "figure",
+     "file": "fig08.svg",
+     "caption": "Quan trọng hơn cái gì đi qua là cái gì bị cấm đi qua — luật 1 của contract được thực thi ở tầng hạ tầng.",
+     "ascii": "  CLIENT                                  EXTERNAL LENS (sub-agent)\n    |                                                   |\n    | 1. assemble_atom =                                |\n    |    atom body + substituted $vars + schema text    |\n    |----- Agent(subagent_type=\"research-lens\") ------->|\n    |                                                   |\n    |    DOES NOT CROSS THIS BOUNDARY:                  |\n    |      - the parent conversation                    |\n    |      - any other lens output                      |\n    |      - AKM pushed claims -- the type is listed    |\n    |        in AKM_PUSH_ISOLATED_AGENT_TYPES           |\n    |    lens tools: Read Grep Glob WebSearch WebFetch  |\n    |                                                   |\n    |            2. return value = JSON only, no prose  |\n    |<--------------------------------------------------|\n    v\n  save tmp/research-compose/<run_id>/<id>.json\n    |\n    v\n  compose.py validate --schema atoms/<id>.schema.json --input <f>\n    |\n    +-- VALID ----> mark <id> done\n    |\n    +-- INVALID --> re-dispatch the SAME lens, validator text\n                    appended to the prompt; 2nd failure ->\n                    mark <id> error and the run continues"
+    },
+    {
+     "type": "md",
+     "text": "### 4.3 AKM — ba kênh, không phải một\n\nHiểu nhầm phổ biến: coi AKM là một API. Thực tế là **một kênh vào không cần gọi** (push) cộng\n**hai transport cho cùng một tập operation** (MCP tools và CLI), ngữ nghĩa y hệt nhau."
+    },
+    {
+     "type": "figure",
+     "file": "fig09.svg",
+     "caption": "Một kênh vào không cần gọi, cộng hai transport cho cùng một tập operation. Ngữ nghĩa fallback của write là at-most-once.",
+     "ascii": "  (a) PUSH  -- inbound, the client makes NO call\n      \"Recorded in AKM\" blocks, injected by the akm-push rule\n        session start -> open tasks\n        each prompt   -> claims matching it\n        subagent      -> matching claims + the bound task state\n      EXCEPT research-lens and code-reviewer: they get nothing\n                         |\n                         v\n  +-----------------------------------------------------------+\n  |                      CLIENT                                |\n  +-----------------------------------------------------------+\n       |                                        |\n  (b) MCP tools                            (c) CLI over Bash\n      find_information                         akm_cli.py find\n      list_tasks                               akm_cli.py list\n      open_task                                akm_cli.py open\n      get_work_context                         akm_cli.py context\n      get_state / get_information              akm_cli.py state / info\n      submit_reasoning_delta                   akm_cli.py submit\n                                               akm_cli.py record\n       |                                        |\n       |  same operations, two transports       | JSON on stdout,\n       |                                        | non-zero on refusal\n       +-------------------+--------------------+\n                           v\n                  akm/serve.py    long-lived, warm Neo4j pool\n                           |\n                  no answer in time?\n                    read  -> re-run locally\n                    write -> NOT re-run  (open/submit/record may\n                             already have been applied)\n                           |\n                           v\n                  Neo4j graph, scope = git repo name\n                  (AKM_SCOPE overrides; outside a repo -> un-git-repo)"
+    },
+    {
+     "type": "md",
+     "text": "Chi tiết transport cần biết trước khi viết bất cứ thứ gì quanh AKM: khi server nhận request\nnhưng không kịp trả lời, **read được chạy lại local, write thì không** — write có ngữ nghĩa\n*at-most-once*, chấp nhận mất kết quả trả về hơn là ghi trùng.\n\n### 4.4 Cùng một run, nhìn theo trục thời gian\n\nAKM chỉ xuất hiện ở hai đầu; toàn bộ khúc giữa là compose.py và các lăng kính."
+    },
+    {
+     "type": "figure",
+     "file": "fig10.svg",
+     "caption": "AKM chỉ xuất hiện ở hai đầu; toàn bộ khúc giữa là compose.py và các lăng kính.",
+     "ascii": " CLIENT          AKM            compose.py        6x research-lens\n   |              |                 |                    |\n   |-- find ----->|  \"already concluded?\"                |\n   |<-- claims ---|                 |                    |\n   |              |                 |                    |\n   |-- (open) --->|  only if this research starts a task |\n   |<-- task_id --|                 |                    |\n   |              |                 |                    |\n   |-------------------- init ----->|                    |\n   |<------------------- state file |                    |\n   |              |                 |                    |\n   |-------------------- mark run-->|                    |\n   |------------------------------------- dispatch x6 -->|\n   |                                                     | (parallel,\n   |<------------------------------------ 6x JSON -------|  isolated)\n   |              |                 |                    |\n   |-------------------- validate ->|                    |\n   |<------------------- VALID/INV -|                    |\n   |-------------------- mark done->|                    |\n   |              |                 |                    |\n   |------------------------------------- synthesis ---->|\n   |<------------------------------------ JSON ----------|\n   |-------------------- complete ->|                    |\n   |              |                 |                    |\n   |-- record --->|  hypothesis / question               |\n   |   --evidence research_report:tmp/.../<id>.json      |\n   |   --why \"the workspace is temporary\"                |\n   |<-- committed |                 |                    |\n   v              v                 v                    v"
+    },
+    {
+     "type": "md",
+     "text": "### 4.5 Hợp đồng biên\n\n| counterpart | transport | client gửi | nhận về | **cấm đi qua** |\n|---|---|---|---|---|\n| external lens | Agent dispatch | prompt tự đủ: atom + `$vars` + schema | đúng một JSON | hội thoại cha, output lăng kính khác, claim AKM |\n| compose.py | Bash, argv | subcommand + đường dẫn | JSON/text + exit code | — (local, đồng bộ) |\n| AKM (a) push | không gọi | — | block \"Recorded in AKM\" | không bao giờ tới `research-lens` |\n| AKM (b)(c) | MCP tool / Bash | query, delta, template | JSON, exit≠0 khi bị từ chối | claim đã ghi **không được** dán vào input atom |"
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "no": "5",
+   "title": "Invariants — phá là hỏng",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "1. **Sáu lời gọi phải nằm trong MỘT message.** Tách ra là mất song song, tức mất toàn bộ lý\n   do skill tồn tại.\n2. **Không bao giờ dán claim AKM vào input của atom.** SKILL.md nói thẳng: *\"Never paste\n   recorded claims into an atom's inputs to 'help' it.\"* Làm vậy là nhiễm kết luận có sẵn vào\n   phân tích độc lập — đúng thứ fan-out sinh ra để tránh.\n3. **Chỉ `mark done` sau khi `validate` in `VALID`.** Đây là nghĩa vụ duy nhất của client để\n   cơ chế bảo đảm hoàn tất còn đáng tin.\n4. **Schema phải phẳng.** Bảng/cây nhét vào string.\n5. **`run_id` lấy tươi bằng `date +%Y%m%d%H%M%S`**, không đoán.\n6. **Một lăng kính sống ở hai nơi thì sửa cả hai** — bản trong skill và bản trong web\n   module `research_analyze.yaml`.\n7. **Dispatch đúng agent type `research-lens`.** Sub-agent loại khác sẽ bị `akm-push` chèn\n   claim vào prompt — input mà atom chưa từng khai báo, phá luật 1.\n8. **Mọi run phải kết thúc bằng `complete` hoặc `abort`.** `running` không phải trạng thái\n   terminal, nên một run bỏ lửng vẫn được tính là chưa xong.\n\n### Cổng schema kiểm gì — và không kiểm gì\n\n`validate` có hai nhánh: dùng `Draft202012Validator` khi `jsonschema` cài sẵn, và tụt về\nkiểm required-keys nông khi không. Nhưng dù chạy nhánh đầy đủ, phạm vi của cổng vẫn hẹp hơn\nnhiều người mặc định, vì bản thân các schema được viết rộng rãi:\n\n- **Không schema nào đặt `additionalProperties: false`** → lăng kính thêm key lạ vẫn `VALID`.\n- **Nhiều field prompt yêu cầu lại không nằm trong `required`.** Ví dụ `concept.schema.json`\n  chỉ bắt buộc 4 field; ba tầng `intermediate`, `advanced`, `edge_cases` là optional — lăng\n  kính bỏ trắng cả ba vẫn qua cổng.\n\nNói cách khác: cổng kiểm **hình dạng của thứ có mặt**, không kiểm **độ đầy đủ so với\nprompt**. `VALID` không có nghĩa là lăng kính đã làm đủ việc."
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "no": "6",
+   "title": "Mở rộng: thêm một lăng kính",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "1. Thả vào `atoms/` một cặp `<id>.md` + `<id>.schema.json` tuân thủ contract (mục 2.4).\n2. Thêm `<id>` vào danh sách `--atoms` khi `init`, và vào vòng fan-out.\n3. Hết. **Không sửa dòng code nào** — đó là phần trả công của atom thuần.\n\nCân nhắc trước khi thêm: lăng kính mới có sinh ra góc nhìn *độc lập* không, hay chỉ lặp lại\nmột lăng kính đã có? Fan-out chỉ có giá trị khi các nhánh thực sự khác nhau.\n\nCấu hình mặc định là lăng kính song song + một synthesis, nhưng cùng bộ atom đó ghép được\nthành đồ thị khác (chuỗi tuần tự chẳng hạn) vì atom không giữ state ẩn."
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "no": "7",
+   "title": "Từ khoá",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Mỗi dòng gói trọn năm điều: là gì, làm gì trong hệ, nhận ra bằng dấu hiệu nào, khi nào\nđáng dùng và khi nào nên tránh.\n\n| Thuật ngữ | Giải thích |\n|---|---|\n| **Prompt-atom** | Đơn vị nhỏ nhất mà skill ghép lại: một file prompt `.md` cộng một `.schema.json` khai báo hình dạng output. Nó biến một bước LLM thành hàm có chữ ký `input → output` và không giữ state ẩn — nhận ra ngay vì thân prompt chỉ chứa `$placeholder` lấy từ danh sách `inputs` ở frontmatter. Đáng dùng khi cần chạy song song hoặc nối chuỗi nhiều bước LLM mà vẫn kiểm được từng bước; không dùng được nếu bước đó cần đọc lịch sử hội thoại, vì atom cô lập sẽ không thấy gì. |\n| **Lăng kính (lens)** | Atom `kind: lens`, phân tích chủ đề theo đúng một khung tư duy, để bước tổng hợp có nhiều góc nhìn độc lập mà đối chiếu. Ở đây có sáu lăng kính; tất cả nhận `topic`, riêng `irb` nhận thêm `goal` và `recursion_depth`. Xứng đáng khi vấn đề đủ lớn để các góc nhìn cho ra kết luận khác nhau — với một câu hỏi tra cứu một dòng thì fan-out chỉ thêm chi phí. |\n| **Atom tổng hợp (synthesis)** | Atom `kind: synthesis`, nhận thêm `lens_outputs`. Việc của nó là hợp nhất chứ không suy luận lại: chỉ ra điểm đồng thuận, mâu thuẫn và khoảng trống. Prompt tự ép ngắn, khoảng 200 từ mỗi mục, vì input vào đã rất lớn. Chỉ có nghĩa khi đã có từ hai output lăng kính hợp lệ trở lên — chạy một lăng kính rồi tổng hợp thì không có gì để đối chiếu. |\n| **Orchestrator-workers** | Mẫu điều phối: một tiến trình chính giao việc cho nhiều worker rồi gom kết quả. Giá trị nằm ở chỗ tách *quyết định chạy gì* khỏi *chạy cái gì*, nên thêm worker không phải sửa phần điều phối — client giữ file trạng thái và thứ tự, còn worker chỉ biết đúng prompt của mình. Hợp khi các việc con độc lập và số lượng thay đổi theo yêu cầu; không hợp khi chúng phải nói chuyện với nhau giữa chừng. |\n| **Fan-out (parallelization)** | Phát cùng lúc nhiều lời gọi độc lập thay vì chạy lần lượt, nên thời gian chạy bằng nhánh chậm nhất chứ không phải tổng các nhánh. Biểu hiện rất cụ thể: cả sáu lời gọi sub-agent phải nằm trong **một** message — tách ra là mất song song. Chỉ đúng khi các nhánh không phụ thuộc kết quả của nhau; nhánh sau cần output nhánh trước thì phải nối chuỗi. |\n| **Evaluator-optimizer** | Vòng lặp một bên tạo, một bên chấm, kết quả chấm quay lại làm input sửa; nhờ vậy lỗi định dạng thành thông tin sửa được thay vì thành thất bại. Ở đây `validate` in `INVALID: …`, lỗi đó được đính vào prompt và lăng kính chạy lại đúng một lần. Ăn tiền khi người chấm là chương trình tất định — lấy LLM chấm LLM cho cùng loại việc thì hỏng, vì điểm mù của chúng trùng nhau. |\n| **Signature (DSPy)** | Cách gọi tên hợp đồng `input → output` có kiểu cho một bước LLM, cho phép thay ruột của bước mà không đổi chỗ nó cắm vào. Ở đây chính là cặp `inputs` + `output_schema` trong frontmatter của atom. Hữu ích khi muốn hoán đổi hoặc so sánh nhiều cách làm cùng một bước; thừa nếu bước đó dùng đúng một lần và sẽ không bao giờ bị thay. |\n| **Control plane** | Phần tất định đứng ngoài model, giữ trạng thái và phán định đúng/sai hình thức, để hệ không phải tin lời model về tiến độ của chính nó. Ở đây là `compose.py` với tám subcommand và một file JSON cho mỗi run. Cần khi có thứ phải trả lời chắc chắn — đã xong chưa, đúng hình dạng chưa; thừa với việc một nhịp không có trạng thái nào phải nhớ. |\n| **File trạng thái run** | Một JSON cho mỗi `run_id`, ghi chủ đề, project và trạng thái từng atom; đó là nguồn sự thật cho câu hỏi *run này xong chưa*. Nằm ở `$COMPOSE_HOME/runs/<run_id>.json`, mặc định dưới `~/.claude-compose`. Cần khi một phiên khác hoặc một hook phải đọc lại tiến độ; đừng coi nó là nơi chứa kết quả — kết quả nằm ở workspace riêng. |\n| **Cổng schema** | Bước kiểm output của atom với JSON Schema trước khi hệ chấp nhận, chặn đầu ra sai hình dạng ngay tại nguồn và chặn một cách tất định. Kết quả là `VALID`, hoặc `INVALID:` kèm đường dẫn field và lý do. Đáng đặt khi output sẽ được máy đọc tiếp chứ không phải người đọc; đừng kỳ vọng nó kiểm nội dung — nó chỉ kiểm hình dạng. |\n| **Schema phẳng** | Schema chỉ gồm chuỗi và mảng chuỗi, không lồng object nhiều tầng, để giữ tỉ lệ model trả đúng cấu trúc ở mức cao. Bảng và cây vì thế được đặt bên trong một field chuỗi dưới dạng markdown hoặc ASCII. Chọn nó khi cần độ tin cậy hơn là cần dữ liệu bóc tách sẵn; nếu hạ nguồn thật sự phải truy vấn từng phần tử thì đành bóc tách và chấp nhận rủi ro. |\n| **Trạng thái terminal** | Tập trạng thái coi như đã xong — `done`, `error`, `skipped` — và là định nghĩa duy nhất cho câu hỏi *còn gì chưa xong*. `running` không thuộc tập này, nên một atom đang chạy vẫn tính là chưa xong. Phân biệt như vậy để tách *hỏng nhưng đã kết luận* khỏi *chưa biết*; đừng gộp `error` vào nhóm chưa xong, vì một nhánh chết không được phép chặn cả run. |\n| **abort** | Lệnh kết thúc một run mà bạn quyết định không chạy tiếp: mọi atom chưa terminal thành `skipped`, run thành `complete` kèm cờ `aborted`. Đây là lối ra có hỗ trợ, thay cho việc đánh dấu tay từng atom. Dùng khi đổi ý giữa chừng hoặc khi tiếp nhận một run của phiên trước; không dùng cho run đang chạy tốt, vì nó chỉ đóng sổ chứ không dừng sub-agent. |\n| **Stop hook** | Hook chạy lúc agent định kết thúc lượt và có quyền chặn, biến *nhớ làm nốt* thành ràng buộc của hệ thống thay vì kỷ luật của model: `exit 0` cho dừng, `exit 2` chặn và in phần còn thiếu ra stderr. Xứng đáng khi có quy trình nhiều bước mà bỏ ngang giữa chừng là hỏng việc; nguy hiểm nếu dựng lúc chưa có đường thoát chắc chắn, vì một hook không lối ra sẽ treo phiên làm việc. |\n| **Nudge và van an toàn** | Mỗi lần hook chặn là một nudge; quá `MAX_NUDGES` thì nó thôi chặn. Cách này cho hook quyền ép nhưng có giới hạn, để không bao giờ khoá cứng phiên. Bộ đếm nằm trong file trạng thái, và ghi nudge không đẩy mốc `updated_at`. Đúng khi muốn nhắc dai mà vẫn giữ quyền kiểm soát; đừng đọc số nudge như thước đo tiến độ — nó chỉ là ngân sách nhắc. |\n| **Run cũ (stale)** | Run không được chạm tới quá `STALE_SECONDS`, tức 30 phút, sẽ bị hook bỏ qua và không tính vào danh sách chặn. Có nó vì phiên làm việc có thể chết giữa chừng vì lý do ngoài tầm với. Đừng dựa vào nó để dọn dẹp: nó chỉ ngừng chặn, còn file vẫn nằm nguyên đó. |\n| **assemble_atom** | Thủ tục dựng prompt cho sub-agent từ ba nguồn: thân atom sau frontmatter, các giá trị thay vào `$var`, và schema kèm câu lệnh trả JSON. Mục đích là prompt tự đủ, vì sub-agent không thấy gì khác. Bắt buộc khi worker chạy trong ngữ cảnh cô lập; điều phải tránh là chèn thêm ngữ cảnh *cho chắc* — mỗi thứ chèn thêm là một input không khai báo. |\n| **lens_outputs** | Chuỗi ghép output của các lăng kính đã qua cổng schema, mỗi lăng kính một heading riêng; đây là input duy nhất mang nội dung phân tích vào bước tổng hợp. Dùng khi muốn bước cuối đối chiếu thay vì phân tích lại từ đầu. Đừng nhét lăng kính hỏng vào cho đủ số: rác vào thì tổng hợp ra rác. |\n| **Sub-agent cô lập** | Agent type chạy đúng một atom và không thấy hội thoại cha, nhờ đó phân tích chỉ dựa trên input đã khai báo. Nhận ra qua bộ tool hẹp — đọc và tra cứu, không ghi — và qua việc nó trả về đúng một khối JSON. Cần khi muốn nhiều ý kiến thực sự độc lập; không hợp với việc cần đối thoại qua lại, vì mỗi lần gọi là một tờ giấy trắng. |\n| **AKM** | Nơi lưu lập luận dạng đồ thị: claim, bằng chứng, câu hỏi chưa có lời đáp. Nó giữ **vì sao** đi tới kết luận — thứ mà commit message và code không giữ. Có ba kênh: push vào không cần gọi, MCP tools, và CLI, cùng một tập operation. Đáng dùng khi việc kéo dài nhiều phiên và sau này sẽ có người hỏi *sao lại kết luận thế*; không dùng cho việc một nhịp, và càng không phải sổ tay ghi chú linh tinh. |\n| **Push (kênh vào không gọi)** | Cơ chế tự chèn tri thức đã ghi vào prompt mà agent không phải gọi gì, nên ngữ cảnh tới trước khi kịp hỏi. Nhận ra qua các khối mở đầu bằng *Recorded in AKM*; một số agent type được cấu hình loại trừ. Tiện khi muốn agent biết việc cũ mà không tốn một lượt truy vấn; phải tắt với agent cần giữ độc lập, vì tri thức chèn vào chính là input không khai báo. |\n| **At-most-once (ghi)** | Ngữ nghĩa ghi chấp nhận mất kết quả trả về hơn là ghi trùng, để tránh nhân đôi bản ghi khi server trả lời chậm. Biểu hiện: request đọc quá hạn thì chạy lại tại chỗ, request ghi thì không. Đúng khi thao tác không idempotent và bản ghi trùng gây hại hơn bản ghi thiếu; nếu cần chắc chắn đã ghi thì phải kiểm lại bằng một lượt đọc. |\n| **Phạm vi theo project** | Run ghi lại project nơi nó sinh ra, và hook chỉ chặn run của chính project đó; đó là cách tách *kho chung một máy* khỏi *phạm vi truy vấn*. Cùng một thư mục trạng thái, nhưng mỗi phiên chỉ thấy phần của mình. Cần khi một công cụ chạy chung cho nhiều dự án trên cùng máy; khi muốn cái nhìn xuyên project thì phải gọi lệnh xem toàn cảnh. |"
+    }
+   ]
+  }
+ ],
+ "footer": "Cách tôi tạo skill research-compose cho Claude Code · Ghi chép nội bộ · thiết kế skill"
+}

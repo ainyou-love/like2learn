@@ -1,0 +1,44 @@
+<svg viewBox="0 0 880 340" role="img" aria-labelledby="fs-tools-t"><title id="fs-tools-t">Tool stack map: tools grouped into orchestration, models, plan and design, guardrails, and infra</title>
+<rect class="band" x="10" y="10" width="860" height="58" rx="10"/>
+<text class="t-h" x="24" y="43">Orchestration</text>
+<rect class="n-box" x="150" y="20" width="110" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="205" y="42" text-anchor="middle">Herder</text>
+<rect class="n-box" x="270" y="20" width="120" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="330" y="42" text-anchor="middle">First Mate</text>
+<rect class="n-box" x="400" y="20" width="110" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="455" y="42" text-anchor="middle">PI agent</text>
+<rect class="n-box" x="520" y="20" width="120" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="580" y="42" text-anchor="middle">Calm mode</text>
+<rect class="n-box" x="650" y="20" width="200" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="750" y="42" text-anchor="middle">Server-side compaction</text>
+<rect class="band" x="10" y="76" width="860" height="58" rx="10"/>
+<text class="t-h" x="24" y="109">Models</text>
+<rect class="n-box" x="150" y="86" width="230" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="265" y="108" text-anchor="middle">GPT-5.6 "Luna" · x-high</text>
+<rect class="n-box" x="390" y="86" width="200" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="490" y="108" text-anchor="middle">Sonnet (Claude Design)</text>
+<rect class="band" x="10" y="142" width="860" height="58" rx="10"/>
+<text class="t-h" x="24" y="175">Plan &amp; Design</text>
+<rect class="n-box" x="150" y="152" width="180" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="240" y="174" text-anchor="middle">Lavish (HTML artifacts)</text>
+<rect class="n-box" x="340" y="152" width="150" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="415" y="174" text-anchor="middle">Claude Design</text>
+<rect class="band" x="10" y="208" width="860" height="58" rx="10"/>
+<text class="t-h" x="24" y="241">Guardrails &amp; secrets</text>
+<rect class="n-box" x="200" y="218" width="160" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="280" y="240" text-anchor="middle">No Mistakes</text>
+<rect class="n-box" x="370" y="218" width="180" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="460" y="240" text-anchor="middle">Atomic Vault</text>
+<rect class="band" x="10" y="274" width="860" height="58" rx="10"/>
+<text class="t-h" x="24" y="307">Infra &amp; deploy</text>
+<rect class="n-box" x="150" y="284" width="140" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="220" y="306" text-anchor="middle">Hetzner VPS</text>
+<rect class="n-box" x="300" y="284" width="120" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="360" y="306" text-anchor="middle">OpenTofu</text>
+<rect class="n-box" x="430" y="284" width="130" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="495" y="306" text-anchor="middle">Cloudflare</text>
+<rect class="n-box" x="570" y="284" width="130" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="635" y="306" text-anchor="middle">TestFlight</text>
+<rect class="n-box" x="710" y="284" width="150" height="36" rx="7"/>
+<text class="t-m t-b" style="fill:var(--ink)" x="785" y="306" text-anchor="middle">Fastify + Postgres</text>
+</svg>

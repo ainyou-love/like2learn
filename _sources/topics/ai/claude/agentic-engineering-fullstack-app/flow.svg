@@ -1,0 +1,58 @@
+<svg viewBox="0 0 900 390" role="img" aria-labelledby="fs-flow-t"><title id="fs-flow-t">Workflow timeline: twelve steps from setup to ship, two of them parallel work streams</title>
+<defs><marker id="fs-flow-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-box" x="10" y="20" width="150" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="22" y="40">01</text><text class="t t-b" x="44" y="41">Setup</text>
+<text class="t-s" x="22" y="58">Herder · First Mate · Luna</text>
+<rect class="n-box" x="210" y="20" width="160" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="222" y="40">02</text><text class="t t-b" x="244" y="41">Kickoff ramble</text>
+<text class="t-s" x="222" y="58">3k-char requirements dump</text>
+<rect class="n-box" x="420" y="12" width="220" height="68" rx="8"/>
+<rect class="w-dash" x="420" y="12" width="220" height="68" rx="8"/>
+<text class="t-m t-b t-acc" x="432" y="32">03</text><text class="t t-b" x="454" y="33">Parallel research</text>
+<text class="t-s" x="432" y="50">▸ Market scout</text>
+<text class="t-s" x="432" y="66">▸ Technical scout</text>
+<rect class="n-box" x="690" y="20" width="185" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="702" y="40">04</text><text class="t t-b" x="724" y="41">Tech plan (Lavish)</text>
+<text class="t-s" x="702" y="58">DB &amp; cost decisions</text>
+<rect class="n-box" x="690" y="112" width="185" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="702" y="132">05</text><text class="t t-b" x="724" y="133">UX prototypes</text>
+<text class="t-s" x="702" y="150">clickable HTML wireframes</text>
+<rect class="n-box" x="450" y="112" width="195" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="462" y="132">06</text><text class="t t-b" x="484" y="133">PRD → GitHub</text>
+<text class="t-s" x="462" y="150">README as PRD, public repo</text>
+<rect class="n-box" x="215" y="112" width="185" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="227" y="132">07</text><text class="t t-b" x="249" y="133">Design system</text>
+<text class="t-s" x="227" y="150">Claude Design · Sonnet</text>
+<rect class="n-box" x="10" y="104" width="150" height="68" rx="8"/>
+<rect class="w-dash" x="10" y="104" width="150" height="68" rx="8"/>
+<text class="t-m t-b t-acc" x="22" y="124">08</text><text class="t t-b" x="44" y="125">Backend build</text>
+<text class="t-s" x="22" y="142">▸ API ▸ DB schema</text>
+<text class="t-s" x="22" y="158">▸ VPS + OpenTofu</text>
+<rect class="n-box" x="10" y="212" width="180" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="22" y="232">09</text><text class="t t-b" x="44" y="233">Apple Dev setup</text>
+<text class="t-s" x="22" y="250">agent drives the browser</text>
+<rect class="n-box" x="240" y="212" width="195" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="252" y="232">10</text><text class="t t-b" x="274" y="233">Integrate + DNS</text>
+<text class="t-s" x="252" y="250">Cloudflare subdomain, HTTPS</text>
+<rect class="n-box" x="485" y="212" width="185" height="52" rx="8"/>
+<text class="t-m t-b t-acc" x="497" y="232">11</text><text class="t t-b" x="519" y="233">E2E test + fix</text>
+<text class="t-s" x="497" y="250">simulator, agent self-tests</text>
+<rect class="n-warn" x="720" y="212" width="160" height="52" rx="8"/>
+<text class="t-m t-b t-warn" x="732" y="232">12</text><text class="t t-b" x="754" y="233">Ship</text>
+<text class="t-s" x="732" y="250">sign-in works → TestFlight</text>
+<path class="w-acc" d="M160 46L205 46" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M370 46L415 46" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M640 46L685 46" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M782 72L782 108" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M690 138L645 138" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M450 138L405 138" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M215 138L170 138" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M85 172L85 208" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M190 238L235 238" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M435 238L480 238" marker-end="url(#fs-flow-ar)"/>
+<path class="w-acc" d="M670 238L715 238" marker-end="url(#fs-flow-ar)"/>
+<rect class="n-box" x="10" y="330" width="26" height="16" rx="4"/><rect class="w-dash" x="10" y="330" width="26" height="16" rx="4"/>
+<text class="t-s" x="44" y="342">dashed = parallel work streams (multiple crewmates at once)</text>
+<rect class="n-box" x="10" y="356" width="26" height="16" rx="4"/>
+<text class="t-s" x="44" y="368">solid = single delegated step · arrows = sequence</text>
+</svg>

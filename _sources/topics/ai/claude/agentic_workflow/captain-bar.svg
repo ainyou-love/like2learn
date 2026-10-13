@@ -1,0 +1,11 @@
+<svg viewBox="0 0 960 160" role="img" aria-labelledby="cb-t"><title id="cb-t">Your effort sits at the two ends of a task; agents do the middle</title>
+<rect class="n-new" x="20.0" y="36" width="223.0" height="84" rx="8"/>
+<text class="t t-b" x="131.5" y="83.0" text-anchor="middle">plan</text>
+<text class="t-m" x="131.5" y="142" text-anchor="middle">start · you</text>
+<rect class="n-box" x="257.0" y="90" width="446.0" height="30" rx="8"/>
+<text class="t t-b" x="480.0" y="110.0" text-anchor="middle">agents do the middle → run more in parallel</text>
+<text class="t-m" x="480.0" y="142" text-anchor="middle">middle · AI</text>
+<rect class="n-new" x="717.0" y="36" width="223.0" height="84" rx="8"/>
+<text class="t t-b" x="828.5" y="83.0" text-anchor="middle">QA</text>
+<text class="t-m" x="828.5" y="142" text-anchor="middle">end · you</text>
+</svg>

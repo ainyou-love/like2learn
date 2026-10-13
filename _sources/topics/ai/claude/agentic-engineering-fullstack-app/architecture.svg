@@ -1,0 +1,27 @@
+<svg viewBox="0 0 860 360" role="img" aria-labelledby="fs-arch-t"><title id="fs-arch-t">Backend architecture: iOS app calls a Fastify API over HTTPS; Apple issues identity tokens; Postgres holds the family ledger</title>
+<defs><marker id="fs-arch-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-info" x="20" y="150" width="150" height="76" rx="10"/>
+<text class="t t-b" x="38" y="180">iOS / iPad app</text><text class="t-s" x="38" y="200">SwiftUI · local cache</text><text class="t-s" x="38" y="216">native Sign in with Apple</text>
+<rect class="n-warn" x="20" y="20" width="150" height="60" rx="10"/>
+<text class="t t-b" x="38" y="46"> Apple</text><text class="t-s" x="38" y="64">token issuer (identity)</text>
+<path class="w-dash w-warn" d="M95 150V82"/>
+<text class="t-s t-warn" x="100" y="120">identity token</text>
+<path class="w-acc" d="M170 188H245" marker-end="url(#fs-arch-ar)"/>
+<text class="t-s t-acc" x="176" y="180">HTTPS</text>
+<rect class="n-ok" x="250" y="120" width="245" height="140" rx="10"/>
+<text class="t t-b" x="268" y="146">Fastify API</text><text class="t-s" x="268" y="163">(one production env)</text>
+<rect class="n-box" x="262" y="176" width="221" height="34" rx="7"/><text class="t-s t-b" style="fill:var(--ink)" x="274" y="197">Session service — bearer / hash</text>
+<rect class="n-box" x="262" y="216" width="221" height="34" rx="7"/><text class="t-s t-b" style="fill:var(--ink)" x="274" y="237">Wallet service — domain RPCs</text>
+<path class="w-dash w-warn" d="M250 150L170 50"/>
+<text class="t-s t-warn" x="220" y="96">verify issuer</text>
+<path class="w-ok" d="M495 200H545" marker-end="url(#fs-arch-ar)"/>
+<rect class="n-new" x="550" y="70" width="290" height="270" rx="10"/>
+<text class="t t-b" x="568" y="96">Postgres — immutable family ledger</text>
+<rect class="n-box" x="568" y="112" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="132">parent_identities</text>
+<rect class="n-box" x="568" y="148" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="168">sessions</text>
+<rect class="n-box" x="568" y="184" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="204">families → links parents ↔ children</text>
+<rect class="n-box" x="568" y="220" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="240">children · wallets</text>
+<rect class="n-box" x="568" y="256" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="276">loans</text>
+<rect class="n-box" x="568" y="292" width="254" height="30" rx="6"/><text class="t-m" style="fill:var(--ink)" x="580" y="312">ledger_entries (append-only)</text>
+<text class="t-s" x="20" y="300">solid teal = request path · green = data · dashed amber = Apple identity/verify</text>
+</svg>

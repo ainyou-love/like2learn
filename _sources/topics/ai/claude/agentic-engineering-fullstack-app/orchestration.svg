@@ -1,0 +1,37 @@
+<svg viewBox="0 0 860 410" role="img" aria-labelledby="fs-orch-t"><title id="fs-orch-t">First Mate orchestration: the captain talks to one first mate, which fans work out to five crewmates that report back</title>
+<defs><marker id="fs-orch-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-warn" x="290" y="14" width="280" height="46" rx="9"/>
+<text class="t t-b" x="430" y="35" text-anchor="middle">👤 Captain (you)</text>
+<text class="t-s" x="430" y="51" text-anchor="middle">talks to only one agent · dumps thoughts</text>
+<path class="w-acc" d="M430 60V92" marker-end="url(#fs-orch-ar)"/>
+<rect class="n-new" x="315" y="94" width="230" height="52" rx="10"/>
+<text class="t t-b" x="430" y="116" text-anchor="middle">⚓ First Mate</text>
+<text class="t-s" x="430" y="133" text-anchor="middle">plans · delegates · always ready to talk</text>
+<path class="w-acc" d="M360 146L120 196" marker-end="url(#fs-orch-ar)"/>
+<path class="w-acc" d="M395 146L300 196" marker-end="url(#fs-orch-ar)"/>
+<path class="w-acc" d="M430 146L460 196" marker-end="url(#fs-orch-ar)"/>
+<path class="w-acc" d="M470 146L620 196" marker-end="url(#fs-orch-ar)"/>
+<path class="w-acc" d="M500 146L760 196" marker-end="url(#fs-orch-ar)"/>
+<rect class="n-box" x="30" y="198" width="170" height="60" rx="9"/>
+<text class="t t-b" x="44" y="220">Market scout</text>
+<text class="t-s" x="44" y="238">does the app exist?</text><text class="t-s" x="44" y="252">→ report, then closes</text>
+<rect class="n-box" x="215" y="198" width="170" height="60" rx="9"/>
+<text class="t t-b" x="229" y="220">Technical scout</text>
+<text class="t-s" x="229" y="238">stack, backlog, docs</text><text class="t-s" x="229" y="252">→ open decisions</text>
+<rect class="n-box" x="400" y="198" width="150" height="60" rx="9"/>
+<text class="t t-b" x="414" y="220">UX prototyper</text>
+<text class="t-s" x="414" y="238">Lavish wireframes</text><text class="t-s" x="414" y="252">clickable screens</text>
+<rect class="n-box" x="565" y="198" width="150" height="60" rx="9"/>
+<text class="t t-b" x="579" y="220">Backend / infra</text>
+<text class="t-s" x="579" y="238">API · DB · VPS</text><text class="t-s" x="579" y="252">OpenTofu deploy</text>
+<rect class="n-box" x="730" y="198" width="100" height="60" rx="9"/>
+<text class="t t-b" x="744" y="220">iOS app</text>
+<text class="t-s" x="744" y="238">SwiftUI</text><text class="t-s" x="744" y="252">simulator</text>
+<path class="w-dash" d="M80 198L345 148" marker-end="url(#fs-orch-ar)"/>
+<path class="w-dash" d="M690 198L515 148" marker-end="url(#fs-orch-ar)"/>
+<text class="t-s" x="430" y="300" text-anchor="middle">dashed = crewmate reports status back to First Mate (queued if busy)</text>
+<rect class="band" x="30" y="322" width="800" height="76" rx="10"/>
+<text class="t-s t-b t-ok" x="48" y="346">Why this beats normal sub-agents</text>
+<text class="t-s" x="48" y="366">Each crewmate is a real agent in a real Herder tab — observable and steerable. First Mate closes finished</text>
+<text class="t-s" x="48" y="382">tabs automatically, persists task state to files, and stays free to talk because it never does the heavy work itself.</text>
+</svg>

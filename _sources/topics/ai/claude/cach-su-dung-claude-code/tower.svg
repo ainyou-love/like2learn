@@ -1,0 +1,13 @@
+<svg viewBox="0 0 660 440" role="img" aria-labelledby="tower-t"><title id="tower-t">Tháp bảy lớp điều khiển</title>
+  <polygon points="330,14 402,108 258,108" class="n-info"/>
+  <polygon points="258,108 402,108 474,202 186,202" class="n-box"/>
+  <polygon points="186,202 474,202 546,296 114,296" class="n-bad"/>
+  <polygon points="114,296 546,296 618,390 42,390" class="n-ok"/>
+  <text class="t-s" x="330" y="96" text-anchor="middle">[7] NGƯỜI · chat mode</text>
+  <text class="t t-b" x="330" y="150" text-anchor="middle">VĂN BẢN</text>
+  <text class="t-s" x="330" y="176" text-anchor="middle">[1] memory · [2] rule · [3] skill · [4] subagent</text>
+  <text class="t t-b" x="330" y="244" text-anchor="middle">CƠ CHẾ</text>
+  <text class="t-s" x="330" y="270" text-anchor="middle">[0] guardrail · permission + hook</text>
+  <text class="t t-b" x="330" y="338" text-anchor="middle">NĂNG LỰC</text>
+  <text class="t-s" x="330" y="364" text-anchor="middle">[5] tool · [6] MCP</text>
+<rect class="n-box" x="20" y="414" width="12" height="12" rx="3"/><text class="t-s" x="38" y="424"><tspan class="t-b">Văn bản</tspan> — model có thể bỏ qua</text><rect class="n-bad" x="240" y="414" width="12" height="12" rx="3"/><text class="t-s" x="258" y="424"><tspan class="t-b">Cơ chế</tspan> — model không thể bỏ qua</text><rect class="n-ok" x="460" y="414" width="12" height="12" rx="3"/><text class="t-s" x="478" y="424"><tspan class="t-b">Năng lực</tspan> — thứ model làm được</text></svg>

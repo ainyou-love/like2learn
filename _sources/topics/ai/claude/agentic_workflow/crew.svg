@@ -1,0 +1,27 @@
+<svg viewBox="0 0 960 330" role="img" aria-labelledby="cr-t"><title id="cr-t">You talk to a first mate that runs agents in parallel worktrees</title>
+<defs><marker id="cr-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-warn" x="380.0" y="14" width="200" height="40" rx="8"/>
+<text class="t t-b" x="480" y="39.0" text-anchor="middle">YOU (captain)</text>
+<rect class="n-new" x="350.0" y="84" width="260" height="40" rx="8"/>
+<text class="t t-b" x="480" y="109.0" text-anchor="middle">first mate (orchestrator)</text>
+<path class="w" d="M480 54V82" marker-end="url(#cr-ah)"/>
+<rect class="n-box" x="130.0" y="170" width="180" height="50" rx="8"/>
+<text class="t t-b" x="220" y="190" text-anchor="middle">worktree1</text>
+<text class="t-s" x="220" y="208" text-anchor="middle">agent A</text>
+<path class="w" d="M480 124 L220 168" marker-end="url(#cr-ah)"/>
+<path class="w-dash" d="M220 220 L480 262"/>
+<rect class="n-box" x="390.0" y="170" width="180" height="50" rx="8"/>
+<text class="t t-b" x="480" y="190" text-anchor="middle">worktree2</text>
+<text class="t-s" x="480" y="208" text-anchor="middle">agent B</text>
+<path class="w" d="M480 124 L480 168" marker-end="url(#cr-ah)"/>
+<path class="w-dash" d="M480 220 L480 262"/>
+<rect class="n-box" x="650.0" y="170" width="180" height="50" rx="8"/>
+<text class="t t-b" x="740" y="190" text-anchor="middle">worktree3</text>
+<text class="t-s" x="740" y="208" text-anchor="middle">agent C</text>
+<path class="w" d="M480 124 L740 168" marker-end="url(#cr-ah)"/>
+<path class="w-dash" d="M740 220 L480 262"/>
+<text class="t-m" x="840" y="200">(parallel)</text>
+<rect class="band" x="200" y="262" width="560" height="56" rx="8"/>
+<text class="t" x="480" y="284" text-anchor="middle">Treehouse = worktree lifecycle</text>
+<text class="t" x="480" y="306" text-anchor="middle">Goodnight-Have-Fun = long/overnight loops</text>
+</svg>

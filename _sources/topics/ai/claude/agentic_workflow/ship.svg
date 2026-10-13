@@ -1,0 +1,15 @@
+<svg viewBox="0 0 860 220" role="img" aria-labelledby="sh-t"><title id="sh-t">Agent, editor and shell panes inside tmux inside WezTerm, identical on every device</title>
+<rect class="n-new" x="120.0" y="30" width="196.0" height="46" rx="6"/>
+<text class="t" x="220.0" y="58" text-anchor="middle">agent</text>
+<rect class="n-new" x="324.0" y="30" width="196.0" height="46" rx="6"/>
+<text class="t" x="420.0" y="58" text-anchor="middle">editor</text>
+<rect class="n-new" x="524.0" y="30" width="196.0" height="46" rx="6"/>
+<text class="t" x="620.0" y="58" text-anchor="middle">free shell</text>
+<text class="t-m" x="736" y="58">panes</text>
+<rect class="n-info" x="120" y="84" width="600" height="46" rx="6"/>
+<text class="t" x="420.0" y="112" text-anchor="middle">tmux (persistent, reattachable)</text>
+<text class="t-m" x="736" y="112">windows/tabs</text>
+<rect class="n-box" x="120" y="138" width="600" height="46" rx="6"/>
+<text class="t" x="420.0" y="166" text-anchor="middle">WezTerm (cross-platform emulator)</text>
+<text class="t-s" x="420.0" y="208" text-anchor="middle">▲ identical on Mac / Win / Linux / phone</text>
+</svg>

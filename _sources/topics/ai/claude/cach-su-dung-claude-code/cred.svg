@@ -1,0 +1,36 @@
+<svg viewBox="0 0 660 320" role="img" aria-labelledby="cred-t"><title id="cred-t">Ranh giới truy cập credential</title>
+  <rect x="40" y="16" width="155" height="48" rx="3" class="n-box"/>
+  <text class="t" x="117" y="46" text-anchor="middle">NGƯỜI</text>
+  <rect x="40" y="126" width="155" height="56" rx="3" class="n-info"/>
+  <text class="t t-b" x="117" y="160" text-anchor="middle">AI</text>
+  <rect x="258" y="126" width="150" height="56" rx="3" class="n-new"/>
+  <text class="t t-b t-acc" x="333" y="160" text-anchor="middle">TOOL</text>
+  <rect x="470" y="126" width="160" height="56" rx="3" class="n-ok"/>
+  <text class="t" x="550" y="153" text-anchor="middle">HỆ THỐNG THẬT</text>
+  <text class="t-s" x="550" y="171" text-anchor="middle">DB · API · cloud</text>
+  <rect x="258" y="244" width="150" height="50" rx="3" class="n-bad"/>
+  <text class="t" x="333" y="266" text-anchor="middle">ENV VARIABLE</text>
+  <text class="t-s" x="333" y="284" text-anchor="middle">nơi khoá nằm</text>
+
+  <path class="w" d="M117 64 L117 120"/>
+  <polygon points="117,126 112,116 122,116" fill="var(--ink-3)"/>
+  <text class="t-s" x="128" y="98">yêu cầu</text>
+
+  <path d="M195 154 L252 154" class="n-new"/>
+  <polygon points="258,154 248,149 248,159" fill="var(--accent)"/>
+  <text class="t-s t-acc" x="224" y="142" text-anchor="middle">gọi</text>
+
+  <path d="M408 154 L464 154" class="n-new"/>
+  <polygon points="470,154 460,149 460,159" fill="var(--accent)"/>
+  <text class="t-s t-acc" x="437" y="142" text-anchor="middle">xác thực</text>
+
+  <path d="M333 244 L333 188" class="n-new"/>
+  <polygon points="333,182 328,192 338,192" fill="var(--accent)"/>
+  <text class="t-s t-acc" x="344" y="220">chỉ TOOL đọc</text>
+
+  <path class="w-bad" d="M117 182 L117 269 L250 269" stroke-dasharray="5 4"/>
+  <path class="w-bad" d="M174 260 L190 278 M190 260 L174 278"/>
+  <text class="t-s t-bad" x="117" y="300">AI đọc thẳng env: CHẶN</text>
+
+  <text class="t-s t-bad" x="205" y="34">✕ không gõ credential vào ô chat</text>
+</svg>

@@ -180,6 +180,8 @@ def check_fields(b: dict, where: str) -> None:
             if item_missing or item_unknown:
                 fail(f"{where} ({kind}).{field}[{i}]: missing {item_missing}, unknown {item_unknown}; "
                      f"allowed: {item_spec['required'] + item_spec['optional']}")
+    if kind == "callout" and not (b.get("title") or b.get("text", "").strip()):
+        fail(f"{where} (callout): give a title, a text, or both")
     if kind == "callout" and b.get("kind", "note") not in CALLOUT_KINDS:
         fail(f"{where} (callout): kind must be one of {sorted(CALLOUT_KINDS)}")
     if "cols" in b and b["cols"] not in (2, 3):

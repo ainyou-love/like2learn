@@ -1,0 +1,16 @@
+<svg viewBox="0 0 560 300" role="img" aria-labelledby="venn-t"><title id="venn-t">Giao của hai cây skill</title>
+  <circle cx="215" cy="150" r="108" class="n-new" fill-opacity=".6"/>
+  <circle cx="345" cy="150" r="108" class="n-warn" fill-opacity=".6"/>
+  <text class="t t-b t-acc" x="140" y="146" text-anchor="middle">CÂY 1</text>
+  <text class="t-s" x="140" y="166" text-anchor="middle">workflow</text>
+  <text class="t t-b t-warn" x="420" y="146" text-anchor="middle">CÂY 2</text>
+  <text class="t-s" x="420" y="166" text-anchor="middle">domain</text>
+  <text class="t t-b" x="280" y="140" text-anchor="middle">SKILL LAI</text>
+  <text class="t-s" x="280" y="160" text-anchor="middle">hình dạng</text>
+  <text class="t-s" x="280" y="176" text-anchor="middle">workflow,</text>
+  <text class="t-s" x="280" y="192" text-anchor="middle">nội dung trói</text>
+  <text class="t-s" x="280" y="208" text-anchor="middle">vào công cụ</text>
+  <text class="t-s" x="140" y="276" text-anchor="middle">mang đi được</text>
+  <text class="t-s" x="420" y="276" text-anchor="middle">không mang đi được</text>
+  <text class="t-s" x="280" y="276" text-anchor="middle">← vùng đau ←</text>
+</svg>

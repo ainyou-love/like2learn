@@ -32,6 +32,7 @@
       {"type": "md", "text": "A paragraph with **bold**, `code` and a [link](https://example.com).\n\n### A subheading\n\n- one\n- two\n\n> a quote\n\n```markdown\n# A heading inside a fence is fine\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |"},
       {"type": "callout", "kind": "key", "title": "Key", "text": "Callout body.\n\nSecond paragraph."},
       {"type": "callout", "kind": "warn", "text": "Warning callout."},
+      {"type": "callout", "title": "Example — title-only label"},
       {"type": "code", "title": "two-blank-lines.py", "lang": "python", "text": "def a():\n    pass\n\n\ndef b():\n    pass"},
       {"type": "code", "title": "contains-a-fence.md", "lang": "markdown", "text": "# Doc\n```bash\nls\n```\nafter"}
     ]},

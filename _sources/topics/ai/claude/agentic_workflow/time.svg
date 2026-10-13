@@ -1,0 +1,17 @@
+<svg viewBox="0 0 960 260" role="img" aria-labelledby="tm-t"><title id="tm-t">Your time is high at the start and end of a task and near zero in the middle</title>
+<text class="t-h" x="90" y="24">YOUR TIME per task</text>
+<line class="ax" x1="90" y1="220" x2="900" y2="220"/>
+<line class="ax" x1="90" y1="40" x2="90" y2="220"/>
+<text class="t-s" x="80" y="50" text-anchor="end">high</text>
+<text class="t-s" x="80" y="216" text-anchor="end">low</text>
+<rect class="n-new" x="96" y="40" width="150" height="180" rx="6"/>
+<text class="t t-b" x="171.0" y="100" text-anchor="middle">plan</text>
+<text class="t" x="171.0" y="122" text-anchor="middle">reqs</text>
+<rect class="n-new" x="744" y="40" width="150" height="180" rx="6"/>
+<text class="t t-b" x="819.0" y="100" text-anchor="middle">QA</text>
+<rect class="n-box" x="256" y="194" width="478" height="26" rx="4"/>
+<text class="t-s" x="495.0" y="211" text-anchor="middle">AI does middle</text>
+<text class="t-h" x="171.0" y="244" text-anchor="middle">START</text>
+<text class="t-h" x="495.0" y="244" text-anchor="middle">MIDDLE</text>
+<text class="t-h" x="819.0" y="244" text-anchor="middle">END</text>
+</svg>

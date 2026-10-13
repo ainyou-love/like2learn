@@ -1,12 +1,16 @@
 {% macro html(b, inner) %}
-<div class="callout{{ ' ' ~ b.kind if b.get('kind', 'note') != 'note' }}">{% if b.title is defined %}<span class="ct">{{ b.title }}</span>{% endif %}{{ b.text|md }}</div>
+<div class="callout{{ ' ' ~ b.kind if b.get('kind', 'note') != 'note' }}{{ ' label' if not b.get('text', '').strip() }}">{% if b.title is defined %}<span class="ct">{{ b.title }}</span>{% endif %}{% if b.get('text', '').strip() %}{{ b.text|md }}{% endif %}</div>
 {% endmacro %}
 {% macro md(b, inner) %}{% autoescape false %}
 {% if b.title is defined %}
 > **{{ b.title }}**
+{% if b.get('text', '').strip() %}
 >
 {% endif %}
+{% endif %}
+{% if b.get('text', '').strip() %}
 {% for line in b.text.split('\n') %}
 > {{ line }}
 {% endfor %}
+{% endif %}
 {% endautoescape %}{% endmacro %}

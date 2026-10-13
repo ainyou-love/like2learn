@@ -67,13 +67,11 @@
       "template": "callout.j2",
       "purpose": "One highlighted point the reader must not miss.",
       "use_when": "A key takeaway (key), a caution (warn) or a side note (note).",
-      "required": [
-        "text"
-      ],
+      "required": [],
       "optional": {
         "kind": "note | warn | key (default note)",
         "title": "short label",
-        "text": "(md-block)"
+        "text": "(md-block) — leave out for a title-only label (e.g. 'Example — illustrative') above the block it introduces"
       }
     },
     "table": {
