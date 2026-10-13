@@ -229,6 +229,21 @@
         "lang": "fence language for Markdown"
       }
     },
+    "video": {
+      "template": "video.j2",
+      "purpose": "An embedded YouTube video in a 16:9 frame, with a Watch-on-YouTube link under it.",
+      "use_when": "The post is notes on, or refers to, a talk or demo video.",
+      "required": [
+        "youtube",
+        "title"
+      ],
+      "optional": {
+        "youtube": "the 11-character video id (the part after watch?v=)",
+        "title": "(md) video title — iframe title and the Markdown link text",
+        "start": "start offset in whole seconds",
+        "caption": "(md) line shown before the link"
+      }
+    },
     "checklist": {
       "template": "checklist.j2",
       "purpose": "Interactive checklist; ticks persist in the browser. One per page.",

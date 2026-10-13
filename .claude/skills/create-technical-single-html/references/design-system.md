@@ -96,7 +96,8 @@ Hero stats rise in with staggered delays; the signal line draws once. Everything
 | `steps` | numbered cards in an auto-fit grid, optional ↺ loop line | ordered flows |
 | `kv` | receipt sheet, dashed row rules, totals row | one object's fields |
 | `tags` | tiles with a coloured left bar + legend dots | values with a status |
-| `callout` | `note` (accent), `warn` (amber), `key` (ink) with an optional mono title | the one point not to miss |
+| `callout` | `note` (accent), `warn` (amber), `key` (ink) with an optional mono title; title alone = a label | the one point not to miss |
+| `video` | 16:9 rounded frame, lazy YouTube embed, caption line ending in a Watch-on-YouTube link | talks and demos the post is about (the link is the fallback when the embed can't play, e.g. from `file://`) |
 
 `cards`, `steps`, `kv`, `tags` and `table` take a `note` (small caption under the block) and an `ascii`
 twin that replaces their default Markdown — use it when the original had a text diagram.

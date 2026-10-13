@@ -59,6 +59,7 @@
       {"type": "questions", "items": [{"id": "Q1", "q": "Open question?", "text": "Context."}]},
       {"type": "requirements", "items": ["**Send** one alert per event.", "**Retry** failed pushes."]},
       {"type": "status", "items": [{"title": "READY", "kind": "ok", "pill": {"kind": "ok", "text": "ok"}, "text": "evidence", "src": "source"}, {"title": "OPEN"}]},
+      {"type": "video", "youtube": "kPN564Kol14", "title": "Building a Full Stack App with Agentic Engineering", "start": 90, "caption": "Video block with a start offset."},
       {"type": "raw", "html": "<p class=\"sec-intro\">Raw HTML block.</p>", "md": "Raw HTML block."}
     ]}
   ],

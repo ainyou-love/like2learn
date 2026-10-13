@@ -19,7 +19,8 @@
     "ascii_version": "Plain-text version",
     "filter": "Filter",
     "all": "All",
-    "recommended": "recommended"
+    "recommended": "recommended",
+    "watch_on_youtube": "Watch on YouTube"
   },
   "vi": {
     "toggle_menu": "Mở / đóng mục lục",
@@ -41,6 +42,7 @@
     "ascii_version": "Xem bản chữ thuần",
     "filter": "Lọc",
     "all": "Tất cả",
-    "recommended": "đề xuất"
+    "recommended": "đề xuất",
+    "watch_on_youtube": "Xem trên YouTube"
   }
 }

@@ -168,6 +168,11 @@ svg .ax{stroke:var(--line);stroke-width:1}
 svg .w-ok{stroke:var(--ok);stroke-width:1.8;fill:none}svg .w-warn{stroke:var(--warn);stroke-width:1.8;fill:none}svg .w-bad{stroke:var(--bad);stroke-width:1.8;fill:none}
 svg .t-ok{fill:var(--ok)}svg .t-warn{fill:var(--warn)}svg .t-bad{fill:var(--bad)}svg .t-b{font-weight:700}
 
+/* video */
+.video{margin:16px 0}
+.video .frame{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--surface-2);box-shadow:var(--shadow)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video figcaption{font-size:.8rem;color:var(--ink-3);padding:8px 4px 0}
 /* moment cards */
 .mcard{position:relative;padding:14px 16px 14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
 .mcard::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c,var(--line))}
@@ -852,7 +857,10 @@ native Sign in with Apple └ Wallet service — domain RPCs         sessions
 
 <section class="sec" id="t-intro" data-toc-group="Original + Transcript">
   <div class="sec-head"><span class="sec-no">T</span><h2>Original video</h2></div>
-<div style="position:relative;aspect-ratio:16/9;margin:14px 0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--surface-2)"><iframe src="https://www.youtube.com/embed/kPN564Kol14" title="Building a Full Stack App with Agentic Engineering" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe></div>
+<figure class="video">
+  <div class="frame"><iframe src="https://www.youtube.com/embed/kPN564Kol14" title="Building a Full Stack App with Agentic Engineering" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>
+  <figcaption><a href="https://www.youtube.com/watch?v=kPN564Kol14" target="_blank" rel="noopener">Watch on YouTube ↗</a></figcaption>
+</figure>
 
 <div class="prose"><p>The transcript below is <strong>cleaned</strong>: the auto-generated captions were fragmented, so sentences have been reconnected, filler removed, and obvious speech-to-text errors corrected (tool names especially). Meaning is preserved. Use the toggle to see the raw auto-generated captions.</p>
 </div>
@@ -1271,7 +1279,7 @@ The workflow is agent-driven, but a handful of judgment calls were unmistakably 
 
 ## T. Original video
 
-[Building a Full Stack App with Agentic Engineering](https://www.youtube.com/watch?v=kPN564Kol14)
+▶ [Building a Full Stack App with Agentic Engineering](https://www.youtube.com/watch?v=kPN564Kol14)
 
 The transcript below is **cleaned**: the auto-generated captions were fragmented, so sentences have been reconnected, filler removed, and obvious speech-to-text errors corrected (tool names especially). Meaning is preserved. Use the toggle to see the raw auto-generated captions.
 

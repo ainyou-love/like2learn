@@ -1,0 +1,14 @@
+{% macro html(b, inner) %}
+{% set q = '?start=' ~ b.start if b.start is defined else '' %}
+<figure class="video">
+  <div class="frame"><iframe src="https://www.youtube.com/embed/{{ b.youtube }}{{ q }}" title="{{ b.title|plain }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>
+  <figcaption>{% if b.caption is defined %}{{ b.caption|inl }} · {% endif %}<a href="https://www.youtube.com/watch?v={{ b.youtube }}{{ '&t=' ~ b.start ~ 's' if b.start is defined }}" target="_blank" rel="noopener">__UI:watch_on_youtube__ ↗</a></figcaption>
+</figure>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+▶ [{{ b.title }}](https://www.youtube.com/watch?v={{ b.youtube }}{{ '&t=' ~ b.start ~ 's' if b.start is defined }})
+{% if b.caption is defined %}
+
+*{{ b.caption }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

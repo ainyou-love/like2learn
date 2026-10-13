@@ -186,6 +186,10 @@ def check_fields(b: dict, where: str) -> None:
         fail(f"{where} (callout): kind must be one of {sorted(CALLOUT_KINDS)}")
     if "cols" in b and b["cols"] not in (2, 3):
         fail(f"{where} ({kind}): cols must be 2 or 3")
+    if kind == "video" and not re.fullmatch(r"[A-Za-z0-9_-]{11}", str(b["youtube"])):
+        fail(f"{where} (video): youtube must be the 11-character id, not a URL: {b['youtube']!r}")
+    if kind == "video" and "start" in b and not (isinstance(b["start"], int) and b["start"] >= 0):
+        fail(f"{where} (video): start must be whole seconds")
     if kind == "section" and not SECTION_ID.match(b["id"]):
         fail(f"{where}: section id {b['id']!r} must be lowercase ascii, start with a letter, use only a-z 0-9 -")
     if kind != "callout":
