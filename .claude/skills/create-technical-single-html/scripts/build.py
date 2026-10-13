@@ -92,7 +92,7 @@ def check(out: str, md: str, bans: list[str], strict_paths: bool) -> list[str]:
     for word in bans:
         if word and re.search(rf"\b{re.escape(word)}\b", page + md):
             problems.append(f"banned word present: {word}")
-    if strict_paths and re.search(r"/Users/[^/\s]+/|/home/[^/\s]+/", page + md):
+    if strict_paths and re.search(r"/Users/(?!Shared/)[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/", page + md):
         problems.append("absolute home path present (rewrite as ~/)")
     return problems
 

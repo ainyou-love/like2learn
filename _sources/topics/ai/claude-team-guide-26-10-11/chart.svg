@@ -1,0 +1,31 @@
+<svg viewBox="0 0 800 308" role="img" aria-labelledby="ch-t"><title id="ch-t">Chi phí một session 20 lượt: S1 khám phá · thật 0,0163; S1 · nếu không cache 0,1026; S2 hỗn hợp · thật 0,0173; S2 · nếu không cache 0,0959; S3 auto-compact · thật 0,0931; S3 · nếu không cache 0,1161</title>
+<line class="ax" x1="260.0" y1="24" x2="260.0" y2="262"/>
+<text class="t-m" x="260.0" y="280" text-anchor="middle">0</text>
+<line class="ax" x1="377.5" y1="24" x2="377.5" y2="262"/>
+<text class="t-m" x="377.5" y="280" text-anchor="middle">0,03</text>
+<line class="ax" x1="495.0" y1="24" x2="495.0" y2="262"/>
+<text class="t-m" x="495.0" y="280" text-anchor="middle">0,06</text>
+<line class="ax" x1="612.5" y1="24" x2="612.5" y2="262"/>
+<text class="t-m" x="612.5" y="280" text-anchor="middle">0,09</text>
+<line class="ax" x1="730.0" y1="24" x2="730.0" y2="262"/>
+<text class="t-m" x="730.0" y="280" text-anchor="middle">0,12</text>
+<text class="t-s" x="495.0" y="302" text-anchor="middle">USD</text>
+<text class="t t-b" x="14" y="55">S1 khám phá · thật</text>
+<rect class="n-ok" x="260" y="40" width="63.8" height="24" rx="5"/>
+<text class="t-m" x="331.8" y="56">0,0163</text>
+<text class="t" x="14" y="93">S1 · nếu không cache</text>
+<rect class="n-box" x="260" y="78" width="401.9" height="24" rx="5"/>
+<text class="t-m" x="669.9" y="94">0,1026</text>
+<text class="t t-b" x="14" y="131">S2 hỗn hợp · thật</text>
+<rect class="n-ok" x="260" y="116" width="67.8" height="24" rx="5"/>
+<text class="t-m" x="335.8" y="132">0,0173</text>
+<text class="t" x="14" y="169">S2 · nếu không cache</text>
+<rect class="n-box" x="260" y="154" width="375.6" height="24" rx="5"/>
+<text class="t-m" x="643.6" y="170">0,0959</text>
+<text class="t t-b" x="14" y="207">S3 auto-compact · thật</text>
+<rect class="n-info" x="260" y="192" width="364.6" height="24" rx="5"/>
+<text class="t-m" x="632.6" y="208">0,0931</text>
+<text class="t" x="14" y="245">S3 · nếu không cache</text>
+<rect class="n-box" x="260" y="230" width="454.7" height="24" rx="5"/>
+<text class="t-m" x="722.7" y="246">0,1161</text>
+</svg>

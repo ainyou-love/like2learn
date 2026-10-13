@@ -1,0 +1,36 @@
+<svg viewBox="0 0 800 346" role="img" aria-labelledby="ch-t"><title id="ch-t">Tỷ lệ đoán đúng: Phase 3 · có docs (n=29) 95%; Phase 3 · mù (n=10) 80%; Phase 3 · tổng (n=39) 91%; Phase 5 · có docs (n=15) 96,7%; Phase 5 · mù (n=4) 87,5%; Phase 5 · tổng (n=19) 94,7%; E24 · gốc vs lồng (n=4) 50%</title>
+<line class="ax" x1="260.0" y1="24" x2="260.0" y2="300"/>
+<text class="t-m" x="260.0" y="318" text-anchor="middle">0</text>
+<line class="ax" x1="377.5" y1="24" x2="377.5" y2="300"/>
+<text class="t-m" x="377.5" y="318" text-anchor="middle">25</text>
+<line class="ax" x1="495.0" y1="24" x2="495.0" y2="300"/>
+<text class="t-m" x="495.0" y="318" text-anchor="middle">50</text>
+<line class="ax" x1="612.5" y1="24" x2="612.5" y2="300"/>
+<text class="t-m" x="612.5" y="318" text-anchor="middle">75</text>
+<line class="ax" x1="730.0" y1="24" x2="730.0" y2="300"/>
+<text class="t-m" x="730.0" y="318" text-anchor="middle">100</text>
+<text class="t-s" x="495.0" y="340" text-anchor="middle">%</text>
+<text class="t" x="14" y="55">Phase 3 · có docs (n=29)</text>
+<rect class="n-new" x="260" y="40" width="446.5" height="24" rx="5"/>
+<text class="t-m" x="714.5" y="56">95%</text>
+<text class="t" x="14" y="93">Phase 3 · mù (n=10)</text>
+<rect class="n-new" x="260" y="78" width="376.0" height="24" rx="5"/>
+<text class="t-m" x="644.0" y="94">80%</text>
+<text class="t t-b" x="14" y="131">Phase 3 · tổng (n=39)</text>
+<rect class="n-new" x="260" y="116" width="427.7" height="24" rx="5"/>
+<text class="t-m" x="695.7" y="132">91%</text>
+<text class="t" x="14" y="169">Phase 5 · có docs (n=15)</text>
+<rect class="n-new" x="260" y="154" width="454.5" height="24" rx="5"/>
+<text class="t-m" x="722.5" y="170">96,7%</text>
+<text class="t" x="14" y="207">Phase 5 · mù (n=4)</text>
+<rect class="n-new" x="260" y="192" width="411.2" height="24" rx="5"/>
+<text class="t-m" x="679.2" y="208">87,5%</text>
+<text class="t t-b" x="14" y="245">Phase 5 · tổng (n=19)</text>
+<rect class="n-new" x="260" y="230" width="445.1" height="24" rx="5"/>
+<text class="t-m" x="713.1" y="246">94,7%</text>
+<text class="t" x="14" y="283">E24 · gốc vs lồng (n=4)</text>
+<rect class="n-new" x="260" y="268" width="235.0" height="24" rx="5"/>
+<text class="t-m" x="503.0" y="284">50%</text>
+<line class="w-dash w-warn" x1="683.0" y1="18" x2="683.0" y2="300"/>
+<text class="t-s t-warn t-b" x="683.0" y="14" text-anchor="middle">ngưỡng 90%</text>
+</svg>

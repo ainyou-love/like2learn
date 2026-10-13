@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" font-family="system-ui,sans-serif" font-size="12">
+<rect width="900" height="500" fill="#fff"/>
+<text x="70" y="22" font-size="15" font-weight="600">D8 Token-over-time: context mỗi API request (Claude Code 2.1.296, haiku)</text>
+<line x1="70" x2="880" y1="400.0" y2="400.0" stroke="#e5e7eb"/>
+<text x="62" y="404.0" text-anchor="end" fill="#6b7280">0</text>
+<line x1="70" x2="880" y1="328.0" y2="328.0" stroke="#e5e7eb"/>
+<text x="62" y="332.0" text-anchor="end" fill="#6b7280">10,000</text>
+<line x1="70" x2="880" y1="256.0" y2="256.0" stroke="#e5e7eb"/>
+<text x="62" y="260.0" text-anchor="end" fill="#6b7280">20,000</text>
+<line x1="70" x2="880" y1="184.0" y2="184.0" stroke="#e5e7eb"/>
+<text x="62" y="188.0" text-anchor="end" fill="#6b7280">30,000</text>
+<line x1="70" x2="880" y1="112.0" y2="112.0" stroke="#e5e7eb"/>
+<text x="62" y="116.0" text-anchor="end" fill="#6b7280">40,000</text>
+<line x1="70" x2="880" y1="40.0" y2="40.0" stroke="#e5e7eb"/>
+<text x="62" y="44.0" text-anchor="end" fill="#6b7280">50,000</text>
+<text x="70.0" y="418" text-anchor="middle" fill="#6b7280">1</text>
+<text x="108.6" y="418" text-anchor="middle" fill="#6b7280">3</text>
+<text x="147.1" y="418" text-anchor="middle" fill="#6b7280">5</text>
+<text x="185.7" y="418" text-anchor="middle" fill="#6b7280">7</text>
+<text x="224.3" y="418" text-anchor="middle" fill="#6b7280">9</text>
+<text x="262.9" y="418" text-anchor="middle" fill="#6b7280">11</text>
+<text x="301.4" y="418" text-anchor="middle" fill="#6b7280">13</text>
+<text x="340.0" y="418" text-anchor="middle" fill="#6b7280">15</text>
+<text x="378.6" y="418" text-anchor="middle" fill="#6b7280">17</text>
+<text x="417.1" y="418" text-anchor="middle" fill="#6b7280">19</text>
+<text x="455.7" y="418" text-anchor="middle" fill="#6b7280">21</text>
+<text x="494.3" y="418" text-anchor="middle" fill="#6b7280">23</text>
+<text x="532.9" y="418" text-anchor="middle" fill="#6b7280">25</text>
+<text x="571.4" y="418" text-anchor="middle" fill="#6b7280">27</text>
+<text x="610.0" y="418" text-anchor="middle" fill="#6b7280">29</text>
+<text x="648.6" y="418" text-anchor="middle" fill="#6b7280">31</text>
+<text x="687.1" y="418" text-anchor="middle" fill="#6b7280">33</text>
+<text x="725.7" y="418" text-anchor="middle" fill="#6b7280">35</text>
+<text x="764.3" y="418" text-anchor="middle" fill="#6b7280">37</text>
+<text x="802.9" y="418" text-anchor="middle" fill="#6b7280">39</text>
+<text x="841.4" y="418" text-anchor="middle" fill="#6b7280">41</text>
+<text x="880.0" y="418" text-anchor="middle" fill="#6b7280">43</text>
+<text x="880" y="434" text-anchor="end" fill="#374151">API request (theo thứ tự)</text>
+<text transform="translate(16 220.0) rotate(-90)" text-anchor="middle" fill="#374151">tokens (input + cache_creation + cache_read)</text>
+<polygon points="70.0,400.0 70.0,317.6 89.3,268.4 108.6,264.5 127.9,263.8 147.1,259.8 166.4,259.0 185.7,255.2 205.0,254.3 224.3,249.7 243.6,249.0 262.9,246.1 282.1,245.2 301.4,238.9 320.7,237.4 340.0,233.4 359.3,232.7 378.6,229.9 397.9,229.1 417.1,223.6 436.4,222.7 455.7,219.8 475.0,219.0 494.3,215.1 513.6,214.4 532.9,209.5 552.1,208.6 571.4,205.8 590.7,205.0 610.0,200.4 629.3,199.6 648.6,195.7 667.9,194.8 687.1,190.8 706.4,190.1 725.7,186.1 745.0,185.3 764.3,181.6 783.6,180.6 802.9,176.0 822.1,175.3 822.1,400.0" fill="#2563eb" fill-opacity="0.12"/>
+<polyline points="70.0,268.4 89.3,264.5 108.6,263.8 127.9,259.8 147.1,259.0 166.4,255.2 185.7,254.3 205.0,249.7 224.3,249.0 243.6,246.1 262.9,245.2 282.1,238.9 301.4,237.4 320.7,233.4 340.0,232.7 359.3,229.9 378.6,229.0 397.9,223.6 417.1,222.7 436.4,219.8 455.7,219.0 475.0,215.1 494.3,214.4 513.6,209.4 532.9,208.5 552.1,205.8 571.4,205.0 590.7,200.4 610.0,199.6 629.3,195.7 648.6,194.8 667.9,190.8 687.1,190.1 706.4,186.1 725.7,185.3 745.0,181.5 764.3,180.6 783.6,176.0 802.9,175.3 822.1,172.3" fill="none" stroke="#2563eb" stroke-width="2"/>
+<circle cx="70.0" cy="268.4" r="3" fill="#2563eb"><title>req 1 prompt 1: total 18,279 (cache_read 11,447, cache_creation 6,830, input 2, output 174)</title></circle>
+<circle cx="89.3" cy="264.5" r="3" fill="#2563eb"><title>req 2 prompt 1: total 18,817 (cache_read 18,277, cache_creation 538, input 2, output 26)</title></circle>
+<circle cx="108.6" cy="263.8" r="3" fill="#2563eb"><title>req 3 prompt 2: total 18,913 (cache_read 18,815, cache_creation 96, input 2, output 174)</title></circle>
+<circle cx="127.9" cy="259.8" r="3" fill="#2563eb"><title>req 4 prompt 2: total 19,472 (cache_read 18,911, cache_creation 559, input 2, output 31)</title></circle>
+<circle cx="147.1" cy="259.0" r="3" fill="#2563eb"><title>req 5 prompt 3: total 19,582 (cache_read 19,470, cache_creation 110, input 2, output 266)</title></circle>
+<circle cx="166.4" cy="255.2" r="3" fill="#2563eb"><title>req 6 prompt 3: total 20,108 (cache_read 19,580, cache_creation 526, input 2, output 56)</title></circle>
+<circle cx="185.7" cy="254.3" r="3" fill="#2563eb"><title>req 7 prompt 4: total 20,232 (cache_read 20,106, cache_creation 124, input 2, output 172)</title></circle>
+<circle cx="205.0" cy="249.7" r="3" fill="#2563eb"><title>req 8 prompt 4: total 20,872 (cache_read 20,230, cache_creation 640, input 2, output 29)</title></circle>
+<circle cx="224.3" cy="249.0" r="3" fill="#2563eb"><title>req 9 prompt 5: total 20,970 (cache_read 20,870, cache_creation 98, input 2, output 173)</title></circle>
+<circle cx="243.6" cy="246.1" r="3" fill="#2563eb"><title>req 10 prompt 5: total 21,380 (cache_read 20,968, cache_creation 410, input 2, output 41)</title></circle>
+<circle cx="262.9" cy="245.2" r="3" fill="#2563eb"><title>req 11 prompt 6: total 21,501 (cache_read 21,378, cache_creation 121, input 2, output 255)</title></circle>
+<circle cx="282.1" cy="238.9" r="3" fill="#2563eb"><title>req 12 prompt 6: total 22,371 (cache_read 21,499, cache_creation 870, input 2, output 140)</title></circle>
+<circle cx="301.4" cy="237.4" r="3" fill="#2563eb"><title>req 13 prompt 7: total 22,581 (cache_read 22,369, cache_creation 210, input 2, output 174)</title></circle>
+<circle cx="320.7" cy="233.4" r="3" fill="#2563eb"><title>req 14 prompt 7: total 23,140 (cache_read 22,579, cache_creation 559, input 2, output 31)</title></circle>
+<circle cx="340.0" cy="232.7" r="3" fill="#2563eb"><title>req 15 prompt 8: total 23,243 (cache_read 23,138, cache_creation 103, input 2, output 176)</title></circle>
+<circle cx="359.3" cy="229.9" r="3" fill="#2563eb"><title>req 16 prompt 8: total 23,631 (cache_read 23,241, cache_creation 388, input 2, output 37)</title></circle>
+<circle cx="378.6" cy="229.0" r="3" fill="#2563eb"><title>req 17 prompt 9: total 23,745 (cache_read 23,629, cache_creation 114, input 2, output 252)</title></circle>
+<circle cx="397.9" cy="223.6" r="3" fill="#2563eb"><title>req 18 prompt 9: total 24,504 (cache_read 23,743, cache_creation 759, input 2, output 49)</title></circle>
+<circle cx="417.1" cy="222.7" r="3" fill="#2563eb"><title>req 19 prompt 10: total 24,622 (cache_read 24,502, cache_creation 118, input 2, output 173)</title></circle>
+<circle cx="436.4" cy="219.8" r="3" fill="#2563eb"><title>req 20 prompt 10: total 25,032 (cache_read 24,620, cache_creation 410, input 2, output 41)</title></circle>
+<circle cx="455.7" cy="219.0" r="3" fill="#2563eb"><title>req 21 prompt 11: total 25,141 (cache_read 25,030, cache_creation 109, input 2, output 172)</title></circle>
+<circle cx="475.0" cy="215.1" r="3" fill="#2563eb"><title>req 22 prompt 11: total 25,677 (cache_read 25,139, cache_creation 536, input 2, output 26)</title></circle>
+<circle cx="494.3" cy="214.4" r="3" fill="#2563eb"><title>req 23 prompt 12: total 25,783 (cache_read 25,675, cache_creation 106, input 2, output 255)</title></circle>
+<circle cx="513.6" cy="209.4" r="3" fill="#2563eb"><title>req 24 prompt 12: total 26,467 (cache_read 25,781, cache_creation 684, input 2, output 52)</title></circle>
+<circle cx="532.9" cy="208.5" r="3" fill="#2563eb"><title>req 25 prompt 13: total 26,591 (cache_read 26,465, cache_creation 124, input 2, output 176)</title></circle>
+<circle cx="552.1" cy="205.8" r="3" fill="#2563eb"><title>req 26 prompt 13: total 26,979 (cache_read 26,589, cache_creation 388, input 2, output 37)</title></circle>
+<circle cx="571.4" cy="205.0" r="3" fill="#2563eb"><title>req 27 prompt 14: total 27,086 (cache_read 26,977, cache_creation 107, input 2, output 174)</title></circle>
+<circle cx="590.7" cy="200.4" r="3" fill="#2563eb"><title>req 28 prompt 14: total 27,728 (cache_read 27,084, cache_creation 642, input 2, output 29)</title></circle>
+<circle cx="610.0" cy="199.6" r="3" fill="#2563eb"><title>req 29 prompt 15: total 27,835 (cache_read 27,726, cache_creation 107, input 2, output 253)</title></circle>
+<circle cx="629.3" cy="195.7" r="3" fill="#2563eb"><title>req 30 prompt 15: total 28,372 (cache_read 27,833, cache_creation 537, input 2, output 59)</title></circle>
+<circle cx="648.6" cy="194.8" r="3" fill="#2563eb"><title>req 31 prompt 16: total 28,499 (cache_read 28,370, cache_creation 127, input 2, output 197)</title></circle>
+<circle cx="667.9" cy="190.8" r="3" fill="#2563eb"><title>req 32 prompt 16: total 29,060 (cache_read 28,497, cache_creation 561, input 2, output 26)</title></circle>
+<circle cx="687.1" cy="190.1" r="3" fill="#2563eb"><title>req 33 prompt 17: total 29,154 (cache_read 29,058, cache_creation 94, input 2, output 172)</title></circle>
+<circle cx="706.4" cy="186.1" r="3" fill="#2563eb"><title>req 34 prompt 17: total 29,710 (cache_read 29,152, cache_creation 556, input 2, output 31)</title></circle>
+<circle cx="725.7" cy="185.3" r="3" fill="#2563eb"><title>req 35 prompt 18: total 29,823 (cache_read 29,708, cache_creation 113, input 2, output 257)</title></circle>
+<circle cx="745.0" cy="181.5" r="3" fill="#2563eb"><title>req 36 prompt 18: total 30,341 (cache_read 29,821, cache_creation 518, input 2, output 58)</title></circle>
+<circle cx="764.3" cy="180.6" r="3" fill="#2563eb"><title>req 37 prompt 19: total 30,469 (cache_read 30,339, cache_creation 128, input 2, output 174)</title></circle>
+<circle cx="783.6" cy="176.0" r="3" fill="#2563eb"><title>req 38 prompt 19: total 31,111 (cache_read 30,467, cache_creation 642, input 2, output 29)</title></circle>
+<circle cx="802.9" cy="175.3" r="3" fill="#2563eb"><title>req 39 prompt 20: total 31,211 (cache_read 31,109, cache_creation 100, input 2, output 175)</title></circle>
+<circle cx="822.1" cy="172.3" r="3" fill="#2563eb"><title>req 40 prompt 20: total 31,625 (cache_read 31,209, cache_creation 414, input 2, output 43)</title></circle>
+<rect x="70" y="446" width="12" height="12" fill="#2563eb"/>
+<text x="88" y="456">S1 explore (40 req)</text>
+<polygon points="70.0,400.0 70.0,317.6 89.3,267.9 108.6,266.5 127.9,264.8 147.1,263.4 166.4,261.8 185.7,260.6 205.0,258.8 224.3,257.1 243.6,256.3 262.9,255.8 282.1,252.9 301.4,252.2 320.7,250.9 340.0,250.5 359.3,248.8 378.6,247.9 397.9,247.4 417.1,243.4 436.4,242.8 455.7,241.8 475.0,241.4 494.3,240.1 513.6,239.5 532.9,237.9 552.1,237.3 571.4,236.8 590.7,300.2 610.0,243.0 629.3,240.0 648.6,236.3 667.9,235.8 687.1,233.2 706.4,231.6 725.7,229.3 745.0,228.8 764.3,227.1 783.6,226.4 802.9,225.9 822.1,224.8 841.4,224.3 860.7,221.7 880.0,220.3 880.0,400.0" fill="#dc2626" fill-opacity="0.12"/>
+<polyline points="70.0,267.9 89.3,266.5 108.6,264.8 127.9,263.4 147.1,261.8 166.4,260.6 185.7,258.8 205.0,257.1 224.3,256.3 243.6,255.8 262.9,252.9 282.1,252.2 301.4,250.9 320.7,250.5 340.0,248.7 359.3,247.8 378.6,247.4 397.9,243.4 417.1,242.8 436.4,241.8 455.7,241.4 475.0,240.1 494.3,239.5 513.6,237.9 532.9,237.3 552.1,236.7 571.4,235.3 590.7,243.0 610.0,240.0 629.3,236.3 648.6,235.8 667.9,233.2 687.1,231.5 706.4,229.3 725.7,228.8 745.0,227.1 764.3,226.3 783.6,225.9 802.9,224.8 822.1,224.3 841.4,221.7 860.7,220.2 880.0,219.8" fill="none" stroke="#dc2626" stroke-width="2"/>
+<circle cx="70.0" cy="267.9" r="3" fill="#dc2626"><title>req 1 prompt 1: total 18,353 (cache_read 11,447, cache_creation 6,904, input 2, output 150)</title></circle>
+<circle cx="89.3" cy="266.5" r="3" fill="#dc2626"><title>req 2 prompt 2: total 18,538 (cache_read 18,351, cache_creation 185, input 2, output 77)</title></circle>
+<circle cx="108.6" cy="264.8" r="3" fill="#dc2626"><title>req 3 prompt 2: total 18,781 (cache_read 18,536, cache_creation 243, input 2, output 103)</title></circle>
+<circle cx="127.9" cy="263.4" r="3" fill="#dc2626"><title>req 4 prompt 2: total 18,972 (cache_read 18,779, cache_creation 191, input 2, output 142)</title></circle>
+<circle cx="147.1" cy="261.8" r="3" fill="#dc2626"><title>req 5 prompt 2: total 19,191 (cache_read 18,970, cache_creation 219, input 2, output 113)</title></circle>
+<circle cx="166.4" cy="260.6" r="3" fill="#dc2626"><title>req 6 prompt 2: total 19,361 (cache_read 19,189, cache_creation 170, input 2, output 201)</title></circle>
+<circle cx="185.7" cy="258.8" r="3" fill="#dc2626"><title>req 7 prompt 3: total 19,618 (cache_read 19,359, cache_creation 257, input 2, output 85)</title></circle>
+<circle cx="205.0" cy="257.1" r="3" fill="#dc2626"><title>req 8 prompt 3: total 19,851 (cache_read 19,616, cache_creation 233, input 2, output 56)</title></circle>
+<circle cx="224.3" cy="256.3" r="3" fill="#dc2626"><title>req 9 prompt 3: total 19,956 (cache_read 19,849, cache_creation 105, input 2, output 22)</title></circle>
+<circle cx="243.6" cy="255.8" r="3" fill="#dc2626"><title>req 10 prompt 4: total 20,028 (cache_read 19,954, cache_creation 72, input 2, output 87)</title></circle>
+<circle cx="262.9" cy="252.9" r="3" fill="#dc2626"><title>req 11 prompt 4: total 20,426 (cache_read 20,026, cache_creation 398, input 2, output 50)</title></circle>
+<circle cx="282.1" cy="252.2" r="3" fill="#dc2626"><title>req 12 prompt 5: total 20,524 (cache_read 20,424, cache_creation 98, input 2, output 151)</title></circle>
+<circle cx="301.4" cy="250.9" r="3" fill="#dc2626"><title>req 13 prompt 5: total 20,705 (cache_read 20,522, cache_creation 181, input 2, output 3)</title></circle>
+<circle cx="320.7" cy="250.5" r="3" fill="#dc2626"><title>req 14 prompt 6: total 20,762 (cache_read 20,703, cache_creation 57, input 2, output 84)</title></circle>
+<circle cx="340.0" cy="248.7" r="3" fill="#dc2626"><title>req 15 prompt 6: total 21,008 (cache_read 20,760, cache_creation 246, input 2, output 75)</title></circle>
+<circle cx="359.3" cy="247.8" r="3" fill="#dc2626"><title>req 16 prompt 6: total 21,132 (cache_read 21,006, cache_creation 124, input 2, output 3)</title></circle>
+<circle cx="378.6" cy="247.4" r="3" fill="#dc2626"><title>req 17 prompt 7: total 21,197 (cache_read 21,130, cache_creation 65, input 2, output 171)</title></circle>
+<circle cx="397.9" cy="243.4" r="3" fill="#dc2626"><title>req 18 prompt 7: total 21,750 (cache_read 21,195, cache_creation 553, input 2, output 23)</title></circle>
+<circle cx="417.1" cy="242.8" r="3" fill="#dc2626"><title>req 19 prompt 8: total 21,830 (cache_read 21,748, cache_creation 80, input 2, output 91)</title></circle>
+<circle cx="436.4" cy="241.8" r="3" fill="#dc2626"><title>req 20 prompt 8: total 21,972 (cache_read 21,828, cache_creation 142, input 2, output 13)</title></circle>
+<circle cx="455.7" cy="241.4" r="3" fill="#dc2626"><title>req 21 prompt 9: total 22,033 (cache_read 21,970, cache_creation 61, input 2, output 84)</title></circle>
+<circle cx="475.0" cy="240.1" r="3" fill="#dc2626"><title>req 22 prompt 9: total 22,209 (cache_read 22,031, cache_creation 176, input 2, output 41)</title></circle>
+<circle cx="494.3" cy="239.5" r="3" fill="#dc2626"><title>req 23 prompt 10: total 22,296 (cache_read 22,207, cache_creation 87, input 2, output 84)</title></circle>
+<circle cx="513.6" cy="237.9" r="3" fill="#dc2626"><title>req 24 prompt 10: total 22,512 (cache_read 22,294, cache_creation 216, input 2, output 33)</title></circle>
+<circle cx="532.9" cy="237.3" r="3" fill="#dc2626"><title>req 25 prompt 10: total 22,598 (cache_read 22,510, cache_creation 86, input 2, output 26)</title></circle>
+<circle cx="552.1" cy="236.7" r="3" fill="#dc2626"><title>req 26 prompt 11: total 22,675 (cache_read 22,596, cache_creation 77, input 2, output 88)</title></circle>
+<circle cx="571.4" cy="235.3" r="3" fill="#dc2626"><title>req 27 prompt 11: total 22,880 (cache_read 22,673, cache_creation 205, input 2, output 35)</title></circle>
+<circle cx="590.7" cy="243.0" r="3" fill="#dc2626"><title>req 28 prompt 13: total 21,812 (cache_read 13,856, cache_creation 7,954, input 2, output 365)</title></circle>
+<circle cx="610.0" cy="240.0" r="3" fill="#dc2626"><title>req 29 prompt 14: total 22,226 (cache_read 21,810, cache_creation 414, input 2, output 88)</title></circle>
+<circle cx="629.3" cy="236.3" r="3" fill="#dc2626"><title>req 30 prompt 14: total 22,735 (cache_read 22,224, cache_creation 509, input 2, output 41)</title></circle>
+<circle cx="648.6" cy="235.8" r="3" fill="#dc2626"><title>req 31 prompt 15: total 22,812 (cache_read 22,733, cache_creation 77, input 2, output 290)</title></circle>
+<circle cx="667.9" cy="233.2" r="3" fill="#dc2626"><title>req 32 prompt 15: total 23,172 (cache_read 22,810, cache_creation 360, input 2, output 175)</title></circle>
+<circle cx="687.1" cy="231.5" r="3" fill="#dc2626"><title>req 33 prompt 16: total 23,396 (cache_read 23,170, cache_creation 224, input 2, output 88)</title></circle>
+<circle cx="706.4" cy="229.3" r="3" fill="#dc2626"><title>req 34 prompt 16: total 23,711 (cache_read 23,394, cache_creation 315, input 2, output 14)</title></circle>
+<circle cx="725.7" cy="228.8" r="3" fill="#dc2626"><title>req 35 prompt 17: total 23,781 (cache_read 23,709, cache_creation 70, input 2, output 85)</title></circle>
+<circle cx="745.0" cy="227.1" r="3" fill="#dc2626"><title>req 36 prompt 17: total 24,014 (cache_read 23,779, cache_creation 233, input 2, output 56)</title></circle>
+<circle cx="764.3" cy="226.3" r="3" fill="#dc2626"><title>req 37 prompt 17: total 24,119 (cache_read 24,012, cache_creation 105, input 2, output 22)</title></circle>
+<circle cx="783.6" cy="225.9" r="3" fill="#dc2626"><title>req 38 prompt 18: total 24,186 (cache_read 24,117, cache_creation 67, input 2, output 115)</title></circle>
+<circle cx="802.9" cy="224.8" r="3" fill="#dc2626"><title>req 39 prompt 18: total 24,331 (cache_read 24,184, cache_creation 145, input 2, output 3)</title></circle>
+<circle cx="822.1" cy="224.3" r="3" fill="#dc2626"><title>req 40 prompt 19: total 24,398 (cache_read 24,329, cache_creation 67, input 2, output 173)</title></circle>
+<circle cx="841.4" cy="221.7" r="3" fill="#dc2626"><title>req 41 prompt 19: total 24,768 (cache_read 24,396, cache_creation 370, input 2, output 55)</title></circle>
+<circle cx="860.7" cy="220.2" r="3" fill="#dc2626"><title>req 42 prompt 20: total 24,966 (cache_read 24,766, cache_creation 196, input 4, output 26)</title></circle>
+<circle cx="880.0" cy="219.8" r="3" fill="#dc2626"><title>req 43 prompt 21: total 25,032 (cache_read 24,962, cache_creation 68, input 2, output 63)</title></circle>
+<line x1="581.1" x2="581.1" y1="40" y2="400" stroke="#dc2626" stroke-dasharray="5 4"/>
+<text x="585.1" y="68" fill="#dc2626">compact manual: 22915 → 2956</text>
+<rect x="70" y="464" width="12" height="12" fill="#dc2626"/>
+<text x="88" y="474">S2 mixed (43 req; compact manual 22,915 → 2,956)</text>
+<polygon points="70.0,400.0 70.0,317.6 89.3,268.3 108.6,240.4 127.9,227.9 147.1,200.0 166.4,198.9 185.7,171.0 205.0,300.2 224.3,300.2 243.6,226.2 262.9,197.6 282.1,300.2 301.4,217.2 320.7,300.2 340.0,215.2 359.3,300.2 378.6,214.1 397.9,300.2 417.1,210.4 436.4,300.2 455.7,220.5 475.0,300.2 494.3,227.4 513.6,205.3 532.9,177.4 552.1,300.2 571.4,190.8 590.7,300.2 610.0,216.2 629.3,300.2 648.6,227.4 667.9,206.2 687.1,178.3 706.4,300.2 725.7,200.0 745.0,300.2 764.3,218.0 783.6,300.2 802.9,217.4 822.1,300.2 822.1,400.0" fill="#16a34a" fill-opacity="0.12"/>
+<polyline points="70.0,268.2 89.3,240.4 108.6,227.9 127.9,200.0 147.1,198.9 166.4,171.0 185.7,170.1 205.0,161.8 224.3,226.2 243.6,197.6 262.9,196.7 282.1,217.2 301.4,196.0 320.7,215.1 340.0,191.7 359.3,214.1 378.6,189.8 397.9,210.4 417.1,187.3 436.4,220.5 455.7,192.7 475.0,227.4 494.3,205.3 513.6,177.4 532.9,176.2 552.1,190.8 571.4,170.5 590.7,216.2 610.0,193.5 629.3,227.4 648.6,206.2 667.9,178.3 687.1,177.4 706.4,200.0 725.7,178.0 745.0,218.0 764.3,195.4 783.6,217.4 802.9,195.9 822.1,214.6" fill="none" stroke="#16a34a" stroke-width="2"/>
+<circle cx="70.0" cy="268.2" r="3" fill="#16a34a"><title>req 1 prompt 1: total 18,299 (cache_read 11,447, cache_creation 6,850, input 2, output 85)</title></circle>
+<circle cx="89.3" cy="240.4" r="3" fill="#16a34a"><title>req 2 prompt 1: total 22,171 (cache_read 18,297, cache_creation 3,872, input 2, output 747)</title></circle>
+<circle cx="108.6" cy="227.9" r="3" fill="#16a34a"><title>req 3 prompt 3: total 23,906 (cache_read 22,169, cache_creation 1,735, input 2, output 85)</title></circle>
+<circle cx="127.9" cy="200.0" r="3" fill="#16a34a"><title>req 4 prompt 3: total 27,777 (cache_read 23,904, cache_creation 3,871, input 2, output 67)</title></circle>
+<circle cx="147.1" cy="198.9" r="3" fill="#16a34a"><title>req 5 prompt 4: total 27,933 (cache_read 27,775, cache_creation 156, input 2, output 85)</title></circle>
+<circle cx="166.4" cy="171.0" r="3" fill="#16a34a"><title>req 6 prompt 4: total 31,805 (cache_read 27,931, cache_creation 3,872, input 2, output 33)</title></circle>
+<circle cx="185.7" cy="170.1" r="3" fill="#16a34a"><title>req 7 prompt 5: total 31,927 (cache_read 31,803, cache_creation 122, input 2, output 85)</title></circle>
+<circle cx="205.0" cy="161.8" r="3" fill="#16a34a"><title>req 8 prompt 5: total 33,084 (cache_read 13,856, cache_creation 19,226, input 2, output 408)</title></circle>
+<circle cx="224.3" cy="226.2" r="3" fill="#16a34a"><title>req 9 prompt 6: total 24,139 (cache_read 13,856, cache_creation 10,281, input 2, output 191)</title></circle>
+<circle cx="243.6" cy="197.6" r="3" fill="#16a34a"><title>req 10 prompt 6: total 28,117 (cache_read 24,137, cache_creation 3,978, input 2, output 32)</title></circle>
+<circle cx="262.9" cy="196.7" r="3" fill="#16a34a"><title>req 11 prompt 7: total 28,238 (cache_read 28,115, cache_creation 121, input 2, output 85)</title></circle>
+<circle cx="282.1" cy="217.2" r="3" fill="#16a34a"><title>req 12 prompt 7: total 25,393 (cache_read 13,856, cache_creation 11,535, input 2, output 524)</title></circle>
+<circle cx="301.4" cy="196.0" r="3" fill="#16a34a"><title>req 13 prompt 8: total 28,331 (cache_read 25,391, cache_creation 2,938, input 2, output 85)</title></circle>
+<circle cx="320.7" cy="215.1" r="3" fill="#16a34a"><title>req 14 prompt 8: total 25,674 (cache_read 13,856, cache_creation 11,816, input 2, output 845)</title></circle>
+<circle cx="340.0" cy="191.7" r="3" fill="#16a34a"><title>req 15 prompt 9: total 28,933 (cache_read 25,672, cache_creation 3,259, input 2, output 85)</title></circle>
+<circle cx="359.3" cy="214.1" r="3" fill="#16a34a"><title>req 16 prompt 9: total 25,815 (cache_read 13,856, cache_creation 11,957, input 2, output 965)</title></circle>
+<circle cx="378.6" cy="189.8" r="3" fill="#16a34a"><title>req 17 prompt 10: total 29,194 (cache_read 25,813, cache_creation 3,379, input 2, output 85)</title></circle>
+<circle cx="397.9" cy="210.4" r="3" fill="#16a34a"><title>req 18 prompt 10: total 26,331 (cache_read 13,856, cache_creation 12,473, input 2, output 793)</title></circle>
+<circle cx="417.1" cy="187.3" r="3" fill="#16a34a"><title>req 19 prompt 11: total 29,538 (cache_read 26,329, cache_creation 3,207, input 2, output 85)</title></circle>
+<circle cx="436.4" cy="220.5" r="3" fill="#16a34a"><title>req 20 prompt 11: total 24,928 (cache_read 13,856, cache_creation 11,070, input 2, output 556)</title></circle>
+<circle cx="455.7" cy="192.7" r="3" fill="#16a34a"><title>req 21 prompt 13: total 28,793 (cache_read 24,926, cache_creation 3,865, input 2, output 85)</title></circle>
+<circle cx="475.0" cy="227.4" r="3" fill="#16a34a"><title>req 22 prompt 13: total 23,968 (cache_read 13,856, cache_creation 10,110, input 2, output 664)</title></circle>
+<circle cx="494.3" cy="205.3" r="3" fill="#16a34a"><title>req 23 prompt 14: total 27,046 (cache_read 23,966, cache_creation 3,078, input 2, output 85)</title></circle>
+<circle cx="513.6" cy="177.4" r="3" fill="#16a34a"><title>req 24 prompt 14: total 30,917 (cache_read 27,044, cache_creation 3,871, input 2, output 71)</title></circle>
+<circle cx="532.9" cy="176.2" r="3" fill="#16a34a"><title>req 25 prompt 15: total 31,077 (cache_read 30,915, cache_creation 160, input 2, output 85)</title></circle>
+<circle cx="552.1" cy="190.8" r="3" fill="#16a34a"><title>req 26 prompt 15: total 29,062 (cache_read 13,856, cache_creation 15,204, input 2, output 402)</title></circle>
+<circle cx="571.4" cy="170.5" r="3" fill="#16a34a"><title>req 27 prompt 16: total 31,878 (cache_read 29,060, cache_creation 2,816, input 2, output 85)</title></circle>
+<circle cx="590.7" cy="216.2" r="3" fill="#16a34a"><title>req 28 prompt 16: total 25,533 (cache_read 13,856, cache_creation 11,675, input 2, output 733)</title></circle>
+<circle cx="610.0" cy="193.5" r="3" fill="#16a34a"><title>req 29 prompt 17: total 28,680 (cache_read 25,531, cache_creation 3,147, input 2, output 85)</title></circle>
+<circle cx="629.3" cy="227.4" r="3" fill="#16a34a"><title>req 30 prompt 17: total 23,972 (cache_read 13,856, cache_creation 10,114, input 2, output 529)</title></circle>
+<circle cx="648.6" cy="206.2" r="3" fill="#16a34a"><title>req 31 prompt 18: total 26,915 (cache_read 23,970, cache_creation 2,943, input 2, output 85)</title></circle>
+<circle cx="667.9" cy="178.3" r="3" fill="#16a34a"><title>req 32 prompt 18: total 30,788 (cache_read 26,913, cache_creation 3,873, input 2, output 46)</title></circle>
+<circle cx="687.1" cy="177.4" r="3" fill="#16a34a"><title>req 33 prompt 19: total 30,923 (cache_read 30,786, cache_creation 135, input 2, output 85)</title></circle>
+<circle cx="706.4" cy="200.0" r="3" fill="#16a34a"><title>req 34 prompt 19: total 27,781 (cache_read 13,856, cache_creation 13,923, input 2, output 642)</title></circle>
+<circle cx="725.7" cy="178.0" r="3" fill="#16a34a"><title>req 35 prompt 20: total 30,837 (cache_read 27,779, cache_creation 3,056, input 2, output 85)</title></circle>
+<circle cx="745.0" cy="218.0" r="3" fill="#16a34a"><title>req 36 prompt 20: total 25,273 (cache_read 13,856, cache_creation 11,415, input 2, output 733)</title></circle>
+<circle cx="764.3" cy="195.4" r="3" fill="#16a34a"><title>req 37 prompt 21: total 28,420 (cache_read 25,271, cache_creation 3,147, input 2, output 85)</title></circle>
+<circle cx="783.6" cy="217.4" r="3" fill="#16a34a"><title>req 38 prompt 21: total 25,368 (cache_read 13,856, cache_creation 11,510, input 2, output 570)</title></circle>
+<circle cx="802.9" cy="195.9" r="3" fill="#16a34a"><title>req 39 prompt 22: total 28,352 (cache_read 25,366, cache_creation 2,984, input 2, output 85)</title></circle>
+<circle cx="822.1" cy="214.6" r="3" fill="#16a34a"><title>req 40 prompt 22: total 25,744 (cache_read 13,856, cache_creation 11,886, input 2, output 559)</title></circle>
+<line x1="195.4" x2="195.4" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="214.6" x2="214.6" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="272.5" x2="272.5" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="311.1" x2="311.1" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="349.6" x2="349.6" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="388.2" x2="388.2" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="426.8" x2="426.8" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="465.4" x2="465.4" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="542.5" x2="542.5" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="581.1" x2="581.1" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="619.6" x2="619.6" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="696.8" x2="696.8" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="735.4" x2="735.4" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="773.9" x2="773.9" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<line x1="812.5" x2="812.5" y1="40" y2="400" stroke="#16a34a" stroke-dasharray="5 4"/>
+<rect x="70" y="482" width="12" height="12" fill="#16a34a"/>
+<text x="88" y="492">S3 heavy (40 req; 15 compact auto, pre 31,264–35,216 → post 6,770–13,879)</text>
+</svg>

@@ -1,0 +1,358 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="756" viewBox="0 0 900 756" font-family="system-ui,sans-serif" font-size="12">
+<rect width="900" height="756" fill="#fff"/>
+<text x="70" y="22" font-size="15" font-weight="600">Context composition mỗi API request (prefix tĩnh 14,104 từ /context, phần còn lại = total − prefix)</text>
+<line x1="70" x2="880" y1="170.0" y2="170.0" stroke="#e5e7eb"/>
+<text x="62" y="174.0" text-anchor="end" fill="#6b7280">0</text>
+<line x1="70" x2="880" y1="105.0" y2="105.0" stroke="#e5e7eb"/>
+<text x="62" y="109.0" text-anchor="end" fill="#6b7280">25,000</text>
+<line x1="70" x2="880" y1="40.0" y2="40.0" stroke="#e5e7eb"/>
+<text x="62" y="44.0" text-anchor="end" fill="#6b7280">50,000</text>
+<text x="70" y="34" font-weight="600">S1 (40 request, 0 compact)</text>
+<rect x="72.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="72.0" y="122.5" width="16.2" height="10.9" fill="#2563eb"><title>S1 req 1 (prompt 1): total 18,279, prefix 14,104, còn lại 4,175</title></rect>
+<text x="80.1" y="184" text-anchor="middle" fill="#6b7280">1</text>
+<rect x="92.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="92.3" y="121.1" width="16.2" height="12.3" fill="#2563eb"><title>S1 req 2 (prompt 1): total 18,817, prefix 14,104, còn lại 4,713</title></rect>
+<rect x="112.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="112.5" y="120.8" width="16.2" height="12.5" fill="#2563eb"><title>S1 req 3 (prompt 2): total 18,913, prefix 14,104, còn lại 4,809</title></rect>
+<rect x="132.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="132.8" y="119.4" width="16.2" height="14.0" fill="#2563eb"><title>S1 req 4 (prompt 2): total 19,472, prefix 14,104, còn lại 5,368</title></rect>
+<rect x="153.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="153.0" y="119.1" width="16.2" height="14.2" fill="#2563eb"><title>S1 req 5 (prompt 3): total 19,582, prefix 14,104, còn lại 5,478</title></rect>
+<text x="161.1" y="184" text-anchor="middle" fill="#6b7280">5</text>
+<rect x="173.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="173.3" y="117.7" width="16.2" height="15.6" fill="#2563eb"><title>S1 req 6 (prompt 3): total 20,108, prefix 14,104, còn lại 6,004</title></rect>
+<rect x="193.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="193.5" y="117.4" width="16.2" height="15.9" fill="#2563eb"><title>S1 req 7 (prompt 4): total 20,232, prefix 14,104, còn lại 6,128</title></rect>
+<rect x="213.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="213.8" y="115.7" width="16.2" height="17.6" fill="#2563eb"><title>S1 req 8 (prompt 4): total 20,872, prefix 14,104, còn lại 6,768</title></rect>
+<rect x="234.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="234.0" y="115.5" width="16.2" height="17.9" fill="#2563eb"><title>S1 req 9 (prompt 5): total 20,970, prefix 14,104, còn lại 6,866</title></rect>
+<rect x="254.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="254.3" y="114.4" width="16.2" height="18.9" fill="#2563eb"><title>S1 req 10 (prompt 5): total 21,380, prefix 14,104, còn lại 7,276</title></rect>
+<text x="262.4" y="184" text-anchor="middle" fill="#6b7280">10</text>
+<rect x="274.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="274.5" y="114.1" width="16.2" height="19.2" fill="#2563eb"><title>S1 req 11 (prompt 6): total 21,501, prefix 14,104, còn lại 7,397</title></rect>
+<rect x="294.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="294.8" y="111.8" width="16.2" height="21.5" fill="#2563eb"><title>S1 req 12 (prompt 6): total 22,371, prefix 14,104, còn lại 8,267</title></rect>
+<rect x="315.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="315.0" y="111.3" width="16.2" height="22.0" fill="#2563eb"><title>S1 req 13 (prompt 7): total 22,581, prefix 14,104, còn lại 8,477</title></rect>
+<rect x="335.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="335.3" y="109.8" width="16.2" height="23.5" fill="#2563eb"><title>S1 req 14 (prompt 7): total 23,140, prefix 14,104, còn lại 9,036</title></rect>
+<rect x="355.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="355.5" y="109.6" width="16.2" height="23.8" fill="#2563eb"><title>S1 req 15 (prompt 8): total 23,243, prefix 14,104, còn lại 9,139</title></rect>
+<text x="363.6" y="184" text-anchor="middle" fill="#6b7280">15</text>
+<rect x="375.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="375.8" y="108.6" width="16.2" height="24.8" fill="#2563eb"><title>S1 req 16 (prompt 8): total 23,631, prefix 14,104, còn lại 9,527</title></rect>
+<rect x="396.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="396.0" y="108.3" width="16.2" height="25.1" fill="#2563eb"><title>S1 req 17 (prompt 9): total 23,745, prefix 14,104, còn lại 9,641</title></rect>
+<rect x="416.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="416.3" y="106.3" width="16.2" height="27.0" fill="#2563eb"><title>S1 req 18 (prompt 9): total 24,504, prefix 14,104, còn lại 10,400</title></rect>
+<rect x="436.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="436.5" y="106.0" width="16.2" height="27.3" fill="#2563eb"><title>S1 req 19 (prompt 10): total 24,622, prefix 14,104, còn lại 10,518</title></rect>
+<rect x="456.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="456.8" y="104.9" width="16.2" height="28.4" fill="#2563eb"><title>S1 req 20 (prompt 10): total 25,032, prefix 14,104, còn lại 10,928</title></rect>
+<text x="464.9" y="184" text-anchor="middle" fill="#6b7280">20</text>
+<rect x="477.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="477.0" y="104.6" width="16.2" height="28.7" fill="#2563eb"><title>S1 req 21 (prompt 11): total 25,141, prefix 14,104, còn lại 11,037</title></rect>
+<rect x="497.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="497.3" y="103.2" width="16.2" height="30.1" fill="#2563eb"><title>S1 req 22 (prompt 11): total 25,677, prefix 14,104, còn lại 11,573</title></rect>
+<rect x="517.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="517.5" y="103.0" width="16.2" height="30.4" fill="#2563eb"><title>S1 req 23 (prompt 12): total 25,783, prefix 14,104, còn lại 11,679</title></rect>
+<rect x="537.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="537.8" y="101.2" width="16.2" height="32.1" fill="#2563eb"><title>S1 req 24 (prompt 12): total 26,467, prefix 14,104, còn lại 12,363</title></rect>
+<rect x="558.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="558.0" y="100.9" width="16.2" height="32.5" fill="#2563eb"><title>S1 req 25 (prompt 13): total 26,591, prefix 14,104, còn lại 12,487</title></rect>
+<text x="566.1" y="184" text-anchor="middle" fill="#6b7280">25</text>
+<rect x="578.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="578.3" y="99.9" width="16.2" height="33.5" fill="#2563eb"><title>S1 req 26 (prompt 13): total 26,979, prefix 14,104, còn lại 12,875</title></rect>
+<rect x="598.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="598.5" y="99.6" width="16.2" height="33.8" fill="#2563eb"><title>S1 req 27 (prompt 14): total 27,086, prefix 14,104, còn lại 12,982</title></rect>
+<rect x="618.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="618.8" y="97.9" width="16.2" height="35.4" fill="#2563eb"><title>S1 req 28 (prompt 14): total 27,728, prefix 14,104, còn lại 13,624</title></rect>
+<rect x="639.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="639.0" y="97.6" width="16.2" height="35.7" fill="#2563eb"><title>S1 req 29 (prompt 15): total 27,835, prefix 14,104, còn lại 13,731</title></rect>
+<rect x="659.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="659.3" y="96.2" width="16.2" height="37.1" fill="#2563eb"><title>S1 req 30 (prompt 15): total 28,372, prefix 14,104, còn lại 14,268</title></rect>
+<text x="667.4" y="184" text-anchor="middle" fill="#6b7280">30</text>
+<rect x="679.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="679.5" y="95.9" width="16.2" height="37.4" fill="#2563eb"><title>S1 req 31 (prompt 16): total 28,499, prefix 14,104, còn lại 14,395</title></rect>
+<rect x="699.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="699.8" y="94.4" width="16.2" height="38.9" fill="#2563eb"><title>S1 req 32 (prompt 16): total 29,060, prefix 14,104, còn lại 14,956</title></rect>
+<rect x="720.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="720.0" y="94.2" width="16.2" height="39.1" fill="#2563eb"><title>S1 req 33 (prompt 17): total 29,154, prefix 14,104, còn lại 15,050</title></rect>
+<rect x="740.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="740.3" y="92.8" width="16.2" height="40.6" fill="#2563eb"><title>S1 req 34 (prompt 17): total 29,710, prefix 14,104, còn lại 15,606</title></rect>
+<rect x="760.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="760.5" y="92.5" width="16.2" height="40.9" fill="#2563eb"><title>S1 req 35 (prompt 18): total 29,823, prefix 14,104, còn lại 15,719</title></rect>
+<text x="768.6" y="184" text-anchor="middle" fill="#6b7280">35</text>
+<rect x="780.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="780.8" y="91.1" width="16.2" height="42.2" fill="#2563eb"><title>S1 req 36 (prompt 18): total 30,341, prefix 14,104, còn lại 16,237</title></rect>
+<rect x="801.0" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="801.0" y="90.8" width="16.2" height="42.5" fill="#2563eb"><title>S1 req 37 (prompt 19): total 30,469, prefix 14,104, còn lại 16,365</title></rect>
+<rect x="821.3" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="821.3" y="89.1" width="16.2" height="44.2" fill="#2563eb"><title>S1 req 38 (prompt 19): total 31,111, prefix 14,104, còn lại 17,007</title></rect>
+<rect x="841.5" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="841.5" y="88.9" width="16.2" height="44.5" fill="#2563eb"><title>S1 req 39 (prompt 20): total 31,211, prefix 14,104, còn lại 17,107</title></rect>
+<rect x="861.8" y="133.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="861.8" y="87.8" width="16.2" height="45.6" fill="#2563eb"><title>S1 req 40 (prompt 20): total 31,625, prefix 14,104, còn lại 17,521</title></rect>
+<text x="869.9" y="184" text-anchor="middle" fill="#6b7280">40</text>
+<line x1="70" x2="880" y1="346.0" y2="346.0" stroke="#e5e7eb"/>
+<text x="62" y="350.0" text-anchor="end" fill="#6b7280">0</text>
+<line x1="70" x2="880" y1="281.0" y2="281.0" stroke="#e5e7eb"/>
+<text x="62" y="285.0" text-anchor="end" fill="#6b7280">25,000</text>
+<line x1="70" x2="880" y1="216.0" y2="216.0" stroke="#e5e7eb"/>
+<text x="62" y="220.0" text-anchor="end" fill="#6b7280">50,000</text>
+<text x="70" y="210" font-weight="600">S2 (43 request, 1 compact)</text>
+<rect x="71.9" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="71.9" y="298.3" width="15.1" height="11.0" fill="#2563eb"><title>S2 req 1 (prompt 1): total 18,353, prefix 14,104, còn lại 4,249</title></rect>
+<text x="79.4" y="360" text-anchor="middle" fill="#6b7280">1</text>
+<rect x="90.7" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="90.7" y="297.8" width="15.1" height="11.5" fill="#2563eb"><title>S2 req 2 (prompt 2): total 18,538, prefix 14,104, còn lại 4,434</title></rect>
+<rect x="109.6" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="109.6" y="297.2" width="15.1" height="12.2" fill="#2563eb"><title>S2 req 3 (prompt 2): total 18,781, prefix 14,104, còn lại 4,677</title></rect>
+<rect x="128.4" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="128.4" y="296.7" width="15.1" height="12.7" fill="#2563eb"><title>S2 req 4 (prompt 2): total 18,972, prefix 14,104, còn lại 4,868</title></rect>
+<rect x="147.2" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="147.2" y="296.1" width="15.1" height="13.2" fill="#2563eb"><title>S2 req 5 (prompt 2): total 19,191, prefix 14,104, còn lại 5,087</title></rect>
+<text x="154.8" y="360" text-anchor="middle" fill="#6b7280">5</text>
+<rect x="166.1" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="166.1" y="295.7" width="15.1" height="13.7" fill="#2563eb"><title>S2 req 6 (prompt 2): total 19,361, prefix 14,104, còn lại 5,257</title></rect>
+<rect x="184.9" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="184.9" y="295.0" width="15.1" height="14.3" fill="#2563eb"><title>S2 req 7 (prompt 3): total 19,618, prefix 14,104, còn lại 5,514</title></rect>
+<rect x="203.7" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="203.7" y="294.4" width="15.1" height="14.9" fill="#2563eb"><title>S2 req 8 (prompt 3): total 19,851, prefix 14,104, còn lại 5,747</title></rect>
+<rect x="222.6" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="222.6" y="294.1" width="15.1" height="15.2" fill="#2563eb"><title>S2 req 9 (prompt 3): total 19,956, prefix 14,104, còn lại 5,852</title></rect>
+<rect x="241.4" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="241.4" y="293.9" width="15.1" height="15.4" fill="#2563eb"><title>S2 req 10 (prompt 4): total 20,028, prefix 14,104, còn lại 5,924</title></rect>
+<text x="249.0" y="360" text-anchor="middle" fill="#6b7280">10</text>
+<rect x="260.3" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="260.3" y="292.9" width="15.1" height="16.4" fill="#2563eb"><title>S2 req 11 (prompt 4): total 20,426, prefix 14,104, còn lại 6,322</title></rect>
+<rect x="279.1" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="279.1" y="292.6" width="15.1" height="16.7" fill="#2563eb"><title>S2 req 12 (prompt 5): total 20,524, prefix 14,104, còn lại 6,420</title></rect>
+<rect x="297.9" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="297.9" y="292.2" width="15.1" height="17.2" fill="#2563eb"><title>S2 req 13 (prompt 5): total 20,705, prefix 14,104, còn lại 6,601</title></rect>
+<rect x="316.8" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="316.8" y="292.0" width="15.1" height="17.3" fill="#2563eb"><title>S2 req 14 (prompt 6): total 20,762, prefix 14,104, còn lại 6,658</title></rect>
+<rect x="335.6" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="335.6" y="291.4" width="15.1" height="18.0" fill="#2563eb"><title>S2 req 15 (prompt 6): total 21,008, prefix 14,104, còn lại 6,904</title></rect>
+<text x="343.1" y="360" text-anchor="middle" fill="#6b7280">15</text>
+<rect x="354.4" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="354.4" y="291.1" width="15.1" height="18.3" fill="#2563eb"><title>S2 req 16 (prompt 6): total 21,132, prefix 14,104, còn lại 7,028</title></rect>
+<rect x="373.3" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="373.3" y="290.9" width="15.1" height="18.4" fill="#2563eb"><title>S2 req 17 (prompt 7): total 21,197, prefix 14,104, còn lại 7,093</title></rect>
+<rect x="392.1" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="392.1" y="289.4" width="15.1" height="19.9" fill="#2563eb"><title>S2 req 18 (prompt 7): total 21,750, prefix 14,104, còn lại 7,646</title></rect>
+<rect x="411.0" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="411.0" y="289.2" width="15.1" height="20.1" fill="#2563eb"><title>S2 req 19 (prompt 8): total 21,830, prefix 14,104, còn lại 7,726</title></rect>
+<rect x="429.8" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="429.8" y="288.9" width="15.1" height="20.5" fill="#2563eb"><title>S2 req 20 (prompt 8): total 21,972, prefix 14,104, còn lại 7,868</title></rect>
+<text x="437.3" y="360" text-anchor="middle" fill="#6b7280">20</text>
+<rect x="448.6" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="448.6" y="288.7" width="15.1" height="20.6" fill="#2563eb"><title>S2 req 21 (prompt 9): total 22,033, prefix 14,104, còn lại 7,929</title></rect>
+<rect x="467.5" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="467.5" y="288.3" width="15.1" height="21.1" fill="#2563eb"><title>S2 req 22 (prompt 9): total 22,209, prefix 14,104, còn lại 8,105</title></rect>
+<rect x="486.3" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="486.3" y="288.0" width="15.1" height="21.3" fill="#2563eb"><title>S2 req 23 (prompt 10): total 22,296, prefix 14,104, còn lại 8,192</title></rect>
+<rect x="505.1" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="505.1" y="287.5" width="15.1" height="21.9" fill="#2563eb"><title>S2 req 24 (prompt 10): total 22,512, prefix 14,104, còn lại 8,408</title></rect>
+<rect x="524.0" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="524.0" y="287.2" width="15.1" height="22.1" fill="#2563eb"><title>S2 req 25 (prompt 10): total 22,598, prefix 14,104, còn lại 8,494</title></rect>
+<text x="531.5" y="360" text-anchor="middle" fill="#6b7280">25</text>
+<rect x="542.8" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="542.8" y="287.0" width="15.1" height="22.3" fill="#2563eb"><title>S2 req 26 (prompt 11): total 22,675, prefix 14,104, còn lại 8,571</title></rect>
+<rect x="561.7" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="561.7" y="286.5" width="15.1" height="22.8" fill="#2563eb"><title>S2 req 27 (prompt 11): total 22,880, prefix 14,104, còn lại 8,776</title></rect>
+<rect x="580.5" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="580.5" y="289.3" width="15.1" height="20.0" fill="#2563eb"><title>S2 req 28 (prompt 13): total 21,812, prefix 14,104, còn lại 7,708</title></rect>
+<rect x="599.3" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="599.3" y="288.2" width="15.1" height="21.1" fill="#2563eb"><title>S2 req 29 (prompt 14): total 22,226, prefix 14,104, còn lại 8,122</title></rect>
+<rect x="618.2" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="618.2" y="286.9" width="15.1" height="22.4" fill="#2563eb"><title>S2 req 30 (prompt 14): total 22,735, prefix 14,104, còn lại 8,631</title></rect>
+<text x="625.7" y="360" text-anchor="middle" fill="#6b7280">30</text>
+<rect x="637.0" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="637.0" y="286.7" width="15.1" height="22.6" fill="#2563eb"><title>S2 req 31 (prompt 15): total 22,812, prefix 14,104, còn lại 8,708</title></rect>
+<rect x="655.8" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="655.8" y="285.8" width="15.1" height="23.6" fill="#2563eb"><title>S2 req 32 (prompt 15): total 23,172, prefix 14,104, còn lại 9,068</title></rect>
+<rect x="674.7" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="674.7" y="285.2" width="15.1" height="24.2" fill="#2563eb"><title>S2 req 33 (prompt 16): total 23,396, prefix 14,104, còn lại 9,292</title></rect>
+<rect x="693.5" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="693.5" y="284.4" width="15.1" height="25.0" fill="#2563eb"><title>S2 req 34 (prompt 16): total 23,711, prefix 14,104, còn lại 9,607</title></rect>
+<rect x="712.3" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="712.3" y="284.2" width="15.1" height="25.2" fill="#2563eb"><title>S2 req 35 (prompt 17): total 23,781, prefix 14,104, còn lại 9,677</title></rect>
+<text x="719.9" y="360" text-anchor="middle" fill="#6b7280">35</text>
+<rect x="731.2" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="731.2" y="283.6" width="15.1" height="25.8" fill="#2563eb"><title>S2 req 36 (prompt 17): total 24,014, prefix 14,104, còn lại 9,910</title></rect>
+<rect x="750.0" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="750.0" y="283.3" width="15.1" height="26.0" fill="#2563eb"><title>S2 req 37 (prompt 17): total 24,119, prefix 14,104, còn lại 10,015</title></rect>
+<rect x="768.9" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="768.9" y="283.1" width="15.1" height="26.2" fill="#2563eb"><title>S2 req 38 (prompt 18): total 24,186, prefix 14,104, còn lại 10,082</title></rect>
+<rect x="787.7" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="787.7" y="282.7" width="15.1" height="26.6" fill="#2563eb"><title>S2 req 39 (prompt 18): total 24,331, prefix 14,104, còn lại 10,227</title></rect>
+<rect x="806.5" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="806.5" y="282.6" width="15.1" height="26.8" fill="#2563eb"><title>S2 req 40 (prompt 19): total 24,398, prefix 14,104, còn lại 10,294</title></rect>
+<text x="814.1" y="360" text-anchor="middle" fill="#6b7280">40</text>
+<rect x="825.4" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="825.4" y="281.6" width="15.1" height="27.7" fill="#2563eb"><title>S2 req 41 (prompt 19): total 24,768, prefix 14,104, còn lại 10,664</title></rect>
+<rect x="844.2" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="844.2" y="281.1" width="15.1" height="28.2" fill="#2563eb"><title>S2 req 42 (prompt 20): total 24,966, prefix 14,104, còn lại 10,862</title></rect>
+<rect x="863.0" y="309.3" width="15.1" height="36.7" fill="#94a3b8"/>
+<rect x="863.0" y="280.9" width="15.1" height="28.4" fill="#2563eb"><title>S2 req 43 (prompt 21): total 25,032, prefix 14,104, còn lại 10,928</title></rect>
+<line x1="578.6" x2="578.6" y1="216" y2="346" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="70" x2="880" y1="522.0" y2="522.0" stroke="#e5e7eb"/>
+<text x="62" y="526.0" text-anchor="end" fill="#6b7280">0</text>
+<line x1="70" x2="880" y1="457.0" y2="457.0" stroke="#e5e7eb"/>
+<text x="62" y="461.0" text-anchor="end" fill="#6b7280">25,000</text>
+<line x1="70" x2="880" y1="392.0" y2="392.0" stroke="#e5e7eb"/>
+<text x="62" y="396.0" text-anchor="end" fill="#6b7280">50,000</text>
+<text x="70" y="386" font-weight="600">S3 (40 request, 15 compact)</text>
+<rect x="72.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="72.0" y="474.4" width="16.2" height="10.9" fill="#2563eb"><title>S3 req 1 (prompt 1): total 18,299, prefix 14,104, còn lại 4,195</title></rect>
+<text x="80.1" y="536" text-anchor="middle" fill="#6b7280">1</text>
+<rect x="92.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="92.3" y="464.4" width="16.2" height="21.0" fill="#2563eb"><title>S3 req 2 (prompt 1): total 22,171, prefix 14,104, còn lại 8,067</title></rect>
+<rect x="112.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="112.5" y="459.8" width="16.2" height="25.5" fill="#2563eb"><title>S3 req 3 (prompt 3): total 23,906, prefix 14,104, còn lại 9,802</title></rect>
+<rect x="132.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="132.8" y="449.8" width="16.2" height="35.5" fill="#2563eb"><title>S3 req 4 (prompt 3): total 27,777, prefix 14,104, còn lại 13,673</title></rect>
+<rect x="153.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="153.0" y="449.4" width="16.2" height="36.0" fill="#2563eb"><title>S3 req 5 (prompt 4): total 27,933, prefix 14,104, còn lại 13,829</title></rect>
+<text x="161.1" y="536" text-anchor="middle" fill="#6b7280">5</text>
+<rect x="173.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="173.3" y="439.3" width="16.2" height="46.0" fill="#2563eb"><title>S3 req 6 (prompt 4): total 31,805, prefix 14,104, còn lại 17,701</title></rect>
+<rect x="193.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="193.5" y="439.0" width="16.2" height="46.3" fill="#2563eb"><title>S3 req 7 (prompt 5): total 31,927, prefix 14,104, còn lại 17,823</title></rect>
+<rect x="213.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="213.8" y="436.0" width="16.2" height="49.3" fill="#2563eb"><title>S3 req 8 (prompt 5): total 33,084, prefix 14,104, còn lại 18,980</title></rect>
+<rect x="234.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="234.0" y="459.2" width="16.2" height="26.1" fill="#2563eb"><title>S3 req 9 (prompt 6): total 24,139, prefix 14,104, còn lại 10,035</title></rect>
+<rect x="254.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="254.3" y="448.9" width="16.2" height="36.4" fill="#2563eb"><title>S3 req 10 (prompt 6): total 28,117, prefix 14,104, còn lại 14,013</title></rect>
+<text x="262.4" y="536" text-anchor="middle" fill="#6b7280">10</text>
+<rect x="274.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="274.5" y="448.6" width="16.2" height="36.7" fill="#2563eb"><title>S3 req 11 (prompt 7): total 28,238, prefix 14,104, còn lại 14,134</title></rect>
+<rect x="294.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="294.8" y="456.0" width="16.2" height="29.4" fill="#2563eb"><title>S3 req 12 (prompt 7): total 25,393, prefix 14,104, còn lại 11,289</title></rect>
+<rect x="315.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="315.0" y="448.3" width="16.2" height="37.0" fill="#2563eb"><title>S3 req 13 (prompt 8): total 28,331, prefix 14,104, còn lại 14,227</title></rect>
+<rect x="335.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="335.3" y="455.2" width="16.2" height="30.1" fill="#2563eb"><title>S3 req 14 (prompt 8): total 25,674, prefix 14,104, còn lại 11,570</title></rect>
+<rect x="355.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="355.5" y="446.8" width="16.2" height="38.6" fill="#2563eb"><title>S3 req 15 (prompt 9): total 28,933, prefix 14,104, còn lại 14,829</title></rect>
+<text x="363.6" y="536" text-anchor="middle" fill="#6b7280">15</text>
+<rect x="375.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="375.8" y="454.9" width="16.2" height="30.4" fill="#2563eb"><title>S3 req 16 (prompt 9): total 25,815, prefix 14,104, còn lại 11,711</title></rect>
+<rect x="396.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="396.0" y="446.1" width="16.2" height="39.2" fill="#2563eb"><title>S3 req 17 (prompt 10): total 29,194, prefix 14,104, còn lại 15,090</title></rect>
+<rect x="416.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="416.3" y="453.5" width="16.2" height="31.8" fill="#2563eb"><title>S3 req 18 (prompt 10): total 26,331, prefix 14,104, còn lại 12,227</title></rect>
+<rect x="436.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="436.5" y="445.2" width="16.2" height="40.1" fill="#2563eb"><title>S3 req 19 (prompt 11): total 29,538, prefix 14,104, còn lại 15,434</title></rect>
+<rect x="456.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="456.8" y="457.2" width="16.2" height="28.1" fill="#2563eb"><title>S3 req 20 (prompt 11): total 24,928, prefix 14,104, còn lại 10,824</title></rect>
+<text x="464.9" y="536" text-anchor="middle" fill="#6b7280">20</text>
+<rect x="477.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="477.0" y="447.1" width="16.2" height="38.2" fill="#2563eb"><title>S3 req 21 (prompt 13): total 28,793, prefix 14,104, còn lại 14,689</title></rect>
+<rect x="497.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="497.3" y="459.7" width="16.2" height="25.6" fill="#2563eb"><title>S3 req 22 (prompt 13): total 23,968, prefix 14,104, còn lại 9,864</title></rect>
+<rect x="517.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="517.5" y="451.7" width="16.2" height="33.6" fill="#2563eb"><title>S3 req 23 (prompt 14): total 27,046, prefix 14,104, còn lại 12,942</title></rect>
+<rect x="537.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="537.8" y="441.6" width="16.2" height="43.7" fill="#2563eb"><title>S3 req 24 (prompt 14): total 30,917, prefix 14,104, còn lại 16,813</title></rect>
+<rect x="558.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="558.0" y="441.2" width="16.2" height="44.1" fill="#2563eb"><title>S3 req 25 (prompt 15): total 31,077, prefix 14,104, còn lại 16,973</title></rect>
+<text x="566.1" y="536" text-anchor="middle" fill="#6b7280">25</text>
+<rect x="578.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="578.3" y="446.4" width="16.2" height="38.9" fill="#2563eb"><title>S3 req 26 (prompt 15): total 29,062, prefix 14,104, còn lại 14,958</title></rect>
+<rect x="598.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="598.5" y="439.1" width="16.2" height="46.2" fill="#2563eb"><title>S3 req 27 (prompt 16): total 31,878, prefix 14,104, còn lại 17,774</title></rect>
+<rect x="618.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="618.8" y="455.6" width="16.2" height="29.7" fill="#2563eb"><title>S3 req 28 (prompt 16): total 25,533, prefix 14,104, còn lại 11,429</title></rect>
+<rect x="639.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="639.0" y="447.4" width="16.2" height="37.9" fill="#2563eb"><title>S3 req 29 (prompt 17): total 28,680, prefix 14,104, còn lại 14,576</title></rect>
+<rect x="659.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="659.3" y="459.7" width="16.2" height="25.7" fill="#2563eb"><title>S3 req 30 (prompt 17): total 23,972, prefix 14,104, còn lại 9,868</title></rect>
+<text x="667.4" y="536" text-anchor="middle" fill="#6b7280">30</text>
+<rect x="679.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="679.5" y="452.0" width="16.2" height="33.3" fill="#2563eb"><title>S3 req 31 (prompt 18): total 26,915, prefix 14,104, còn lại 12,811</title></rect>
+<rect x="699.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="699.8" y="442.0" width="16.2" height="43.4" fill="#2563eb"><title>S3 req 32 (prompt 18): total 30,788, prefix 14,104, còn lại 16,684</title></rect>
+<rect x="720.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="720.0" y="441.6" width="16.2" height="43.7" fill="#2563eb"><title>S3 req 33 (prompt 19): total 30,923, prefix 14,104, còn lại 16,819</title></rect>
+<rect x="740.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="740.3" y="449.8" width="16.2" height="35.6" fill="#2563eb"><title>S3 req 34 (prompt 19): total 27,781, prefix 14,104, còn lại 13,677</title></rect>
+<rect x="760.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="760.5" y="441.8" width="16.2" height="43.5" fill="#2563eb"><title>S3 req 35 (prompt 20): total 30,837, prefix 14,104, còn lại 16,733</title></rect>
+<text x="768.6" y="536" text-anchor="middle" fill="#6b7280">35</text>
+<rect x="780.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="780.8" y="456.3" width="16.2" height="29.0" fill="#2563eb"><title>S3 req 36 (prompt 20): total 25,273, prefix 14,104, còn lại 11,169</title></rect>
+<rect x="801.0" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="801.0" y="448.1" width="16.2" height="37.2" fill="#2563eb"><title>S3 req 37 (prompt 21): total 28,420, prefix 14,104, còn lại 14,316</title></rect>
+<rect x="821.3" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="821.3" y="456.0" width="16.2" height="29.3" fill="#2563eb"><title>S3 req 38 (prompt 21): total 25,368, prefix 14,104, còn lại 11,264</title></rect>
+<rect x="841.5" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="841.5" y="448.3" width="16.2" height="37.0" fill="#2563eb"><title>S3 req 39 (prompt 22): total 28,352, prefix 14,104, còn lại 14,248</title></rect>
+<rect x="861.8" y="485.3" width="16.2" height="36.7" fill="#94a3b8"/>
+<rect x="861.8" y="455.1" width="16.2" height="30.3" fill="#2563eb"><title>S3 req 40 (prompt 22): total 25,744, prefix 14,104, còn lại 11,640</title></rect>
+<text x="869.9" y="536" text-anchor="middle" fill="#6b7280">40</text>
+<line x1="211.8" x2="211.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="232.0" x2="232.0" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="292.8" x2="292.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="333.2" x2="333.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="373.8" x2="373.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="414.2" x2="414.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="454.8" x2="454.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="495.2" x2="495.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="576.2" x2="576.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="616.8" x2="616.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="657.2" x2="657.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="738.2" x2="738.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="778.8" x2="778.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="819.2" x2="819.2" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<line x1="859.8" x2="859.8" y1="392" y2="522" stroke="#dc2626" stroke-dasharray="4 3"/>
+<path d="M95.4,452.4 L105.4,452.4 L100.4,460.4 Z" fill="#111827"><title>/context 20261010201700.stream.jsonl</title></path>
+<path d="M459.9,445.2 L469.9,445.2 L464.9,453.2 Z" fill="#111827"><title>/context 20261010201931.stream.jsonl</title></path>
+<path d="M864.9,443.1 L874.9,443.1 L869.9,451.1 Z" fill="#111827"><title>/context 20261010202157.stream.jsonl</title></path>
+<text x="880" y="542" text-anchor="end" fill="#374151">API request (theo thứ tự trong session)</text>
+<rect x="70" y="550" width="12" height="12" fill="#94a3b8"/>
+<text x="88" y="560">prefix tĩnh C0 + C1a + C1b (đo ở mốc /context)</text>
+<rect x="370" y="550" width="12" height="12" fill="#2563eb"/>
+<text x="388" y="560">phần còn lại C2 + C3 (+ C4 sau compact)</text>
+<line x1="670" x2="670" y1="548" y2="564" stroke="#dc2626" stroke-dasharray="4 3"/>
+<text x="676" y="560">compact</text>
+<path d="M740,550 L750,550 L745,560 Z" fill="#111827"/>
+<text x="756" y="560">mốc /context</text>
+<text x="70" y="588" font-weight="600">Chi tiết tại 3 mốc /context (category kind=used, đo trực tiếp)</text>
+<text x="62" y="613" text-anchor="end" fill="#374151">S3 r2</text>
+<rect x="70.0" y="600" width="41.4" height="18" fill="#475569"><title>System prompt (C0): 3,000</title></rect>
+<rect x="111.4" y="600" width="120.6" height="18" fill="#94a3b8"><title>System tools (C0): 8,742</title></rect>
+<rect x="232.0" y="600" width="2.8" height="18" fill="#16a34a"><title>Memory files (C1a): 205</title></rect>
+<rect x="234.9" y="600" width="29.8" height="18" fill="#9333ea"><title>Skills (C1b): 2,157</title></rect>
+<rect x="264.6" y="600" width="111.6" height="18" fill="#2563eb"><title>Messages (C2+C3): 8,088</title></rect>
+<text x="382.2" y="613" fill="#374151">22,192 (usage 22,171)</text>
+<text x="62" y="639" text-anchor="end" fill="#374151">S3 r20</text>
+<rect x="70.0" y="626" width="41.4" height="18" fill="#475569"><title>System prompt (C0): 3,000</title></rect>
+<rect x="111.4" y="626" width="120.6" height="18" fill="#94a3b8"><title>System tools (C0): 8,742</title></rect>
+<rect x="232.0" y="626" width="2.8" height="18" fill="#16a34a"><title>Memory files (C1a): 205</title></rect>
+<rect x="234.9" y="626" width="29.8" height="18" fill="#9333ea"><title>Skills (C1b): 2,157</title></rect>
+<rect x="264.6" y="626" width="149.8" height="18" fill="#2563eb"><title>Messages (C2+C3): 10,852</title></rect>
+<text x="420.4" y="639" fill="#374151">24,956 (usage 24,928)</text>
+<text x="62" y="665" text-anchor="end" fill="#374151">S3 r40</text>
+<rect x="70.0" y="652" width="41.4" height="18" fill="#475569"><title>System prompt (C0): 3,000</title></rect>
+<rect x="111.4" y="652" width="120.6" height="18" fill="#94a3b8"><title>System tools (C0): 8,742</title></rect>
+<rect x="232.0" y="652" width="2.8" height="18" fill="#16a34a"><title>Memory files (C1a): 205</title></rect>
+<rect x="234.9" y="652" width="29.8" height="18" fill="#9333ea"><title>Skills (C1b): 2,157</title></rect>
+<rect x="264.6" y="652" width="160.9" height="18" fill="#2563eb"><title>Messages (C2+C3): 11,661</title></rect>
+<text x="431.6" y="665" fill="#374151">25,765 (usage 25,744)</text>
+<rect x="70" y="686" width="12" height="12" fill="#475569"/>
+<text x="88" y="696">System prompt (C0)</text>
+<rect x="220" y="686" width="12" height="12" fill="#94a3b8"/>
+<text x="238" y="696">System tools (C0)</text>
+<rect x="370" y="686" width="12" height="12" fill="#16a34a"/>
+<text x="388" y="696">Memory files (C1a)</text>
+<rect x="520" y="686" width="12" height="12" fill="#9333ea"/>
+<text x="538" y="696">Skills (C1b)</text>
+<rect x="670" y="686" width="12" height="12" fill="#2563eb"/>
+<text x="688" y="696">Messages (C2+C3)</text>
+</svg>
