@@ -17,6 +17,10 @@ page must work without it. Keys are `<storage-key>-theme` and `<storage-key>-che
 
 ## Built-in behaviour
 
+- `Notation` runs once at load: it wraps codes from `#notation` (filled from `meta.notation`) in
+  `<abbr class="nt" data-action="note">`; the `note` workflow shows the definition in the toast.
+- Markdown links to `#ids` get `data-action="nav"` at render time, so they close the drawer and
+  switch tabs like TOC links.
 - `copy:code` copies the `<code>` of the code box that holds the clicked button, so any number
   of code boxes work without ids. `copy:md` copies the Markdown source.
 - Every string the JS shows (toasts, the checklist counter `{done}/{total}`) is a `__UI:key__`

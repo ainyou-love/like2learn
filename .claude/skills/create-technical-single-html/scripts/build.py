@@ -31,7 +31,7 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 SHELL = SKILL_DIR / "assets" / "shell.html"
 UI_STRINGS = SKILL_DIR / "assets" / "ui-strings.json"
 ONCE = ["__LANG__", "__TITLE__", "__DESC__", "__BRAND__", "__DATE__", "__TOC__",
-        "__SIDEBAR_NOTE__", "__BODY__", "__MD_SOURCE__"]
+        "__SIDEBAR_NOTE__", "__BODY__", "__MD_SOURCE__", "__NOTATION__"]
 MANY = ["__MD_FILENAME__", "__STORAGE_KEY__"]
 
 
@@ -100,7 +100,7 @@ def check(out: str, md: str, bans: list[str], strict_paths: bool) -> list[str]:
 def assemble(*, body: str, md: str, out_path: str, title: str, brand: str, date: str, desc: str = "",
              lang: str = "en", ui_lang: str = "", md_filename: str = "report.md", storage_key: str = "report",
              sidebar_note: str = "", code: dict[str, str] | None = None, bans: list[str] | None = None,
-             strict_paths: bool = False) -> None:
+             strict_paths: bool = False, notation: dict[str, str] | None = None) -> None:
     """Fill the shell, run every check, and write out_path only when all pass."""
     shell = SHELL.read_text()
     for ph in ONCE:
@@ -135,6 +135,7 @@ def assemble(*, body: str, md: str, out_path: str, title: str, brand: str, date:
             fail(f"UI string {ui_lang}.{key} must not contain < > & \" ` or \\ (it lands in HTML and JS)")
         out = out.replace(f"__UI:{key}__", val)
     out = out.replace("__MD_FILENAME__", html.escape(md_filename)).replace("__STORAGE_KEY__", re.sub(r"[^a-z0-9-]", "-", storage_key.lower()))
+    out = out.replace("__NOTATION__", json.dumps(notation or {}, ensure_ascii=False).replace("<", "\\u003c"), 1)
     out = out.replace("__MD_SOURCE__", "\n" + md, 1)
 
     problems = check(out, md, [w.strip() for w in bans or []], strict_paths)

@@ -1,0 +1,25 @@
+{% macro html(b, inner) %}
+<figure class="fig img{{ ' fit' if b.get('fit') }}{{ ' themed' if b.file_dark is defined }}"{% if b.id is defined %} id="{{ b.id }}"{% endif %}><div class="scroll">
+  <img class="light" src="{{ b.file }}" alt="{{ b.alt|plain }}" loading="lazy" decoding="async"{% if b._w is defined %} width="{{ b._w }}" height="{{ b._h }}"{% endif %}>
+{% if b.file_dark is defined %}  <img class="dark" src="{{ b.file_dark }}" alt="{{ b.alt|plain }}" loading="lazy" decoding="async"{% if b._w is defined %} width="{{ b._w }}" height="{{ b._h }}"{% endif %}>
+{% endif %}
+</div>
+{% if b.caption is defined %}  <figcaption>{{ b.caption|inl }}</figcaption>
+{% endif %}
+{% if b.ascii is defined %}  <details><summary>__UI:ascii_version__</summary><pre>{{ b.ascii }}</pre></details>
+{% endif %}
+</figure>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}{{ b.get('ascii_lang', 'text') }}
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+*[{{ b.alt }}]*
+{% endif %}
+{% if b.caption is defined %}
+
+*{{ b.caption }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

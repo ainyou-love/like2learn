@@ -8,60 +8,534 @@
     "md_filename": "all-blocks.md",
     "storage_key": "all-blocks-fixture",
     "ban": "OLTP,OLAP",
-    "strict_paths": true
+    "strict_paths": true,
+    "notation": {
+      "F1": "Finding 1 — tap a code to see its definition.",
+      "Q1": "Open question 1."
+    }
   },
   "hero": {
     "kicker": "Fixture",
     "title": "Every block, *once*",
     "lede": "Render after changing any template, the shell or render.py: `render.py all-blocks.post.json --out /tmp/x.html --keep-dir /tmp/x`.",
-    "chips": [{"label": "Owner", "value": "skill maintainer"}, {"label": "Link", "value": "Example", "href": "https://example.com"}, {"pill": {"kind": "info", "text": "reference"}}],
-    "stats": [{"n": "22", "l": "block types"}, {"n": "1", "l": "page"}, {"n": "0", "l": "warnings expected"}, {"n": "vi", "l": "interface language"}]
+    "chips": [
+      {
+        "label": "Owner",
+        "value": "skill maintainer"
+      },
+      {
+        "label": "Link",
+        "value": "Example",
+        "href": "https://example.com"
+      },
+      {
+        "pill": {
+          "kind": "info",
+          "text": "reference"
+        }
+      }
+    ],
+    "stats": [
+      {
+        "n": "22",
+        "l": "block types"
+      },
+      {
+        "n": "1",
+        "l": "page"
+      },
+      {
+        "n": "0",
+        "l": "warnings expected"
+      },
+      {
+        "n": "vi",
+        "l": "interface language"
+      }
+    ]
   },
   "sections": [
-    {"id": "checklist", "no": "✓", "title": "Checklist", "head": false, "blocks": [
-      {"type": "checklist", "title": "Two steps", "intro": "Ticks persist per browser.", "steps": [
-        {"title": "Look at the prose", "where": [["§1", "#s1"]], "checks": ["Code keeps **two** blank lines."]},
-        {"title": "Filter findings", "where": [["§3", "#s3"]]}]}
-    ]},
-    {"id": "start", "no": "→", "title": "Start here", "head": false, "blocks": [
-      {"type": "start", "title": "Read in this order", "route_label": "Path", "route": [["01", "#s1"], ["03", "#s3"]],
-       "columns": [[{"title": "Change", "items": [{"text": "First item", "refs": [["F1", "#f1"]]}, {"text": "Second item"}], "text": "A paragraph after the list must not join the last item."}],
-                   [{"title": "Answer", "items": [{"text": "Q1", "refs": [["Q1", "#q1"]]}]}]]}
-    ]},
-    {"id": "s1", "no": "01", "title": "Prose and code", "toc_group": "Text", "intro": "md, callout, code.", "blocks": [
-      {"type": "md", "text": "A paragraph with **bold**, `code` and a [link](https://example.com).\n\n### A subheading\n\n- one\n- two\n\n> a quote\n\n```markdown\n# A heading inside a fence is fine\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |"},
-      {"type": "callout", "kind": "key", "title": "Key", "text": "Callout body.\n\nSecond paragraph."},
-      {"type": "callout", "kind": "warn", "text": "Warning callout."},
-      {"type": "callout", "title": "Example — title-only label"},
-      {"type": "code", "title": "two-blank-lines.py", "lang": "python", "text": "def a():\n    pass\n\n\ndef b():\n    pass"},
-      {"type": "code", "title": "contains-a-fence.md", "lang": "markdown", "text": "# Doc\n```bash\nls\n```\nafter"}
-    ]},
-    {"id": "s2", "no": "02", "title": "Shapes", "intro": "table, cards, steps, kv, tags, figure.", "blocks": [
-      {"type": "table", "head": ["Key", "Value"], "rows": [{"group": "Group"}, ["a", "1"], ["b", "2"]], "hl": [2], "caption": "Caption", "legend": ["legend line"], "note": "Table note sits under the table, not in the cells."},
-      {"type": "table", "matrix": true, "sel": 2, "key": false, "wide": true, "head": ["Question", "A", "B"], "rows": [["Q", "✗", "✓"]], "ascii": "Q: A no, B yes"},
-      {"type": "cards", "cols": 3, "items": [{"title": "One", "pill": {"kind": "ok", "text": "ok"}, "text": "- a\n- b", "meta": "meta"}, {"title": "Two", "text": "text"}, {"title": "Three"}], "note": "cards note"},
-      {"type": "steps", "items": [{"title": "Send", "text": "request"}, {"title": "Read"}], "loop": "repeat until done", "ascii": "Send -> Read -> (repeat)"},
-      {"type": "kv", "title": "Receipt", "rows": [["input_tokens", "1.200"], ["total", "1.550"]], "sum": [1], "note": "kv note"},
-      {"type": "tags", "items": [{"code": "end_turn", "text": "done", "kind": "ok"}, {"text": "no code", "kind": "bad"}], "legend": [{"kind": "ok", "text": "fine"}, {"kind": "bad", "text": "not fine"}]},
-      {"type": "figure", "file": "scope.svg", "caption": "Figure from a file.", "ascii": "A -> B", "fit": true, "id": "fig-scope"}
-    ]},
-    {"id": "s3", "no": "03", "title": "Review blocks", "toc_group": "Review", "blocks": [
-      {"type": "findings", "filters": ["P0", "P1"], "items": [
-        {"id": "F1", "tags": ["P0"], "pill": {"kind": "bad", "text": "P0"}, "title": "Multi-line fields stay multi-line", "fields": [
-          ["What", "A list:\n\n- one\n- two"], ["Example", "```sql\nSELECT 1;\n```", "ex"], ["Value", "Readable Markdown.", "val"]]},
-        {"id": "F2", "tags": [], "title": "No tags still filters safely", "fields": [["What", "Empty tag list."]]}]},
-      {"type": "fcards", "legend": [{"pill": {"kind": "acc", "text": "request review"}, "text": "awaiting owner"}], "items": [
-        {"id": "D1", "pill": {"kind": "acc", "text": "Request review"}, "title": "Decision", "fields": [["Why", "Because."]]}]},
-      {"type": "options", "items": [
-        {"title": "A", "why": "simple", "intent": [["Goal", "few tables"]], "tables": [{"name": "t", "note": "1 row", "cols": [["id", "key"], "x", ["y", "bad"]]}]},
-        {"title": "B", "chosen": true, "tag": {"kind": "acc", "text": "recommended"}, "note": "chosen one"}]},
-      {"type": "qgroups", "groups": [{"title": "Serving", "pill": {"kind": "acc", "text": "S"}, "sub": "when asked", "items": [{"id": "S1", "q": "Question?", "ex": "example"}]}]},
-      {"type": "questions", "items": [{"id": "Q1", "q": "Open question?", "text": "Context."}]},
-      {"type": "requirements", "items": ["**Send** one alert per event.", "**Retry** failed pushes."]},
-      {"type": "status", "items": [{"title": "READY", "kind": "ok", "pill": {"kind": "ok", "text": "ok"}, "text": "evidence", "src": "source"}, {"title": "OPEN"}]},
-      {"type": "video", "youtube": "kPN564Kol14", "title": "Building a Full Stack App with Agentic Engineering", "start": 90, "caption": "Video block with a start offset."},
-      {"type": "raw", "html": "<p class=\"sec-intro\">Raw HTML block.</p>", "md": "Raw HTML block."}
-    ]}
+    {
+      "id": "checklist",
+      "no": "✓",
+      "title": "Checklist",
+      "head": false,
+      "blocks": [
+        {
+          "type": "checklist",
+          "title": "Two steps",
+          "intro": "Ticks persist per browser.",
+          "steps": [
+            {
+              "title": "Look at the prose",
+              "where": [
+                [
+                  "§1",
+                  "#s1"
+                ]
+              ],
+              "checks": [
+                "Code keeps **two** blank lines."
+              ]
+            },
+            {
+              "title": "Filter findings",
+              "where": [
+                [
+                  "§3",
+                  "#s3"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "start",
+      "no": "→",
+      "title": "Start here",
+      "head": false,
+      "blocks": [
+        {
+          "type": "start",
+          "title": "Read in this order",
+          "route_label": "Path",
+          "route": [
+            [
+              "01",
+              "#s1"
+            ],
+            [
+              "03",
+              "#s3"
+            ]
+          ],
+          "columns": [
+            [
+              {
+                "title": "Change",
+                "items": [
+                  {
+                    "text": "First item",
+                    "refs": [
+                      [
+                        "F1",
+                        "#f1"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Second item"
+                  }
+                ],
+                "text": "A paragraph after the list must not join the last item."
+              }
+            ],
+            [
+              {
+                "title": "Answer",
+                "items": [
+                  {
+                    "text": "Q1",
+                    "refs": [
+                      [
+                        "Q1",
+                        "#q1"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s1",
+      "no": "01",
+      "title": "Prose and code",
+      "toc_group": "Text",
+      "intro": "md, callout, code.",
+      "blocks": [
+        {
+          "type": "md",
+          "text": "A paragraph with **bold**, `code` and a [link](https://example.com).\n\n### A subheading\n\n- one\n- two\n\n> a quote\n\n```markdown\n# A heading inside a fence is fine\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |"
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "Key",
+          "text": "Callout body.\n\nSecond paragraph."
+        },
+        {
+          "type": "callout",
+          "kind": "warn",
+          "text": "Warning callout."
+        },
+        {
+          "type": "callout",
+          "title": "Example — title-only label"
+        },
+        {
+          "type": "code",
+          "title": "two-blank-lines.py",
+          "lang": "python",
+          "text": "def a():\n    pass\n\n\ndef b():\n    pass"
+        },
+        {
+          "type": "code",
+          "title": "contains-a-fence.md",
+          "lang": "markdown",
+          "text": "# Doc\n```bash\nls\n```\nafter"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "no": "02",
+      "title": "Shapes",
+      "intro": "table, cards, steps, kv, tags, figure.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Key",
+            "Value"
+          ],
+          "rows": [
+            {
+              "group": "Group"
+            },
+            [
+              "a",
+              "1"
+            ],
+            [
+              "b",
+              "2"
+            ]
+          ],
+          "hl": [
+            2
+          ],
+          "caption": "Caption",
+          "legend": [
+            "legend line"
+          ],
+          "note": "Table note sits under the table, not in the cells."
+        },
+        {
+          "type": "table",
+          "matrix": true,
+          "sel": 2,
+          "key": false,
+          "wide": true,
+          "head": [
+            "Question",
+            "A",
+            "B"
+          ],
+          "rows": [
+            [
+              "Q",
+              "✗",
+              "✓"
+            ]
+          ],
+          "ascii": "Q: A no, B yes"
+        },
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "One",
+              "pill": {
+                "kind": "ok",
+                "text": "ok"
+              },
+              "text": "- a\n- b",
+              "meta": "meta"
+            },
+            {
+              "title": "Two",
+              "text": "text"
+            },
+            {
+              "title": "Three"
+            }
+          ],
+          "note": "cards note"
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Send",
+              "text": "request"
+            },
+            {
+              "title": "Read"
+            }
+          ],
+          "loop": "repeat until done",
+          "ascii": "Send -> Read -> (repeat)"
+        },
+        {
+          "type": "kv",
+          "title": "Receipt",
+          "rows": [
+            [
+              "input_tokens",
+              "1.200"
+            ],
+            [
+              "total",
+              "1.550"
+            ]
+          ],
+          "sum": [
+            1
+          ],
+          "note": "kv note"
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "code": "end_turn",
+              "text": "done",
+              "kind": "ok"
+            },
+            {
+              "text": "no code",
+              "kind": "bad"
+            }
+          ],
+          "legend": [
+            {
+              "kind": "ok",
+              "text": "fine"
+            },
+            {
+              "kind": "bad",
+              "text": "not fine"
+            }
+          ]
+        },
+        {
+          "type": "figure",
+          "file": "scope.svg",
+          "caption": "Figure from a file.",
+          "ascii": "A -> B",
+          "fit": true,
+          "id": "fig-scope"
+        },
+        {
+          "type": "image",
+          "file": "scope.svg",
+          "file_dark": "scope.svg",
+          "alt": "The scope diagram as an image file",
+          "caption": "Image block: embedded as a data URI with its size reserved.",
+          "ascii": "flowchart LR\n  A --> B",
+          "ascii_lang": "mermaid",
+          "fit": true
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "no": "03",
+      "title": "Review blocks",
+      "toc_group": "Review",
+      "blocks": [
+        {
+          "type": "findings",
+          "filters": [
+            "P0",
+            "P1"
+          ],
+          "items": [
+            {
+              "id": "F1",
+              "tags": [
+                "P0"
+              ],
+              "pill": {
+                "kind": "bad",
+                "text": "P0"
+              },
+              "title": "Multi-line fields stay multi-line",
+              "fields": [
+                [
+                  "What",
+                  "A list:\n\n- one\n- two"
+                ],
+                [
+                  "Example",
+                  "```sql\nSELECT 1;\n```",
+                  "ex"
+                ],
+                [
+                  "Value",
+                  "Readable Markdown.",
+                  "val"
+                ]
+              ]
+            },
+            {
+              "id": "F2",
+              "tags": [],
+              "title": "No tags still filters safely",
+              "fields": [
+                [
+                  "What",
+                  "Empty tag list."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "fcards",
+          "legend": [
+            {
+              "pill": {
+                "kind": "acc",
+                "text": "request review"
+              },
+              "text": "awaiting owner"
+            }
+          ],
+          "items": [
+            {
+              "id": "D1",
+              "pill": {
+                "kind": "acc",
+                "text": "Request review"
+              },
+              "title": "Decision",
+              "fields": [
+                [
+                  "Why",
+                  "Because."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "options",
+          "items": [
+            {
+              "title": "A",
+              "why": "simple",
+              "intent": [
+                [
+                  "Goal",
+                  "few tables"
+                ]
+              ],
+              "tables": [
+                {
+                  "name": "t",
+                  "note": "1 row",
+                  "cols": [
+                    [
+                      "id",
+                      "key"
+                    ],
+                    "x",
+                    [
+                      "y",
+                      "bad"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "B",
+              "chosen": true,
+              "tag": {
+                "kind": "acc",
+                "text": "recommended"
+              },
+              "note": "chosen one"
+            }
+          ]
+        },
+        {
+          "type": "qgroups",
+          "groups": [
+            {
+              "title": "Serving",
+              "pill": {
+                "kind": "acc",
+                "text": "S"
+              },
+              "sub": "when asked",
+              "items": [
+                {
+                  "id": "S1",
+                  "q": "Question?",
+                  "ex": "example"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "questions",
+          "items": [
+            {
+              "id": "Q1",
+              "q": "Open question?",
+              "text": "Context."
+            }
+          ]
+        },
+        {
+          "type": "requirements",
+          "items": [
+            "**Send** one alert per event.",
+            "**Retry** failed pushes."
+          ]
+        },
+        {
+          "type": "status",
+          "items": [
+            {
+              "title": "READY",
+              "kind": "ok",
+              "pill": {
+                "kind": "ok",
+                "text": "ok"
+              },
+              "text": "evidence",
+              "src": "source"
+            },
+            {
+              "title": "OPEN"
+            }
+          ]
+        },
+        {
+          "type": "video",
+          "youtube": "kPN564Kol14",
+          "title": "Building a Full Stack App with Agentic Engineering",
+          "start": 90,
+          "caption": "Video block with a start offset."
+        },
+        {
+          "type": "raw",
+          "html": "<p class=\"sec-intro\">Raw HTML block.</p>",
+          "md": "Raw HTML block."
+        }
+      ]
+    }
   ],
   "footer": "All blocks fixture · not a published page"
 }

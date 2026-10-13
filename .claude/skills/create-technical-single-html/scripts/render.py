@@ -16,6 +16,7 @@ Requires jinja2 and markdown-it-py.
 """
 
 import argparse
+import base64
 import html
 import json
 import pathlib
@@ -32,7 +33,9 @@ from build import SKILL_DIR, assemble, fail  # noqa: E402
 BLOCKS = SKILL_DIR / "assets" / "blocks"
 REGISTRY = json.loads((SKILL_DIR / "assets" / "components.json").read_text())["components"]
 META_FIELDS = {"title", "brand", "date", "desc", "lang", "ui_lang", "md_filename", "storage_key",
-               "sidebar_note", "ban", "strict_paths"}
+               "sidebar_note", "ban", "strict_paths", "notation"}
+IMAGE_TYPES = {".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg",
+               ".jpeg": "image/jpeg", ".gif": "image/gif"}
 TOP_FIELDS = {"$schema", "meta", "hero", "sections", "footer"}
 KINDS = {"ok", "warn", "bad", "info", "acc", "mute"}
 CALLOUT_KINDS = {"note", "warn", "key"}
@@ -67,6 +70,8 @@ def make_markdown() -> MarkdownIt:
         if (tok.attrGet("href") or "").startswith(("http://", "https://")):
             tok.attrSet("target", "_blank")
             tok.attrSet("rel", "noopener")
+        elif (tok.attrGet("href") or "").startswith("#"):
+            tok.attrSet("data-action", "nav")
         return self.renderToken(tokens, idx, options, env)
 
     rules("table_open", table_open)
@@ -208,15 +213,40 @@ def check_kinds(node, where: str) -> None:
             check_kinds(v, where)
 
 
+def image_size(path: pathlib.Path) -> tuple[int, int] | None:
+    """Intrinsic size, so the page reserves the space before a lazy image loads (anchors land right)."""
+    data = path.read_bytes()
+    if path.suffix.lower() == ".svg":
+        root = re.search(rb"<svg\b[^>]*>", data)
+        box = root and re.search(rb'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)', root.group(0))
+        return (round(float(box.group(1))), round(float(box.group(2)))) if box else None
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return int.from_bytes(data[6:8], "little"), int.from_bytes(data[8:10], "little")
+    return None
+
+
 class Renderer:
     def __init__(self, base: pathlib.Path):
         self.env = make_env()
         self.base = base
 
     def load_files(self, b: dict) -> dict:
+        if b["type"] == "image":
+            size = image_size(self.base / b["file"])
+            return {**b, **{k: self.data_uri(b[k]) for k in ("file", "file_dark") if k in b},
+                    **({"_w": size[0], "_h": size[1]} if size else {})}
         if "file" in b:
             b = {**b, "file": (self.base / b["file"]).read_text().rstrip("\n")}
         return b
+
+    def data_uri(self, rel: str) -> str:
+        path = self.base / rel
+        if not path.is_file():
+            fail(f"image file not found: {path}")
+        mime = IMAGE_TYPES.get(path.suffix.lower()) or fail(f"image {rel}: use one of {sorted(IMAGE_TYPES)}")
+        return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
 
     def block(self, b: dict, where: str, inner: tuple[str, str] = ("", "")) -> tuple[str, str]:
         check_fields(b, where)
@@ -279,7 +309,7 @@ def main() -> None:
              md_filename=meta["md_filename"], storage_key=meta["storage_key"],
              sidebar_note=meta.get("sidebar_note", ""),
              bans=meta["ban"].split(",") if isinstance(meta.get("ban"), str) else meta.get("ban", []),
-             strict_paths=meta.get("strict_paths", False))
+             strict_paths=meta.get("strict_paths", False), notation=meta.get("notation", {}))
 
 
 if __name__ == "__main__":

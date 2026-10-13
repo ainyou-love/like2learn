@@ -1,0 +1,892 @@
+{
+ "meta": {
+  "title": "Claude Inside",
+  "desc": "Nhìn vào bên trong Claude Code qua ba lăng kính: onion cho cấu trúc lớp, flow cho phối hợp theo thời gian, companion cho các cơ chế đồng hành với goal, dựng từ hành vi đo được thay vì mã nguồn.",
+  "brand": "Claude Inside",
+  "date": "2026-10-11",
+  "lang": "vi",
+  "md_filename": "claude-inside.md",
+  "storage_key": "claude-inside",
+  "strict_paths": true,
+  "notation": {
+   "K1": "Config loader · Chuẩn bị · lớp L1. Đọc và gộp settings, theo dõi file đổi, thay hook registry, bắn ConfigChange. Thẻ ở §3.1.",
+   "K1b": "Trust gate · Chuẩn bị · lớp L1. Giữ hook, MCP và allow rule của repo lạ tới khi được trust; -p bỏ qua. Thẻ ở §3.1.",
+   "K3": "Memory loader · Chuẩn bị · lớp L2. Nạp CLAUDE.md và rule lúc start; bản lồng và rule paths: nạp lười khi chạm file. Thẻ ở §3.1.",
+   "K13": "Skill manager · Chuẩn bị · lớp L2. Quét skill, đưa listing vào context, nạp thân skill khi gọi. Thẻ ở §3.1.",
+   "K12": "MCP client · Chuẩn bị · lớp L4. Kết nối MCP server, gửi tên tool trước, nạp schema khi cần. Thẻ ở §3.1.",
+   "K2": "Context assembly · Bộ não · lớp L4. Đóng gói request: system, tools, messages; từ request thứ hai chỉ gửi delta. Thẻ ở §3.2.",
+   "K4": "Agent loop · Bộ não · lớp L4. Gửi request, tách tool_use, lặp tới khi xong; xử lý Stop hook. Thẻ ở §3.2.",
+   "K5": "API client · Bộ não · lớp L4, ranh giới tới L6. HTTPS, retry, prompt cache. Thẻ ở §3.2.",
+   "K6": "Permission gate · Đôi tay có kiểm soát · lớp L4. Áp rule, mode, hỏi người cho từng tool call. Thẻ ở §3.3.",
+   "K8": "Hook runner · Đôi tay có kiểm soát · lớp L4. Chạy hook ngoài process, đọc exit code và JSON. Thẻ ở §3.3.",
+   "K7": "Tool executor · Đôi tay có kiểm soát · lớp L4. Chạy tool built-in và MCP, trả tool_result. Thẻ ở §3.3.",
+   "K14": "Subagent manager · Đôi tay có kiểm soát · lớp L4. Tách việc ra context riêng, trả bản tóm tắt về main. Thẻ ở §3.3.",
+   "K9": "Session store · Trí nhớ và bảo trì · lớp L3. Ghi transcript dạng cây, phục vụ resume và fork. Thẻ ở §3.4.",
+   "K10": "Checkpoint manager · Trí nhớ và bảo trì · lớp L3. Snapshot file trước khi sửa; không bao lệnh Bash. Thẻ ở §3.4.",
+   "K11": "Compactor · Trí nhớ và bảo trì · lớp L4. Tóm tắt khi context gần đầy, nạp lại CLAUDE.md. Thẻ ở §3.4.",
+   "K15": "Telemetry / OTel · Trí nhớ và bảo trì · lớp L3. Ghi sự kiện và body request khi bật. Thẻ ở §3.4.",
+   "K16": "Updater · Trí nhớ và bảo trì · lớp L3. Tự tải binary mới, có thể đổi version giữa chừng. Thẻ ở §3.4.",
+   "L0": "Lớp môi trường: người dùng, OS, filesystem, git, network. Định nghĩa ở §2.",
+   "L1": "Lớp ranh giới và tin cậy: trust gate, managed policy, thứ tự ưu tiên settings. Định nghĩa ở §2.",
+   "L2": "Lớp cấu hình và tri thức tĩnh: settings, CLAUDE.md, rule, skill, .mcp.json. Định nghĩa ở §2.",
+   "L3": "Lớp phiên: transcript, checkpoint, cache ấm, telemetry, updater. Định nghĩa ở §2.",
+   "L4": "Lớp vòng lặp tác tử: agent loop, permission gate, hook, tool, subagent, compactor. Định nghĩa ở §2.",
+   "L5": "Lớp context window: các tầng C0–C5. Định nghĩa ở §2.",
+   "L6": "Lớp lõi model: API, thread phía server, prompt cache, server tool. Định nghĩa ở §2."
+  },
+  "sidebar_note": "<div class=\"ext\">File chạy offline. Link tới tài liệu gốc nhảy tới phần Phụ lục với tóm tắt mục tiêu và kết quả; bản đầy đủ nằm trong repo discover-claudecode.</div>"
+ },
+ "hero": {
+  "kicker": "Bên trong Claude Code · 2026-10-11",
+  "title": "Claude Inside: một goal đi xuyên qua Claude Code",
+  "lede": "Ba lăng kính trên cùng một hệ thống: onion cho cấu trúc lớp, flow cho phối hợp theo thời gian, companion cho các cơ chế đồng hành với goal. Mô hình logic dựng từ hành vi đo được, không phải mã nguồn.",
+  "chips": [
+   {
+    "label": "Mốc",
+    "value": "Claude Code 2.1.295"
+   }
+  ],
+  "stats": [
+   {
+    "n": "7",
+    "l": "**Lớp onion** · từ môi trường L0 tới lõi model L6"
+   },
+   {
+    "n": "16",
+    "l": "**Thành phần** · K1–K16, chia 4 vai"
+   },
+   {
+    "n": "4",
+    "l": "**Vòng lồng nhau** · session ⊃ turn ⊃ iteration ⊃ tool call"
+   },
+   {
+    "n": "14,1k",
+    "l": "**Prefix tĩnh** · token C0–C1b, gần như không đổi suốt session"
+   },
+   {
+    "n": "19/33",
+    "l": "**Hook event** · đã quan sát trong lab"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "context-growth",
+   "toc_no": "◆",
+   "title": "Context lớn lên ở đâu",
+   "blocks": [
+    {
+     "type": "figure",
+     "file": "context-chart.svg",
+     "caption": "Tổng context mỗi request (token). Prefix tĩnh đứng yên, phần hội thoại tăng. Nguồn: d8-token-over-time.md §3, §4.",
+     "ascii": "Prefix tĩnh C0–C1b         ############## 14,1k\nS1 · lượt đầu              ################## 18,3k\nS1 · lượt 20               ################################ 31,6k\nS2 · lượt cuối             ######################### 25,0k\nS3 · đỉnh trước compact    ################################# 33,1k"
+    }
+   ]
+  },
+  {
+   "id": "invariants",
+   "toc_no": "◆",
+   "title": "Bất biến của hệ thống",
+   "intro": "Ba hợp đồng phối hợp và các quy tắc đã đo trong lab.",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "title": "I1 · Context · Mọi thứ trong context đều lên API",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "stdout PostToolUse exit 0 thì không · E13"
+      },
+      {
+       "title": "I2 · Policy · Deny rule luôn thắng hook",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "Read theo path chặn trước hook; Bash sau hook · E4, E19"
+      },
+      {
+       "title": "I3 · Policy · Model đề xuất, harness quyết định chạy",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "tool_use đi qua rule, hook, mode, người · D10"
+      },
+      {
+       "title": "I4 · Persistence · Transcript là cây, không lock theo session",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "resume theo record ghi sau cùng · E12"
+      },
+      {
+       "title": "I5 · Compact · Nạp lại CLAUDE.md, mất skill listing",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "rule trong CLAUDE.md sống 3/3 · E6, E16"
+      },
+      {
+       "title": "I6 · Subagent · Chỉ bản tóm tắt quay về main",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "main +936 token khi subagent đọc ~90k · E7"
+      },
+      {
+       "title": "I7 · Loop · Stop hook block tối đa 8 lần liên tiếp",
+       "pill": {
+        "kind": "ok",
+        "text": "Đã đo"
+       },
+       "text": "bộ đếm reset khi model gọi tool · E10"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s0",
+   "title": "Mục đích tài liệu và cách đọc",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "- **Mốc:** Claude Code 2.1.295 (session đo token S1–S3 chạy 2.1.296), macOS, model chủ yếu `haiku`, phần lớn chạy `-p`.\n- **Ngày:** 2026-10-11. **Nguồn:** [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html), các D-file và thí nghiệm nó dẫn. Tài liệu này không có số đo mới.\n- **Ký hiệu tin cậy** (đặt cuối khẳng định, ngay sau là link nguồn):\n\n| Ký hiệu | Nghĩa |\n| --- | --- |\n| `●` | Đã đo trong lab hoặc có trong docs chính thức |\n| `◐` | Suy luận từ bằng chứng gián tiếp, hoặc phép quy đổi của tài liệu này |\n| `○` | Chưa biết, chưa đo |\n\n> Đây là **mô hình logic** dựng từ hành vi quan sát được (hook log, transcript, body request thật). Không phải cấu\n> trúc mã nguồn. Tên thành phần K1…K16 và tầng C0…C5 do nhóm nghiên cứu đặt. Hành vi từng bước có log; cách gom\n> hành vi thành thành phần là suy luận. ◐ [D2](#ap-d02-components)"
+    },
+    {
+     "type": "md",
+     "text": "Bạn giao cho Claude Code một goal. Tài liệu này theo goal đó đi xuyên harness, nhìn qua 3 lăng kính:\n- **Onion** (cấu trúc lớp, §2, §2b, §3): ai nằm ở lớp nào, cái gì vượt ranh giới nào, chạy ở máy nào.\n- **Flow** (phối hợp theo thời gian, §4, §5): ai làm gì, lúc nào, context đổi ra sao qua từng pha.\n- **Companion** (hỗ trợ đồng hành, §6): cơ chế nào giúp goal tới đích, thiếu nó thì hỏng thế nào.\n\nBản đồ đọc: model thấy gì ở một request → §5 · dữ liệu nào rời máy, lệnh chạy ở đâu → §2b · vì sao tool bị chặn → §4.3\n\"Policy contract\" · một thành phần làm gì, hỏng thì sao → §3 · cấu hình nào cho loại việc nào → §6 · câu hỏi\ndebug cụ thể → §7."
+    }
+   ],
+   "no": "0"
+  },
+  {
+   "id": "glossary",
+   "title": "Glossary",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Tối thiểu để đọc tài liệu. Định nghĩa đầy đủ: [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html) mục Glossary, [Tech team guide](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html).\n\n| Thuật ngữ | Nghĩa trong tài liệu này |\n| --- | --- |\n| Harness | Process `claude` trên máy bạn: dựng context, gọi API, chạy tool và hook, ghi session. Phần lớn hành vi \"lạ\" nằm ở đây, không ở model. |\n| Goal | Việc bạn muốn xong, có thể kéo dài nhiều turn. Thuật ngữ của tài liệu này: harness không biết goal, nó chỉ biết turn. |\n| Session | Một session id với transcript riêng. Trạng thái RAM gắn với process, không gắn với session id. |\n| Turn (lượt) | Từ `UserPromptSubmit` tới `Stop` (hoặc `StopFailure`). Gồm một hay nhiều iteration. |\n| Iteration | Một request API cộng batch tool mà response đó sinh ra. Thuật ngữ của tài liệu này; D-file gọi là \"request\" hoặc \"vòng tool\". |\n| Tool call | Một `tool_use` đi qua permission gate, chạy, trả `tool_result`. Mở bằng `PreToolUse`, đóng bằng `PostToolUse`. |\n| Context window | Toàn bộ token model thấy ở một request. Đo bằng `input + cache_creation + cache_read` của usage. |\n| Tầng C0–C5 | Hệ chia context theo vị trí trong request và thời điểm nạp: C0 prefix tĩnh, C1a memory phiên, C1b system context phiên, C2 hội thoại, C3 nạp theo nhu cầu, C4 sản phẩm compaction, C5 subagent. |\n| Context plane | Mọi cơ chế đổi **nội dung** request: CLAUDE.md, skill, hook `additionalContext`, tool result. Thuật ngữ của tài liệu này. |\n| Control plane | Mọi cơ chế đổi **thực thi** và vòng lặp mà không cần model đồng ý: permission rule, mode, hook chặn, trust, `--max-turns`. Thuật ngữ của tài liệu này. |\n| Hook event | Thời điểm harness gọi lệnh ngoài process: `SessionStart`, `PreToolUse`, `Stop`… Docs có 33 event, lab quan sát được 19. |\n| Permission gate | Bước quyết định một tool call được chạy, bị từ chối, hay phải hỏi người. Gồm rule, hook, mode. |\n| Compaction | Tóm tắt hội thoại để giải phóng context. `/compact` thủ công hoặc auto khi vượt ngưỡng (window − 33k). |\n| Subagent | Agent con gọi qua Agent tool, context và transcript riêng, chỉ trả bản tóm tắt về main. |\n| Prompt cache | Cache phía API cho phần đầu request. Đọc 0,1× giá input, ghi 1,25× (TTL 5 phút) hoặc 2× (TTL 1 giờ). |\n| Thread delta | Trong một process, request đầu `thread: create` gửi đủ; request sau `continue` chỉ gửi phần mới. |\n| Transcript | File JSONL dạng cây trong `~/.claude/projects/`, mỗi dòng một record. Nguồn sự thật khi debug. |\n| Trust | Trust dialog khi mở git repo lạ ở interactive. `-p` không hỏi và coi như đã trust. |\n| Sandbox | Lớp cách ly ở mức OS cho lệnh Bash (docs có `autoAllowBashIfSandboxed`). Lab chưa đo. |\n| Connector | MCP server gắn với tài khoản claude.ai (tool có tiền tố `mcp__claude_ai_*`), vào session không qua cấu hình project. |\n| Server tool | Tool chạy phía Anthropic, không chạy trên máy bạn. Ví dụ WebSearch (`web_search_20250305`). |\n\n### Ký hiệu trong báo cáo\n\nTừ §1 trở đi, tài liệu gọi 16 thành phần của harness bằng mã `K1`…`K16` và gọi 7 lớp onion bằng `L0`…`L6`. Bảng dưới giới thiệu trước; thẻ đầy đủ của từng thành phần nằm ở §3, định nghĩa từng lớp ở §2. Trong bản HTML, rê chuột hoặc chạm vào mã ở bất kỳ đâu để xem nghĩa.\n\nMã K được đặt theo D2 và không đi theo thứ tự pha, nên nhóm theo vai dễ nhớ hơn:"
+    },
+    {
+     "type": "image",
+     "file": "d01-light.svg",
+     "file_dark": "d01-dark.svg",
+     "alt": "Sơ đồ: Ký hiệu trong báo cáo",
+     "ascii": "flowchart LR\n  subgraph S1[\"Chuẩn bị: được biết gì, được dùng gì\"]\n    K1[\"K1 Config loader\"]\n    K1b[\"K1b Trust gate\"]\n    K3[\"K3 Memory loader\"]\n    K13[\"K13 Skill manager\"]\n    K12[\"K12 MCP client\"]\n  end\n  subgraph S2[\"Bộ não: nghĩ và quyết định bước tiếp\"]\n    K2[\"K2 Context assembly\"]\n    K4[\"K4 Agent loop\"]\n    K5[\"K5 API client\"]\n  end\n  subgraph S3[\"Đôi tay có kiểm soát: làm gì trên máy\"]\n    K6[\"K6 Permission gate\"]\n    K8[\"K8 Hook runner\"]\n    K7[\"K7 Tool executor\"]\n    K14[\"K14 Subagent manager\"]\n  end\n  subgraph S4[\"Trí nhớ và bảo trì: nhớ, nén, khôi phục\"]\n    K9[\"K9 Session store\"]\n    K10[\"K10 Checkpoint manager\"]\n    K11[\"K11 Compactor\"]\n    K15[\"K15 Telemetry\"]\n    K16[\"K16 Updater\"]\n  end\n  S1 -->|\"context nền, policy\"| S2\n  S2 -->|\"tool_use\"| S3\n  S3 -->|\"tool_result\"| S2\n  S2 -->|\"record\"| S4\n  S4 -->|\"summary, resume\"| S2",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Mã | Nghĩa |\n| --- | --- |\n| `K1` | Config loader · Chuẩn bị · lớp L1. Đọc và gộp settings, theo dõi file đổi, thay hook registry, bắn `ConfigChange`. Thẻ ở §3.1. |\n| `K1b` | Trust gate · Chuẩn bị · lớp L1. Giữ hook, MCP và allow rule của repo lạ tới khi được trust; `-p` bỏ qua. Thẻ ở §3.1. |\n| `K3` | Memory loader · Chuẩn bị · lớp L2. Nạp CLAUDE.md và rule lúc start; bản lồng và rule `paths:` nạp lười khi chạm file. Thẻ ở §3.1. |\n| `K13` | Skill manager · Chuẩn bị · lớp L2. Quét skill, đưa listing vào context, nạp thân skill khi gọi. Thẻ ở §3.1. |\n| `K12` | MCP client · Chuẩn bị · lớp L4. Kết nối MCP server, gửi tên tool trước, nạp schema khi cần. Thẻ ở §3.1. |\n| `K2` | Context assembly · Bộ não · lớp L4. Đóng gói request: system, tools, messages; từ request thứ hai chỉ gửi delta. Thẻ ở §3.2. |\n| `K4` | Agent loop · Bộ não · lớp L4. Gửi request, tách `tool_use`, lặp tới khi xong; xử lý Stop hook. Thẻ ở §3.2. |\n| `K5` | API client · Bộ não · lớp L4, ranh giới tới L6. HTTPS, retry, prompt cache. Thẻ ở §3.2. |\n| `K6` | Permission gate · Đôi tay có kiểm soát · lớp L4. Áp rule, mode, hỏi người cho từng tool call. Thẻ ở §3.3. |\n| `K8` | Hook runner · Đôi tay có kiểm soát · lớp L4. Chạy hook ngoài process, đọc exit code và JSON. Thẻ ở §3.3. |\n| `K7` | Tool executor · Đôi tay có kiểm soát · lớp L4. Chạy tool built-in và MCP, trả `tool_result`. Thẻ ở §3.3. |\n| `K14` | Subagent manager · Đôi tay có kiểm soát · lớp L4. Tách việc ra context riêng, trả bản tóm tắt về main. Thẻ ở §3.3. |\n| `K9` | Session store · Trí nhớ và bảo trì · lớp L3. Ghi transcript dạng cây, phục vụ resume và fork. Thẻ ở §3.4. |\n| `K10` | Checkpoint manager · Trí nhớ và bảo trì · lớp L3. Snapshot file trước khi sửa; không bao lệnh Bash. Thẻ ở §3.4. |\n| `K11` | Compactor · Trí nhớ và bảo trì · lớp L4. Tóm tắt khi context gần đầy, nạp lại CLAUDE.md. Thẻ ở §3.4. |\n| `K15` | Telemetry / OTel · Trí nhớ và bảo trì · lớp L3. Ghi sự kiện và body request khi bật. Thẻ ở §3.4. |\n| `K16` | Updater · Trí nhớ và bảo trì · lớp L3. Tự tải binary mới, có thể đổi version giữa chừng. Thẻ ở §3.4. |\n| `L0` | Lớp môi trường: người dùng, OS, filesystem, git, network. Định nghĩa ở §2. |\n| `L1` | Lớp ranh giới và tin cậy: trust gate, managed policy, thứ tự ưu tiên settings. Định nghĩa ở §2. |\n| `L2` | Lớp cấu hình và tri thức tĩnh: settings, CLAUDE.md, rule, skill, `.mcp.json`. Định nghĩa ở §2. |\n| `L3` | Lớp phiên: transcript, checkpoint, cache ấm, telemetry, updater. Định nghĩa ở §2. |\n| `L4` | Lớp vòng lặp tác tử: agent loop, permission gate, hook, tool, subagent, compactor. Định nghĩa ở §2. |\n| `L5` | Lớp context window: các tầng C0–C5. Định nghĩa ở §2. |\n| `L6` | Lớp lõi model: API, thread phía server, prompt cache, server tool. Định nghĩa ở §2. |"
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "title": "Bức tranh tổng thể: harness phục vụ một goal",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**Mô hình một câu: harness = trình dựng request + trình thực thi có chính sách + bộ điều khiển vòng lặp.** ◐ [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)\n\n- **Trình dựng request** (K2) gom các tầng C0–C5 thành body, gửi `create` hoặc `continue`. ● [D6](#ap-d06-context-layers)\n- **Trình thực thi có chính sách** (K6, K8, K7) quyết định tool nào được chạy, chạy nó, trả `tool_result`. ● [D10](#ap-d10-permission-flowchart)\n- **Bộ điều khiển vòng lặp** (K4, K11) lặp tới khi model hết `tool_use` và Stop hook cho dừng; nén khi context đầy. ● [D4](#ap-d04-state-machines)\n\nModel không tự đọc file, không tự chạy lệnh. Nó chỉ sinh `tool_use`. Mọi tác động lên máy đi qua harness. ◐ [D2](#ap-d02-components)\n\n### 1.1 Bốn vòng lồng nhau: Session ⊃ Turn ⊃ Iteration ⊃ Tool call"
+    },
+    {
+     "type": "image",
+     "file": "d02-light.svg",
+     "file_dark": "d02-dark.svg",
+     "alt": "Sơ đồ: 1.1 Bốn vòng lồng nhau: Session ⊃ Turn ⊃ Iteration ⊃ Tool call",
+     "ascii": "flowchart TB\n  subgraph SES[\"Session: SessionStart đến SessionEnd, gắn với process\"]\n    direction TB\n    subgraph TRN[\"Turn: UserPromptSubmit đến Stop\"]\n      direction TB\n      subgraph ITR[\"Iteration: một request API và batch tool của nó\"]\n        direction TB\n        RQ[\"Request create hoặc continue\"]\n        subgraph TLC[\"Tool call\"]\n          direction LR\n          PT[\"PreToolUse\"] --> PGx{\"Permission gate\"} --> EXE[\"Chạy tool\"] --> PO[\"PostToolUse\"]\n        end\n        PB[\"PostToolBatch\"]\n      end\n      STP{\"Stop hook\"}\n    end\n    CMP[\"Compaction khi vượt ngưỡng\"]\n  end\n  RQ --> PT\n  PO --> PB\n  PB -- \"response còn tool_use\" --> RQ\n  PB -- \"hết tool_use\" --> STP\n  STP -- \"block, dưới 9 lần liên tiếp\" --> RQ\n  PB -. \"context vượt ngưỡng\" .-> CMP\n  CMP -. \"thread create mới\" .-> RQ",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Vòng | Mở / đóng bằng | Số đo điển hình | Nguồn |\n| --- | --- | --- | --- |\n| Session | `SessionStart` → `SessionEnd` | `-p`: một process mỗi lần gọi; `--resume` là process mới | ● [D4](#ap-d04-state-machines) |\n| Turn | `UserPromptSubmit` → `Stop` / `StopFailure` | S1: 20 lượt, 40 request, median 2 793 ms | ● [D8](#ap-d8-token-over-time), [D16](#ap-d16-latency-cost) |\n| Iteration | request → `PostToolBatch` | ~2 mỗi lượt (S1); lượt nhiều tool G2: 5 request, 6 tool | ● [D16](#ap-d16-latency-cost) |\n| Tool call | `PreToolUse` → `PostToolUse` / `PostToolUseFailure` | Read chạy 1–3 ms; cả bước 50–76 ms vì hook và harness | ● [D16](#ap-d16-latency-cost) |\n\nTrong một batch, hook log thấy cặp Pre/Post tuần tự; `PostToolBatch` bắn một lần cho cả batch, kể cả khi mọi tool\nbị từ chối. ● [D3](#ap-d03-sequences-core)\n\n### 1.2 Hai mặt phẳng: context plane và control plane\n\nContext plane quyết định **model thấy gì**. Control plane quyết định **harness cho làm gì**. Model có thể bỏ qua\ncontext plane (haiku tuân thủ CLAUDE.md ở lượt 1 chỉ 1/3 trial) ● [E6](#ap-experiments-e6). Model không vượt được\ncontrol plane: deny rule thắng cả hook `allow`. ● [D10](#ap-d10-permission-flowchart)"
+    },
+    {
+     "type": "image",
+     "file": "d03-light.svg",
+     "file_dark": "d03-dark.svg",
+     "alt": "Sơ đồ: 1.2 Hai mặt phẳng: context plane và control plane",
+     "ascii": "flowchart LR\n  subgraph CTXP[\"Context plane: cái model thấy\"]\n    direction TB\n    a1[\"CLAUDE.md, rule\"]\n    a2[\"Skill listing, thân skill\"]\n    a3[\"Hook additionalContext\"]\n    a4[\"tool_result, @file, MCP schema\"]\n    a5[\"Compact summary\"]\n  end\n  subgraph CTLP[\"Control plane: cái harness cho làm\"]\n    direction TB\n    b1[\"Trust gate\"]\n    b2[\"Permission rule và mode\"]\n    b3[\"Hook quyết định: deny, exit 2, Stop block\"]\n    b4[\"--max-turns, Stop cap\"]\n    b5[\"Ngưỡng auto-compact\"]\n  end\n  K2N[\"K2 dựng request\"]\n  MDL[\"Model\"]\n  LOOPN[\"K4 vòng lặp, K6 gate, K7 thực thi\"]\n  CTXP --> K2N --> MDL\n  MDL -- \"tool_use\" --> LOOPN\n  CTLP --> LOOPN\n  LOOPN -- \"tool_result\" --> K2N\n  b3 -. \"lý do block vào tool_result\" .-> a4",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Cơ chế | Đổi nội dung request? | Đổi thực thi / vòng lặp? | Bằng chứng |\n| --- | --- | --- | --- |\n| CLAUDE.md gốc, rule không `paths:` | Có, `messages[0]` role user | Không, chỉ là lời khuyên | ● [E1](#ap-experiments-e1), [E6](#ap-experiments-e6) |\n| CLAUDE.md lồng, rule `paths:` | Có, message role system sau `tool_result` | Không | ● [E13](#ap-experiments-e13) |\n| Skill | Có: listing lúc start, thân skill khi gọi | Có nếu frontmatter khai `hooks:` | ● [E2](#ap-experiments-e2), [E3](#ap-experiments-e3) |\n| Hook `additionalContext` (SessionStart, UPS) | Có, message role system | Không | ● [E1](#ap-experiments-e1), [E13](#ap-experiments-e13) |\n| Hook PreToolUse deny / exit 2 | Gián tiếp: lý do vào `tool_result` | Có, chặn tool | ● [E4](#ap-experiments-e4), [E5](#ap-experiments-e5) |\n| Stop hook block | Lý do vào context | Có, kéo dài lượt, cap 8 liên tiếp | ● [E10](#ap-experiments-e10) |\n| stdout PostToolUse exit 0 | **Không** (0/6 body) | Không | ● [E13](#ap-experiments-e13) |\n| Permission rule | Không đổi nội dung (tool deny bằng tên trần bị gỡ khỏi context, theo docs) | Có | ● [D10](#ap-d10-permission-flowchart) |\n| Auto mode | Có: thêm field `safeguards` vào mọi request | Có, classifier quyết định | ● [E20](#ap-experiments-e20) (n = 1) |\n| Trust gate | Không trực tiếp | Có: giữ hook, `allow` của project tới khi chấp nhận | ● [E11](#ap-experiments-e11) |\n| MCP tool search | Có: tên vào message role system, schema vào `tools` sau ToolSearch | Thêm một vòng ToolSearch | ● [E9](#ap-experiments-e9) |\n| Compaction | Có: C2 thay bằng C4 | Có: thêm request tóm tắt, mở thread `create` mới | ● [D9](#ap-d09-sequences-advanced) |\n| `--max-turns` | Không | Có, trần cứng tổng vòng | ● [E10](#ap-experiments-e10) |\n\n### 1.3 Khi nào goal \"xong\"\n\nHarness chỉ biết lượt. Một lượt dừng khi **cả hai** điều kiện đúng:\n\n1. Response cuối không còn `tool_use`. ● [D4](#ap-d04-state-machines)\n2. Stop hook không block, hoặc block thứ 9 liên tiếp bị override (`stop-hook-block-cap`). ● [E10](#ap-experiments-e10)\n\nCác lối ra khác:\n- `--max-turns` là trần cứng duy nhất. Stop cap reset khi model gọi tool: E10 có 12 block, 26 lượt model, chi phí ×13. ● [E10](#ap-experiments-e10), [D14](#ap-d14-failure-modes)\n- Lỗi API không retry được → `StopFailure` thay `Stop`. `-p` vẫn trả `subtype: \"success\"` kèm `is_error: true`. ● [D14](#ap-d14-failure-modes)\n- Esc ngắt lượt: không bắn `Stop`. ● [D4](#ap-d04-state-machines) (docs, chưa có log)\n\nGoal \"xong thật\" (test xanh, bug hết) chỉ được kiểm khi có người đọc kết quả hoặc Stop hook kiểm hộ. Harness không\ntự kiểm. ◐ [D4](#ap-d04-state-machines)"
+    }
+   ],
+   "no": "1"
+  },
+  {
+   "id": "s2",
+   "title": "Onion: các lớp từ ngoài vào trong",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bảy lớp, ngoài cùng là môi trường, trong cùng là model. Cách chia lớp là của tài liệu này; hành vi trong từng lớp có\nlog. ◐ [D2](#ap-d02-components)"
+    },
+    {
+     "type": "image",
+     "file": "d04-light.svg",
+     "file_dark": "d04-dark.svg",
+     "alt": "Sơ đồ: Onion: các lớp từ ngoài vào trong",
+     "ascii": "flowchart TB\n  subgraph L0[\"L0 Môi trường: người dùng, OS, filesystem, git, network\"]\n    direction TB\n    U0([\"Người dùng, terminal, CI\"])\n    subgraph L1[\"L1 Ranh giới và tin cậy\"]\n      direction TB\n      N1[\"K1b Trust gate, K1 Config loader, managed policy, settings precedence\"]\n      subgraph L2[\"L2 Cấu hình và tri thức tĩnh\"]\n        direction TB\n        N2[(\"settings, CLAUDE.md, rule, skill, .mcp.json, agents\")]\n        N2b[\"K3 Memory loader, K13 Skill manager\"]\n        subgraph L3[\"L3 Phiên\"]\n          direction TB\n          N3[\"K9 Session store, K10 Checkpoint, K15 Telemetry, K16 Updater, cache ấm\"]\n          subgraph L4[\"L4 Vòng lặp tác tử\"]\n            direction TB\n            N4a[\"K4 Agent loop, K2 Context assembly, K5 API client, K11 Compactor\"]\n            N4b[\"K6 Permission gate, K8 Hook runner, K7 Tool executor, K12 MCP client, K14 Subagent manager\"]\n            subgraph L5[\"L5 Context window\"]\n              direction TB\n              N5[\"C0 prefix tĩnh, C1a, C1b, C2, C3, C4, C5\"]\n              subgraph L6[\"L6 Lõi model\"]\n                N6[\"Messages API, thread phía server, prompt cache scope global, server tools\"]\n              end\n            end\n          end\n        end\n      end\n    end\n  end",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "### L0 Môi trường\n\n- **Mục đích:** nơi goal sinh ra và nơi kết quả đáp xuống: người dùng, OS, filesystem, git, network.\n- **Thành phần:** không có K nào; đây là \"bên ngoài\" của harness.\n- **Đi vào lớp trong:** prompt, nội dung file, `git status` (vào `session_context`), biến môi trường của process. ● [E1](#ap-experiments-e1), [D5](#ap-d05-data-stores)\n- **Đi ra lớp ngoài:** file bị sửa, lệnh shell, kết nối mạng (anycast Anthropic, Datadog, đích WebFetch). ● [E14](#ap-experiments-e14)\n- **Ranh giới / điểm gãy:** secret dạng file vào context nguyên văn qua `@file` hoặc Read; hook chạy với quyền user. ● [D13](#ap-d13-threat-model)\n\n### L1 Ranh giới và tin cậy\n\n- **Mục đích:** quyết định cấu hình nào của repo được tin, giá trị nào thắng.\n- **Thành phần:** K1b Trust gate, K1 Config loader (precedence override và merge), managed policy.\n- **Đi vào lớp trong:** cấu hình hiệu lực; hook và `permissions.allow` của project chỉ sau khi trust. ● [D17](#ap-d17-config-precedence)\n- **Đi ra lớp ngoài:** trust dialog, exit 1 khi từ chối, trust entry trong `~/.claude.json`. ● [E11](#ap-experiments-e11)\n- **Ranh giới / điểm gãy:** `-p` bỏ qua trust; thư mục không-git dưới cha đã trust không hỏi; dialog không liệt kê hook; trust entry không tự xoá. ● [E11](#ap-experiments-e11), [D5](#ap-d05-data-stores)\n\n### L2 Cấu hình và tri thức tĩnh\n\n- **Mục đích:** chứa ý định lâu dài của team: chỉ dẫn, quy trình, quyền, kết nối.\n- **Thành phần:** K3 Memory loader, K13 Skill manager đọc từ file; file settings do K1 đọc.\n- **Đi vào lớp trong:** text chỉ dẫn (C1a, C3), skill listing (C1b), hook registry, cấu hình MCP. ● [D6](#ap-d06-context-layers)\n- **Đi ra lớp ngoài:** `ConfigChange` khi file settings đổi (~0,8 s); model có quyền Edit thì sửa được `.claude/`. ● [E18](#ap-experiments-e18) / tự thêm hook ◐ [D13](#ap-d13-threat-model)\n- **Ranh giới / điểm gãy:** harness không phân xử CLAUDE.md mâu thuẫn; haiku theo bản gốc 4/4. ● [E24](#ap-experiments-e24)\n\n### L3 Phiên\n\n- **Mục đích:** nhớ những gì đã xảy ra, để resume, rewind, đo.\n- **Thành phần:** K9 Session store, K10 Checkpoint, K15 Telemetry, K16 Updater; trạng thái cache ấm của session.\n- **Đi vào lớp trong:** lịch sử phát lại khi resume; trạng thái \"CLAUDE.md lồng đã nạp\" khôi phục từ transcript. ● [E15](#ap-experiments-e15), [D8](#ap-d8-token-over-time)\n- **Đi ra lớp ngoài:** transcript JSONL, `cost-state`, `file-history/`, raw body OTel nếu bật. ● [D5](#ap-d05-data-stores)\n- **Ranh giới / điểm gãy:** không lock khi hai process cùng session; `cost-state` ghi sau cùng thắng; binary tự cập nhật giữa phiên. ● [E12](#ap-experiments-e12), [D14](#ap-d14-failure-modes)\n\n### L4 Vòng lặp tác tử\n\n- **Mục đích:** biến goal thành chuỗi request và tool call có kiểm soát.\n- **Thành phần:** K4, K2, K5, K6, K7, K8, K11, K12, K14.\n- **Đi vào lớp trong:** body request đã dựng (C0–C5). ● [D6](#ap-d06-context-layers)\n- **Đi ra lớp ngoài:** tool call lên filesystem/shell/MCP, hook event, record transcript. ● [D3](#ap-d03-sequences-core)\n- **Ranh giới / điểm gãy:** hook fail-open khi exit 1 hoặc timeout; Stop cap reset theo tool call; auto-compact thrash ở ngưỡng thấp; MCP chết thì reconnect im lặng. ● [E5](#ap-experiments-e5), [E10](#ap-experiments-e10), [D14](#ap-d14-failure-modes)\n\n### L5 Context window\n\n- **Mục đích:** đúng những gì model thấy ở một request.\n- **Thành phần:** các tầng C0, C1a, C1b, C2, C3, C4, C5 (không phải code, là vùng trong body).\n- **Đi vào lớp trong:** body `create` đủ, hoặc `continue` delta trên thread. ● [E13](#ap-experiments-e13)\n- **Đi ra lớp ngoài:** mọi thứ trong context đều rời máy; transcript lưu cả thứ không gửi. ● [E13](#ap-experiments-e13)\n- **Ranh giới / điểm gãy:** skill listing mất sau compact; resume để 2 bản CLAUDE.md cùng có mặt; `/context` tự thêm ~3,4k token. ● [E16](#ap-experiments-e16), [E15](#ap-experiments-e15), [D6](#ap-d06-context-layers)\n\n### L6 Lõi model\n\n- **Mục đích:** suy luận và chọn hành động.\n- **Thành phần:** Messages API, thread phía server, prompt cache (một block `scope: global` dùng chung giữa workspace), server tools như WebSearch.\n- **Đi vào lớp trong:** không có lớp trong; nhận body, trả stream.\n- **Đi ra lớp ngoài:** stream text và `tool_use`, usage, `requestId`. ● [D11](#ap-d11-schemas)\n- **Ranh giới / điểm gãy:** model id sai → 404, `StopFailure`; cache main TTL 1h, nghỉ lâu hơn thì ghi lại; retention của thread ○. ● [D14](#ap-d14-failure-modes), [E8](#ap-experiments-e8) / thread ○ [D5](#ap-d05-data-stores)\n\n### Bảng tổng: thứ vượt ranh giới\n\n| Ranh giới | Thứ vượt qua | Khi nào | Nguồn |\n| --- | --- | --- | --- |\n| L0 → L1 | Lệnh `claude`, cwd, quyết định trust | Mở session; dialog chặn đồng bộ ở interactive | ● [E17](#ap-experiments-e17) |\n| L1 → L2 | Danh sách nguồn được nạp (`--setting-sources`, trust) | Mở session; hot reload khi file đổi | ● [D17](#ap-d17-config-precedence), [E18](#ap-experiments-e18) |\n| L2 → L4 | Hook registry, rule, cấu hình MCP | Mở session; `ConfigChange` | ● [E18](#ap-experiments-e18) |\n| L2 → L5 | CLAUDE.md, rule, skill listing, thân skill | Start; sau `PostToolBatch` chạm file; sau compact; khi gọi skill | ● [D7](#ap-d07-hook-catalog) |\n| L3 ↔ L4 | Record transcript; lịch sử phát lại | Mỗi record; resume, fork | ● [D5](#ap-d05-data-stores) |\n| L4 → L5 | `tool_result`, hook `additionalContext`, summary | Mỗi iteration; compact | ● [E13](#ap-experiments-e13) |\n| L5 → L6 | Body request | Mỗi iteration: `create` hoặc `continue` | ● [E13](#ap-experiments-e13) |\n| L4 → L0 | Edit, Bash, MCP call, WebFetch | Sau khi permission gate cho phép | ● [D10](#ap-d10-permission-flowchart), [E14](#ap-experiments-e14) |"
+    }
+   ],
+   "no": "2"
+  },
+  {
+   "id": "s2b",
+   "title": "Phân định ranh giới: chạy ở đâu, đi qua đâu",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Onion trả lời \"lớp nào\". Mục này trả lời \"máy nào, process nào, kênh nào\". Ba lát cắt, mỗi lát một trục.\n\n### (A) Local ↔ Connection ↔ Claude Cloud"
+    },
+    {
+     "type": "image",
+     "file": "d05-light.svg",
+     "file_dark": "d05-dark.svg",
+     "alt": "Sơ đồ: (A) Local ↔ Connection ↔ Claude Cloud",
+     "ascii": "flowchart LR\n  subgraph LOC[\"Local: máy dev\"]\n    direction TB\n    H[\"Harness K1 đến K16\"]\n    TS[(\"Transcript, file-history\")]\n    HKP[\"Hook process\"]\n    SET[(\"settings, CLAUDE.md\")]\n  end\n  subgraph CON[\"Connection do Claude Code mở\"]\n    direction TB\n    c1[\"HTTPS Messages API: create đủ, continue delta\"]\n    c2[\"Telemetry event_logging, feature flag\"]\n    c3[\"GET /v1/mcp_servers: danh sách connector\"]\n    c4[\"OAuth login, refresh\"]\n  end\n  subgraph CLD[\"Claude Cloud\"]\n    direction TB\n    MD[\"Model\"]\n    TH[(\"Thread phía server\")]\n    PC[(\"Prompt cache: block scope global\")]\n    SVT[\"Server tools: WebSearch\"]\n    SG[\"Server review của auto mode\"]\n  end\n  H --> c1 --> MD\n  c1 --> TH\n  c1 --> PC\n  MD --> SVT\n  c1 -. \"field safeguards khi auto mode\" .-> SG\n  H --> c2\n  H --> c3\n  H --> c4\n  SET --> H\n  H --> TS\n  H --> HKP",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Thành phần / dữ liệu | Nằm ở vùng nào | Vượt ranh giới khi nào, qua kênh gì | Bằng chứng |\n| --- | --- | --- | --- |\n| Harness K1–K16, hook process, settings, transcript, `file-history/` | Local | Không tự vượt; chỉ phần đã vào context mới lên cloud | ● [D5](#ap-d05-data-stores) |\n| Mọi thứ trong context (CLAUDE.md, `@file`, hook context, kết quả MCP) | Local → Cloud | Mỗi request, HTTPS Messages API | ● [E13](#ap-experiments-e13) |\n| `session_context`: `userEmail`, `gitStatus` | Local → Cloud | `messages[0]` request đầu, cả trong subagent | ● [E1](#ap-experiments-e1), [E7](#ap-experiments-e7) |\n| `safeguards.dangerous_tool_use.classifier_context` (17 key, gồm `home_dir`, `user_identity`, rules, git state) | Local → Cloud | Mọi request model khi chạy auto mode | ● [E20](#ap-experiments-e20) (chỉ ghi tên key, n = 1) |\n| Lịch sử hội thoại | Cloud (thread) | Gửi đủ ở `create`; sau đó chỉ delta | ● [E13](#ap-experiments-e13) / retention ○ [D1](#ap-d01-system-context) |\n| Prompt cache | Cloud | Block `scope: global` đọc được ở workspace mới: 11 343 token | ● [E22](#ap-experiments-e22) |\n| WebSearch | Cloud | Request riêng `query_source=web_search_tool`, không có kết nối local tới host tìm kiếm | ● [E14](#ap-experiments-e14) |\n| Danh sách connector | Cloud → Local | `GET /v1/mcp_servers`, gọi cả khi có `--strict-mcp-config` | ● [E14](#ap-experiments-e14) |\n| Telemetry, feature flag | Local → Cloud | Nền, `event_logging` | ● [E14](#ap-experiments-e14) |\n| stdout PostToolUse exit 0 | Local | Không lên API, chỉ vào transcript | ● [E13](#ap-experiments-e13) |\n\nHệ quả cho team:\n- \"Đã vào context là đã rời máy.\" Chặn ở cửa vào context (deny rule), không ở cửa ra. ● [E13](#ap-experiments-e13), [E4](#ap-experiments-e4)\n- Proxy hay DLP đếm theo từng request sẽ đánh giá thấp dữ liệu ra, vì phần cũ đã lên ở request `create`. ◐ [D18](#ap-d18-adr-notes)\n- Bật auto mode là gửi thêm tên thư mục home và định danh người dùng trong mọi request. ● [E20](#ap-experiments-e20)\n- Subagent không cô lập dữ liệu tài khoản: email vẫn đi theo. ● [E7](#ap-experiments-e7)\n\n### (B) Local OS/File ↔ Out: network, bên thứ ba"
+    },
+    {
+     "type": "image",
+     "file": "d06-light.svg",
+     "file_dark": "d06-dark.svg",
+     "alt": "Sơ đồ: (B) Local OS/File ↔ Out: network, bên thứ ba",
+     "ascii": "flowchart LR\n  subgraph DISK[\"Kho trên máy\"]\n    direction TB\n    d1[(\"~/.claude: projects, file-history, sessions, history.jsonl\")]\n    d2[(\"~/.claude.json: trust theo realpath\")]\n    d3[(\"Keychain: token\")]\n    d4[(\"Repo: .claude, CLAUDE.md, git\")]\n  end\n  CC[\"Tiến trình claude\"]\n  MS[\"MCP server stdio: không mở socket\"]\n  subgraph NET[\"Network ra ngoài\"]\n    direction TB\n    n1[\"Anycast Anthropic: API, telemetry, connector proxy\"]\n    n2[\"Datadog intake\"]\n    n3[\"Đích WebFetch: TCP thẳng từ máy\"]\n    n4[\"MCP remote, connector bên thứ ba\"]\n  end\n  d1 & d2 & d3 & d4 --> CC\n  CC --> d1\n  CC --> d2\n  CC -- \"stdin, stdout\" --> MS\n  CC --> n1\n  CC --> n2\n  CC --> n3\n  CC --> n4",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Thành phần / dữ liệu | Nằm ở vùng nào | Vượt ranh giới khi nào, qua kênh gì | Bằng chứng |\n| --- | --- | --- | --- |\n| Transcript, `file-history/`, `sessions/`, `history.jsonl` | `~/.claude/` | Không ra mạng; sweep sau `cleanupPeriodDays` (30) trừ `history.jsonl` | ● [D5](#ap-d05-data-stores) |\n| Trust entry | `~/.claude.json` | Ghi khi chấp nhận dialog ở interactive; `-p` không ghi; không tự xoá | ● [D5](#ap-d05-data-stores), [E11](#ap-experiments-e11) |\n| Token đăng nhập | Keychain | Đọc mỗi lần khởi động | ◐ [D1](#ap-d01-system-context) |\n| Model API, telemetry, connector | Anycast Anthropic | HTTPS; IP dùng chung nên firewall theo IP không tách được | ● [E14](#ap-experiments-e14) / tách IP ◐ [E14](#ap-experiments-e14) |\n| Datadog intake | Bên thứ ba | Mở gần cuối session `-p` | ● [E14](#ap-experiments-e14) |\n| Đích WebFetch | Bên thứ ba | TCP thẳng từ máy, rồi một request `web_fetch_apply` ~15,4k input lên API | ● [E14](#ap-experiments-e14) |\n| Connector tài khoản (`mcp__claude_ai_Atlassian`, `…_Slack`, `…_Google_Drive`…) | Bên thứ ba qua proxy Anthropic | Tên tool vào context lúc init, kể cả khi `--setting-sources project,local`; chỉ `--strict-mcp-config` loại được | ● [D1](#ap-d01-system-context), [D17](#ap-d17-config-precedence) |\n| MCP stdio | Process con trên máy | stdin/stdout, không socket (129 mẫu) | ● [E14](#ap-experiments-e14) |\n| MCP remote | Bên thứ ba | HTTP, SSE, WS | ● docs / chưa đo [D1](#ap-d01-system-context) |\n| Raw body OTel | File do user chỉ định | Chỉ khi bật `OTEL_LOG_RAW_API_BODIES`; chứa system prompt và email | ● [instrumentation.md](#ap-instrumentation), [D5](#ap-d05-data-stores) |\n\nHệ quả cho team:\n- CI và máy dùng chung tài khoản: luôn `--strict-mcp-config`, nếu không connector của tài khoản lọt vào session. ● [D17](#ap-d17-config-precedence)\n- Coi `~/.claude/projects/` là dữ liệu nhạy cảm: plaintext, chứa email và output lệnh, sống 30 ngày. ● [D13](#ap-d13-threat-model)\n- Chặn mạng theo host cần proxy có SNI/CONNECT, không theo IP. ◐ [E14](#ap-experiments-e14)\n- WebFetch là kết nối thẳng từ máy bạn; WebSearch thì không. ● [E14](#ap-experiments-e14)\n\n### (C) OS → Sandbox → Code execution"
+    },
+    {
+     "type": "image",
+     "file": "d07-light.svg",
+     "file_dark": "d07-dark.svg",
+     "alt": "Sơ đồ: (C) OS → Sandbox → Code execution",
+     "ascii": "flowchart TB\n  subgraph OSL[\"OS: quyền của user\"]\n    direction TB\n    CL[\"Tiến trình claude: harness\"]\n    subgraph HG[\"Kiểm soát tầng harness\"]\n      PGc{\"Permission gate: rule, mode, hook\"}\n    end\n    subgraph SBX[\"Sandbox OS: docs có, lab chưa đo\"]\n      BSH[\"Subprocess Bash tool\"]\n    end\n    HKc[\"Subprocess hook: quyền user, không TTY, ngoài sandbox\"]\n    MCPc[\"Subprocess MCP stdio\"]\n    SUBc[\"Subagent: logic, context riêng, cùng process\"]\n    SCR[\"Script con tự mở file: grep -r, python\"]\n  end\n  CL --> PGc\n  PGc -- \"tool call được cho phép\" --> BSH\n  CL -- \"hook event, JSON stdin\" --> HKc\n  CL -- \"JSON-RPC\" --> MCPc\n  CL -- \"Agent tool\" --> SUBc\n  BSH --> SCR",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Thành phần | Nằm ở đâu trong cây process | Ai kiểm soát | Bằng chứng |\n| --- | --- | --- | --- |\n| Tiến trình `claude` | Gốc, quyền user | OS | ● [D1](#ap-d01-system-context) |\n| Hook | Subprocess, spawn mỗi event, JSON stdin, ~21 ms | Không ai: chạy ngoài sandbox với quyền user | ● [D16](#ap-d16-latency-cost), [D13](#ap-d13-threat-model) |\n| Bash tool | Subprocess | Permission gate trên **lệnh**; sandbox OS nếu bật | ● gate [D10](#ap-d10-permission-flowchart) / sandbox ○ [D10](#ap-d10-permission-flowchart) |\n| Script con mở file | Con của Bash | Deny rule `Read(...)` **không** áp; cần sandbox | ● docs [D18](#ap-d18-adr-notes) |\n| MCP stdio | Subprocess, kết nối nền | Permission gate trên tool call MCP | ● [E17](#ap-experiments-e17) |\n| Subagent | Logic trong cùng harness, context và transcript riêng | Cùng hook settings (mang `agent_id`), cùng rule | ● [E7](#ap-experiments-e7) |\n\nLớp nào chặn được cái gì:\n\n| Mối đe dọa | Harness rule | Hook | Sandbox OS | Checkpoint |\n| --- | --- | --- | --- | --- |\n| Đọc `.env` bằng Read | Chặn (deny `Read`) ● | Chặn được, nhưng fail-open ● | ○ | Không liên quan |\n| Đưa `.env` vào bằng `@file` | Chặn (deny `Read`) ● | **Không thấy** ● | Không liên quan | Không liên quan |\n| Script con tự đọc `.env` | **Không** áp ● docs | Chỉ thấy lệnh Bash cha ◐ | Docs nói đây là lớp đúng ○ | Không liên quan |\n| Lệnh phá hủy `rm`, `git push` | Ask/deny theo prefix ● | Chặn theo điều kiện động ● | ○ | **Không** bao Bash ● docs |\n| Sửa sai file bằng Edit | Ask ở mode default ◐ | Chặn được ● | Không liên quan | Snapshot trước Edit ● (rewind ○) |\n| Hook độc hại của repo lạ | Không | Chính nó là mối đe dọa | Hook chạy ngoài sandbox ● | Không |\n\nNguồn bảng: [E4](#ap-experiments-e4), [E5](#ap-experiments-e5), [D10](#ap-d10-permission-flowchart), [D13](#ap-d13-threat-model), [D18](#ap-d18-adr-notes).\n\nHệ quả cho team:\n- Deny rule là kiểm soát trên **tool call**, không phải trên process. Lệnh Bash được cho phép có thể đọc mọi thứ user đọc được. ● docs [D18](#ap-d18-adr-notes)\n- Hook không phải sandbox: nó là code chạy với quyền của bạn. Đọc hook trước khi trust repo. ● [D13](#ap-d13-threat-model)\n- Việc không giám sát: worktree hoặc container, và commit git thường xuyên vì checkpoint không bao Bash. ● docs [D13](#ap-d13-threat-model)\n- Sandbox OS chưa có số đo nào trong lab; đừng giả định hành vi của `autoAllowBashIfSandboxed`. ○ [D10](#ap-d10-permission-flowchart)"
+    }
+   ],
+   "no": "2b"
+  },
+  {
+   "id": "s3",
+   "title": "Thẻ thành phần",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "16 thẻ, nhóm theo 4 vai. Hành vi trong thẻ có log; ranh giới thành phần là suy luận. ◐ [D2](#ap-d02-components)\n\n### 3.1 Chuẩn bị: K1, K1b, K3, K13, K12\n\n**K1 Config loader**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L1, đọc file ở L2 |\n| Vai trò | Người giữ sổ cấu hình của process |\n| Chức năng | Đọc settings theo `--setting-sources`; gộp theo hai nhánh override và merge; theo dõi file settings; thay toàn bộ hook registry khi file đổi |\n| Nhiệm vụ trong goal | Pha 1: dựng cấu hình hiệu lực. Giữa goal: settings đổi thì bắn `ConfigChange` trước khi áp, hook mới hiệu lực từ tool call kế |\n| Input → Output | File settings, flag CLI → cấu hình hiệu lực, hook registry, `ConfigChange` |\n| Biểu hiện quan sát được | `ConfigChange` `source=local_settings` 0,75–0,82 s sau khi ghi file; debug \"Applying permission update\" |\n| Phối hợp | Nhận: file L2. Giao: K1b (nguồn chờ trust), K8 (registry), K6 (rule), K12 (cấu hình MCP) |\n| Hỏng thì sao | Hook thêm giữa session có hiệu lực ngay; `ConfigChange` là điểm chặn duy nhất. Connector lọt qua `--setting-sources` |\n| Nguồn | ● [E18](#ap-experiments-e18), [D17](#ap-d17-config-precedence) |\n\n**K1b Trust gate**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L1 |\n| Vai trò | Cổng hỏi \"repo này có được chạy cấu hình của nó không\" |\n| Chức năng | Interactive: giữ hook settings, `permissions.allow` project, hook module plugin tới khi chấp nhận; ghi trust vào `~/.claude.json`. `-p` bỏ qua |\n| Nhiệm vụ trong goal | Chỉ pha 1, trước mọi hook và MCP |\n| Input → Output | cwd, git root, `~/.claude.json` → trusted, hoặc exit 1 |\n| Biểu hiện quan sát được | Debug \"dropped 7 project-scoped permissions.allow\"; dialog 218 → 18 738 ms; hook đầu ~1,04 s sau chấp nhận |\n| Phối hợp | Nhận: K1. Giao: K8, K12 (mở khoá sau trust) |\n| Hỏng thì sao | Từ chối: exit 1, không hook nào kể cả `SessionEnd`. Thư mục không-git dưới cha đã trust: không hỏi. Dialog không liệt kê hook |\n| Nguồn | ● [E11](#ap-experiments-e11), [E17](#ap-experiments-e17), [D3](#ap-d03-sequences-core) |\n\n**K3 Memory loader**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L2, nạp vào L5 (C1a, C3) |\n| Vai trò | Thủ thư chỉ dẫn |\n| Chức năng | CLAUDE.md gốc + rule không `paths:` lúc start; CLAUDE.md lồng + rule `paths:` sau batch tool chạm file; nạp lại sau compact; resume chỉ append file đã đổi |\n| Nhiệm vụ trong goal | Pha 1 (C1a), pha 4 (nạp lười), pha 5 (nạp lại), pha 7 (append) |\n| Input → Output | Filesystem, đường dẫn tool đã chạm → attachment `instructions`, `nested_memory` |\n| Biểu hiện quan sát được | `InstructionsLoaded` `load_reason` = `session_start`, `nested_traversal`, `path_glob_match`, `compact`; lazy bắn ~30–50 ms sau `PostToolBatch` |\n| Phối hợp | Nhận: K7 (file đã chạm), K11 (sau compact). Giao: K2, K8 |\n| Hỏng thì sao | Không phân xử mâu thuẫn (haiku theo gốc 4/4). Resume để 2 bản CLAUDE.md. `InstructionsLoaded` bắn cho mọi file kể cả file không chèn lại, nên không dùng nó để biết file nào thật sự vào context |\n| Nguồn | ● [E6](#ap-experiments-e6), [E15](#ap-experiments-e15), [E24](#ap-experiments-e24), [D7](#ap-d07-hook-catalog) |\n\n**K13 Skill manager**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L2 |\n| Vai trò | Người giữ menu quy trình |\n| Chức năng | Quét skill trong `setup()`, trước trust dialog; đưa listing vào message role system; nạp thân skill khi gọi; đăng ký hook frontmatter |\n| Nhiệm vụ trong goal | Pha 1: listing. Pha 2–4: khi người gõ `/skill` hoặc model gọi Skill tool |\n| Input → Output | `.claude/skills/*/SKILL.md` → listing (2,2–2,5k token), thân skill |\n| Biểu hiện quan sát được | `/skill`: `UserPromptExpansion` rồi `UserPromptSubmit` cách 43 ms. Skill tool: `PreToolUse` matcher `Skill`. Transcript `isMeta=true` |\n| Phối hợp | Giao: K2 (listing, thân), K8 (hook frontmatter) |\n| Hỏng thì sao | Listing mất sau compact: haiku tự tìm lại 3/3, sonnet 0/1. Hook frontmatter sống theo process, mất khi resume. Mô tả bị cắt ở 1 536 ký tự (docs) |\n| Nguồn | ● [E2](#ap-experiments-e2), [E3](#ap-experiments-e3), [E16](#ap-experiments-e16), [D18](#ap-d18-adr-notes) |\n\n**K12 MCP client**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4, nói chuyện với server ở L0 |\n| Vai trò | Cầu nối tới hệ thống ngoài |\n| Chức năng | Connect stdio nền; tool search: chỉ tên tool vào context, schema vào `tools` sau ToolSearch; reconnect lười khi server chết |\n| Nhiệm vụ trong goal | Pha 1: connect nền. Pha 4: khi model cần tool ngoài |\n| Input → Output | `.mcp.json`, connector tài khoản → tên tool deferred, schema, `tool_result` |\n| Biểu hiện quan sát được | Attachment `deferred_tools_delta`; `PreToolUse` có `mcp_server{name,source}`; debug \"STDIO connection closed\" |\n| Phối hợp | Nhận: K1, K1b. Giao: K2 (tên, schema), K7 (gọi tool) |\n| Hỏng thì sao | 30 tool MCP mặc định +421 token; `ENABLE_TOOL_SEARCH=false` +18 324. Server chết: reconnect 345 ms, không có hook event. MCP xong sau `SessionStart` 93–152 ms nên hook `SessionStart` không thấy MCP |\n| Nguồn | ● [E9](#ap-experiments-e9), [E17](#ap-experiments-e17), [D14](#ap-d14-failure-modes) |\n\n### 3.2 Bộ não: K2, K4, K5\n\n**K2 Context assembly**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4, ghi ra L5 |\n| Vai trò | Người đóng gói request |\n| Chức năng | Dựng `system`, `tools`, `messages[0]` role user, message role system giữa hội thoại; request đầu `create`, sau đó `continue` delta |\n| Nhiệm vụ trong goal | Mỗi iteration |\n| Input → Output | Config, memory, hội thoại trong RAM, output hook → body API |\n| Biểu hiện quan sát được | Raw body OTel: `thread.type`; `system` của `continue` chỉ còn billing header ~234 byte; `tools` chỉ gửi lại khi tập tool đổi |\n| Phối hợp | Nhận: K3, K13, K12, K8, K7, K11. Giao: K5 |\n| Hỏng thì sao | Context động phải append chứ không sửa prefix, để giữ cache. Đổi chế độ tool search giữa chừng: `cache_read` 0. Byte body không đo được context, phải đo bằng usage |\n| Nguồn | ● [E1](#ap-experiments-e1), [E13](#ap-experiments-e13), [D6](#ap-d06-context-layers), [E9](#ap-experiments-e9) |\n\n**K4 Agent loop**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4 |\n| Vai trò | Nhạc trưởng của lượt |\n| Chức năng | Gửi request, nhận stream, tách `tool_use`, lặp tới khi hết tool call; xử lý Stop block (cap 8 liên tiếp, reset khi gọi tool) |\n| Nhiệm vụ trong goal | Pha 2, 3, 6 |\n| Input → Output | Prompt, `tool_result` → message assistant, tool call |\n| Biểu hiện quan sát được | `UserPromptSubmit`, `MessageDisplay`, `Stop` (`stop_hook_active`); transcript `stop_hook_summary`, `turn_duration` |\n| Phối hợp | Nhận: người dùng, K5. Giao: K6 (tool call), K11 (khi đầy), K9 (record), K8 (Stop) |\n| Hỏng thì sao | Stop hook luôn block: 26 lượt model, ×13 chi phí; `-p` chạm cap vẫn `subtype=success`, phải bắt notification `stop-hook-block-cap` |\n| Nguồn | ● [E10](#ap-experiments-e10), [D4](#ap-d04-state-machines), [D7](#ap-d07-hook-catalog) |\n\n**K5 API client**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4, ranh giới tới L6 |\n| Vai trò | Đường ống ra cloud |\n| Chức năng | HTTPS; retry có ngân sách (`attempt 1/11`); 404 streaming thì thử non-streaming; lỗi cuối thành message `model: \"<synthetic>\"` |\n| Nhiệm vụ trong goal | Mỗi iteration |\n| Input → Output | Body → stream, usage, `requestId` |\n| Biểu hiện quan sát được | Gửi → block đầu p50 1,09 s (S1); stream có `rate_limit_event` |\n| Phối hợp | Nhận: K2. Giao: K4, K15 |\n| Hỏng thì sao | Model id sai: `StopFailure` `model_not_found`, exit 1, `is_error: true` nhưng `subtype: \"success\"`. 429 thật: ○ |\n| Nguồn | ● [D14](#ap-d14-failure-modes), [D16](#ap-d16-latency-cost) |\n\n### 3.3 Đôi tay có kiểm soát: K6, K8, K7, K14\n\n**K6 Permission gate**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4 |\n| Vai trò | Trọng tài của từng tool call |\n| Chức năng | Thứ tự quan sát: deny rule `Read(path)` → PreToolUse hook → deny/ask rule Bash → allow → mode → người |\n| Nhiệm vụ trong goal | Mỗi tool call ở pha 3 và 4 |\n| Input → Output | Tool call → allow / deny / ask |\n| Biểu hiện quan sát được | `PermissionRequest` khi cần hỏi; transcript `permissionDecision{decision,source}`; `PermissionDenied` chỉ ở auto mode |\n| Phối hợp | Nhận: K4. Gọi: K8 (PreToolUse, PermissionRequest). Giao: K7 |\n| Hỏng thì sao | Hook fail-open khi exit 1 hoặc timeout. `-p` không có người: ask = từ chối. Audit dựa hook bỏ sót lần deny theo path |\n| Nguồn | ● [E4](#ap-experiments-e4), [E5](#ap-experiments-e5), [D10](#ap-d10-permission-flowchart); nhánh auto ● [E20](#ap-experiments-e20) (n = 1) |\n\n**K8 Hook runner**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4, spawn process ở L0 |\n| Vai trò | Cửa mở cho code của team |\n| Chức năng | Spawn handler với JSON stdin; nhiều nguồn (settings, skill) chạy song song, thứ tự không cố định; timeout; parse exit code và JSON |\n| Nhiệm vụ trong goal | Mọi pha, theo event |\n| Input → Output | Event → quyết định, `additionalContext` |\n| Biểu hiện quan sát được | 33 event trong docs, 19 có log; ~21 ms mỗi lần chạy sync; `/hooks` liệt kê handler kèm nguồn |\n| Phối hợp | Nhận: K1 (registry), K13 (hook skill), K4, K6, K7, K11. Giao: K2 (context), K6 (quyết định) |\n| Hỏng thì sao | Hook module native của builtin plugin chạy trong process, logger không thấy. Handler bị timeout kill không để lại record. Hook có thể che nội dung (base64), grep repo không ra |\n| Nguồn | ● [D7](#ap-d07-hook-catalog), [D16](#ap-d16-latency-cost), [E3](#ap-experiments-e3), [E23](#ap-experiments-e23) |\n\n**K7 Tool executor**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4, tác động L0 |\n| Vai trò | Đôi tay |\n| Chức năng | Chạy tool built-in và MCP; chạy ngay khi một block `tool_use` stream xong; `PostToolBatch` mỗi batch; báo file đã chạm cho K3 |\n| Nhiệm vụ trong goal | Pha 3, 4 |\n| Input → Output | Tool call đã duyệt → `tool_result` |\n| Biểu hiện quan sát được | `PostToolUse` có `duration_ms`; `PostToolUseFailure`; `PostToolBatch` có `tool_calls[]` |\n| Phối hợp | Nhận: K6. Giao: K12, K14, K10, K3, K2 |\n| Hỏng thì sao | Read mất 1–3 ms nhưng cả bước 50–76 ms. Bash `pytest` 2 060 ms = 21 % lượt G2. Chỉ tool read-only chạy sớm ◐; Bash có chờ hết stream không ○ |\n| Nguồn | ● [D16](#ap-d16-latency-cost), [E7](#ap-experiments-e7), [D3](#ap-d03-sequences-core) |\n\n**K14 Subagent manager**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4 |\n| Vai trò | Người giao việc phụ |\n| Chức năng | Spawn subagent: system prompt riêng ~2,9 KB, 12 tool, transcript riêng, cache 5m; nhận hand-back |\n| Nhiệm vụ trong goal | Pha 4: việc đọc lớn |\n| Input → Output | Agent tool call → bản tóm tắt ~1,2 KB |\n| Biểu hiện quan sát được | `SubagentStart`, `SubagentStop` có `agent_id`; `subagents/agent-<id>.jsonl` với `isSidechain` |\n| Phối hợp | Nhận: K7. Chạy một K4 riêng. Giao: K2 của main |\n| Hỏng thì sao | Main +936 token cho 90 793 token công việc, nhưng subagent chiếm ~84 % chi phí E7. Subagent nhận lại CLAUDE.md và `session_context` |\n| Nguồn | ● [E7](#ap-experiments-e7), [D9](#ap-d09-sequences-advanced), [D16](#ap-d16-latency-cost) |\n\n### 3.4 Trí nhớ và bảo trì: K9, K10, K11, K15, K16\n\n**K9 Session store**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L3 |\n| Vai trò | Nhật ký |\n| Chức năng | Append transcript JSONL dạng cây theo `parentUuid`, không lock; `cost-state` theo process; registry `sessions/<pid>.json` cho interactive |\n| Nhiệm vụ trong goal | Ghi mỗi record ở pha 2–6; đọc ở pha 7 |\n| Input → Output | Message → JSONL; JSONL → hội thoại khi resume |\n| Biểu hiện quan sát được | Hook nhận `transcript_path`; record `compact_boundary`, `cost-state`, `last-prompt` |\n| Phối hợp | Nhận: K4, K11, K14. Giao: K2 (khi resume) |\n| Hỏng thì sao | Hai terminal cùng session: rẽ nhánh, không cảnh báo; `cost-state` thiếu ~0,0061 USD ở E12. Sweep sau 30 ngày |\n| Nguồn | ● [E12](#ap-experiments-e12), [D5](#ap-d05-data-stores), [D11](#ap-d11-schemas) |\n\n**K10 Checkpoint manager**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L3 |\n| Vai trò | Đường lui |\n| Chức năng | Snapshot file trước Edit/Write vào `file-history/`; record `file-history-snapshot` trong transcript |\n| Nhiệm vụ trong goal | Pha 3, trước mỗi lần sửa file |\n| Input → Output | File trước edit → snapshot |\n| Biểu hiện quan sát được | Record `file-history-snapshot`; thư mục `file-history/<sid>/` |\n| Phối hợp | Nhận: K7. Liên kết: K9 |\n| Hỏng thì sao | Không bao Bash, subagent, symlink (docs). Giữ 100 checkpoint. `/rewind` chưa đo ○ |\n| Nguồn | ● [D5](#ap-d05-data-stores), [D18](#ap-d18-adr-notes) |\n\n**K11 Compactor**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L4 |\n| Vai trò | Người nén |\n| Chức năng | Gọi model tóm tắt; ghi `compact_boundary`; mở request `create` mới với CLAUDE.md nạp lại, summary, thân skill đã gọi; **không** chèn lại skill listing |\n| Nhiệm vụ trong goal | Pha 5: thủ công, hoặc auto khi vượt window − 33k |\n| Input → Output | Hội thoại → summary (C4) |\n| Biểu hiện quan sát được | `PreCompact` → `SubagentStop` (không có `SubagentStart`) → `SessionStart(compact)` → `PostCompact`; `compactMetadata{preTokens,postTokens}` |\n| Phối hợp | Nhận: K4. Giao: K3 (nạp lại), K2 |\n| Hỏng thì sao | Request tóm tắt không nằm trong transcript: 30 % chi phí S3. Ngưỡng thấp: compact 15/20 lượt. `postTokens` giảm 87 % nhưng context gửi đi chỉ giảm ~5 % (S2) |\n| Nguồn | ● [D8](#ap-d8-token-over-time), [D9](#ap-d09-sequences-advanced), [E21](#ap-experiments-e21) |\n\n**K15 Telemetry / OTel**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L3 |\n| Vai trò | Máy đo |\n| Chức năng | Ghi raw body request/response khi bật `OTEL_LOG_RAW_API_BODIES`; telemetry nền |\n| Nhiệm vụ trong goal | Song song mọi pha |\n| Input → Output | Sự kiện nội bộ → file, OTLP |\n| Biểu hiện quan sát được | `<uuid>.request.json`, `.response.json` |\n| Phối hợp | Nhận: K5 |\n| Hỏng thì sao | Raw body chứa system prompt và email. E7 còn lệch −7,4 % chi phí chưa giải thích ○ |\n| Nguồn | ● [instrumentation.md](#ap-instrumentation), [D13](#ap-d13-threat-model), [D16](#ap-d16-latency-cost) |\n\n**K16 Updater**\n\n| Mục | Nội dung |\n| --- | --- |\n| Lớp onion | L3 |\n| Vai trò | Bảo trì binary |\n| Chức năng | Tự tải bản mới giữa phiên interactive; PID lock theo version |\n| Nhiệm vụ trong goal | Nền, ngoài goal; ảnh hưởng lần chạy sau |\n| Input → Output | (không) → binary mới |\n| Biểu hiện quan sát được | \"Update installed · Restart to update\"; debug \"PID lock for <ver>\"; `claude_code_version` trong stream init |\n| Phối hợp | Độc lập với các K khác |\n| Hỏng thì sao | Lab trôi từ 2.1.295 sang 2.1.296 giữa chừng; S1–S3 chạy bản khác |\n| Nguồn | ● [D14](#ap-d14-failure-modes), [E17](#ap-experiments-e17) |"
+    }
+   ],
+   "no": "3"
+  },
+  {
+   "id": "s4",
+   "title": "Flow: phối hợp theo thời gian để hoàn thành goal",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bảy pha. Pha 3–5 lặp lại nhiều lần trong một goal."
+    },
+    {
+     "type": "image",
+     "file": "d08-light.svg",
+     "file_dark": "d08-dark.svg",
+     "alt": "Sơ đồ: Flow: phối hợp theo thời gian để hoàn thành goal",
+     "ascii": "flowchart TD\n  F1[\"1 Mở session: settings, trust, CLAUDE.md, MCP nền\"] --> F2[\"2 Nhận goal: UserPromptSubmit, request create\"]\n  F2 --> F3[\"3 Iteration: model sinh text và tool_use\"]\n  F3 --> Q1{\"Có tool_use?\"}\n  Q1 -->|\"có\"| G[\"Permission gate rồi Tool executor\"]\n  G --> Q2{\"Cần mở rộng tầm?\"}\n  Q2 -->|\"CLAUDE.md lồng, ToolSearch, skill, subagent\"| F4[\"4 Mở rộng tầm: nạp lười\"]\n  Q2 -->|\"không\"| Q3{\"Context vượt ngưỡng?\"}\n  F4 --> Q3\n  Q3 -->|\"có\"| F5[\"5 Compaction: summary, thread create mới\"]\n  Q3 -->|\"không\"| F3\n  F5 --> F3\n  Q1 -->|\"không\"| S{\"Stop hook block?\"}\n  S -->|\"block, dưới 9 lần liên tiếp\"| F3\n  S -->|\"cho dừng hoặc chạm cap\"| F6[\"6 Kết thúc lượt: Stop, transcript\"]\n  F6 --> Q4{\"Goal còn dở?\"}\n  Q4 -->|\"prompt tiếp, cùng process\"| F2\n  Q4 -->|\"thoát process\"| F7[\"7 Lưu và quay lại: resume, fork\"]\n  F7 -->|\"--resume\"| F1",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "### 4.1 Các pha\n\n**Pha 1. Mở session.** K1 đọc settings. Interactive và git root chưa trust: K1b chặn đồng bộ mọi bước sau, chỉ quét\nskill chạy trước. MCP connect nền. `SessionStart` và `InstructionsLoaded` bắn cùng ms, không thứ tự cố định. ● [D3](#ap-d03-sequences-core), [E17](#ap-experiments-e17)"
+    },
+    {
+     "type": "image",
+     "file": "d09-light.svg",
+     "file_dark": "d09-dark.svg",
+     "alt": "Sơ đồ: 4.1 Các pha",
+     "ascii": "sequenceDiagram\n  autonumber\n  actor U as Người dùng\n  participant K1 as K1 Config loader\n  participant TG as K1b Trust gate\n  participant SK as K13 Skill manager\n  participant MC as K12 MCP client\n  participant ML as K3 Memory loader\n  participant HK as K8 Hook runner\n  U->>K1: claude hoặc claude -p\n  K1->>K1: đọc settings managed, user, project, local\n  SK->>SK: quét skill trong setup, trước dialog\n  opt interactive và git root chưa trust\n    TG->>U: trust dialog, chặn đồng bộ\n    alt từ chối\n      U-->>TG: No\n      Note over TG,HK: exit 1, không hook nào, kể cả SessionEnd\n    else chấp nhận\n      U-->>TG: Yes\n      TG->>TG: ghi trust, nạp hook và allow của project\n    end\n  end\n  K1->>MC: bắt đầu kết nối MCP, chạy nền\n  par cùng ms, không thứ tự cố định\n    K1--)HK: HOOK SessionStart source startup\n  and\n    ML--)HK: HOOK InstructionsLoaded session_start, mỗi file\n  end\n  MC--)K1: connected, sau SessionStart 93 đến 152 ms\n  K1->>U: sẵn sàng nhận prompt",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "**Pha 2. Nhận goal** và **Pha 3. Lặp suy nghĩ ↔ hành động.** Prompt bắn `UserPromptSubmit` (timeout 30 s). Request\nđầu `create` gửi đủ. Tool chạy ngay khi block `tool_use` stream xong. Sau batch, `InstructionsLoaded` lazy bắn nếu\nchạm thư mục có CLAUDE.md lồng; nội dung vào request kế dạng delta. ● [D3](#ap-d03-sequences-core), [D16](#ap-d16-latency-cost)"
+    },
+    {
+     "type": "image",
+     "file": "d10-light.svg",
+     "file_dark": "d10-dark.svg",
+     "alt": "Sơ đồ: 4.1 Các pha",
+     "ascii": "sequenceDiagram\n  autonumber\n  actor U as Người dùng\n  participant L as K4 Agent loop\n  participant HK as K8 Hook runner\n  participant PG as K6 Permission gate\n  participant TX as K7 Tool executor\n  participant API as K5 và Messages API\n  U->>L: prompt\n  L->>HK: HOOK UserPromptSubmit\n  HK-->>L: additionalContext hoặc block\n  L->>API: request 1, thread create, gửi đủ C0 C1a C1b C2\n  API-->>L: stream text và tool_use Read\n  L->>HK: HOOK PreToolUse\n  L->>PG: rule, mode\n  PG--)HK: HOOK PermissionRequest nếu cần hỏi\n  L->>TX: chạy Read, có thể khi response còn stream\n  TX-->>L: tool_result\n  L->>HK: HOOK PostToolUse\n  L->>HK: HOOK PostToolBatch, một lần cho cả batch\n  L--)HK: HOOK InstructionsLoaded nested_traversal, khoảng 30 đến 50 ms sau\n  L->>API: request 2, thread continue, chỉ delta\n  Note over L,API: delta gồm tool_result rồi message role system chứa CLAUDE.md lồng\n  API-->>L: text cuối, hết tool_use\n  L--)HK: HOOK MessageDisplay\n  L->>HK: HOOK Stop, block thì quay lại request",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "**Pha 4. Mở rộng tầm.** Harness không nạp mọi thứ từ đầu. Bốn đường nạp lười: CLAUDE.md lồng và rule `paths:` (sau\n`PostToolBatch`), schema MCP (sau ToolSearch, +233 token lần dùng đầu), thân skill (khi gọi), subagent (context riêng).\nWebSearch là một request riêng ~13,7k input không cache. ● [D7](#ap-d07-hook-catalog), [E9](#ap-experiments-e9), [E2](#ap-experiments-e2), [D16](#ap-d16-latency-cost)"
+    },
+    {
+     "type": "image",
+     "file": "d11-light.svg",
+     "file_dark": "d11-dark.svg",
+     "alt": "Sơ đồ: 4.1 Các pha",
+     "ascii": "sequenceDiagram\n  autonumber\n  participant L as K4 Main loop\n  participant HK as K8 Hook runner\n  participant SA as K14 Subagent\n  participant API as Messages API\n  participant ST as K9 Transcript\n  API-->>L: tool_use Agent, general-purpose\n  L->>HK: HOOK PreToolUse matcher Agent, không PermissionRequest\n  L->>HK: HOOK SubagentStart\n  L->>SA: task message\n  SA->>API: request riêng, thread create, cache 5m\n  Note over SA,API: vẫn có CLAUDE.md, rule, session_context, skills\n  loop 20 Read, mỗi cặp mang agent_id\n    SA->>HK: HOOK PreToolUse và PostToolUse\n  end\n  SA->>API: context subagent lên khoảng 90,8k token\n  SA-)ST: subagents agent-id.jsonl, isSidechain\n  SA->>HK: HOOK SubagentStop\n  SA-->>L: hand-back khoảng 1,2 KB\n  L->>API: request main kế, context main chỉ tăng 936 token",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "**Pha 5. Giữ goal dài (compaction).** Auto-compact chạy khi context vượt window − 33k, 14/15 lần đo là giữa lượt sau\n`PostToolBatch`. Request sau compact là `create` mới: CLAUDE.md nạp lại, summary, thân skill đã gọi; skill listing\nmất. ● [D9](#ap-d09-sequences-advanced), [E21](#ap-experiments-e21), [E16](#ap-experiments-e16)"
+    },
+    {
+     "type": "image",
+     "file": "d12-light.svg",
+     "file_dark": "d12-dark.svg",
+     "alt": "Sơ đồ: 4.1 Các pha",
+     "ascii": "sequenceDiagram\n  autonumber\n  participant L as K4 Agent loop\n  participant HK as K8 Hook runner\n  participant CP as K11 Compactor\n  participant ML as K3 Memory loader\n  participant API as Messages API\n  participant ST as K9 Transcript\n  L->>HK: HOOK PostToolBatch\n  Note over L: context vượt ngưỡng auto, giữa lượt\n  L->>HK: HOOK PreCompact trigger auto\n  CP->>API: request tóm tắt, gửi đủ lịch sử\n  API-->>CP: summary\n  CP->>HK: HOOK SubagentStop, không có SubagentStart\n  CP->>HK: HOOK SessionStart source compact\n  CP->>HK: HOOK PostCompact\n  CP-)ST: compact_boundary với preTokens, postTokens\n  ML->>L: CLAUDE.md gốc nạp lại từ đĩa\n  L->>API: request thread create mới\n  Note over L,API: summary, thân skill đã gọi, không còn skill listing\n  Note over L,ML: CLAUDE.md lồng chỉ nạp lại khi chạm lại file",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "**Pha 6. Kết thúc.** Model hết `tool_use`, Stop hook cho dừng. `-p`: `SessionEnd` ~500 ms sau `Stop`, process thoát\nsau p50 1 785 ms (S1). Lỗi API: `StopFailure`, không `Stop`. ● [D16](#ap-d16-latency-cost), [D14](#ap-d14-failure-modes)\n\n**Pha 7. Lưu và quay lại.** `--resume` là process mới: thread `create` phát lại toàn bộ lịch sử. Hook từ skill\nfrontmatter của process cũ không còn. ● [D9](#ap-d09-sequences-advanced), [E3](#ap-experiments-e3)"
+    },
+    {
+     "type": "image",
+     "file": "d13-light.svg",
+     "file_dark": "d13-dark.svg",
+     "alt": "Sơ đồ: 4.1 Các pha",
+     "ascii": "sequenceDiagram\n  autonumber\n  actor U as Người dùng\n  participant P as Process mới\n  participant ST as K9 Transcript JSONL\n  participant ML as K3 Memory loader\n  participant HK as K8 Hook runner\n  participant API as Messages API\n  U->>P: claude --resume ID, thêm --fork-session nếu fork\n  P->>ST: đọc file, chọn lá ghi sau cùng\n  P->>HK: HOOK SessionStart source resume hoặc fork\n  ML--)HK: HOOK InstructionsLoaded session_start cho mọi file, sau 65 đến 254 ms\n  ML->>ML: so CLAUDE.md trên đĩa với bản đã nạp trong transcript\n  U->>P: prompt\n  P->>HK: HOOK UserPromptSubmit\n  P->>API: request thread create, phát lại toàn bộ lịch sử\n  Note over P,API: CLAUDE.md cũ ở message đầu, bản mới append trước prompt nếu file đổi\n  Note over P,API: nghỉ quá 1 giờ thì chỉ đọc được phần cache scope global",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "### 4.2 Bảng swimlane\n\n| Pha | Thành phần chủ đạo | Hook event bắn | Output | Điểm gãy (số đo) |\n| --- | --- | --- | --- | --- |\n| 1 Mở session | K1, K1b, K13, K3, K12 | `SessionStart` ∥ `InstructionsLoaded` | Cấu hình hiệu lực; C0, C1a, C1b | Chờ trust 18,5 s (người bấm); `-p` tới `UserPromptSubmit` ~0,9 s; MCP xong sau `SessionStart` 93–152 ms ● [D16](#ap-d16-latency-cost), [E17](#ap-experiments-e17) |\n| 2 Nhận goal | K4, K8, K2 | `UserPromptSubmit`; thêm `UserPromptExpansion` nếu `/skill` | Request `create` ~18,3k token | Hook UPS timeout 30 s ● [D7](#ap-d07-hook-catalog), [D8](#ap-d8-token-over-time) |\n| 3 Lặp | K5, K4, K6, K8, K7 | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolBatch` | `tool_result`, request `continue` | Mỗi request ~1,1 s; hook ~21 ms; `-p` ask = từ chối ● [D16](#ap-d16-latency-cost), [D10](#ap-d10-permission-flowchart) |\n| 4 Mở rộng | K3, K12, K13, K14 | `InstructionsLoaded` lazy, `SubagentStart`, `SubagentStop` | `nested_memory`, schema, thân skill, hand-back | Subagent 90,8k → main +936, ~10× chi phí prompt đơn ● [E7](#ap-experiments-e7) |\n| 5 Compact | K11, K3 | `PreCompact`, `SubagentStop`, `SessionStart(compact)`, `PostCompact` | C4, thread `create` | 30 % chi phí S3 ẩn; skill listing mất ● [D8](#ap-d8-token-over-time), [E16](#ap-experiments-e16) |\n| 6 Kết thúc | K4, K8 | `MessageDisplay`, `Stop` / `StopFailure`, `SessionEnd` | Transcript, `result` | Stop cap 8 liên tiếp; `is_error` khác `subtype` ● [E10](#ap-experiments-e10), [D14](#ap-d14-failure-modes) |\n| 7 Lưu và quay lại | K9, K10, K3 | `SessionStart(resume/fork)`, `InstructionsLoaded` | Lịch sử phát lại | Cold resume 6,4×; skill hook mất; hai terminal rẽ nhánh ● [E8](#ap-experiments-e8), [E3](#ap-experiments-e3), [E12](#ap-experiments-e12) |\n\n### 4.3 Ba hợp đồng phối hợp\n\nCác thành phần không gọi nhau tùy ý. Chúng giữ ba hợp đồng ngầm. Tên \"hợp đồng\" là cách gom của tài liệu này. ◐ [D18](#ap-d18-adr-notes)\n\n**Context contract: cái gì vào request**\n\n- **Bên tham gia:** K3, K13, K12, K8 (nguồn), K2 (đóng gói), K11 (thay C2 bằng C4).\n- **Bất biến:**\n  - Prefix tĩnh (`system`, `tools`) giữ ổn định; context động **append** vào message role system thay vì sửa prefix. ● [D18](#ap-d18-adr-notes) (BL1, A27)\n  - CLAUDE.md gốc ở `messages[0]` role user, không ở `system`. ● [E1](#ap-experiments-e1)\n  - Trong một process, request sau chỉ gửi delta. ● [E13](#ap-experiments-e13)\n- **Vi phạm thường gặp:**\n  - Đổi bộ MCP hoặc `ENABLE_TOOL_SEARCH` giữa session: mất cache prefix. ● [E9](#ap-experiments-e9)\n  - Sửa CLAUDE.md gốc giữa session: không hiệu lực tới `/clear`, `/compact` hoặc restart. ● [D18](#ap-d18-adr-notes) (docs)\n  - Resume sau khi sửa CLAUDE.md: hai bản cùng có mặt. ● [E15](#ap-experiments-e15)\n\n**Policy contract: cái gì được chạy**\n\nThứ tự quan sát cho một tool call: deny `Read` theo path → PreToolUse hook → deny/ask rule Bash → allow (hook hoặc\nrule) → mode → người. ● [D10](#ap-d10-permission-flowchart)"
+    },
+    {
+     "type": "image",
+     "file": "d14-light.svg",
+     "file_dark": "d14-dark.svg",
+     "alt": "Sơ đồ: 4.3 Ba hợp đồng phối hợp",
+     "ascii": "flowchart LR\n  A[\"tool_use\"] --> B{\"Read path khớp deny?\"}\n  B -->|\"có\"| X1[\"DENY, không bắn PreToolUse\"]\n  B -->|\"không\"| C[\"PreToolUse hook\"]\n  C -->|\"deny, exit 2, onFailure block\"| X2[\"DENY, lý do vào tool_result\"]\n  C -->|\"allow, im lặng, exit 1, timeout\"| D{\"Rule Bash khớp?\"}\n  D -->|\"deny\"| X2\n  D -->|\"ask\"| P[\"Cần hỏi\"]\n  D -->|\"không\"| E{\"Hook allow hoặc allow rule?\"}\n  E -->|\"có\"| OK[\"ALLOW\"]\n  E -->|\"không\"| M{\"Mode\"}\n  M -->|\"default, lệnh chỉ đọc\"| OK\n  M -->|\"default, còn lại\"| P\n  M -->|\"auto\"| CL{\"Classifier\"}\n  CL -->|\"cho phép\"| OK\n  CL -->|\"chặn\"| XD[\"DENY, PermissionDenied\"]\n  P -->|\"chế độ -p\"| X3[\"DENY, không có người\"]\n  P -->|\"interactive\"| HU[\"Hộp thoại người dùng\"]",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "- **Bên tham gia:** K6, K8, K1 (rule đã merge), K1b (rule nào được nạp), người dùng.\n- **Bất biến:**\n  - Deny và ask rule thắng hook `allow`; hook deny thắng allow rule. ● [E4](#ap-experiments-e4), [D17](#ap-d17-config-precedence)\n  - Mặc định fail-open: chỉ exit 2, JSON deny hoặc `onFailure: \"block\"` mới chặn. ● [E5](#ap-experiments-e5)\n  - Permission rule cộng dồn mọi tầng; deny ở tầng nào cũng thắng. ● [D17](#ap-d17-config-precedence)\n- **Vi phạm thường gặp:**\n  - Dùng hook PreToolUse để chặn `@file`: hook không bắn. ● [E4](#ap-experiments-e4)\n  - Gate bảo mật thiếu `onFailure: \"block\"`: timeout thì tool chạy. ● [E5](#ap-experiments-e5)\n  - Ask rule trong CI: không có người, thành từ chối. ● [D10](#ap-d10-permission-flowchart)\n  - Audit chỉ từ hook log: bỏ sót deny theo path. ● [D13](#ap-d13-threat-model)\n\n**Persistence contract: cái gì được nhớ**\n\n- **Bên tham gia:** K9, K10, K11, K15, K16, thread phía server.\n- **Bất biến:**\n  - Transcript là cây append-only, không lock. ● [E12](#ap-experiments-e12)\n  - Resume là process mới: phát lại từ transcript, mở thread `create` mới. ● [D9](#ap-d09-sequences-advanced)\n  - Trạng thái gắn process (hook skill, lá transcript, `cost-state`, thread) không đi theo session id. ● [D4](#ap-d04-state-machines)\n  - Checkpoint chỉ bao file sửa bằng Edit/Write. ● [D18](#ap-d18-adr-notes) (docs)\n- **Vi phạm thường gặp:**\n  - Hai terminal `--resume` cùng session: nhánh kia rơi khỏi đường resume. ● [E12](#ap-experiments-e12)\n  - Tin `/rewind` hoàn tác lệnh Bash. ● [D18](#ap-d18-adr-notes) (docs)\n  - Tính chi phí từ transcript: thiếu request compact (−10 % đến −30 %). ● [D16](#ap-d16-latency-cost)"
+    }
+   ],
+   "no": "4"
+  },
+  {
+   "id": "s5",
+   "title": "Context tổng thể: trước, trong, sau",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 5.1 Ma trận thời điểm × tầng\n\nKý hiệu trong ô: **có** = có mặt; **mới** = dựng hoặc nạp mới; **giữ**; **mất**; **phát lại** = gửi lại từ transcript.\nNguồn chung: ● [D6](#ap-d06-context-layers) §3, [E1](#ap-experiments-e1), [E3](#ap-experiments-e3), [E6](#ap-experiments-e6), [E15](#ap-experiments-e15), [E16](#ap-experiments-e16), [E24](#ap-experiments-e24). Ô có ký hiệu riêng là ngoại lệ.\n\n| Tầng | Trước goal | Mỗi iteration | Sau compact | Sau resume | Trong subagent | Sau goal |\n| --- | --- | --- | --- | --- | --- | --- |\n| C0 system, tools | mới; 11,3k đọc cache global | giữ; `continue` chỉ gửi header ~234 byte | giữ (4 block, 14 tool) | phát lại | mới: prompt riêng, 12 tool | giữ trong cache 1h |\n| C1a CLAUDE.md, rule, `session_context` | mới | giữ | nạp lại từ đĩa | phát lại bản cũ, append file đổi | có (bản hiện tại) | không đổi tới `/clear`, `/compact`, restart |\n| C1b env, deferred tools, skill listing | mới | giữ | dựng lại **trừ** skill listing | phát lại; SessionStart context trùng thì dedupe | có, không có SessionStart | giữ |\n| C2 hội thoại | trống | append `tool_use`, `tool_result` | thay bằng summary + preserved segment | phát lại đầy đủ | chỉ task message | trong transcript |\n| C3 nạp theo nhu cầu | chưa có | mới sau `PostToolBatch` khi chạm file | mất tới khi chạm lại file; thân skill nạp lại | phát lại; trạng thái \"đã nạp\" khôi phục ● [D8](#ap-d8-token-over-time) | ○ [D6](#ap-d06-context-layers) | trong transcript |\n| C4 compact | không | không | mới | phát lại phần sau compact ◐ [D8](#ap-d8-token-over-time) | ○ | trong transcript |\n| C5 subagent | không | chỉ khi gọi Agent | không | không | riêng, tới 90,8k ● [E7](#ap-experiments-e7) | transcript `subagents/` |\n\nÔ \"C4 sau resume\" là suy luận: ở S3 mỗi lượt là một process `--resume`, context dao động 24–33k thay vì tăng dần,\nnên resume không phát lại phần trước compact. ◐ [D8](#ap-d8-token-over-time)\n\n### 5.2 Cùng có mặt: trong context và ngoài context\n\n| Thời điểm | Trong context (model thấy) | Ngoài context (control plane đang hiệu lực) |\n| --- | --- | --- |\n| Trước goal, session vừa mở | C0, C1a, C1b (~14,1k token) | Rule đã merge, hook registry từ settings, trạng thái trust, kết nối MCP nền, cache global ấm |\n| Đầu lượt | Trên + prompt + UPS `additionalContext` | Hook UPS (chặn được), bộ đếm Stop về 0 |\n| Giữa iteration có tool | Trên + `tool_use`, `tool_result`, CLAUDE.md lồng nếu đã chạm | Permission gate, hook PreToolUse/PostToolUse, hook skill nếu skill đã gọi, `--max-turns` |\n| Ngay sau compact | C0, C1a nạp lại, C1b thiếu listing, summary, thân skill đã gọi | Hook skill vẫn sống; cache phần hội thoại mất (`cache_read` về 13 856) |\n| Sau resume | Lịch sử phát lại, CLAUDE.md đổi thì 2 bản | Hook settings đọc lại; hook skill **mất**; cache có thể nguội nếu nghỉ > 1h |\n| Trong subagent | Prompt riêng, CLAUDE.md, `session_context`, task message | Hook settings bắn với `agent_id`; cache 5m |\n| Sau goal | Nằm trong thread tới khi process thoát | Transcript, `cost-state`, `file-history/` trên đĩa |\n\nNguồn bảng: ● [D6](#ap-d06-context-layers), [D8](#ap-d8-token-over-time), [D4](#ap-d04-state-machines), [E3](#ap-experiments-e3), [E7](#ap-experiments-e7), [E8](#ap-experiments-e8).\n\n### 5.3 Ví dụ đi trọn một goal\n\nGoal: **\"sửa một bug trong `src/inventory/billing/` và chạy test\"**. Ghép từ các lượt đo thật: S2 (Read trong\n`billing/`, `pytest`, `/compact`), G2 (lượt nhiều tool), E8 (resume nguội). Thứ tự bước là minh họa. ◐ [D8](#ap-d8-token-over-time)\n\n| Bước | Context thêm vào (xấp xỉ) | Hook bắn | Ai quyết định |\n| --- | --- | --- | --- |\n| 0. Trước goal | Prefix 14,1k: system 3,0k + tools 8,7k + memory 0,2k + skill listing 2,2k ● [D8](#ap-d8-token-over-time) | `SessionStart`, `InstructionsLoaded session_start` | K1, K1b |\n| 1. Gõ prompt | Request 1 `create` ~18,3k; 11,4k đọc từ cache global ● [D8](#ap-d8-token-over-time) | `UserPromptSubmit` | K2 dựng; hook UPS có thể chèn |\n| 2. Model Read `billing/money.py` | `tool_result`; S1 tăng ~674 token/lượt cho 2–3 file nhỏ ● [D8](#ap-d8-token-over-time); CLAUDE.md lồng và rule `paths:` vào message role system ở request kế, cỡ ○ | `PreToolUse`, `PostToolUse`, `PostToolBatch`, rồi `InstructionsLoaded nested_traversal` + `path_glob_match` | Model chọn tool; K6 cho Read |\n| 3. Model Edit file | `tool_result` ngắn ○; checkpoint snapshot trước edit ● [D5](#ap-d05-data-stores) | `PreToolUse`, `PermissionRequest` nếu cần hỏi, `PostToolUse` | K6: mode default, không phải lệnh chỉ đọc → hỏi người ◐ [D10](#ap-d10-permission-flowchart); `-p` thì từ chối ● [D10](#ap-d10-permission-flowchart) |\n| 4. Model chạy `pytest` | Output test, cỡ ○; lệnh mất ~2 060 ms ● [D16](#ap-d16-latency-cost) | `PreToolUse`, `PostToolUse`, `PostToolBatch` | Allow rule `Bash(python3 -m pytest:*)` thì chạy; không có rule thì hỏi ● [D10](#ap-d10-permission-flowchart) |\n| 5. Model báo xong | Text cuối | `MessageDisplay`, `Stop` | Stop hook gate có thể block nếu test đỏ, cap 8 ● [E10](#ap-experiments-e10) |\n| 6. Goal kéo dài | Auto-compact khi vượt window − 33k ● [E21](#ap-experiments-e21); CLAUDE.md lồng mất, nạp lại khi chạm lại `billing/` ● [D8](#ap-d8-token-over-time) | `PreCompact` … `PostCompact`, sau đó `InstructionsLoaded nested_traversal` lần nữa | K11 |\n| 7. Hôm sau `--resume` | Toàn bộ lịch sử phát lại; nghỉ > 1h thì chỉ 11,3k đọc từ cache ● [E8](#ap-experiments-e8); lồng không nạp lại vì trạng thái khôi phục từ transcript ● [D8](#ap-d8-token-over-time) | `SessionStart resume`, `InstructionsLoaded` | K9, K3 |\n\nTrước, trong, sau:\n- **Trước:** model đã thấy ~14,1k token trước khi đọc dòng code nào. Prefix chiếm 77 % context ở request đầu. ● [D8](#ap-d8-token-over-time)\n- **Trong:** một lượt nhiều tool (5 request, 6 tool, có `pytest`) mất ~9,7 s; API chiếm 72 %, tool 21 %. ● [D16](#ap-d16-latency-cost)\n- **Sau:** S2 (21 lượt, có `billing/`, `pytest`, 1 `/compact`) tốn $0,01734; lượt thường median $0,00067. Lượt đầu sau nghỉ 2 giờ đắt gấp 6,4×. ● [D8](#ap-d8-token-over-time), [E8](#ap-experiments-e8)\n\n### 5.4 Sơ đồ context data flow"
+    },
+    {
+     "type": "image",
+     "file": "d15-light.svg",
+     "file_dark": "d15-dark.svg",
+     "alt": "Sơ đồ: 5.4 Sơ đồ context data flow",
+     "ascii": "flowchart LR\n  subgraph SRC[\"Nguồn\"]\n    s1[\"CLAUDE.md gốc, rule không paths\"]\n    s2[\"session_context: email, git status\"]\n    s3[\"SessionStart, UPS additionalContext\"]\n    s4[\"environment, deferred tools, skill listing\"]\n    s5[\"CLAUDE.md lồng, rule paths\"]\n    s6[\"@file, thân skill, MCP schema\"]\n    s7[\"tool_result\"]\n    s8[\"compact summary\"]\n  end\n  subgraph LAY[\"Tầng\"]\n    c0[\"C0 system, tools\"]\n    c1a[\"C1a messages 0 role user\"]\n    c1b[\"C1b message role system đầu\"]\n    c2[\"C2 hội thoại\"]\n    c3[\"C3 message role system sau trigger\"]\n    c4[\"C4 sau compact\"]\n  end\n  R1{\"Request create: gửi đủ\"}\n  R2{\"Request continue: chỉ delta\"}\n  PCH[(\"Prompt cache: global, 1h main, 5m subagent\")]\n  TRS[(\"Transcript JSONL\")]\n  NO[\"stdout PostToolUse exit 0\"]\n  s1 & s2 --> c1a\n  s3 & s4 --> c1b\n  s5 & s6 --> c3\n  s7 --> c2\n  s8 --> c4\n  c0 & c1a & c1b & c2 & c3 & c4 --> R1\n  c2 & c3 --> R2\n  R1 --> PCH\n  R2 --> PCH\n  R1 --> TRS\n  R2 --> TRS\n  NO -. \"không lên API\" .-> TRS",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "Request `create` xuất hiện ở request đầu của process, sau compact, sau resume, sau fork và ở subagent. ● [D6](#ap-d06-context-layers)\n`@file` thực ra vào message role system của request đầu, dạng lời gọi Read giả lập; sơ đồ gom nó vào C3. ● [E13](#ap-experiments-e13)"
+    }
+   ],
+   "no": "5"
+  },
+  {
+   "id": "s6",
+   "title": "Companion: hỗ trợ đồng hành cho goal",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Model là người làm. Companion là mọi thứ đi cùng để goal không lạc, không vượt quyền, không quên, không tốn quá."
+    },
+    {
+     "type": "image",
+     "file": "d16-light.svg",
+     "file_dark": "d16-dark.svg",
+     "alt": "Sơ đồ: Companion: hỗ trợ đồng hành cho goal",
+     "ascii": "flowchart TB\n  subgraph BEFORE[\"Trước goal\"]\n    m1[\"CLAUDE.md, rule: định hướng\"]\n    m2[\"Skill listing: menu quy trình\"]\n    m3[\"Trust, permission rule: rào chắn\"]\n  end\n  subgraph DURING[\"Trong goal\"]\n    m4[\"Hook: gác cổng, quan sát\"]\n    m5[\"Permission gate: từng tool call\"]\n    m6[\"Subagent: chia việc đọc lớn\"]\n    m7[\"Prompt cache: tiết kiệm\"]\n    m8[\"Compaction: giữ sức\"]\n  end\n  subgraph AFTER[\"Sau goal\"]\n    m9[\"Checkpoint: đường lui\"]\n    m10[\"Transcript, resume: trí nhớ\"]\n    m11[\"Telemetry, OTel: đo\"]\n  end\n  GOAL((\"GOAL\"))\n  m1 & m2 & m3 --> GOAL\n  m4 & m5 & m6 & m7 & m8 --> GOAL\n  GOAL --> m9 & m10 & m11",
+     "ascii_lang": "mermaid"
+    },
+    {
+     "type": "md",
+     "text": "| Cơ chế | Vai đồng hành | Tác động lúc nào | Cùng có mặt với ai | Thiếu nó thì sao (số đo) |\n| --- | --- | --- | --- | --- |\n| CLAUDE.md, rule | Định hướng | Trước: C1a mọi request; sau compact nạp lại | Skill listing, `session_context` | Rule chỉ nói trong chat sống qua compact nhờ summary (3/3 haiku, session ngắn); session dài ○ ● [E6](#ap-experiments-e6) |\n| Skill | Quy trình | Trước: listing ~2,2–2,5k; trong: thân khi gọi | CLAUDE.md, hook frontmatter | Sau compact không có listing: sonnet không tự gọi (0/1) ● [E16](#ap-experiments-e16) |\n| Hook | Gác cổng, quan sát | Trong: theo event | Permission gate, transcript | Gate thiếu `onFailure: \"block\"`: timeout thì tool vẫn chạy ● [E5](#ap-experiments-e5) |\n| Permission | Rào chắn | Trong: từng tool call | Hook, mode, trust | Không có deny `Read(./.env*)`: hook không chặn được `@file` ● [E4](#ap-experiments-e4) |\n| Subagent | Chia việc | Trong: pha 4 | Cache 5m, transcript riêng | Main tự đọc 90,8k thay vì +936 ● [E7](#ap-experiments-e7) |\n| Compaction | Giữ sức | Trong: khi vượt window − 33k | Memory loader, cache | Không compact: context tăng ~674/lượt (S1) tới ngưỡng ● [D8](#ap-d8-token-over-time); compact quá dày: ~5,7× chi phí ● [D14](#ap-d14-failure-modes) |\n| Checkpoint | Đường lui | Trong: trước Edit/Write; sau: `/rewind` | Git | Không bao Bash ● [D18](#ap-d18-adr-notes) (docs); `/rewind` ○ |\n| Transcript, resume | Trí nhớ | Sau: resume, fork, audit | `cost-state`, file-history | Hai terminal cùng session: rẽ nhánh, không cảnh báo ● [E12](#ap-experiments-e12) |\n| Prompt cache | Tiết kiệm | Mọi request | Prefix tĩnh, thread | h = 0,98 cho chi phí 16 % so với không cache; cold resume 6,4× ● [D8](#ap-d8-token-over-time), [E8](#ap-experiments-e8) |\n| Telemetry, OTel | Đo | Song song | Transcript | Không có: 30 % chi phí S3 (compact) không thấy trong transcript ● [D8](#ap-d8-token-over-time) |\n\n### 6.1 Bộ đồng hành theo loại goal\n\n**Khám phá codebase**\n- **Làm:** giao việc đọc lớn cho subagent (main +936 token cho 90,8k đọc). ● [E7](#ap-experiments-e7)\n- **Làm:** giữ tool search mặc định (30 tool MCP chỉ +421 token). ● [E9](#ap-experiments-e9)\n- **Làm:** yêu cầu gọi tool song song trong một response; mỗi request bớt được là bớt ~1,1 s. ◐ [D16](#ap-d16-latency-cost)\n- **Tránh:** subagent cho việc nhỏ (~10× chi phí prompt đơn). ● [E7](#ap-experiments-e7)\n- **Tránh:** gọi `/context` liên tục (+3,4k token mỗi lần). ● [D6](#ap-d06-context-layers)\n\n**Refactor nhiều file**\n- **Làm:** quy ước bắt buộc trong CLAUDE.md gốc; ngoại lệ theo thư mục ghi ngay trong gốc. ● [E6](#ap-experiments-e6) / ngoại lệ ◐ [E24](#ap-experiments-e24)\n- **Làm:** commit git thường xuyên; checkpoint không bao Bash. ● [D18](#ap-d18-adr-notes) (docs)\n- **Làm:** `/compact` ở ranh giới task; workflow quan trọng gọi `/skill` tường minh. ● [E16](#ap-experiments-e16)\n- **Tránh:** dùng CLAUDE.md lồng để ghi đè gốc (gốc thắng 4/4). ● [E24](#ap-experiments-e24)\n- **Tránh:** sửa CLAUDE.md rồi resume; mở session mới. ● [E15](#ap-experiments-e15)\n\n**Job CI headless**\n- **Làm:** pin binary + `DISABLE_AUTOUPDATER=1`; `--max-turns`; `--strict-mcp-config`; kiểm `is_error`. ● [D14](#ap-d14-failure-modes), [E10](#ap-experiments-e10)\n- **Làm:** hook `StopFailure` để báo lỗi API. ● [D7](#ap-d07-hook-catalog)\n- **Làm:** gom nhiều lượt vào một process `--input-format stream-json` (bớt ~2,5 s init + teardown mỗi lần). ◐ [D16](#ap-d16-latency-cost)\n- **Tránh:** ask rule chờ người duyệt; ở `-p` nó là từ chối. ● [D10](#ap-d10-permission-flowchart)\n- **Tránh:** tin `subtype: \"success\"`. ● [D14](#ap-d14-failure-modes)\n\n**Việc nhạy cảm bảo mật**\n- **Làm:** deny `Read(./.env*)`, `Bash(env:*)`, `Bash(printenv:*)`, `Edit(./.claude/**)`. ● [E4](#ap-experiments-e4), [D13](#ap-d13-threat-model)\n- **Làm:** hook gate có `onFailure: \"block\"`, log ở đầu handler. ● [E5](#ap-experiments-e5)\n- **Làm:** audit từ transcript `permissionDecision` + OTel, không chỉ từ hook. ● [D13](#ap-d13-threat-model)\n- **Tránh:** coi subagent là ranh giới bảo mật (`session_context` vẫn đi theo). ● [E7](#ap-experiments-e7)\n- **Tránh:** trust thư mục cha rộng; chạy `-p` trên repo chưa đọc `.claude/settings*.json`. ● [E11](#ap-experiments-e11)"
+    }
+   ],
+   "no": "6"
+  },
+  {
+   "id": "s7",
+   "title": "Đọc chéo ba lăng kính",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Ma trận lớp onion × pha flow, cột cuối là companion chính của lớp. Mỗi ô 1–3 từ. ◐ tổng hợp từ §2–§6.\n\n| Lớp | 1 Mở | 2 Nhận | 3 Lặp | 4 Mở rộng | 5 Compact | 6 Kết thúc | 7 Quay lại | Companion chính |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| L0 Môi trường | git status | prompt | file, shell | MCP, web | – | file đã sửa | file đã đổi | git, checkpoint |\n| L1 Tin cậy | trust gate | – | rule áp | connector lọt | – | – | trust giữ | permission rule |\n| L2 Cấu hình | CLAUDE.md, skill | `/skill` | – | lồng, `paths:` | nạp lại | – | append bản đổi | CLAUDE.md, skill |\n| L3 Phiên | updater | record prompt | append, snapshot | sidechain | boundary | `cost-state` | đọc lá cuối | transcript, OTel |\n| L4 Vòng lặp | MCP nền | hook UPS | gate, hook, tool | ToolSearch, Agent | compactor | Stop hook | hook skill mất | hook, subagent |\n| L5 Context | C0, C1a, C1b | C2 prompt | C2 append | C3, C5 | C4 thay C2 | giữ | phát lại | compaction |\n| L6 Model | cache global | thread create | continue delta | WebSearch riêng | request tóm tắt | – | create mới | prompt cache |\n\n**Câu 1. Vì sao skill không được gọi sau compact?**\n- Onion: skill listing nằm ở C1b (L5); compactor dựng lại C1b nhưng bỏ listing. ● [E16](#ap-experiments-e16)\n- Flow: pha 5 mở thread `create` mới, request đầu sau compact không còn chuỗi tên skill nào. ● [D9](#ap-d09-sequences-advanced)\n- Companion: CLAUDE.md được nạp lại, skill listing thì không. Nhắc tên skill trong CLAUDE.md gốc hoặc gõ `/skill`. ● [D18](#ap-d18-adr-notes)\n\n**Câu 2. Vì sao hook không thấy `@.env`?**\n- Onion: `@file` do K2 đưa thẳng vào context (L5), không đi qua K7 ở L4. ● [E4](#ap-experiments-e4)\n- Flow: nó vào ở pha 2, trước request đầu; không có tool call nên không có `PreToolUse`. ● [E13](#ap-experiments-e13)\n- Companion: rào đúng là permission (deny `Read(./.env*)` chặn cả `@file`); hook chỉ là người quan sát. ● [E4](#ap-experiments-e4)\n\n**Câu 3. Vì sao lượt đầu sau 2 giờ đắt?**\n- Onion: cache main TTL 1h ở L6; resume là process mới ở L3. ● [D16](#ap-d16-latency-cost)\n- Flow: pha 7 phát lại toàn bộ lịch sử bằng `create`; chỉ 11 343 token (block global) còn trong cache, 11 702 phải ghi lại. ● [E8](#ap-experiments-e8)\n- Companion: prompt cache vắng mặt, lượt đó 6,4× lượt đối chứng. Hook `SessionStart` đọc `prompt_cache_likely_expired` để cảnh báo. ● [E8](#ap-experiments-e8), [D11](#ap-d11-schemas)\n\n**Câu 4. Vì sao CI báo success nhưng job thật ra lỗi?**\n- Onion: lỗi ở L6 (404), K5 biến nó thành message `<synthetic>`. ● [D14](#ap-d14-failure-modes)\n- Flow: pha 6 đi nhánh `StopFailure`, không có `Stop`; `result` vẫn `subtype: \"success\"`. ● [D14](#ap-d14-failure-modes)\n- Companion: telemetry và hook `StopFailure` là người báo tin; script phải kiểm `is_error`. ● [D7](#ap-d07-hook-catalog)\n\n**Câu 5. Vì sao rule riêng cho `billing/` không thắng CLAUDE.md gốc?**\n- Onion: gốc ở `messages[0]` (C1a), bản lồng ở message role system sau `tool_result` (C3). ● [E13](#ap-experiments-e13)\n- Flow: bản lồng tới ở pha 4, sau `PostToolBatch`; harness không phân xử. ● [E24](#ap-experiments-e24)\n- Companion: haiku theo gốc 4/4, coi bản lồng như nội dung đi kèm tool. Ghi ngoại lệ ngay trong gốc. ● [E24](#ap-experiments-e24) / lý do ◐"
+    }
+   ],
+   "no": "7"
+  },
+  {
+   "id": "s8",
+   "title": "Giới hạn",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "- **Mô hình logic.** K1…K16, C0…C5, L0…L6, \"iteration\", \"context plane\", \"hợp đồng\" là cách gom của nhóm nghiên cứu và\n  tài liệu này. Không dịch ngược binary. ◐ [D2](#ap-d02-components)\n- **n nhỏ.** E24 n = 4; E20 n = 1; E16 sonnet 1 trial; mỗi kịch bản S1–S3 chạy 1 lần, chưa có khoảng tin cậy. ● [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)\n- **Chủ yếu haiku, chủ yếu `-p`.** Sonnet/Opus: tỷ lệ tuân thủ, số request mỗi lượt, đơn giá ○. Interactive chỉ có ở E11, E12, E17, E18, E23. ● [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)\n- **Version trôi.** S1–S3 chạy 2.1.296; còn lại 2.1.295. Prefix đọc cache global 11 343 (2.1.295) so với 11 447 (2.1.296). ● [D16](#ap-d16-latency-cost)\n- **Chưa biết (○):** hộp thoại permission và `Notification` ở interactive; mode `acceptEdits`, `plan`, `bypassPermissions`; sandbox; `/rewind`; auto-compact ở ngưỡng mặc định window 1M; CLAUDE.md lồng trong subagent; schema MCP sau compact; retention thread phía server; hành vi khi 429 thật. ○ [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)\n\nChỗ nguồn lệch nhau (đã ghi trong D-file, tài liệu này giữ cả hai):\n- `/context`: System tools 23,2k / Skills 2,5k (2.1.295 interactive) so với 8,7k + 13,3k deferred / 2,2k (2.1.296 `-p`). Khác hai biến cùng lúc. ● [D6](#ap-d06-context-layers)\n- Thời gian compact: 10,1 s (một lần G2), 3,2–7,7 s (13 lần thủ công), p50 11,1 s wall hook (15 lần auto). Ba tập dữ liệu khác nhau. ● [D9](#ap-d09-sequences-advanced), [D18](#ap-d18-adr-notes), [D16](#ap-d16-latency-cost)\n- Docs nói mỗi request gửi lại toàn bộ context; log thấy delta trên thread. Log thắng. ● [D18](#ap-d18-adr-notes)\n- Docs nói hook skill sống \"rest of the session\"; log thấy sống theo process. ● [D7](#ap-d07-hook-catalog)\n- D2 §4 (bảng sửa nháp) còn dùng mã cũ \"K12 compactor\", \"K10 session store\"; bảng chính D2 §1 dùng K11, K9. Tài liệu này theo D2 §1. ● [D2](#ap-d02-components)"
+    }
+   ],
+   "no": "8"
+  },
+  {
+   "id": "phu-luc",
+   "title": "Phụ lục: chỉ mục tài liệu gốc",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Chủ đề | Tài liệu |\n| --- | --- |\n| Tổng hợp | [00-summary.md](#ap-00-summary), [Research report](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html), [Tech team guide](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html) |\n| Ranh giới hệ thống | [D1](#ap-d01-system-context) |\n| Thành phần | [D2](#ap-d02-components) |\n| Sequence lõi, nâng cao | [D3](#ap-d03-sequences-core), [D9](#ap-d09-sequences-advanced) |\n| State machine | [D4](#ap-d04-state-machines) |\n| Data store | [D5](#ap-d05-data-stores), [D11](#ap-d11-schemas) |\n| Context | [D6](#ap-d06-context-layers), [D8](#ap-d8-token-over-time) |\n| Hook, permission, cấu hình | [D7](#ap-d07-hook-catalog), [D10](#ap-d10-permission-flowchart), [D17](#ap-d17-config-precedence) |\n| Chất lượng | [D13](#ap-d13-threat-model), [D14](#ap-d14-failure-modes), [D16](#ap-d16-latency-cost) |\n| Quyết định | [D18](#ap-d18-adr-notes) |\n| Vận hành | [playbook-debug.md](#ap-playbook-debug), [instrumentation.md](#ap-instrumentation) |\n\nThí nghiệm (E19 nằm trong [D10](#ap-d10-permission-flowchart) §3):\n[E1](#ap-experiments-e1) · [E2](#ap-experiments-e2) · [E3](#ap-experiments-e3) · [E4](#ap-experiments-e4) ·\n[E5](#ap-experiments-e5) · [E6](#ap-experiments-e6) · [E7](#ap-experiments-e7) · [E8](#ap-experiments-e8) ·\n[E9](#ap-experiments-e9) · [E10](#ap-experiments-e10) · [E11](#ap-experiments-e11) · [E12](#ap-experiments-e12) ·\n[E13](#ap-experiments-e13) · [E14](#ap-experiments-e14) · [E15](#ap-experiments-e15) · [E16](#ap-experiments-e16) ·\n[E17](#ap-experiments-e17) · [E18](#ap-experiments-e18) · [E20](#ap-experiments-e20) · [E21](#ap-experiments-e21) ·\n[E22](#ap-experiments-e22) · [E23](#ap-experiments-e23) · [E24](#ap-experiments-e24)"
+    }
+   ]
+  },
+  {
+   "id": "ap-g1",
+   "no": "P1",
+   "title": "Báo cáo gốc",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-research-report",
+       "title": "research-report · Báo cáo nghiên cứu đầy đủ",
+       "text": "`docs/research-report.md`\n\nĐọc online: <https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html>\n\n**Mục tiêu / câu hỏi.** Dựng lại mô hình vận hành của Claude Code local và kiểm chứng bằng log thật, để team dự đoán, debug và mở rộng có chủ đích. Báo cáo trả lời 16 câu hỏi nghiên cứu (RQ1–RQ16) theo 8 view, từ boundary tới decisions.\n\n**Kết quả chính.**\n- Mốc 2.1.295 (binary pin + `DISABLE_AUTOUPDATER=1`), model `haiku`, macOS, phần lớn `-p`. Ba session đo token S1–S3 chạy 2.1.296 vì launcher tự cập nhật giữa chừng. ●\n- 18 artifact (8 P0 + 10 P1/P2) và 24 thí nghiệm. Dự đoán đúng 91,0 % (Phase 3), 94,7 % (Phase 5), 50 % (E24). Gộp cả ba bộ: 89,5 %, dưới ngưỡng 90 % của spec. ● (phép gộp ◐)\n- Bảy kết luận đầu trang: đã vào context là đã rời máy; chặn secret bằng deny rule chứ không bằng hook; skill listing mất sau compact; trust kế thừa; chi phí do cache hit quyết định; ngưỡng auto-compact = window − 33 k; harness không phân xử CLAUDE.md mâu thuẫn. ●\n- 20 giả thuyết (từ nháp, docs, dự đoán) bị log bác bỏ, gồm \"mỗi request gửi lại toàn bộ hội thoại\" và \"`subtype: success` nghĩa là thành công\". ●\n- Review chính thức với ≥ 2 engineer chưa làm. Buổi proxy bằng 2 agent AI đạt điểm nhưng là \"mở sách\". ●\n- Tổng chi phí thí nghiệm khoảng 0,70 USD theo bảng giá (auth subscription, không phải tiền bị trừ). ◐\n\n**Dùng khi.** Cần bản đầy đủ trong một file: phương pháp, mối đe dọa tới tính hợp lệ, bảng E1–E24, giả thuyết bị bác bỏ và chỉ mục artifact."
+      },
+      {
+       "id": "ap-00-summary",
+       "title": "00-summary · Tổng hợp RQ1–RQ16",
+       "text": "`docs/00-summary.md`\n\n**Mục tiêu / câu hỏi.** Điểm vào ngắn: mỗi RQ một câu trả lời, kèm nhãn bằng chứng và artifact. Không có số đo mới.\n\n**Kết quả chính.**\n- Năm điểm TL;DR: context rời máy, deny rule thay hook, skill listing mất sau compact, trust kế thừa, chi phí do cache hit (0,98 → 16 % chi phí so với không cache). ●\n- Bảng 16 RQ có cột \"Phase 1 bị log đảo?\": 9/16 RQ ghi \"Có\", thêm RQ11 \"Có một phần\". ●\n- 12 khuyến nghị cho team, mỗi dòng có số liệu (vd Stop cap reset nên một run chạy 26 lượt, chi phí ×13). ●\n- 10 điểm chưa biết kèm cách kiểm chứng: mode `acceptEdits`/`plan`/`bypassPermissions`, `/rewind` với Bash, retention thread server, model ngoài Haiku. ○\n- Tổng chi phí ghi 0,60–0,61 USD vì chỉ cộng tới E19; research-report cộng thêm Phase 5 và E24 thành ~0,70. ◐\n\n**Dùng khi.** Cần câu trả lời một dòng cho một RQ và biết artifact nào chứa bằng chứng."
+      },
+      {
+       "id": "ap-team-guide",
+       "title": "team-guide · Claude Code trong team",
+       "text": "`docs/team-guide.md`\n\nĐọc online: <https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html>\n\n**Mục tiêu / câu hỏi.** Bản cho team developer: đi từ hệ quả business tới kiến trúc, lát cắt end-to-end và cấu hình copy được. Không có số đo mới; mọi số lấy từ research-report và D-file.\n\n**Kết quả chính.**\n- Một trang cho lead: 7 điều phải biết và bảng 8 rủi ro, 3 mức Cao: lộ secret qua context, hook độc hại từ repo lạ, prompt injection qua file và MCP. ●\n- Kiến trúc C4 L1, L2, L3, deployment, context data flow, data state và control plane trong 13 sơ đồ. ●\n- Bốn lát cắt end-to-end: happy path, chặn secret, session dài và compact, CI headless; mỗi lát có điểm gãy và guardrail. ●\n- Settings baseline, công thức CI headless, checklist trước khi trust repo lạ. Baseline dùng `ask` cho `rm` và `git push`, còn D13 khuyến nghị `deny`. ◐\n\n**Dùng khi.** Cần cấu hình hoặc quy trình cụ thể để áp dụng cho team, sau khi đã hiểu cơ chế."
+      }
+     ]
+    }
+   ],
+   "toc_group": "Phụ lục",
+   "intro": "Mỗi thẻ dưới đây tóm tắt một tài liệu gốc trong repo nghiên cứu: câu hỏi, kết quả chính có số liệu, và khi nào cần mở bản gốc. Bấm link trong bài sẽ nhảy tới thẻ tương ứng; ký hiệu ● đã đo hoặc có trong docs chính thức, ◐ suy luận, ○ chưa biết."
+  },
+  {
+   "id": "ap-g2",
+   "no": "P2",
+   "title": "Boundary, structure",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d01-system-context",
+       "title": "D1 · System context và trust boundary",
+       "text": "`docs/d01-system-context.md`\n\n**Mục tiêu / câu hỏi.** Claude Code trao đổi dữ liệu với những bên nào, và dữ liệu nào vượt ranh giới máy local lên cloud, vào lúc nào (RQ1, RQ2).\n\n**Kết quả chính.**\n- 15 bên ngoài (X1–X15): TTY, Messages API, OAuth, Keychain, MCP stdio/remote, connector claude.ai, filesystem, shell/git, hook, web, telemetry, OTel, update server, remote settings. ●\n- Mọi nguồn context đã thử đều có trong body API, kể cả email tài khoản và `git status`. Ngoại lệ duy nhất: stdout exit 0 của PostToolUse (0 hit / 6 body). ●\n- Từ request thứ 2 trong một process, body chỉ là delta (`thread continue`); resume, fork, compact mở `create` mới. Retention thread phía server: ○\n- Connector claude.ai lọt vào dù đặt `--setting-sources project,local`; chỉ `--strict-mcp-config` loại được. ●\n- Một session `-p` thật chỉ nối IP anycast Anthropic, Datadog intake và host đích WebFetch; WebSearch chạy phía server. ● Tên host sau IP anycast: ◐\n- Năm trust boundary TB1–TB5 là cách chia của nhóm nghiên cứu. ◐\n\n**Dùng khi.** Review DLP, firewall egress, hoặc trả lời \"dữ liệu này có lên API không\"."
+      },
+      {
+       "id": "ap-d02-components",
+       "title": "D2 · Component và trách nhiệm",
+       "text": "`docs/d02-components.md`\n\n**Mục tiêu / câu hỏi.** Harness gồm những thành phần nào, mỗi thành phần làm gì, input và output ra sao (RQ3).\n\n**Kết quả chính.**\n- 17 thành phần logic (K1–K16 và K1b), đủ 8 thành phần bắt buộc. Hành vi từng dòng ●; cách gom thành thành phần ◐ (không dịch ngược binary).\n- Hai thành phần mới so với nháp: Trust gate (chặn đồng bộ toàn bộ init interactive) và Updater (tự tải bản mới giữa phiên). ●\n- Permission gate quan sát được: deny `Read(path)` → PreToolUse → deny/ask/allow rule Bash → mode → prompt. ●\n- API client retry có ngân sách (`attempt 1/11`); lỗi cuối thành message `model: \"<synthetic>\"`. ●\n- Compactor không chèn lại skill listing; subagent manager cho subagent 12 tool, cache 5m. ●\n- Sandbox, prompt cache controller, classifier client, UI, task scheduler chỉ có docs. ○\n\n**Dùng khi.** Cần một bộ tên chung cho các bước bên trong harness khi debug hoặc thảo luận thiết kế."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g3",
+   "no": "P3",
+   "title": "Behavior",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d03-sequences-core",
+       "title": "D3 · Sequence lõi: init, prompt, skill",
+       "text": "`docs/d03-sequences-core.md`\n\n**Mục tiêu / câu hỏi.** Thứ tự chính xác của các bước khi khởi động, khi xử lý một prompt có tool, và khi gọi skill (RQ4).\n\n**Kết quả chính.**\n- Init: settings → (interactive) bỏ allow rule project → quét skill → trust gate chặn đồng bộ (218 → 18 738 ms chờ người) → MCP nền → SessionStart ∥ InstructionsLoaded. ●\n- SessionStart và InstructionsLoaded không có thứ tự cố định lúc startup; khi resume, SessionStart sớm hơn 65–254 ms. ●\n- MCP sẵn sàng sau SessionStart 152 ms (interactive) và 93 ms (`-p`), nên hook SessionStart không thấy MCP tool. ●\n- Một lượt: UserPromptSubmit → request `create` → Pre/Post từng cặp tuần tự → PostToolBatch → InstructionsLoaded lazy ~30–50 ms sau → request delta → Stop. ●\n- Tool chạy ngay khi block `tool_use` của nó stream xong, không chờ hết response. ● Chỉ tool read-only mới chạy sớm: ◐\n- `/skill` bắn UserPromptExpansion rồi UserPromptSubmit, không PreToolUse; model tự gọi thì có PreToolUse(Skill). ●\n\n**Dùng khi.** Viết hook phụ thuộc thứ tự event, hoặc giải thích vì sao một event không bắn."
+      },
+      {
+       "id": "ap-d04-state-machines",
+       "title": "D4 · State machine: turn, session, permission",
+       "text": "`docs/d04-state-machines.md`\n\n**Mục tiêu / câu hỏi.** Session và lượt có những trạng thái nào, chuyển trạng thái theo tín hiệu gì (RQ5).\n\n**Kết quả chính.**\n- Lượt: Submitted → Requesting → Streaming → ToolBatch → (LazyInstructions) → StopHooks → Done. ● Rejected, Halted, Interrupted, Cleared chỉ có docs. ○\n- Stop cap là 8 block liên tiếp, lần thứ 9 bị override, bộ đếm reset khi model gọi tool. E10: 26 lượt model, 12 block. ●\n- `stop_hook_active` là `true` từ Stop thứ hai trong lượt, kể cả sau tool call; nó không phản ánh bộ đếm cap. ●\n- Trạng thái gắn với process, không với session id: hook skill, lá transcript, `cost-state`, thread API, registry `sessions/<pid>.json`. ●\n- Model id sai (404): StopFailure thay cho Stop. Auto-compact (S3) chạy giữa lượt sau PostToolBatch ở 14/15 lần. ●\n\n**Dùng khi.** Cần biết lượt kết thúc vì sao, hoặc trạng thái nào mất khi resume."
+      },
+      {
+       "id": "ap-d09-sequences-advanced",
+       "title": "D9 · Sequence nâng cao: deny, subagent, compact, resume",
+       "text": "`docs/d09-sequences-advanced.md`\n\n**Mục tiêu / câu hỏi.** Bốn kịch bản còn lại của RQ4: tool bị từ chối, subagent, compaction, resume và fork.\n\n**Kết quả chính.**\n- Deny `Read(path)`: không có PreToolUse. Deny rule Bash: PreToolUse có bắn rồi bị từ chối. Cần hỏi ở `-p`: PermissionRequest rồi từ chối. ●\n- Subagent foreground ở `-p`: main 18 202 → 19 138 token, subagent tới 90 793; main cache 1h, subagent 5m; transcript riêng `subagents/agent-<id>.jsonl`. ●\n- Compact: PreCompact → SubagentStop → SessionStart(compact) → PostCompact. `/compact` không bắn UserPromptSubmit; InstructionsLoaded(compact) bắn ở prompt kế tiếp. ●\n- Một `/compact` thủ công (G2): 20 048 → 2 074 token, 10,1 s. Auto S3: 15/20 lượt, `compact_duration_ms` 2,9–12,9 s, median 10,8 s. ●\n- Hai process resume cùng session: một file, record xen kẽ, `parentUuid` rẽ nhánh, không lock. ●\n\n**Dùng khi.** Debug một ca deny, subagent, compact hoặc resume có hành vi khác mong đợi."
+      },
+      {
+       "id": "ap-d10-permission-flowchart",
+       "title": "D10 · Permission flowchart (kèm E19)",
+       "text": "`docs/d10-permission-flowchart.md`\n\n**Mục tiêu / câu hỏi.** Một tool call được cho phép hay bị chặn theo thứ tự nào giữa rule, hook, mode và người dùng (RQ6). Thẻ này gồm cả E19: hook so với ask/allow/deny rule.\n\n**Kết quả chính.**\n- Thứ tự quan sát: tool không tồn tại → lỗi, không hook; deny `Read(path)` → chặn trước hook; PreToolUse; deny rule Bash (thắng hook allow); ask rule; hook allow hoặc allow rule; mode; PermissionRequest; người dùng. ●\n- E19 (4 biến thể, `-p`, ~0,0071 USD): hook allow không rule → chạy; thêm ask rule → PermissionRequest rồi từ chối; thêm deny rule → từ chối, không PermissionRequest; hook `ask` + allow rule → từ chối ngay, không PermissionRequest. 3/4 khớp docs, không có dự đoán chốt trước. ●\n- Auto mode (E20): `curl | bash` bị classifier chặn, PermissionDenied bắn mà không có PermissionRequest; server review 7,5 s, client classifier 19,5 s. ●\n- Hook `ask` ở interactive dẫn tới hộp thoại: chỉ theo docs. ◐\n- Mode `acceptEdits`, `plan`, `bypassPermissions`, sandbox, deny theo path cho `Edit`/`Write`: chưa đo. ○\n\n**Dùng khi.** Một tool bị chặn hoặc được cho qua ngoài dự kiến, hoặc khi thiết kế rule và hook cùng lúc."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g4",
+   "no": "P4",
+   "title": "Data",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d05-data-stores",
+       "title": "D5 · Data store và retention",
+       "text": "`docs/d05-data-stores.md`\n\n**Mục tiêu / câu hỏi.** Có những store nào trên disk, RAM, remote; format gì, ai đọc ghi, sống bao lâu (RQ7).\n\n**Kết quả chính.**\n- Transcript `~/.claude/projects/<encoded-cwd>/<sid>.jsonl` là cây append-only, không lock; sweep theo `cleanupPeriodDays` mặc định 30 ngày. ●\n- Record `cost-state` tích lũy theo process, ghi sau cùng thắng; hai writer làm sai tổng. ●\n- `~/.claude/sessions/<pid>.json` là registry process interactive, không phải lock; `-p` không ghi. ●\n- Trust nằm trong `~/.claude.json`, không tự xoá kể cả khi thư mục đã xoá; `-p` không ghi trust. ●\n- `file-history/` giữ 100 checkpoint; `history.jsonl` giữ tới khi xoá tay (docs). ●\n- Remote: thread phía server (retention ○), prompt cache (main 1h, subagent 5m), dữ liệu API 30 ngày theo docs. ●\n\n**Dùng khi.** Cần biết dữ liệu nằm đâu, sống bao lâu, phải dọn hoặc redact gì trước khi chia sẻ."
+      },
+      {
+       "id": "ap-d11-schemas",
+       "title": "D11 · Schema transcript và hook I/O",
+       "text": "`docs/d11-schemas.md`\n\n**Mục tiêu / câu hỏi.** Cấu trúc một record transcript JSONL và JSON vào/ra của hook (RQ8).\n\n**Kết quả chính.**\n- Mỗi content block là một record `assistant` cùng `requestId` và cùng `usage`. Phải gộp theo `requestId`; cộng thẳng đếm 2–3 lần. ●\n- Context mỗi request = `input + cache_creation + cache_read`, khớp `/context` sai số < 0,1 k. ●\n- Record trạng thái không có `uuid`: `cost-state`, `last-prompt`, `file-history-snapshot`, `queue-operation`. `compact_boundary` có `parentUuid: null` và `logicalParentUuid`. ●\n- Mỗi nguồn context là một attachment: `instructions`, `nested_memory`, `session_context` (email, git status), `hook_additional_context`, `hook_success`, `file`. ●\n- Hook input luôn có `session_id`, `transcript_path`, `cwd`, `hook_event_name`, cộng field riêng từng event; có bảng format `tool_result` khi hook chặn. ●\n- Chỉ đúng cho 2.1.295; docs nói định dạng transcript là nội bộ. ●\n\n**Dùng khi.** Viết parser transcript, công cụ audit, hoặc hook đọc stdin."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g5",
+   "no": "P5",
+   "title": "Context",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d06-context-layers",
+       "title": "D6 · Tầng context và ma trận lifetime",
+       "text": "`docs/d06-context-layers.md`\n\n**Mục tiêu / câu hỏi.** Context gồm những tầng nào, nạp khi nào, sống ra sao qua compact, resume, fork, subagent (RQ9).\n\n**Kết quả chính.**\n- C0 system + tools; C1a CLAUDE.md, rule không `paths:`, `session_context` ở `messages[0]` role user; C1b/C3 ở message role system giữa hội thoại; C2 hội thoại; C4 summary; C5 subagent. ●\n- Compact: C1a nạp lại từ đĩa, thân skill đã gọi nạp lại, skill listing mất. ●\n- Resume: phát lại bản cũ + append file CLAUDE.md đã đổi; SessionStart context trùng nội dung thì dedupe. ●\n- Subagent vẫn nhận CLAUDE.md, rule và `session_context` (email): cô lập context, không cô lập dữ liệu tài khoản. ●\n- CLAUDE.md gốc mâu thuẫn bản lồng: harness không phân xử, haiku theo bản gốc 4/4. ● Lý do model chọn: ◐\n- `/context` ở bản interactive 2.1.295 và `-p` 2.1.296 cho số khác nhau (System tools 23,2 k so với 8,7 k + 13,3 k deferred); nguyên nhân version hay chế độ: ○\n\n**Dùng khi.** Quyết định đặt chỉ dẫn ở đâu để nó sống qua compact, resume và subagent."
+      },
+      {
+       "id": "ap-d8-token-over-time",
+       "title": "D8 · Token theo thời gian",
+       "text": "`docs/d8-token-over-time.md`\n\n**Mục tiêu / câu hỏi.** Context tăng thế nào theo từng lượt, token phân bổ cho từng tầng ra sao, cache ảnh hưởng chi phí thế nào (RQ10).\n\n**Kết quả chính.**\n- Ba session ~20 lượt: S1 explore 18 279 → 31 625 token, S2 mixed 18 353 → 25 032, S3 heavy 18 299 → 25 744. Tăng trung bình +674, +352, +188 token mỗi lượt. ●\n- Prefix tĩnh 14 104 token không đổi, chiếm 77 % request đầu và 45–56 % request cuối. ● Phân tách ở các lượt giữa mốc đo: ◐\n- S1 cache hit 0,980: chi phí thật $0,01629 so với $0,1026 nếu không cache, tức ~16 %. ●\n- S3 hạ ngưỡng auto-compact: compact 15/20 lượt, chi phí ~5,7× S1; request tóm tắt tốn $0,0279 = 30 % và không có trong transcript; cache hit rơi còn 0,769. ●\n- `/compact` thủ công ở S2: `postTokens` 2 956 nhưng request kế vẫn 21 812 token, vì prefix và attachment nạp lại không tính vào `postTokens`. ●\n- `total_cost_usd` và `duration_api_ms` tích lũy qua `--resume`; phải lấy delta. ●\n\n**Dùng khi.** Ước tính context và chi phí của session dài, hoặc giải thích vì sao compaction đắt."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g6",
+   "no": "P6",
+   "title": "Control",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d07-hook-catalog",
+       "title": "D7 · Hook event catalog",
+       "text": "`docs/d07-hook-catalog.md`\n\n**Mục tiêu / câu hỏi.** Mỗi hook event bắn ở đâu, có chặn được không, có chèn context được không (RQ11).\n\n**Kết quả chính.**\n- 33 event theo docs; 19 event có log trong lab (gồm PermissionDenied ở E20), 14 event chỉ có docs. ●\n- exit 1 và timeout cho tool chạy (fail-open); chỉ exit 2, JSON deny, hoặc timeout + `onFailure: \"block\"` mới chặn. ●\n- Chạm Stop cap không báo như lỗi: `subtype=success`, `terminal_reason=completed`, `num_turns=26`; phải bắt notification `stop-hook-block-cap`. ●\n- Hook trong frontmatter skill sống theo process: còn sau `/compact`, mất sau `--resume`. ●\n- Sửa `settings.local.json` giữa session: ConfigChange sau 0,75–0,82 s, bắn trước khi áp, hook mới hiệu lực ở tool call kế. ●\n- `load_reason` quan sát được: `session_start`, `nested_traversal`, `path_glob_match`, `compact`. Giá trị `include`: ○\n\n**Dùng khi.** Viết hook mới, hoặc debug một hook không bắn hay không chặn."
+      },
+      {
+       "id": "ap-d12-extension-matrix",
+       "title": "D12 · Ma trận chọn cơ chế mở rộng",
+       "text": "`docs/d12-extension-matrix.md`\n\n**Mục tiêu / câu hỏi.** Với một nhu cầu cụ thể, nên dùng CLAUDE.md, rule `paths:`, skill, hook, MCP, subagent hay permission rule, và đánh đổi gì (RQ12).\n\n**Kết quả chính.**\n- 18 nhu cầu mẫu → cơ chế. Ma trận tổng hợp ◐; từng dòng có bằng chứng ●.\n- Cấm đọc secret: deny `Read(path)` chặn cả Read lẫn `@file`; hook PreToolUse một mình không chặn `@file`. ●\n- Cấm lệnh nguy hiểm: deny rule `Bash(...)` thắng hook allow. ●\n- Quy ước toàn repo: CLAUDE.md gốc, nhưng haiku vẫn bỏ qua ở lượt 1 trong 2/3 trial. ●\n- Skill: listing ~30 token/skill; sau compact listing mất, haiku tự tìm lại 3/3, sonnet 0/1. MCP: +421 token cho 30 tool. Subagent: main +936 cho ~90,8 k token công việc, chi phí ~10×. ●\n- Output style, plugin, sandbox chưa có thí nghiệm. ○\n\n**Dùng khi.** Chọn cơ chế cho một nhu cầu mới, hoặc cần lý do khi review đề xuất cấu hình."
+      },
+      {
+       "id": "ap-d17-config-precedence",
+       "title": "D17 · Config precedence",
+       "text": "`docs/d17-config-precedence.md`\n\n**Mục tiêu / câu hỏi.** Khi nhiều tầng cấu hình cùng khai báo, tầng nào thắng và cái gì được cộng dồn.\n\n**Kết quả chính.**\n- Hai nhánh: override cho key giá trị đơn (managed > CLI > local > project > user), merge cho hook, permission rule, list key, CLAUDE.md. ● (docs)\n- Deny ở bất kỳ tầng nào thắng; deny và ask rule thắng hook allow; hook deny thắng allow rule. ●\n- `permissions.defaultMode` = `auto` hoặc `bypassPermissions` trong file của repo bị bỏ qua. ● (docs)\n- Connector claude.ai lọt qua `--setting-sources`; watcher theo dõi cả settings user dù không nạp nguồn đó. ●\n- CLAUDE.md mâu thuẫn: không phân xử ở harness, gốc thắng 4/4 với cùng dữ kiện. ● Quy luật tổng quát: ◐ (n nhỏ, chỉ haiku)\n- `allowManagedHooksOnly` khi plugin bị force-enable: ○\n\n**Dùng khi.** Một setting \"không ăn\", hoặc cần biết tầng nào quyết định giá trị cuối."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g7",
+   "no": "P7",
+   "title": "Quality",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d13-threat-model",
+       "title": "D13 · Threat model",
+       "text": "`docs/d13-threat-model.md`\n\n**Mục tiêu / câu hỏi.** Bề mặt tấn công chính cho team dùng Claude Code và phòng vệ tương ứng (RQ13).\n\n**Kết quả chính.**\n- 10 mối đe dọa T1–T10. Mức cao: injection qua file (T1), qua MCP/connector (T2), lộ secret (T4), hook độc hại từ repo lạ (T6). Bằng chứng ●; mức nghiêm trọng ◐.\n- `session_context` gửi email và `Git user:` lên API ở message đầu, cả trong subagent; transcript lưu plaintext 30 ngày. ●\n- Hook audit mù: deny `Read(path)` không bắn PreToolUse, hook bị kill do timeout mất record, hook native của plugin không thấy. ●\n- Hook có thể che nội dung inject (base64). `/hooks` ở interactive liệt kê mọi handler kèm nguồn; `/context` không lộ hook. ●\n- Tỷ lệ model làm theo chỉ dẫn độc trong file, MCP, web: ○\n\n**Dùng khi.** Review bảo mật, mở repo lạ, hoặc viết settings baseline cho team."
+      },
+      {
+       "id": "ap-d14-failure-modes",
+       "title": "D14 · Failure mode",
+       "text": "`docs/d14-failure-modes.md`\n\n**Mục tiêu / câu hỏi.** Hệ thống hỏng theo những cách nào, biểu hiện ra sao, phát hiện và phục hồi thế nào (RQ15).\n\n**Kết quả chính.**\n- Model id sai (404): `subtype: \"success\"` nhưng `is_error: true`, `terminal_reason: \"api_error\"`, StopFailure thay Stop, exit code 1. ●\n- Retry có ngân sách (`attempt 1/11`). ● Hành vi khi gặp 429 thật: ○\n- Stop hook luôn block: 26 lượt, chi phí ×13 vì cap reset theo tool call. ●\n- MCP stdio chết giữa phiên: tự reconnect lười ở lần gọi kế (345 ms), không có hook event nào. ●\n- Hai terminal cùng session: transcript rẽ nhánh, `cost-state` cuối thiếu ~0,0061 USD. Binary tự cập nhật 2.1.295 → 2.1.296 giữa phiên. ●\n- `--input-format stream-json`: message gửi dồn bị chèn vào lượt đang chạy; process không tự thoát sau EOF. ●\n\n**Dùng khi.** Thiết kế CI headless, cảnh báo và cách phát hiện lỗi đáng tin."
+      },
+      {
+       "id": "ap-d16-latency-cost",
+       "title": "D16 · Latency và cost model",
+       "text": "`docs/d16-latency-cost.md`\n\n**Mục tiêu / câu hỏi.** Một lượt tốn thời gian và token ở đâu, prompt cache ảnh hưởng chi phí thế nào (RQ14).\n\n**Kết quả chính.**\n- API chiếm 93,1 % thời gian lượt (median 20 lượt S1, 2 793 ms). Lượt nhiều tool G2: API 72 %, Bash `pytest` 21 %. ●\n- Mỗi request: send → block đầu p50 1,09 s (S1, n = 40). Hook sync ~21 ms mỗi lần, 4–5 % thời gian lượt. ●\n- `-p` tốn thêm ~2,5 s init + teardown mỗi tiến trình, tức ~47 % của một lượt 2,8 s. ●\n- Công thức: cost_req ≈ p·C·(0,1h + 2(1−h)) + p_out·out. h = 0,98 → 0,138p; h = 0,77 → 0,537p. ●\n- Sai số ≤ 2 % khi có hạng mục compact (S2 +0,6 %, S3 −1,6 %); thiếu hạng mục này thì sai −10 % đến −30 %. ●\n- Chỉ đo Haiku và `-p`; Sonnet/Opus, TTFT tách riêng, khoản −7,4 % của E7: ○\n\n**Dùng khi.** Ước tính ngân sách cho team hoặc CI, hoặc chọn chỗ tối ưu độ trễ."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g8",
+   "no": "P8",
+   "title": "Decisions",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d18-adr-notes",
+       "title": "D18 · ADR notes và trade-off",
+       "text": "`docs/d18-adr-notes.md`\n\n**Mục tiêu / câu hỏi.** Vì sao harness hành xử như quan sát được, và mỗi quyết định đánh đổi gì (RQ16).\n\n**Kết quả chính.**\n- 10 ADR suy từ hành vi: deferred MCP, skill theo nhu cầu, subagent cô lập, hook ngoài process, compaction tự động, checkpoint tách git, system message giữa hội thoại, delta trên thread server, deny rule thắng hook, trust theo git root. ●\n- 8/10 ADR quy về hai lực: giữ context nhỏ và giữ prefix cache ổn định; khi xung đột, harness chọn append thay vì sửa phía trước. ◐\n- Lý do có nguồn chính thức cho ADR-01, 03, 05, 07, 09. ● Lý do của ADR-08: ○\n- Compact thủ công: ~18 k → 1,2–2 k token (7–10 %), 3,2–7,7 s. Auto S3: 31–35 k → 7–14 k (19–40 %), median 10,8 s. ●\n- ADR-06 (checkpoint, `/rewind` với Bash) chưa có thí nghiệm. ○\n\n**Dùng khi.** Cần giải thích \"vì sao nó làm vậy\" và cái giá khi đề xuất đổi cách dùng."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g9",
+   "no": "P9",
+   "title": "Kết quả thí nghiệm",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-d15-experiment-results",
+       "title": "D15 · Kết quả thí nghiệm E1–E24",
+       "text": "`docs/d15-experiment-results.md`\n\n**Mục tiêu / câu hỏi.** Mô hình dự đoán đúng bao nhiêu kết quả thí nghiệm khi dự đoán được chốt trước khi chạy, và sai ở đâu.\n\n**Kết quả chính.**\n- Phase 3: 39 dự đoán, 34 đúng / 3 một phần / 2 sai = 91,0 % (87,2 % nếu một phần tính là sai); nhóm mù 80 %. ●\n- Phase 5 (E14, E20–E23): 19 dự đoán, 94,7 %. E24 tính riêng: 4 dự đoán, 50 %. ●\n- Hai lần sai mù ở Phase 3 đều ở hành vi qua compaction (E6-a, E16-a); lần sai ở E24 nằm ở cách model xử lý nội dung nạp lazy. ◐\n- Run lỡ chạy trên 2.1.296 đã chạy lại trên 2.1.295 và cho cùng cấu trúc. ●\n- Chi phí: Phase 3b + 3c ~0,44 USD; Phase 5 $0,0810 (`-p`) + ~$0,0072 (interactive); E24 $0,0059. ●\n\n**Dùng khi.** Tra một dự đoán cụ thể, hoặc xem mô hình đã phải sửa ở đâu."
+      },
+      {
+       "id": "ap-experiments-e1",
+       "title": "E1 · Context của SessionStart",
+       "text": "`docs/experiments/E1.md`\n\n**Mục tiêu / câu hỏi.** `additionalContext` của hook SessionStart nằm đâu trong request, và có mấy bản sau `--resume`?\n\n**Kết quả chính.**\n- Nằm trong message role `system` ngay sau prompt đầu; CLAUDE.md ở `messages[0]`, đứng trước nó. ●\n- Resume với nội dung khác: 2 bản trong request. Nội dung trùng: dedupe còn 1 bản, transcript không thêm record. ●\n- Dự đoán: E1-a một phần (đoán message user), E1-b và E1-c đúng.\n\n**Dùng khi.** Thiết kế hook SessionStart, hoặc giải thích context lặp sau resume."
+      },
+      {
+       "id": "ap-experiments-e2",
+       "title": "E2 · `/skill` và Skill tool",
+       "text": "`docs/experiments/E2.md`\n\n**Mục tiêu / câu hỏi.** Mỗi đường gọi skill bắn hook nào, và thân skill nằm đâu trong body?\n\n**Kết quả chính.**\n- `/skill`: UserPromptExpansion → UserPromptSubmit, không PreToolUse; thân skill ở `messages[0]`. ●\n- Model tự gọi: PreToolUse(Skill) → PostToolUse → PostToolBatch; thân skill là block text sau `tool_result` 113 byte. ●\n- Dự đoán: 3/3 đúng.\n\n**Dùng khi.** Muốn chặn hoặc audit mọi lần dùng một skill (phải nghe cả hai event)."
+      },
+      {
+       "id": "ap-experiments-e3",
+       "title": "E3 · Vòng đời hook của skill",
+       "text": "`docs/experiments/E3.md`\n\n**Mục tiêu / câu hỏi.** Hook khai báo trong frontmatter skill còn bắn ở lượt sau, sau `/compact`, sau `--resume` không?\n\n**Kết quả chính.**\n- Còn bắn sau `/compact` trong cùng process; không bắn sau `--resume` (process mới), dù cùng session id. ●\n- Mỗi PreToolUse khớp bắn 2 handler (settings và skill), thứ tự không cố định. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Định đặt kiểm tra bắt buộc trong `hooks:` của skill."
+      },
+      {
+       "id": "ap-experiments-e4",
+       "title": "E4 · `@file` và hook deny Read",
+       "text": "`docs/experiments/E4.md`\n\n**Mục tiêu / câu hỏi.** Hook PreToolUse deny Read có chặn được file đưa vào bằng `@file` không, và cái gì chặn được?\n\n**Kết quả chính.**\n- Hook deny Read không chặn `@file`: canary vẫn lên body, không có PreToolUse nào. ●\n- Deny rule `Read(...)` chặn cả `@file` lẫn Read tool, và chặn trước hook. ●\n- `CLAUDE_CODE_DISABLE_ATTACHMENTS=1` buộc model gọi Read, khi đó hook chặn được. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Chặn file secret hoặc file cấm đọc."
+      },
+      {
+       "id": "ap-experiments-e5",
+       "title": "E5 · Exit code và timeout của hook",
+       "text": "`docs/experiments/E5.md`\n\n**Mục tiêu / câu hỏi.** Trường hợp lỗi nào của hook PreToolUse thật sự chặn tool?\n\n**Kết quả chính.**\n- exit 1: tool vẫn chạy, stderr không vào context. exit 2: chặn, stderr vào `tool_result`. ●\n- Timeout 2 s (handler ngủ 5 s): tool vẫn chạy và logger không kịp ghi record. Thêm `onFailure: \"block\"`: chặn. ●\n- Dự đoán: 4/4 đúng.\n\n**Dùng khi.** Viết hook làm gate bảo mật."
+      },
+      {
+       "id": "ap-experiments-e6",
+       "title": "E6 · Rule sau `/compact`",
+       "text": "`docs/experiments/E6.md`\n\n**Mục tiêu / câu hỏi.** Rule chỉ nói trong chat có sống qua `/compact` không, so với rule trong CLAUDE.md?\n\n**Kết quả chính.**\n- Rule trong chat sống 3/3 (haiku), 1/1 (sonnet), nhờ summary chép lại. Session dài chưa đo. ● / ○\n- Rule trong CLAUDE.md được nạp lại và tuân thủ 3/3, 1/1 sau compact; nhưng haiku bỏ qua nó ở lượt 1 trong 2/3 trial. ●\n- Dự đoán: E6-a sai (đoán rule chat dễ mất), E6-b đúng.\n\n**Dùng khi.** Quyết định đặt quy ước bắt buộc ở chat, CLAUDE.md hay hook."
+      },
+      {
+       "id": "ap-experiments-e7",
+       "title": "E7 · Subagent đọc 20 file",
+       "text": "`docs/experiments/E7.md`\n\n**Mục tiêu / câu hỏi.** Giao việc đọc 20 file cho subagent thì context session chính tăng bao nhiêu?\n\n**Kết quả chính.**\n- Main 18 202 → 19 138 (+936 token) trong khi subagent lên 90 793 token, tỷ lệ ~1 %. ●\n- Main ghi cache 1h, subagent 5m; subagent vẫn nhận CLAUDE.md và email. Chi phí 0,0149 USD, ~10× prompt đơn. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Cân nhắc giao việc đọc nhiều cho subagent."
+      },
+      {
+       "id": "ap-experiments-e8",
+       "title": "E8 · Resume sau 2 giờ",
+       "text": "`docs/experiments/E8.md`\n\n**Mục tiêu / câu hỏi.** Chi phí và độ trễ của request đầu thay đổi thế nào khi resume sau hơn 1 giờ (TTL cache)?\n\n**Kết quả chính.**\n- Resume sau 7 555 s: lượt tốn $0,002588 so với $0,000406 của đối chứng (6,4×); `duration_api_ms` +20 %. n = 1. ●\n- `cache_read` 11 343 (49 %) đúng bằng prefix tĩnh vẫn ấm; chỉ 11 702 token hội thoại phải ghi lại. ●\n- `estimated_cache_write_usd` (0,0046) luôn có trong SessionStart(resume) và ước dư ~2×. ●\n- Dự đoán: P1 một phần (đoán `cache_read` ≈ 0), P2–P4 đúng.\n\n**Dùng khi.** Session dài có khoảng nghỉ trên 1 giờ."
+      },
+      {
+       "id": "ap-experiments-e9",
+       "title": "E9 · MCP 30 tool",
+       "text": "`docs/experiments/E9.md`\n\n**Mục tiêu / câu hỏi.** 30 MCP tool tốn bao nhiêu context trước và sau lần dùng đầu, theo `ENABLE_TOOL_SEARCH`?\n\n**Kết quả chính.**\n- Mặc định: +421 token; dùng lần đầu chỉ thêm 1 schema (`tools` 14 → 15, +233 token). ●\n- `false`: +18 324, `auto`: +18 917; chỉ ~1,7 k là MCP, phần còn lại là built-in vốn deferred. `auto` có `cache_read` 0: đổi chế độ mất cache prefix. ●\n- Dự đoán: 3/3 đúng.\n\n**Dùng khi.** Thêm MCP server, hoặc ai đó đề xuất tắt tool search."
+      },
+      {
+       "id": "ap-experiments-e10",
+       "title": "E10 · Stop hook chạy test",
+       "text": "`docs/experiments/E10.md`\n\n**Mục tiêu / câu hỏi.** Stop hook block khi test fail thì vòng lặp kéo dài bao lâu và dừng ở đâu?\n\n**Kết quả chính.**\n- Luôn fail: 12 block, 26 lượt model, cap 8 block liên tiếp, lần 9 bị override; chi phí 0,0197 USD (~13×). ●\n- Fail sửa được: 1 vòng sửa, 2 lần Stop, 5 lượt model. ●\n- Lý do block mơ hồ khiến model đọc script hook, log ngoài repo, thử `printenv`. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Dùng Stop hook làm cổng test, nhất là trong CI."
+      },
+      {
+       "id": "ap-experiments-e11",
+       "title": "E11 · Repo lạ chưa trust",
+       "text": "`docs/experiments/E11.md`\n\n**Mục tiêu / câu hỏi.** Hook trong `.claude/settings.json` của repo chưa trust có chạy không, ở `-p` và interactive?\n\n**Kết quả chính.**\n- `-p`: hook project chạy ngay, không dialog, không ghi trust. ●\n- Interactive git repo: có dialog, hook chạy ~1,04 s sau khi chấp nhận; từ chối thì exit 1, không hook nào chạy, kể cả SessionEnd. ●\n- Thư mục không-git dưới cha đã trust: không dialog, hook chạy ngay. Dialog không liệt kê hook. ●\n- Dự đoán: 3/3 đúng; ngoại lệ trust kế thừa nằm ngoài dự đoán.\n\n**Dùng khi.** Mở repo lạ, hoặc giải nén code dưới một thư mục đã trust."
+      },
+      {
+       "id": "ap-experiments-e12",
+       "title": "E12 · Một session ở hai terminal",
+       "text": "`docs/experiments/E12.md`\n\n**Mục tiêu / câu hỏi.** Hai process cùng `--resume` một session thì transcript ghi ra sao, có lock hay cảnh báo không?\n\n**Kết quả chính.**\n- Một file JSONL, record xen kẽ, `parentUuid` rẽ nhánh; không lock, không cảnh báo; mỗi bên chỉ thấy lượt của mình. ●\n- Resume sau đó đi theo record ghi sau cùng; nhánh kia rời đường resume. ◐ (1 lần thử)\n- `cost-state` cuối thiếu ~0,0061 USD của process kia. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Ai đó mở cùng session ở hai cửa sổ; nên dùng `--fork-session`."
+      },
+      {
+       "id": "ap-experiments-e13",
+       "title": "E13 · Canary từng nguồn context",
+       "text": "`docs/experiments/E13.md`\n\n**Mục tiêu / câu hỏi.** Mọi thứ trong context có thật sự lên body request API không?\n\n**Kết quả chính.**\n- CLAUDE.md, rule, `@file`, context của UserPromptSubmit, CLAUDE.md lồng, rule `paths:`, mô tả và kết quả MCP đều có trong body. ●\n- Stdout exit 0 của PostToolUse: 0 hit trong body, chỉ có trong transcript. ●\n- Request 2 trở đi là delta: `system` chỉ còn ~234 byte. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Trả lời \"cái này có rời máy không\" bằng bằng chứng body thật."
+      },
+      {
+       "id": "ap-experiments-e14",
+       "title": "E14 · Kết nối mạng của `-p`",
+       "text": "`docs/experiments/E14.md`\n\n**Mục tiêu / câu hỏi.** Một session `-p` thật sự gọi những host nào, và WebSearch chạy phía server hay client?\n\n**Kết quả chính.**\n- Chỉ IP anycast Anthropic, Datadog intake (gần cuối session) và host đích WebFetch. ● Host sau IP anycast là `api.anthropic.com`: ◐\n- WebSearch là request riêng `web_search_tool` (~13,7 k input, không cache), không có kết nối local tới search engine. WebFetch mở TCP thẳng tới host đích + request `web_fetch_apply` (~15,4 k input). ●\n- MCP stdio không mở socket; `--strict-mcp-config` vẫn gọi `/v1/mcp_servers`. ●\n- Dự đoán: 5/5 đúng.\n\n**Dùng khi.** Thiết kế firewall hoặc proxy egress cho máy dev và CI."
+      },
+      {
+       "id": "ap-experiments-e15",
+       "title": "E15 · Sửa CLAUDE.md rồi resume",
+       "text": "`docs/experiments/E15.md`\n\n**Mục tiêu / câu hỏi.** Khi resume, CLAUDE.md được đọc lại từ đĩa hay phát lại bản cũ?\n\n**Kết quả chính.**\n- Cả hai: bản cũ vẫn ở `messages[0]`, bản mới append ở message user trước prompt mới; chỉ file đã đổi được chèn lại. ●\n- Fork mang cả hai bản, không thêm bản thứ ba. InstructionsLoaded bắn cho mọi file, kể cả file không được chèn lại. ●\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Đổi chỉ dẫn lớn giữa chừng; nên mở session mới thay vì resume."
+      },
+      {
+       "id": "ap-experiments-e16",
+       "title": "E16 · Skill sau `/compact`",
+       "text": "`docs/experiments/E16.md`\n\n**Mục tiêu / câu hỏi.** Sau `/compact`, model còn tự gọi skill khi prompt khớp description không?\n\n**Kết quả chính.**\n- Request sau compact không còn chuỗi tên skill ở bất cứ đâu. ●\n- Haiku tự grep `.claude/skills/` rồi gọi skill 3/3; sonnet dùng MCP tool thay vào, 0/1. ●\n- Dự đoán: sai (đoán listing nằm trong mô tả Skill tool nên sống qua compact).\n\n**Dùng khi.** Workflow phụ thuộc skill trong session dài; nên gọi `/skill` tường minh."
+      },
+      {
+       "id": "ap-experiments-e17",
+       "title": "E17 · Timeline khởi động",
+       "text": "`docs/experiments/E17.md`\n\n**Mục tiêu / câu hỏi.** Thứ tự quét skill, trust, MCP, InstructionsLoaded, SessionStart lúc khởi động, ở interactive và `-p`.\n\n**Kết quả chính.**\n- Interactive: trust dialog chặn đồng bộ (218 → 18 738 ms), MCP và hook chờ; chỉ quét skill chạy trước dialog. ●\n- `-p`: SessionStart ở 686 ms, UserPromptSubmit ở 934 ms, MCP kết nối song song (374 ms). ●\n- InstructionsLoaded và SessionStart không có thứ tự cố định; phiên interactive đầu tự cài 2.1.296. ●\n- Dự đoán: một phần (vế MCP song song đúng, vế InstructionsLoaded trước SessionStart sai).\n\n**Dùng khi.** Viết hook SessionStart cần MCP hoặc CLAUDE.md đã nạp."
+      },
+      {
+       "id": "ap-experiments-e18",
+       "title": "E18 · Sửa hook giữa session",
+       "text": "`docs/experiments/E18.md`\n\n**Mục tiêu / câu hỏi.** Thêm, sửa, xoá hook trong `settings.local.json` khi session interactive đang chạy có hiệu lực ngay không?\n\n**Kết quả chính.**\n- ConfigChange bắn 754–817 ms sau khi ghi file, trước khi áp thay đổi. ●\n- Thêm, sửa, xoá đều hiệu lực từ tool call kế tiếp; hook registry được thay toàn bộ. ●\n- Chỉ thử `settings.local.json`; settings project và user: ○\n- Dự đoán: đúng.\n\n**Dùng khi.** Lo ngại model hoặc tiến trình khác sửa `.claude/` giữa session."
+      },
+      {
+       "id": "ap-experiments-e20",
+       "title": "E20 · Auto mode ở `-p`",
+       "text": "`docs/experiments/E20.md`\n\n**Mục tiêu / câu hỏi.** PermissionDenied bắn khi nào, và classifier của auto mode tốn token, độ trễ ở đâu?\n\n**Kết quả chính.**\n- `curl | bash` lấy từ file bị chặn với lý do `[Code from External]`; PermissionDenied bắn mà không có PermissionRequest; `ls src` chạy sau 5 ms. ●\n- Server review (mặc định): không thêm request hay token thấy được, nhưng chờ 7,5 s. Client classifier: 2 request Sonnet 5, 19,5 s, không có trong `total_cost_usd` hay `modelUsage`. n = 1. ●\n- Mọi request ở auto mode mang field `safeguards` với 17 key, gồm `home_dir`, `user_identity`, git state. ●\n- Dự đoán: 4 đúng, E20-d một phần.\n\n**Dùng khi.** Cân nhắc bật auto mode, hoặc audit lần bị classifier chặn."
+      },
+      {
+       "id": "ap-experiments-e21",
+       "title": "E21 · Ngưỡng auto-compact mặc định",
+       "text": "`docs/experiments/E21.md`\n\n**Mục tiêu / câu hỏi.** Ngưỡng auto-compact mặc định là một % cố định của window hay một buffer token cố định?\n\n**Kết quả chính.**\n- `/context` báo buffer 33 k ở cả window 1M, 200 k, 100 k. ●\n- Window 100 k, không override %: compact ở `preTokens` 68 795 và 67 658, mỗi lần 9–10 s; 20 lượt chỉ 2 lần compact, không thrash. ●\n- Ngưỡng = window − 33 k (≈ 967 k ở 1M, khớp docs). ● Tách 20 k + 13 k: ◐ Compact thật ở 1M: ○\n- Dự đoán: 2/2 đúng.\n\n**Dùng khi.** Ai đó muốn hạ ngưỡng auto-compact hoặc đổi window."
+      },
+      {
+       "id": "ap-experiments-e22",
+       "title": "E22 · Phạm vi cache prefix tĩnh",
+       "text": "`docs/experiments/E22.md`\n\n**Mục tiêu / câu hỏi.** Prompt cache được khoá theo nội dung prefix và dùng chung giữa session, workspace, hay riêng theo session?\n\n**Kết quả chính.**\n- Workspace mới: request đầu đọc 11 343–11 352 token từ cache, đúng phần `scope: global` (tools + system[0..2]). ●\n- Session mới trong cùng workspace (< 1 giờ): đọc 100 % (18 176/18 176) từ cache của session trước. ●\n- Dùng chung giữa các tài khoản: ○\n- Dự đoán: 3/3 đúng; biến thể d không có dự đoán.\n\n**Dùng khi.** Quyết định mở session mới hay resume, hoặc ước tính chi phí request đầu."
+      },
+      {
+       "id": "ap-experiments-e23",
+       "title": "E23 · Lệnh interactive cho debug",
+       "text": "`docs/experiments/E23.md`\n\n**Mục tiêu / câu hỏi.** Lệnh interactive nào lộ được nguồn của hook ẩn, rule `paths:` và deny rule?\n\n**Kết quả chính.**\n- `/hooks` liệt kê mọi handler kèm nguồn (vd Local settings), kể cả handler không ghi log; `/context` không lộ hook. ●\n- `/memory` và `/context` không thấy rule `paths:` nạp lazy; dòng `⎿ Loaded <file>` dưới tool call trong UI thì thấy. ●\n- `/permissions` tab Deny có rule, nguồn chỉ hiện trong hộp thoại xoá (bấm Esc); \"Recently denied\" chỉ hiện lần auto mode chặn. ●\n- Dự đoán: 3 đúng, E23-b một phần.\n\n**Dùng khi.** Debug trong phiên interactive mà không có hook log."
+      },
+      {
+       "id": "ap-experiments-e24",
+       "title": "E24 · CLAUDE.md gốc mâu thuẫn bản lồng",
+       "text": "`docs/experiments/E24.md`\n\n**Mục tiêu / câu hỏi.** Khi CLAUDE.md gốc mâu thuẫn CLAUDE.md lồng hoặc rule `paths:`, harness có phân xử không, model theo bản nào?\n\n**Kết quả chính.**\n- Cả hai bản lên body; harness không chọn. ●\n- Bản gốc thắng 4/4, model nhắc mâu thuẫn ở cả 4 lần. n = 4, chỉ haiku. ●\n- Bản lồng tới sau `tool_result` nên bị coi như nội dung đi kèm tool. ◐\n- Dự đoán: E24-a, d đúng; E24-b, c sai (đoán bản lồng thắng).\n\n**Dùng khi.** Định dùng CLAUDE.md lồng hoặc rule `paths:` để ghi đè quy ước gốc."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g10",
+   "no": "P10",
+   "title": "Debug",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-playbook-debug",
+       "title": "playbook-debug · Truy nguồn hành vi lạ",
+       "text": "`docs/playbook-debug.md`\n\n**Mục tiêu / câu hỏi.** Khi Claude Code làm điều không ai yêu cầu (thêm chữ ký, chặn tool, bỏ qua chỉ dẫn), chỉ ra file gây ra nó và cơ chế đưa nó vào, bằng log thay vì lời model tự khai.\n\n**Kết quả chính.**\n- Gần như mọi hành vi lạ đến từ ba nhóm: hook, chỉ dẫn (CLAUDE.md, rule), permission rule. ◐\n- Bảng 14 triệu chứng → tín hiệu log → nguồn. Tín hiệu từng dòng ●; cột nguồn khả dĩ ◐.\n- Thứ tự công cụ: `tool_result` lỗi → `parse_hooks.py --format timeline` → attachment trong transcript → debug log → `/hooks`, `/permissions`. ●\n- Bẫy: logger chỉ ghi handler của chính nó; lời model tự khai không phải bằng chứng; InstructionsLoaded bắn cho cả file không được chèn lại. ●\n- Ở buổi proxy, cả hai reviewer không dùng debug log, dù đó là đường nhanh nhất cho 3/5 ca. ●\n\n**Dùng khi.** Gặp hành vi lạ và cần tìm nguồn trong vài phút."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g11",
+   "no": "P11",
+   "title": "Lab và đo lường",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-instrumentation",
+       "title": "instrumentation · Repo mẫu, hook logger, gate G2",
+       "text": "`docs/instrumentation.md`\n\n**Mục tiêu / câu hỏi.** Dựng lab đo được: repo mẫu, hook logger cho mọi event, script phân tích, và kiểm gate G2.\n\n**Kết quả chính.**\n- G2 đạt: 13 loại event, 43 record, không thiếu event mong đợi; transcript có đủ usage. ●\n- Repo mẫu 87 file có canary theo nguồn; logger đăng ký 32/33 event (bỏ `WorktreeCreate` vì hook này thay hành vi tạo worktree). ●\n- Overhead logger: wall p50 20,9 ms (payload 1 KB), 31,1 ms (100 KB); phần lớn là khởi động bash. ●\n- `env -i` vẫn đăng nhập được ●; credential đọc từ Keychain ◐. Không có `--strict-mcp-config` thì 6 connector của tài khoản lọt vào. ●\n- Phase 2 tốn ~0,0175 USD. Ghi chú §1.1 \"InstructionsLoaded trước SessionStart\" đã bị E17 sửa. ●\n\n**Dùng khi.** Dựng lại lab, chạy lại thí nghiệm sau khi đổi version, hoặc hiểu cách đo trước khi tin một con số."
+      },
+      {
+       "id": "ap-experiments-runbook-interactive",
+       "title": "runbook-interactive · Thí nghiệm interactive bằng tmux",
+       "text": "`docs/experiments/runbook-interactive.md`\n\n**Mục tiêu / câu hỏi.** Tái lập E11, E12, E17, E18 và `/context` trong phiên interactive, và liệt kê biến thể chưa tự động hoá.\n\n**Kết quả chính.**\n- `scripts/lab/tmux-drive.sh` chạy trên socket tmux riêng, env sạch, tự đặt `DISABLE_AUTOUPDATER=1`; pin binary bằng `CLAUDE_BIN`. ●\n- Chưa tự động hoá: hook trong skill khi chưa trust, `-p --bare`, trust với git repo lồng nhau. ○\n- Câu hỏi mở: hot reload settings project/user, lệnh local nào khác chèn output vào context, SubagentStop lẻ sau Stop, hook Notification. ○\n- Dọn trust entry trong `~/.claude.json`: đóng mọi phiên, sao lưu, rồi xoá các key của lab; xoá thư mục không xoá entry. ●\n\n**Dùng khi.** Cần chạy lại hoặc mở rộng thí nghiệm interactive."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ap-g12",
+   "no": "P12",
+   "title": "Script tái lập",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 2,
+     "items": [
+      {
+       "id": "ap-scripts-experiments",
+       "title": "scripts/experiments · Runner thí nghiệm",
+       "text": "`scripts/experiments/`\n\n**Mục tiêu / câu hỏi.** Mỗi thí nghiệm có một script chạy lại được, ghi dự đoán liên quan và số lần gọi API ở đầu file.\n\n**Kết quả chính.**\n- `_lib.sh`: hàm dùng chung `lab_new`, `lab_run` (bật raw body, mode `default`), bọc `scripts/lab/*`.\n- `e1-…sh` tới `e24-…sh`: một script mỗi thí nghiệm, gồm `e19-hook-vs-rules.sh` cho E19. E11, E12, E17, E18, E23 cần tmux.\n- `c3-sessions.sh s1|s2|s3`: ba session đo token của D8.\n- `export-evidence.sh`: xuất evidence đã redact (`requests.csv`, `turns.csv`, `summary.json`, `raw-redacted/`) vào `docs/evidence/`.\n- `debug-drills/`: 5 ca gài sẵn cho bài Debug; người học không được đọc `drill-*.sh`.\n- Khi Claude Code đổi version, chạy lại nhóm guardrail trước: E4, E5, E10, E11, E21. ◐\n\n```bash\nexport CLAUDE_BIN=~/.local/share/claude/versions/2.1.295\nscripts/experiments/e5-pretooluse-failure-modes.sh\nscripts/experiments/c3-sessions.sh s1\nscripts/experiments/export-evidence.sh \"$WS\" c3 s1\n```\n\n**Dùng khi.** Kiểm lại một kết luận trên version mới hoặc model khác."
+      },
+      {
+       "id": "ap-scripts-analysis",
+       "title": "scripts/analysis · Script phân tích",
+       "text": "`scripts/analysis/`\n\n**Mục tiêu / câu hỏi.** Biến hook log, transcript, raw body và debug log thành bảng, timeline, chart; redact trước khi commit.\n\n**Kết quả chính.**\n- `parse_transcript.py`: một dòng mỗi API request, gộp usage theo `requestId`, đánh dấu compact.\n- `parse_hooks.py`: summary, timeline, latency tool, tool call mỗi lượt từ hook log.\n- `parse_bodies.py`: cấu trúc body request thật (vị trí block, role, kích thước, canary), không in nội dung.\n- `token_chart.py`, `context_composition.py`: SVG token theo thời gian và phân tách prefix/hội thoại (D8).\n- `session_summary.py`, `latency_waterfall.py`, `init_timeline.py`: chi phí theo lượt và kiểm cost model, waterfall một lượt (D16), timeline khởi động (E17).\n- `redact.py` ẩn email, org, token, home, `prompt_snapshot`; `check_leaks.sh` quét `docs/` và exit 1 nếu có hit.\n\n```bash\npython3 scripts/analysis/parse_hooks.py \"$WS/logs/hooks.jsonl\" --format timeline\npython3 scripts/analysis/parse_transcript.py \"$WS\"/transcripts/*.jsonl -o requests.csv\npython3 scripts/analysis/redact.py \"$WS\"/transcripts/*.jsonl --out-dir docs/evidence/<exp>-<ts>/raw-redacted\nscripts/analysis/check_leaks.sh docs\n```\n\n**Dùng khi.** Đọc log của một session thật, hoặc chuẩn bị evidence để chia sẻ."
+      },
+      {
+       "id": "ap-scripts-hooks",
+       "title": "scripts/hooks · Hook logger",
+       "text": "`scripts/hooks/`\n\n**Mục tiêu / câu hỏi.** Ghi stdin của mọi hook event ra JSONL, và gài probe (deny, exit code, block, context) để thử hành vi hook.\n\n**Kết quả chính.**\n- `hook-logger.sh`: ghi một dòng JSONL mỗi lần hook chạy, mặc định exit 0 và không in stdout; probe qua `LAB_HOOK_MODE`.\n- `hook-logger.ps1`: bản Windows, chưa chạy thử. ○\n- `gen-settings.py` sinh `settings.logger.json`: đăng ký 32/33 event, `timeout: 60`, sync mặc định.\n- `bench-logger.sh`: đo overhead logger; wall p50 20,9 ms ở payload 1 KB. ●\n- Logger ghi ở cuối handler nên mất record khi handler bị kill do timeout. ●\n\n```bash\npython3 scripts/hooks/gen-settings.py --write\nLAB_HOOK_MODE='PreToolUse:Read=deny' scripts/lab/run-prompt.sh \"$WS\" \"Read README.md\"\nscripts/hooks/bench-logger.sh 50 1\n```\n\n**Dùng khi.** Cần quan sát hook event trên máy mình, hoặc thử một hành vi hook trước khi đưa vào settings của team."
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "footer": "Claude Inside · Claude Code 2.1.295 · 2026-10-11"
+}

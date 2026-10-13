@@ -213,6 +213,25 @@
         "id": "anchor id"
       }
     },
+    "image": {
+      "template": "image.j2",
+      "purpose": "An image file (svg, png, webp, jpg, gif) embedded into the page as a data URI, with an optional dark-theme variant. Width and height are read from the file (svg viewBox, png, gif) so the layout doesn't shift while it loads.",
+      "use_when": "A diagram or picture already exists as a file (e.g. a rendered Mermaid chart, a screenshot) and redrawing it with theme classes isn't worth it. Prefer `figure` for new diagrams.",
+      "required": [
+        "file",
+        "alt"
+      ],
+      "optional": {
+        "file": "path relative to post.json; embedded, so the page stays one file",
+        "file_dark": "variant shown in dark theme (light one hides)",
+        "alt": "(md) what the image shows, for screen readers and the Markdown tab",
+        "caption": "(md) the conclusion",
+        "ascii": "text twin for the Markdown tab and the fold-out under the image (e.g. the Mermaid source)",
+        "ascii_lang": "fence language for the twin in Markdown (default text; e.g. mermaid)",
+        "fit": "true lets the image shrink on phones instead of scrolling sideways",
+        "id": "anchor id"
+      }
+    },
     "code": {
       "template": "code.j2",
       "purpose": "A copyable code box.",

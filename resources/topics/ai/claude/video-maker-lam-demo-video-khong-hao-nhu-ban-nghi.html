@@ -108,7 +108,7 @@ main{min-width:0;padding:0 16px 80px}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.8rem;color:var(--ink-2)}
 .chip b{color:var(--ink);font-weight:600}
 .chip a{color:var(--accent);font-weight:600;text-decoration:none}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);animation:rise .5s ease forwards}
 .stat:nth-child(2){animation-delay:.08s}.stat:nth-child(3){animation-delay:.16s}.stat:nth-child(4){animation-delay:.24s}
 @keyframes rise{to{opacity:1;transform:none}}
@@ -360,6 +360,13 @@ ol.steps li span.d{color:var(--ink-2)}
 .fig details{margin:8px 4px 0;font-size:.8rem;color:var(--ink-3)}
 .fig details summary{cursor:pointer}
 .fig details pre{margin:8px 0 0;padding:12px;background:var(--code-bg);border-radius:10px;overflow:auto;font:400 .76rem/1.5 var(--f-mono);color:var(--ink-2)}
+/* images with a dark variant */
+.fig.img img{display:block;max-width:100%;height:auto;margin:0 auto}
+.fig.img .scroll{text-align:center}
+.fig.img.themed img.dark,:root[data-theme="dark"] .fig.img.themed img.light{display:none}
+:root[data-theme="dark"] .fig.img.themed img.dark{display:block}
+/* notation: codes with a definition */
+abbr.nt{text-decoration:underline dotted var(--ink-3);text-underline-offset:3px;cursor:help}
 /* toast */
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:.85rem;transition:.2s;z-index:60;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -958,6 +965,7 @@ Bấm <strong>Markdown</strong> ở thanh trên để lấy toàn bộ trang nà
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script type="application/json" id="notation">{}</script>
 <script type="text/plain" id="md-source">
 # video-marker — video demo lắp ra, không quay ra
 
@@ -1428,7 +1436,7 @@ Bấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới d�
     const el = $("#toast");
     if (!msg) return el.classList.remove("on");
     el.textContent = msg; el.classList.add("on");
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => state.toast.set(""), 1800);
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => state.toast.set(""), Math.max(1800, msg.length * 45));
   };
   const Checklist = (done) => {
     const steps = $$(".ck");
@@ -1440,6 +1448,34 @@ Bấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới d�
     });
     $("#ck-bar").style.width = `${(done.size / steps.length) * 100}%`;
     $("#ck-count").textContent = "Đã xong {done}/{total}".replace("{done}", done.size).replace("{total}", steps.length);
+  };
+  // Wraps every code listed in meta.notation (e.g. K1, L4) in an <abbr> carrying its definition.
+  const Notation = () => {
+    const defs = JSON.parse($("#notation").textContent || "{}");
+    const keys = Object.keys(defs).sort((a, b) => b.length - a.length);
+    if (!keys.length) return;
+    const esc = (k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(?<![\\p{L}\\p{N}_])(${keys.map(esc).join("|")})(?![\\p{L}\\p{N}_])`, "gu");
+    const hit = new RegExp(re.source, "u");
+    const skip = "pre, script, style, svg, abbr, a, h1, .toc, .tw thead";
+    const walker = document.createTreeWalker($("#panel-html"), NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement.closest(skip) || !hit.test(n.nodeValue) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      node.nodeValue.replace(re, (m, k, i) => {
+        frag.append(node.nodeValue.slice(last, i));
+        const ab = Object.assign(document.createElement("abbr"), { className: "nt", title: defs[k], textContent: m, tabIndex: 0 });
+        ab.dataset.action = "note";
+        frag.append(ab);
+        last = i + m.length;
+      });
+      frag.append(node.nodeValue.slice(last));
+      node.replaceWith(frag);
+    });
   };
   const MarkdownView = () => {
     const pre = $("#md-view");
@@ -1469,6 +1505,7 @@ Bấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới d�
   state.toast.sub(Toast);
   state.checklist.sub(Checklist);
   MarkdownView();
+  Notation();
 
   // ---------- 3. Workflows ----------
   const copy = async (text, done) => {
@@ -1501,6 +1538,7 @@ Bấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới d�
       state.checklist.set(next);
       store.set("video-maker-lam-demo-video-khong-hao-nhu-ban-nghi-checklist", JSON.stringify([...next]));
     },
+    note: (el) => state.toast.set(`${el.textContent}: ${el.title}`),
     "copy:md": () => copy(mdText, "Đã chép Markdown"),
     "copy:code": (el) => copy(el.closest(".codebox").querySelector("code").textContent, "Đã chép code"),
     "download:md": () => {

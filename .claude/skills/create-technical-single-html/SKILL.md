@@ -49,7 +49,9 @@ findings, current state, design options, open questions. For an explainer or a p
 keep the content's own outline. Thin content shows; fix it before styling.
 
 **2 — Write `post.json`.** `meta` (title, brand, date, desc, lang, md_filename, storage_key;
-optional ui_lang, sidebar_note, ban, strict_paths), `hero`, `sections` (each `id`, `title`,
+optional ui_lang, sidebar_note, ban, strict_paths, and `notation` — a `{code: definition}` map;
+every listed code in the page becomes a dotted abbreviation that shows its definition on hover or
+tap), `hero`, `sections` (each `id`, `title`,
 optional `no`, `intro`, `toc_group`, and its `blocks`), `footer`. Pick each block from
 `assets/components.json`: `md` for running prose, a structured block wherever the content has
 a shape (`steps` for a sequence, `cards` for parallel items, `kv` for one object's fields,
@@ -57,7 +59,8 @@ a shape (`steps` for a sequence, `cards` for parallel items, `kv` for one object
 work through). Keep section ids stable — the TOC and cross-links (`["L2", "#l2"]`) use them.
 Use pills only with their fixed meanings (`references/design-system.md`).
 
-**3 — Draw the diagrams.** Hand-write SVG with the theme classes only, one idea per diagram,
+**3 — Draw the diagrams.** Diagrams that already exist as files (a rendered Mermaid chart, a
+screenshot) go in an `image` block, with a dark variant when there is one. New ones: hand-write SVG with the theme classes only, one idea per diagram,
 computed positions for scales; put each in its own `.svg` file referenced by a `figure` block's
 `file`, with an `ascii` twin for the Markdown tab. Shapes that have worked are in
 `references/design-system.md`.

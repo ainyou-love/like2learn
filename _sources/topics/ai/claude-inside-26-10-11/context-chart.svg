@@ -1,0 +1,28 @@
+<svg viewBox="0 0 780 268" role="img" aria-labelledby="ctx-t"><title id="ctx-t">Context lớn lên ở đâu: Prefix tĩnh C0–C1b 14.1 k token; S1 · lượt đầu 18.3 k token; S1 · lượt 20 31.6 k token; S2 · lượt cuối 25.0 k token; S3 · đỉnh trước compact 33.1 k token</title>
+<line class="ax" x1="230.0" y1="24" x2="230.0" y2="224"/>
+<text class="t-m" x="230.0" y="242" text-anchor="middle">0</text>
+<line class="ax" x1="355.0" y1="24" x2="355.0" y2="224"/>
+<text class="t-m" x="355.0" y="242" text-anchor="middle">10</text>
+<line class="ax" x1="480.0" y1="24" x2="480.0" y2="224"/>
+<text class="t-m" x="480.0" y="242" text-anchor="middle">20</text>
+<line class="ax" x1="605.0" y1="24" x2="605.0" y2="224"/>
+<text class="t-m" x="605.0" y="242" text-anchor="middle">30</text>
+<line class="ax" x1="730.0" y1="24" x2="730.0" y2="224"/>
+<text class="t-m" x="730.0" y="242" text-anchor="middle">40</text>
+<text class="t-s" x="480.0" y="262" text-anchor="middle">k token</text>
+<text class="t t-b" x="14" y="55">Prefix tĩnh C0–C1b</text>
+<rect class="n-box" x="230" y="40" width="176.2" height="24" rx="5"/>
+<text class="t-m" x="414.2" y="56">14,1k</text>
+<text class="t" x="14" y="93">S1 · lượt đầu</text>
+<rect class="n-ok" x="230" y="78" width="228.8" height="24" rx="5"/>
+<text class="t-m" x="466.8" y="94">18,3k</text>
+<text class="t t-b" x="14" y="131">S1 · lượt 20</text>
+<rect class="n-ok" x="230" y="116" width="395.0" height="24" rx="5"/>
+<text class="t-m" x="633.0" y="132">31,6k</text>
+<text class="t" x="14" y="169">S2 · lượt cuối</text>
+<rect class="n-ok" x="230" y="154" width="312.5" height="24" rx="5"/>
+<text class="t-m" x="550.5" y="170">25,0k</text>
+<text class="t t-b" x="14" y="207">S3 · đỉnh trước compact</text>
+<rect class="n-info" x="230" y="192" width="413.8" height="24" rx="5"/>
+<text class="t-m" x="651.8" y="208">33,1k</text>
+</svg>
