@@ -1,0 +1,26 @@
+{% macro html(b, inner) %}
+<div class="tags">
+{% for t in b['items'] %}
+  <div class="tg k-{{ t.get('kind', 'mute') }}">{% if t.code is defined %}<code>{{ t.code }}</code>{% endif %}<span>{{ t.text|inl }}</span></div>
+{% endfor %}
+</div>
+{% if b.legend is defined %}<div class="legend">{% for l in b.legend %}<span><i style="--c:var(--{{ {'acc': 'accent', 'mute': 'ink-3'}.get(l.kind, l.kind) }})"></i>{{ l.text|inl }}</span>{% endfor %}</div>
+{% endif %}
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+{% for t in b['items'] %}
+- {% if t.code is defined %}`{{ t.code }}` — {% endif %}{{ t.text }}{% if t.kind is defined and b.legend is defined %}{% for l in b.legend if l.kind == t.kind %} *({{ l.text }})*{% endfor %}{% endif +%}
+{% endfor %}
+{% endif %}
+{% if b.note is defined %}
+
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

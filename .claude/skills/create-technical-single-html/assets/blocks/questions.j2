@@ -1,0 +1,11 @@
+{% macro html(b, inner) %}
+<div class="qs">
+{% for q in b['items'] %}  <div class="q"{% if q.id is defined %} id="{{ q.id|lower }}"{% endif %}>{% if q.id is defined %}<span class="n">{{ q.id }}</span>{% endif %}<b>{{ q.q|inl }}</b>{% if q.text is defined %}{{ q.text|inl }}{% endif %}</div>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for q in b['items'] %}
+{{ loop.index }}. {% if q.id is defined %}**{{ q.id }}** {% endif %}{{ q.q }}{% if q.text is defined %} {{ q.text }}{% endif +%}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

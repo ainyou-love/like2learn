@@ -1,0 +1,30 @@
+{% macro html(b, inner) %}
+<ol class="steps">
+{% for s in b['items'] %}
+  <li><span class="sn">{{ loop.index }}</span><b>{{ s.title|inl }}</b>{% if s.text is defined %}<span class="d">{{ s.text|inl }}</span>{% endif %}</li>
+{% endfor %}
+</ol>
+{% if b.loop is defined %}<div class="steps-loop">↺ {{ b.loop|inl }}</div>
+{% endif %}
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+{% for s in b['items'] %}
+{{ loop.index }}. **{{ s.title }}**{% if s.text is defined %} — {{ s.text }}{% endif +%}
+{% endfor %}
+{% if b.loop is defined %}
+
+↺ {{ b.loop }}
+{% endif %}
+{% endif %}
+{% if b.note is defined %}
+
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

@@ -1,0 +1,21 @@
+{% from "_lib.j2" import pill %}
+{% macro html(b, inner) %}
+<div class="grid g{{ b.get('cols', 2) }}">
+{% for g in b.groups %}
+  <div class="qgroup"><h4>{% if g.pill is defined %}{{ pill(g.pill) }}{% endif %}{{ g.title }}</h4>{% if g.sub is defined %}<div class="sub">{{ g.sub|inl }}</div>{% endif %}
+{% for q in g['items'] %}    <div class="qitem"><span class="qid">{{ q.id }}</span><div><b>{{ q.q|inl }}</b>{% if q.ex is defined %}<span class="ex">{{ q.ex|inl }}</span>{% endif %}</div></div>
+{% endfor %}
+  </div>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for g in b.groups %}
+**{{ g.title }}**{% if g.sub is defined %} — {{ g.sub }}{% endif +%}
+
+{% for q in g['items'] %}
+- **{{ q.id }}** {{ q.q }}{% if q.ex is defined %} *{{ q.ex }}*{% endif +%}
+{% endfor %}
+
+{% endfor %}
+{% endautoescape %}{% endmacro %}

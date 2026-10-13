@@ -1,0 +1,26 @@
+{% from "_lib.j2" import link %}
+{% macro html(b, inner) %}
+<div class="checklist">
+{% if b.kicker is defined %}  <div class="kicker">{{ b.kicker }}</div>
+{% endif %}
+  <h2 style="margin:.3rem 0 .2rem">{{ b.title|inl }}</h2>
+{% if b.intro is defined %}  <p class="sec-intro" style="margin:.2rem 0">{{ b.intro|inl }}</p>
+{% endif %}
+  <div class="bar" aria-hidden="true"><i id="ck-bar"></i></div><div class="count" id="ck-count"></div>
+{% for s in b.steps %}
+  <label class="ck" data-step="{{ loop.index }}"><input type="checkbox" data-action="check:{{ loop.index }}" aria-label="{{ loop.index }}. {{ s.title|plain }}"><span><b>{{ loop.index }}. {{ s.title|inl }}</b>{% if s.where is defined %}<span class="where">{% for l in s.where %}{{ link(l) }}{% endfor %}</span>{% endif %}</span>{% if s.checks is defined %}<ul>{% for c in s.checks %}<li>{{ c|inl }}</li>{% endfor %}</ul>{% endif %}</label>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.intro is defined %}
+{{ b.intro }}
+
+{% endif %}
+{% for s in b.steps %}
+- [ ] **{{ loop.index }}. {{ s.title }}**{% if s.where is defined %} — {% for l in s.where %}{{ l[0] }}{{ ', ' if not loop.last }}{% endfor %}{% endif +%}
+{% for c in s.get('checks', []) %}
+  - {{ c }}
+{% endfor %}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

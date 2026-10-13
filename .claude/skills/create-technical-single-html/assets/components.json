@@ -1,0 +1,474 @@
+{
+  "about": "Registry of page blocks for render.py. Pick a block by `purpose`/`use_when`, fill its fields in post.json. Text fields marked (md) take inline Markdown (**bold**, `code`, [link](url), *em*); fields marked (md-block) take full Markdown (paragraphs, lists, ### headings, tables, fences). pill = {\"kind\": ok|warn|bad|info|acc|mute, \"text\": \"...\"} with the fixed meanings in references/design-system.md. link = [\"label\", \"#id or https://url\"]. `nested` lists the fields each list item takes; render.py checks them too. Kinds and cols are checked against the fixed sets.",
+  "components": {
+    "hero": {
+      "template": "hero.j2",
+      "purpose": "Page opener: kicker, claim headline, lede, meta chips, up to 4 stat tiles.",
+      "use_when": "Always — set as post.json `hero`, not inside a section.",
+      "required": [
+        "title"
+      ],
+      "optional": {
+        "kicker": "what this is and for whom",
+        "title": "(md) *phrase* renders as the accent italic",
+        "lede": "(md) one paragraph",
+        "chips": "[{label, value (md)} | {label, value, href} | {label?, pill}]",
+        "stats": "[{n, l (md)}] — 4 reads best",
+        "signal": "false hides the drawn signal line"
+      },
+      "nested": {
+        "chips": {
+          "required": [],
+          "optional": [
+            "label",
+            "value",
+            "href",
+            "pill"
+          ]
+        },
+        "stats": {
+          "required": [
+            "n",
+            "l"
+          ],
+          "optional": []
+        }
+      }
+    },
+    "section": {
+      "template": "section.j2",
+      "purpose": "Numbered page section; becomes one TOC entry. Set as an item of post.json `sections` with its own `blocks`.",
+      "use_when": "Always — every block lives in a section.",
+      "required": [
+        "id",
+        "title"
+      ],
+      "optional": {
+        "no": "number badge, e.g. 01 or A",
+        "intro": "(md) one or two sentences under the heading",
+        "toc_label": "shorter TOC label",
+        "toc_no": "TOC number override, e.g. ✓ or →",
+        "toc_group": "group heading shown above this entry in the TOC (e.g. Part 2 · ...)",
+        "head": "false hides the heading (checklist / start sections carry their own)"
+      }
+    },
+    "md": {
+      "template": "md.j2",
+      "purpose": "Prose: paragraphs, lists, quotes, ### / #### headings, tables, fenced code.",
+      "use_when": "Running text. The default block; switch to a structured block when the content has a shape (steps, comparison, key-values).",
+      "required": [
+        "text"
+      ],
+      "optional": {
+        "text": "(md-block)"
+      }
+    },
+    "callout": {
+      "template": "callout.j2",
+      "purpose": "One highlighted point the reader must not miss.",
+      "use_when": "A key takeaway (key), a caution (warn) or a side note (note).",
+      "required": [
+        "text"
+      ],
+      "optional": {
+        "kind": "note | warn | key (default note)",
+        "title": "short label",
+        "text": "(md-block)"
+      }
+    },
+    "table": {
+      "template": "table.j2",
+      "purpose": "Tabular facts; also capability matrices (✓ ~ ✗) and glossaries.",
+      "use_when": "Rows share the same columns.",
+      "required": [
+        "head",
+        "rows"
+      ],
+      "optional": {
+        "head": "[(md)]",
+        "rows": "[[cell (md)]] or {group: 'label'} for a group row",
+        "wide": "true sets a min width and scrolls sideways on phones",
+        "key": "false stops bolding the first column (default true)",
+        "hl": "[row indexes] to highlight",
+        "matrix": "true turns ✓ ~ ✗ cells into chips",
+        "sel": "matrix column index to highlight (the recommended option)",
+        "caption": "(md) bold line above the table",
+        "legend": "[(md)] line under the table",
+        "note": "(md) caption line under the block: the takeaway",
+        "ascii": "plain-text twin shown in the Markdown tab instead of the table"
+      }
+    },
+    "cards": {
+      "template": "cards.j2",
+      "purpose": "A grid of short cards: benefits, side-by-side comparison, facts, groups of items.",
+      "use_when": "2–6 parallel items that each need a title and a short body.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "cols": "2 | 3 (default 2)",
+        "items": "[{title (md)?, text (md-block)?, pill?, meta (md)?, id?}]",
+        "note": "(md) caption line under the block: the takeaway",
+        "ascii": "plain-text twin shown in the Markdown tab instead of the default list"
+      },
+      "nested": {
+        "items": {
+          "required": [],
+          "optional": [
+            "title",
+            "text",
+            "pill",
+            "meta",
+            "id"
+          ]
+        }
+      }
+    },
+    "steps": {
+      "template": "steps.j2",
+      "purpose": "An ordered flow or pipeline: numbered step cards that wrap on small screens.",
+      "use_when": "A sequence where order matters (request → response → handling), optionally looping.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "items": "[{title (md), text (md)?}]",
+        "loop": "(md) note shown as ↺ under the steps",
+        "note": "(md) caption line under the block: the takeaway",
+        "ascii": "plain-text twin shown in the Markdown tab instead of the default list"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "title"
+          ],
+          "optional": [
+            "text"
+          ]
+        }
+      }
+    },
+    "kv": {
+      "template": "kv.j2",
+      "purpose": "A receipt-style sheet of key → value rows.",
+      "use_when": "Showing the fields of one object (a response header, a bill, a config).",
+      "required": [
+        "rows"
+      ],
+      "optional": {
+        "title": "sheet label",
+        "rows": "[[key (md), value (md)]]",
+        "sum": "[row indexes] drawn as totals",
+        "note": "(md) caption line under the block: the takeaway",
+        "ascii": "plain-text twin shown in the Markdown tab instead of the default list"
+      }
+    },
+    "tags": {
+      "template": "tags.j2",
+      "purpose": "A wrap of small labelled tiles, each coloured by meaning, with an optional legend.",
+      "use_when": "Enumerating values with a status (stop reasons, error codes, states).",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "items": "[{text (md), code?, kind? (ok|warn|bad|info|acc|mute)}]",
+        "legend": "[{kind, text (md)}]",
+        "note": "(md) caption line under the block: the takeaway",
+        "ascii": "plain-text twin shown in the Markdown tab instead of the default list"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "text"
+          ],
+          "optional": [
+            "code",
+            "kind"
+          ]
+        },
+        "legend": {
+          "required": [
+            "kind",
+            "text"
+          ],
+          "optional": []
+        }
+      }
+    },
+    "figure": {
+      "template": "figure.j2",
+      "purpose": "A hand-drawn inline SVG diagram with a caption and optional ASCII twin for the Markdown tab.",
+      "use_when": "A picture shows the mechanism better than words. Use theme classes only (references/design-system.md).",
+      "required": [
+        "caption"
+      ],
+      "one_of": [
+        "svg",
+        "file"
+      ],
+      "optional": {
+        "svg": "inline <svg> markup",
+        "file": "path to an .svg fragment, relative to post.json (preferred for anything long)",
+        "caption": "(md) the conclusion",
+        "ascii": "plain-text version: shown in the Markdown tab and under the figure",
+        "fit": "true lets a small diagram shrink on phones instead of scrolling",
+        "id": "anchor id"
+      }
+    },
+    "code": {
+      "template": "code.j2",
+      "purpose": "A copyable code box.",
+      "use_when": "Code, commands, schemas, config the reader may copy.",
+      "required": [],
+      "one_of": [
+        "text",
+        "file"
+      ],
+      "optional": {
+        "text": "the code",
+        "file": "path relative to post.json",
+        "title": "bar label (default: lang)",
+        "lang": "fence language for Markdown"
+      }
+    },
+    "checklist": {
+      "template": "checklist.j2",
+      "purpose": "Interactive checklist; ticks persist in the browser. One per page.",
+      "use_when": "The reader should work through steps (review steps, rollout checks, what-to-do lists).",
+      "required": [
+        "title",
+        "steps"
+      ],
+      "optional": {
+        "kicker": "",
+        "intro": "(md)",
+        "steps": "[{title (md), where: [link]?, checks: [(md)]?}]"
+      },
+      "nested": {
+        "steps": {
+          "required": [
+            "title"
+          ],
+          "optional": [
+            "where",
+            "checks"
+          ]
+        }
+      }
+    },
+    "start": {
+      "template": "start.j2",
+      "purpose": "'Start here' box: a reading route plus 1–3 columns of what to change / answer / skim.",
+      "use_when": "Long pages where readers need a fast path.",
+      "required": [
+        "title"
+      ],
+      "optional": {
+        "kicker": "",
+        "intro": "(md)",
+        "route_label": "text before the route, e.g. 10-minute path",
+        "route": "[link]",
+        "columns": "[[{title, items: [{text (md), refs: [link]?}]?, text (md)?}]] — each column is a list of groups"
+      }
+    },
+    "findings": {
+      "template": "findings.j2",
+      "purpose": "Filterable finding cards (What · Example · Value · Fix). One per page.",
+      "use_when": "Review findings with priorities.",
+      "required": [
+        "filters",
+        "items"
+      ],
+      "optional": {
+        "filters": "[tag] — one button each, plus All",
+        "items": "[{id, title (md), pill?, tags: [tag], fields: [[label, text (md-block), 'ex'|'val'?]], svg?}]",
+        "filter_label": "aria label",
+        "all_label": "text of the All button"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "id",
+            "title",
+            "fields",
+            "tags"
+          ],
+          "optional": [
+            "pill",
+            "svg"
+          ]
+        }
+      }
+    },
+    "fcards": {
+      "template": "fcards.j2",
+      "purpose": "Labelled cards with an ID, a status pill and label → text rows (decisions, rules, cases, examples).",
+      "use_when": "Items that each carry an ID and the same set of fields, without filtering.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "legend": "[{pill, text (md)}]",
+        "items": "same shape as findings.items (tags unused)"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "id",
+            "title",
+            "fields"
+          ],
+          "optional": [
+            "pill",
+            "tags",
+            "svg"
+          ]
+        },
+        "legend": {
+          "required": [
+            "pill",
+            "text"
+          ],
+          "optional": []
+        }
+      }
+    },
+    "options": {
+      "template": "options.j2",
+      "purpose": "Design option cards: goal, how, strong, weak, table sketches; one marked chosen.",
+      "use_when": "Comparing designs before a matrix.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "cols": "2 | 3",
+        "items": "[{title (md), why (md)?, chosen?, tag: pill?, intent: [[label, text (md)]]?, tables: [{name, note?, cols: ['col' | ['col', 'key'|'warn'|'bad']]}]?, note (md)?}]"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "title"
+          ],
+          "optional": [
+            "why",
+            "chosen",
+            "tag",
+            "intent",
+            "tables",
+            "note"
+          ]
+        }
+      }
+    },
+    "qgroups": {
+      "template": "qgroups.j2",
+      "purpose": "Business questions grouped by job, each with an ID and example.",
+      "use_when": "Listing the questions a design must answer.",
+      "required": [
+        "groups"
+      ],
+      "optional": {
+        "cols": "2 | 3",
+        "groups": "[{title, pill?, sub (md)?, items: [{id, q (md), ex (md)?}]}]"
+      },
+      "nested": {
+        "groups": {
+          "required": [
+            "title",
+            "items"
+          ],
+          "optional": [
+            "pill",
+            "sub"
+          ]
+        }
+      }
+    },
+    "questions": {
+      "template": "questions.j2",
+      "purpose": "Open questions as a two-column grid.",
+      "use_when": "Things the reader must answer.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "items": "[{id?, q (md), text (md)?}]"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "q"
+          ],
+          "optional": [
+            "id",
+            "text"
+          ]
+        }
+      }
+    },
+    "requirements": {
+      "template": "requirements.j2",
+      "purpose": "Numbered requirement list with mono counters.",
+      "use_when": "Functional / non-functional requirements, rules, principles.",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "items": "[(md)]"
+      }
+    },
+    "status": {
+      "template": "status.j2",
+      "purpose": "Status cards with a coloured left bar.",
+      "use_when": "Per-item readiness or ownership (moments, layers, owners).",
+      "required": [
+        "items"
+      ],
+      "optional": {
+        "cols": "2 | 3 (default 3)",
+        "items": "[{title, kind (ok|warn|bad|info|acc|mute)?, pill?, text (md)?, src (md)?}]"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "title"
+          ],
+          "optional": [
+            "kind",
+            "pill",
+            "text",
+            "src"
+          ]
+        }
+      }
+    },
+    "raw": {
+      "template": "raw.j2",
+      "purpose": "Escape hatch: hand-written HTML using the shell's classes.",
+      "use_when": "Nothing above fits. Prefer adding a new block to the registry when the shape will recur.",
+      "required": [
+        "md"
+      ],
+      "one_of": [
+        "html",
+        "file"
+      ],
+      "optional": {
+        "html": "markup",
+        "file": "path relative to post.json",
+        "md": "what the Markdown tab shows instead"
+      }
+    },
+    "footer": {
+      "template": "footer.j2",
+      "purpose": "Closing line. Set as post.json `footer` (a string).",
+      "use_when": "Always.",
+      "required": [
+        "text"
+      ],
+      "optional": {
+        "text": "(md)"
+      }
+    }
+  }
+}

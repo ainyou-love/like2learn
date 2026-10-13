@@ -1,0 +1,12 @@
+{% macro html(b, inner) %}
+<div class="callout{{ ' ' ~ b.kind if b.get('kind', 'note') != 'note' }}">{% if b.title is defined %}<span class="ct">{{ b.title }}</span>{% endif %}{{ b.text|md }}</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.title is defined %}
+> **{{ b.title }}**
+>
+{% endif %}
+{% for line in b.text.split('\n') %}
+> {{ line }}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

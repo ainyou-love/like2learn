@@ -2,333 +2,1253 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AKM — skill giữ lại lý do, không chỉ giữ kết luận</title>
 <meta name="description" content="Một skill Claude Code mỏng đứng trước cả một sản phẩm: vì sao nó tồn tại, nó được dựng ra sao, và khi nào skill của bạn nên có hình dạng đó.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
-<style>/* Single-file doc site. Palette carries the subject: one accent for the reasoning
-   path, and a separate ladder for epistemic status -- established, hypothesis,
-   unverified, assumption -- so colour says how sure a claim is, not decoration. */
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
 :root{
-  --ground:#F2F1EC; --surface:#FFFFFF; --panel:#E9E7E0; --line:#D5D1C7; --line-soft:#E3E0D8;
-  --ink:#171A21; --muted:#575B63; --faint:#878B92;
-  --trace:#2E4A8C; --trace-soft:#E2E8F5;
-  --est:#2A6A4A;  --hyp:#96600F;  --unv:#575B63;  --asm:#6E4288;
-  --alarm:#932B2B; --alarm-soft:#F7E3E1;
-  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --bg:#f5f2ea; --bg-2:#ede8dc; --surface:#fffdf8; --surface-2:#f8f4ea; --line:#d9d1bf; --line-2:#e7e0d0;
+  --ink:#1c1f24; --ink-2:#4a4f57; --ink-3:#7a7f87;
+  --accent:#0d6e66; --accent-ink:#ffffff; --accent-soft:#d6ece8;
+  --ok:#1f7a3a; --ok-soft:#dcefe0; --warn:#a85a07; --warn-soft:#f6e6cf; --bad:#b0281c; --bad-soft:#f7dcd8; --info:#2c5d8f; --info-soft:#dbe6f1;
+  --code-bg:#f1ece0; --shadow:0 1px 0 rgba(28,31,36,.04),0 8px 24px -16px rgba(28,31,36,.25);
+  --grain:.035;
+  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --side:272px; --head:60px;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#111318; --surface:#181B22; --panel:#1F232B; --line:#2E333D; --line-soft:#242832;
-  --ink:#E5E7EC; --muted:#979BA4; --faint:#787C85;
-  --trace:#8FAAE6; --trace-soft:#1A2237;
-  --est:#6FBE95;  --hyp:#DDAC5D;  --unv:#979BA4;  --asm:#BE9AD6;
-  --alarm:#E08B84; --alarm-soft:#2B1A19;
-}}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+    --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+    --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+    --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+    --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
+  }
+}
 :root[data-theme="dark"]{
-  --ground:#111318; --surface:#181B22; --panel:#1F232B; --line:#2E333D; --line-soft:#242832;
-  --ink:#E5E7EC; --muted:#979BA4; --faint:#787C85;
-  --trace:#8FAAE6; --trace-soft:#1A2237;
-  --est:#6FBE95;  --hyp:#DDAC5D;  --unv:#979BA4;  --asm:#BE9AD6;
-  --alarm:#E08B84; --alarm-soft:#2B1A19;
+  --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+  --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+  --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+  --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+  --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
 }
+
+/* ---------- base ---------- */
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
-  font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
-[hidden]{display:none !important}
-:focus-visible{outline:2px solid var(--trace);outline-offset:3px;border-radius:2px}
-@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto}}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--head) + 16px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--f-body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:var(--accent);text-underline-offset:3px}
+code,pre,kbd{font-family:var(--f-mono)}
+code{font-size:.86em;background:var(--code-bg);border:1px solid var(--line-2);padding:.05em .35em;border-radius:5px;overflow-wrap:anywhere}
+pre code{background:none;border:0;padding:0;font-size:inherit;border-radius:0;overflow-wrap:normal}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;line-height:1.15;margin:0}
+h2{font-size:clamp(1.45rem,1.1rem + 1.4vw,2rem)}
+h1 code,h2 code{font-size:.62em;vertical-align:.18em;font-weight:500}
+h3{font-size:1.12rem;font-family:var(--f-body);font-weight:600;letter-spacing:0;margin:1.6rem 0 .6rem}
+p{margin:.6rem 0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-/* ── top bar ─────────────────────────────────────────────── */
-.bar{position:sticky;top:0;z-index:40;background:var(--ground);
-  border-bottom:1px solid var(--line);
-  padding:9px 18px;padding-top:calc(9px + env(safe-area-inset-top,0px));
-  display:flex;gap:10px;align-items:center}
-.bar .sp{flex:1}
-button{font-family:var(--mono);font-size:12px;letter-spacing:.03em;cursor:pointer;
-  border:1px solid var(--line);background:var(--surface);color:var(--muted);
-  border-radius:3px;padding:7px 12px;transition:color .12s,border-color .12s}
-button:hover{color:var(--ink);border-color:var(--trace)}
-button[aria-pressed="true"]{color:var(--ground);background:var(--trace);border-color:var(--trace)}
-#navbtn{display:inline-flex}
-@media (min-width:1180px){#navbtn{display:none}}
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:30;height:var(--head);display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3);white-space:nowrap}
+.icon-btn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;flex:none}
+.icon-btn:hover{border-color:var(--accent)}
+.icon-btn svg{width:20px;height:20px}
+.tabs{display:flex;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--surface);flex:none}
+.tab{border:0;background:none;padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:500;font-size:.88rem;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab svg{width:15px;height:15px}
+.theme-sun,.theme-moon{display:none}
+:root[data-theme="dark"] .theme-sun,:root[data-theme="light"] .theme-moon{display:block}
 
-/* ── drawer ──────────────────────────────────────────────── */
-#nav{position:fixed;z-index:50;top:0;left:0;width:290px;height:100dvh;overflow-y:auto;
-  background:var(--surface);border-right:1px solid var(--line);
-  padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));
-  transform:translateX(-100%);transition:transform .2s}
-#nav.open{transform:none}
-#scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.42)}
-@media (min-width:1180px){
-  #nav{transform:none;border-right:1px solid var(--line-soft);background:transparent}
-  #scrim{display:none}
-  body{padding-left:290px}
-  .bar{padding-left:26px}
+/* ---------- layout ---------- */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--side) minmax(0,1fr);transition:grid-template-columns .25s ease}
+body[data-menu="closed"] .shell{grid-template-columns:0 minmax(0,1fr)}
+.side{position:sticky;top:var(--head);height:calc(100dvh - var(--head));overflow:auto;border-right:1px solid var(--line);background:var(--bg-2);padding:20px 14px 40px}
+body[data-menu="closed"] .side{visibility:hidden;padding:0;border:0}
+.side h4{font:600 .7rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:6px 8px 10px}
+.toc{list-style:none;margin:0;padding:0;counter-reset:none}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;line-height:1.3}
+.toc a span{font:500 .72rem var(--f-mono);color:var(--ink-3);min-width:1.6em}
+.toc a:hover{background:var(--surface)}
+.toc a[aria-current="true"]{background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.toc a[aria-current="true"] span{color:var(--accent)}
+.side .ext{margin:18px 8px 0;padding:12px;border:1px dashed var(--line);border-radius:10px;font-size:.82rem;color:var(--ink-2)}
+.scrim{display:none}
+main{min-width:0;padding:0 16px 80px}
+.wrap{max-width:1060px;margin:0 auto}
+.panel[hidden]{display:none}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)!important}
+  .side{position:fixed;left:0;top:var(--head);bottom:0;height:auto;width:min(86vw,320px);z-index:40;transform:translateX(-102%);transition:transform .25s ease;visibility:visible!important;padding:20px 14px 40px!important;border-right:1px solid var(--line)!important;box-shadow:var(--shadow)}
+  body[data-menu="open"] .side{transform:none}
+  body[data-menu="open"] .scrim{display:block;position:fixed;inset:var(--head) 0 0 0;background:rgba(0,0,0,.35);z-index:35}
+  .brand small{display:none}
+  .tab .lbl{display:none}
+  .tab{padding:7px 10px}
 }
-#nav .navhead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--faint);margin:0 0 12px;padding-left:11px}
-#toc a{display:block;text-decoration:none;color:var(--muted);font-size:13.5px;line-height:1.42;
-  padding:6px 0 6px 11px;border-left:2px solid var(--line-soft)}
-#toc a:hover{color:var(--ink);border-left-color:var(--trace)}
-#toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--faint)}
-#toc a.on{color:var(--ink);border-left-color:var(--trace);font-weight:600}
-#toc a.part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--ink);margin-top:16px;border-left-color:var(--trace)}
-#toc a.part:first-child{margin-top:0}
 
-/* ── page ────────────────────────────────────────────────── */
-.wrap{max-width:820px;margin:0 auto;padding:0 20px 90px}
-.hero{padding:52px 0 26px;border-bottom:1px solid var(--line)}
-.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;
-  color:var(--trace);margin:0 0 16px}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.1;
-  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance}
-.lede p{font-size:clamp(17px,2.2vw,19.5px);color:var(--muted);margin:0 0 13px;max-width:64ch}
-h2,h3,h4{scroll-margin-top:78px}
-h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,4vw,31px);line-height:1.2;
-  letter-spacing:-.012em;margin:54px 0 18px;text-wrap:balance}
-h2 .eyebrow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--trace);font-weight:400;margin-bottom:11px;letter-spacing:.16em}
-h3{font-family:var(--serif);font-weight:600;font-size:20.5px;margin:38px 0 12px}
-h4{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
-p{margin:0 0 17px;max-width:66ch}
-ul,ol{margin:0 0 18px;padding-left:22px;max-width:66ch}
-li{margin-bottom:8px}
-li::marker{color:var(--trace)}
-strong{font-weight:600}
-blockquote{margin:0 0 20px;padding:2px 0 2px 18px;border-left:2px solid var(--trace);
-  color:var(--muted);max-width:64ch}
-blockquote p:last-child{margin-bottom:0}
-hr{border:0;border-top:1px solid var(--line);margin:46px 0}
-code{font-family:var(--mono);font-size:.845em;background:var(--panel);
-  border-radius:2px;padding:1.5px 5px;color:var(--ink);overflow-wrap:break-word}
-.pre{overflow-x:auto;margin:0 0 22px;background:var(--panel);border-radius:3px;
-  border-left:2px solid var(--line)}
-.pre pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
-.pre code{background:none;padding:0;border-radius:0;font-size:inherit}
-.tw{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
-  background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:15px;min-width:400px}
-th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--faint);text-align:left;font-weight:500;padding:10px 13px;
-  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
-td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.55}
+/* ---------- hero ---------- */
+.hero{position:relative;padding:44px 0 28px;border-bottom:1px solid var(--line);overflow:hidden}
+.kicker{font:500 .74rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(2.1rem,1.4rem + 3.4vw,3.6rem);margin:.35rem 0 .6rem;max-width:16ch}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:1.06rem;color:var(--ink-2);max-width:62ch}
+.signal-line{display:block;width:100%;height:70px;margin:18px 0 6px;color:var(--accent)}
+.signal-line path{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.4s ease-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.8rem;color:var(--ink-2)}
+.chip b{color:var(--ink);font-weight:600}
+.chip a{color:var(--accent);font-weight:600;text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);animation:rise .5s ease forwards}
+.stat:nth-child(2){animation-delay:.08s}.stat:nth-child(3){animation-delay:.16s}.stat:nth-child(4){animation-delay:.24s}
+@keyframes rise{to{opacity:1;transform:none}}
+.stat .n{font:700 1.9rem/1 var(--f-display);letter-spacing:-.02em}
+.stat .n .from{color:var(--ink-3);font-weight:500}
+.stat .n .arr{color:var(--accent);font-size:1.3rem;margin:0 6px;vertical-align:4px}
+.stat .l{font-size:.82rem;color:var(--ink-2);margin-top:6px}
+@media (max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- sections ---------- */
+section.sec{padding:44px 0 8px;border-bottom:1px solid var(--line-2)}
+.sec-head{display:flex;gap:14px;align-items:baseline;margin-bottom:10px}
+.sec-no{font:500 .8rem var(--f-mono);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:2px 7px;flex:none;transform:translateY(-4px)}
+.sec-intro{color:var(--ink-2);max-width:70ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:820px){.g2,.g3{grid-template-columns:minmax(0,1fr)}}
+.pill{display:inline-block;font:600 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-info{background:var(--info-soft);color:var(--info)}.p-acc{background:var(--accent-soft);color:var(--accent)}.p-mute{background:var(--bg-2);color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0;color:var(--ink)}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line-2)}
+th{font:600 .72rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);position:sticky;top:0}
 tr:last-child td{border-bottom:0}
+td.k{font-weight:600;white-space:nowrap}
+.hl{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.tw.wide table{min-width:720px}
 
-/* ── figures ─────────────────────────────────────────────── */
-figure{margin:0 0 28px}
-.fig{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:20px 18px}
-figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
-.fmono{font-family:var(--mono)}
+/* diagrams */
+.fig{margin:16px 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.fig .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto;min-width:680px}
+.fig.fit svg{min-width:0}
+.fig figcaption{font-size:.8rem;color:var(--ink-3);padding:8px 4px 0}
+svg .n-box{fill:var(--surface-2);stroke:var(--line)}
+svg .n-new{fill:var(--accent-soft);stroke:var(--accent)}
+svg .n-ok{fill:var(--ok-soft);stroke:var(--ok)}
+svg .n-bad{fill:var(--bad-soft);stroke:var(--bad)}
+svg .n-warn{fill:var(--warn-soft);stroke:var(--warn)}
+svg .n-info{fill:var(--info-soft);stroke:var(--info)}
+svg .band{fill:var(--bg-2);stroke:none}
+svg .t{fill:var(--ink);font:500 13px var(--f-body)}
+svg .t-s{fill:var(--ink-2);font:400 11.5px var(--f-body)}
+svg .t-m{fill:var(--ink-2);font:400 11px var(--f-mono)}
+svg .t-h{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+svg .t-acc{fill:var(--accent)}
+svg .w{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .w-acc{stroke:var(--accent);stroke-width:1.8;fill:none}
+svg .w-dash{stroke:var(--ink-3);stroke-width:1.2;fill:none;stroke-dasharray:4 4}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg .w-ok{stroke:var(--ok);stroke-width:1.8;fill:none}svg .w-warn{stroke:var(--warn);stroke-width:1.8;fill:none}svg .w-bad{stroke:var(--bad);stroke-width:1.8;fill:none}
+svg .t-ok{fill:var(--ok)}svg .t-warn{fill:var(--warn)}svg .t-bad{fill:var(--bad)}svg .t-b{font-weight:700}
 
-/* four questions + score */
-.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
-.qlist li{counter-increment:q;display:flex;gap:13px;margin:0 0 11px;font-size:16px}
-.qlist li::before{content:counter(q);font-family:var(--mono);font-size:11px;color:var(--trace);
-  border:1px solid var(--trace);border-radius:50%;width:21px;height:21px;flex:none;
-  display:grid;place-items:center;margin-top:3px}
-.score{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:15px;
-  border-top:1px solid var(--line-soft)}
-.sc{flex:1 1 150px;padding:11px 13px;border-radius:3px;background:var(--panel)}
-.sc b{display:block;font-family:var(--mono);font-size:26px;line-height:1;margin-bottom:5px}
-.sc span{font-size:12.5px;color:var(--muted)}
-.sc.good b{color:var(--est)} .sc.bad b{color:var(--alarm)}
-.sc.bad{background:var(--alarm-soft)}
+/* moment cards */
+.mcard{position:relative;padding:14px 16px 14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.mcard::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c,var(--line))}
+.mcard h5{margin:0 0 6px;font:600 .92rem var(--f-mono);display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 8px;align-items:center}
+.mcard p{margin:.25rem 0;font-size:.86rem;color:var(--ink-2)}
+.mcard .src{font-size:.78rem;color:var(--ink-3)}
 
-/* the boldness: delta proof */
-.proof{display:grid;gap:0}
-.proof-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
-  padding:16px 0;border-bottom:1px solid var(--line-soft)}
-.proof-row:last-child{border-bottom:0}
-.proof-what{font-size:15.5px}
-.proof-what em{font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--muted);
-  display:block;margin-top:4px}
-.proof-n{font-family:var(--mono);font-size:34px;line-height:1;letter-spacing:-.02em}
-.proof-row.keep .proof-n{color:var(--est)}
-.proof-row.gone .proof-n{color:var(--alarm)}
-.proof-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
-  font-size:13.5px;color:var(--muted)}
+/* findings */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.fbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.82rem;cursor:pointer}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.finding{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.finding[hidden]{display:none}
+.finding .what{font-weight:500}
+.finding .why{font-size:.86rem;color:var(--ink-2);margin-top:3px}
+@media (max-width:520px){.finding{grid-template-columns:minmax(0,1fr)}}
 
-/* graph */
-.gnodes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
-.gn{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:3px;
-  border:1px solid var(--line);background:var(--panel)}
-.gn.core{border-color:var(--trace);color:var(--trace);background:var(--trace-soft)}
-.gedges{display:grid;gap:8px}
-.ge{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;
-  font-family:var(--mono);font-size:11.5px}
-.ge i{font-style:normal;color:var(--muted);text-align:right}
-.ge b{font-weight:500;color:var(--trace);white-space:nowrap;font-size:10.5px;letter-spacing:.04em}
-.ge s{text-decoration:none;color:var(--muted)}
-.gsplit{margin:15px 0 9px;padding-top:13px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+/* state map */
+.store{font:600 .66rem/1 var(--f-mono);padding:3px 6px;border-radius:5px;margin-right:4px;display:inline-block;margin-bottom:3px}
+.s-pg{background:var(--info-soft);color:var(--info)}.s-rd{background:var(--bad-soft);color:var(--bad)}.s-pb{background:var(--warn-soft);color:var(--warn)}.s-none{background:var(--bg-2);color:var(--ink-3)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.8rem;color:var(--ink-2);margin:6px 0}
 
-/* loop */
-.loop{display:grid;gap:9px}
-.lp{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:3px;
-  background:var(--panel)}
-.lp em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--trace);
-  flex:none;width:18px;padding-top:3px}
-.lp div{font-size:14.5px}
-.lp code{background:var(--surface)}
-.loop-back{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;
-  padding:8px;border:1px dashed var(--line);border-radius:3px}
+/* lists & questions */
+ol.fr{counter-reset:fr;list-style:none;padding:0;margin:12px 0}
+ol.fr li{counter-increment:fr;position:relative;padding:10px 12px 10px 48px;border-bottom:1px dashed var(--line)}
+ol.fr li::before{content:counter(fr,decimal-leading-zero);position:absolute;left:10px;top:10px;font:600 .8rem var(--f-mono);color:var(--accent)}
+.qs{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:820px){.qs{grid-template-columns:minmax(0,1fr)}}
+.q{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+.q b{display:block;margin-bottom:3px}
+.q .n{font:600 .72rem var(--f-mono);color:var(--accent)}
 
-/* levels */
-.lvl{margin-bottom:17px}
-.lvl:last-child{margin-bottom:0}
-.lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--trace);margin-bottom:10px}
-.lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
-.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
-  padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
-.tool:first-of-type{border-top:0}
-.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
-.tool span{color:var(--muted)}
+/* code */
+.codebox{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--code-bg);margin:12px 0}
+.codebox pre{margin:0;padding:16px;overflow:auto;font-size:.8rem;line-height:1.55;max-height:560px;tab-size:4}
+.codebox .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--line);font:500 .74rem var(--f-mono);color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn svg{width:14px;height:14px}
 
-/* provenance routes */
-.routes{display:grid;gap:10px;grid-template-columns:1fr}
-@media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
-.rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
-.rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
-.rt span{font-size:13.5px;color:var(--muted)}
-.routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
-  padding:10px;border-radius:3px}
-.routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
-.routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
-
-/* push hooks */
-.hooks{display:grid;gap:0}
-.hk{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
-.hk:last-child{border-bottom:0}
-.hk b{font-family:var(--mono);font-size:12.5px;font-weight:500}
-.hk i{font-style:normal;font-size:12.5px;color:var(--trace);font-family:var(--mono)}
-.hk span{font-size:14px;color:var(--muted)}
-.hk.none b,.hk.none i{color:var(--faint)}
-
-/* gates */
-.gates{display:grid;gap:7px}
-.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
-  padding:9px 12px;border-radius:3px;background:var(--panel);font-size:14px}
-.gt b{font-family:var(--mono);font-size:12px;font-weight:500}
-.gt span{color:var(--muted);font-size:13px}
-
-/* islands */
-.isl{display:grid;gap:9px}
-.is{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:11px;align-items:center;
-  font-family:var(--mono);font-size:12px}
-.is s{text-decoration:none;color:var(--muted)}
-.is b{color:var(--trace);font-weight:500}
-.is i{font-style:normal;color:var(--faint);font-size:15px}
-.is.shared b{color:var(--hyp)}
-.isl-note{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-
-/* warm bars */
-.bars{display:grid;gap:13px}
-.br b{display:block;font-size:13.5px;margin-bottom:6px}
-.br-track{display:flex;align-items:center;gap:10px}
-.br-fill{height:15px;border-radius:2px;background:var(--trace);flex:none;min-width:3px}
-.br.cold .br-fill{background:var(--alarm)}
-.br-val{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
-/* guards */
-.guards{display:grid;gap:12px}
-.gd{padding:14px 15px;border-radius:3px;border-left:3px solid var(--line);background:var(--panel)}
-.gd.fast{border-left-color:var(--hyp)}
-.gd.bound{border-left-color:var(--est)}
-.gd b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
-  text-transform:uppercase;margin-bottom:7px}
-.gd.fast b{color:var(--hyp)} .gd.bound b{color:var(--est)}
-.gd p{margin:0;font-size:14px;color:var(--muted);max-width:none}
-.gd p code{font-size:.9em}
-
-/* legend */
-.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding-top:13px;
-  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.legend i{width:10px;height:10px;border-radius:2px;flex:none;font-style:normal}
-
-/* ── markdown view ───────────────────────────────────────── */
-#md{padding-top:26px}
-.md-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;
-  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
-.md-note p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 220px;max-width:none}
-#mdbox{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
-#mdbox pre{margin:0;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
-  white-space:pre}
-#mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
-footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
-footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+/* markdown tab */
+.md-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:28px 0 12px}
+.md-head h2{font-size:1.5rem}
+.md-head .acts{display:flex;gap:8px;flex-wrap:wrap}
+.md{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.md pre{margin:0;padding:14px 0;overflow:auto;font:400 .8rem/1.6 var(--f-mono);counter-reset:ln}
+.md .ln{display:block;padding:0 16px 0 58px;position:relative;white-space:pre}
+.md .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:44px;text-align:right;color:var(--ink-3);opacity:.6}
+.md .h{color:var(--accent);font-weight:500}
+.md .tr{color:var(--ink-2)}
+.md .fence{color:var(--warn)}
+.md .li{color:var(--ink)}
 
 
-/* ── versus: two panels, one decision ─────────────────────── */
-.versus{display:grid;gap:14px;grid-template-columns:1fr}
-@media (min-width:760px){.versus{grid-template-columns:1fr 1fr}}
-.vs{padding:14px 15px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
-.vs b{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
-  margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--line)}
-.vs ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.vs li{font-size:14px;color:var(--muted);padding-left:14px;position:relative}
-.vs li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
-  border-radius:50%;background:var(--faint)}
-.vs.thin b{color:var(--faint)}
-.vs.thin li::before{background:var(--faint)}
-.vs.full b{color:var(--trace)}
-.vs.full{border-color:var(--trace);background:var(--trace-soft)}
-.vs.full li::before{background:var(--trace)}
+/* start here */
+.start{margin:28px 0 4px;border:1px solid var(--accent);border-radius:16px;background:linear-gradient(180deg,var(--accent-soft),transparent 70%);padding:18px 18px 8px}
+.start .route{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 .78rem var(--f-mono);color:var(--ink-2);margin:6px 0 14px}
+.start .route a{color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 9px}
+.start .route i{color:var(--accent);font-style:normal}
+.start ol{margin:0;padding-left:1.2rem}
+.start li{margin:.35rem 0}
+.start li b{font-weight:600}
+.start .refs a{font:500 .72rem var(--f-mono);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;color:var(--accent);background:var(--surface)}
+.start h3{margin:.2rem 0 .5rem;font-size:.95rem}
+/* findings */
+.fcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);scroll-margin-top:calc(var(--head) + 16px)}
+.fcard[hidden]{display:none}
+.fcard header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.fcard .fid{font:600 .8rem var(--f-mono);color:var(--accent)}
+.fcard h4{margin:0;font:600 1rem var(--f-body);flex:1 1 260px}
+.fcard dl{display:grid;grid-template-columns:78px minmax(0,1fr);gap:6px 12px;margin:0;font-size:.9rem}
+.fcard dt{font:600 .68rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.fcard dd{margin:0;color:var(--ink-2)}
+.fcard dd.ex{background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;color:var(--ink)}
+.fcard dd.val{color:var(--ink)}
+.fcard dd ul{margin:.2rem 0;padding-left:1.1rem}
+.fcard>svg{display:block;width:100%;max-width:620px;height:auto;margin-top:8px}
+@media (max-width:560px){.fcard dl{grid-template-columns:minmax(0,1fr)}.fcard dt{line-height:1.2;margin-top:4px}}
+/* questions */
+.qgroup{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px}
+.qgroup h4{margin:0 0 2px;font:600 1rem var(--f-body);display:flex;gap:8px;align-items:center}
+.qgroup .sub{font-size:.82rem;color:var(--ink-3);margin-bottom:8px}
+.qitem{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px dashed var(--line-2)}
+.qitem .qid{font:600 .74rem var(--f-mono);color:var(--accent);padding-top:2px}
+.qitem b{font-weight:500;display:block}
+.qitem span.ex{font-size:.82rem;color:var(--ink-3)}
+/* schema options */
+.opt{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;position:relative}
+.opt.chosen{border:2px solid var(--accent)}
+.opt .tag{position:absolute;top:-10px;right:12px}
+.opt h4{margin:0;font:600 1rem var(--f-body)}
+.opt .why{font-size:.82rem;color:var(--ink-3);margin:2px 0 10px}
+.tbl{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.tbl .tn{font:600 .78rem var(--f-mono);padding:6px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.tbl .tn small{font-weight:400;color:var(--ink-3)}
+.tbl .cols{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px}
+.col{font:400 .7rem var(--f-mono);padding:2px 6px;border-radius:5px;background:var(--bg-2);color:var(--ink-2)}
+.col.key{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.col.bad{background:var(--bad-soft);color:var(--bad)}
+.col.warn{background:var(--warn-soft);color:var(--warn)}
+.opt .note{font-size:.8rem;color:var(--ink-2);margin:6px 0 0}
+.mx td.c{text-align:center;white-space:nowrap;width:15%}
+.mx th:not(:first-child){text-align:center}
+.mx.objs{table-layout:fixed}
+.mx.objs .pill{white-space:normal;line-height:1.3}
+.mx.objs th{text-align:left}
+.mx.objs td{white-space:normal}
+.mx.objs th:nth-child(1){width:20%}.mx.objs th:nth-child(2){width:28%}.mx.objs th:nth-child(3){width:12%}.mx.objs th:nth-child(4){width:40%}
+.mx td.c.sel{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.mx tr.grp td{background:var(--surface-2);font:600 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.cy,.cp,.cn{display:inline-block;min-width:26px;font:700 .8rem var(--f-mono);border-radius:6px;padding:2px 6px}
+.cy{background:var(--ok-soft);color:var(--ok)}.cp{background:var(--warn-soft);color:var(--warn)}.cn{background:var(--bad-soft);color:var(--bad)}
+
+
+.opt dl.intent{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;margin:0 0 10px;font-size:.84rem}
+.opt dl.intent dt{font:600 .66rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.opt dl.intent dd{margin:0;color:var(--ink-2)}
+
+/* review checklist */
+.checklist{margin:28px 0 4px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:18px;box-shadow:var(--shadow)}
+.checklist .bar{height:8px;border-radius:99px;background:var(--bg-2);overflow:hidden;margin:10px 0 4px}
+.checklist .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s ease}
+.checklist .count{font:500 .76rem var(--f-mono);color:var(--ink-3)}
+.ck{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:12px 0;border-top:1px dashed var(--line-2)}
+.ck input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+.ck b{font-weight:600}
+.ck .where{font:500 .74rem var(--f-mono);margin-left:6px}
+.ck .where a{color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;background:var(--surface-2)}
+.ck ul{grid-column:2;margin:2px 0 0;padding-left:1.1rem;font-size:.88rem;color:var(--ink-2)}
+.ck.done b{color:var(--ink-3);text-decoration:line-through}
+/* state machines */
+.sm{margin:12px 0}
+.sm h4{margin:0 0 6px;font:600 .95rem var(--f-body)}
+.sm .fig{margin-top:6px}
+.sm svg .bad{fill:var(--bad);font:400 11.5px var(--f-body)}
+.sm svg .lane{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.06em}
+/* toc groups */
+.toc li.grp{font:600 .66rem/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:16px 10px 4px}
+.toc li.grp:first-child{padding-top:4px}
+/* prose (markdown blocks) */
+.prose>p,.prose>ul,.prose>ol,.prose>blockquote,.prose>h3,.prose>h4{max-width:76ch}
+.prose h3{margin:1.6rem 0 .5rem}
+.prose h4{font:600 1rem var(--f-body);margin:1.2rem 0 .4rem}
+.prose ul,.prose ol{padding-left:1.3rem;margin:.6rem 0}
+.prose li{margin:.3rem 0}
+.prose li>p{margin:.2rem 0}
+.prose hr{border:0;border-top:1px dashed var(--line);margin:1.6rem 0}
+.prose blockquote,blockquote.quote{margin:16px 0;padding:6px 0 6px 16px;border-left:3px solid var(--accent);font:500 1.08rem/1.5 var(--f-display);color:var(--ink)}
+.prose blockquote p{margin:.3rem 0}
+.callout p{margin:.3rem 0}
+.callout .ct{display:block;font:600 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.callout.warn .ct{color:var(--warn)}
+.callout.key{border-color:var(--ink);background:var(--surface-2)}
+.callout.key .ct{color:var(--ink)}
+.card h3{margin:0 0 .4rem;font-size:1rem}
+.card .pill{margin-bottom:6px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card ul{padding-left:1.1rem;margin:.4rem 0}
+.card .meta-line{font-size:.8rem;color:var(--ink-3);margin-top:8px}
+/* steps */
+ol.steps{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+ol.steps li{position:relative;padding:12px 14px 12px 46px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+ol.steps li .sn{position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:600 .74rem var(--f-mono)}
+ol.steps li b{display:block;margin-bottom:2px}
+ol.steps li span.d{color:var(--ink-2)}
+.steps-loop{font:500 .8rem var(--f-mono);color:var(--accent);margin:-4px 0 14px}
+/* key-value sheet */
+.kv{border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:560px;margin:14px 0;box-shadow:var(--shadow)}
+.kv .kt{font:600 .72rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px 14px}
+.kv .r{display:flex;justify-content:space-between;gap:14px;padding:7px 14px;border-top:1px dashed var(--line-2);font-size:.88rem}
+.kv .r>span:first-child{flex:0 1 auto;max-width:50%;font-size:.84rem;color:var(--ink-2)}
+.kv code{overflow-wrap:normal;white-space:nowrap}
+.kv .r>span:last-child{text-align:right;font-weight:500}
+.kv .r.sum{border-top:1px solid var(--line);font-weight:600}
+/* tag grid */
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tg{--c:var(--line);display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-left:3px solid var(--c);border-radius:10px;background:var(--surface);font-size:.86rem;min-width:0;max-width:100%}
+.tg code{align-self:flex-start}
+.tg.k-ok{--c:var(--ok)}.tg.k-warn{--c:var(--warn)}.tg.k-bad{--c:var(--bad)}.tg.k-info{--c:var(--info)}.tg.k-acc{--c:var(--accent)}.tg.k-mute{--c:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.blk-note{font-size:.8rem;color:var(--ink-3);margin:-4px 0 16px}
+/* ascii fallback under a diagram */
+.fig details{margin:8px 4px 0;font-size:.8rem;color:var(--ink-3)}
+.fig details summary{cursor:pointer}
+.fig details pre{margin:8px 0 0;padding:12px;background:var(--code-bg);border-radius:10px;overflow:auto;font:400 .76rem/1.5 var(--f-mono);color:var(--ink-2)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:.85rem;transition:.2s;z-index:60;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{padding:32px 0;color:var(--ink-3);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stat{opacity:1;transform:none}.signal-line path{stroke-dashoffset:0}}
+@media print{.top,.side,.scrim{display:none}.shell{display:block}.panel[hidden]{display:none}}
 </style>
 </head>
-<body>
-
-<header class="bar">
-  <button id="navbtn" type="button" aria-expanded="false" aria-controls="nav"></button>
-  <span class="sp"></span>
-  <button id="viewbtn" type="button" aria-pressed="false"></button>
+<body data-menu="open">
+<header class="top">
+  <button class="icon-btn" data-action="menu:toggle" aria-label="Mở / đóng mục lục" aria-controls="side" aria-expanded="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+  </button>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="7" fill="var(--accent)"/><path d="M5 14h4l2-5 3 9 2-6 1 2h4" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <b>AKM</b><small>2026-09-18</small>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Chế độ xem">
+    <button class="tab" role="tab" id="tab-html" aria-controls="panel-html" data-action="tab:html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><span class="lbl">Tài liệu</span>
+    </button>
+    <button class="tab" role="tab" id="tab-md" aria-controls="panel-md" data-action="tab:md">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15V9l3 3 3-3v6M16 9v6m0 0-2-2m2 2 2-2"/></svg><span class="lbl">Markdown</span>
+    </button>
+  </div>
+  <button class="icon-btn" data-action="theme:toggle" aria-label="Đổi giao diện sáng / tối">
+    <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
 </header>
 
-<aside id="nav" aria-label="Mục lục">
-  <p class="navhead" id="navhead"></p>
-  <nav id="toc"></nav>
-</aside>
-<div id="scrim" hidden></div>
+<div class="shell">
+  <nav class="side" id="side" aria-label="Các mục">
+    <h4>Mục lục</h4>
+    <ul class="toc">
+      <li class="grp">PHẦN 1 — Vấn đề, và thứ bạn cầm được khi xong</li>
+      <li><a href="#s1" data-action="nav"><span>01</span>Mục đích — cái gì biến mất khi phiên làm việc kết thúc</a></li>
+      <li><a href="#s2" data-action="nav"><span>02</span>Dùng lúc nào, và nhận lại được cái gì</a></li>
+      <li class="grp">PHẦN 2 — Skill được dựng ra sao</li>
+      <li><a href="#s3" data-action="nav"><span>03</span>Cấu trúc thư mục — hai cây, và khoảng trống giữa chúng</a></li>
+      <li><a href="#s4" data-action="nav"><span>04</span>Luồng chạy — từ lúc kích hoạt tới lúc xong một bước</a></li>
+      <li><a href="#s5" data-action="nav"><span>05</span>Dữ liệu &amp; trạng thái — cái gì được ghi, ghi ở đâu</a></li>
+      <li><a href="#s6" data-action="nav"><span>06</span>Đầu–cuối — một lượt chạy trọn vẹn</a></li>
+      <li class="grp">PHẦN 3 — Gắn vào đâu, và chặn cái gì</li>
+      <li><a href="#s7" data-action="nav"><span>07</span>Hook — chỗ tri thức tự tìm tới, không chờ ai gọi</a></li>
+      <li><a href="#s8" data-action="nav"><span>08</span>Rào chắn — cái gì chặn người dùng làm sai</a></li>
+      <li class="grp">PHẦN 4 — Bài học rút ra được</li>
+      <li><a href="#s9" data-action="nav"><span>09</span>Đặc trưng — những quyết định đáng học, và giá của từng cái</a></li>
+      <li><a href="#s10" data-action="nav"><span>10</span>Tự dựng skill của bạn</a></li>
+      <li><a href="#s11" data-action="nav"><span>11</span>Thuật ngữ</a></li>
+    </ul>
+    
+  </nav>
+  <div class="scrim" data-action="menu:close"></div>
 
-<div class="wrap">
-  <header class="hero">
-    <p class="kick" id="kick"></p>
-    <h1 id="title"></h1>
-    <div class="lede" id="lede"></div>
-  </header>
+  <main>
+  <!-- ======================= HTML REPORT ======================= -->
+  <div class="panel" id="panel-html" role="tabpanel" aria-labelledby="tab-html">
+  <div class="wrap">
+<header class="hero">
+  <div class="kicker">Skill Claude Code · tài liệu tìm hiểu</div>
+  <h1>AKM — skill giữ lại lý do, không chỉ giữ kết luận</h1>
+  <p class="lede">Một cuộc điều tra kéo dài vài phiên làm việc. Khi nó xong, kết luận sống sót — còn lý do dẫn tới kết luận thì bốc hơi. AKM là skill dựng ra để giữ lại phần lý do đó.<br />
+Nó cũng là ví dụ rõ nhất trong bộ về một quyết định mà ai định tự dựng skill cũng sẽ gặp: khi nào skill là luật viết bằng lời, và khi nào nó chỉ là một file mỏng đứng trước một sản phẩm thật.</p>
+  <svg class="signal-line" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 H260 L280 40 L295 14 L312 62 L330 8 L348 52 L360 40 H560 L575 40 L588 22 L602 56 L616 40 H1000" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+</header>
 
-  <main id="docview">
-    <div id="doc"></div>
-    <footer id="foot"></footer>
-  </main>
-
-  <section id="md" hidden>
-    <div class="md-note">
-      <p id="mdnote"></p>
-      <button id="copybtn" type="button"></button>
-    </div>
-    <div id="mdbox"><pre><code id="mdtext"></code></pre></div>
-  </section>
+<section class="sec" id="s1" data-toc-group="PHẦN 1 — Vấn đề, và thứ bạn cầm được khi xong">
+  <div class="sec-head"><span class="sec-no">01</span><h2>Mục đích — cái gì biến mất khi phiên làm việc kết thúc</h2></div>
+<div class="prose"><p>Một cuộc điều tra nghiêm túc hiếm khi xong trong một lần ngồi. Hôm nay đọc log, mai đọc cấu hình, tuần sau mới có người bảo &quot;à cái đó liên quan tới đợt đổi hạ tầng tháng trước&quot;. Trong lúc đó bạn thử vài giả thuyết, loại bớt, đổi ý một lần, rồi mới tới được câu trả lời.</p>
+<p>Khi mọi thứ kết thúc, cái sống sót là <strong>kết luận</strong>: một dòng trong commit message, một đoạn trong báo cáo, một quyết định đã chốt. Cái biến mất là phần đắt nhất và khó dựng lại nhất:</p>
+<ul>
+<li>những giả thuyết đã thử và đã bị loại — cùng lý do bị loại;</li>
+<li>bằng chứng cụ thể đã khiến người ta đổi ý, chứ không phải bằng chứng được viện dẫn sau khi đã kết luận;</li>
+<li>và <strong>câu hỏi thật sự đang được trả lời</strong> ở từng bước, thứ mà ngay cả người trong cuộc cũng quên sau một tuần.</li>
+</ul>
+<p>Ai trả giá cho chuyện đó?</p>
+<ul>
+<li><strong>Người nhặt lại việc</strong>, hai tuần sau — thường là chính bạn. Đọc lại đúng những chỗ đã đọc, chạy lại đúng những phép thử đã chạy, và đôi khi thử lại đúng cái giả thuyết đã bị loại, vì không có chỗ nào ghi rằng nó đã bị loại.</li>
+<li><strong>Người review</strong>, khi hỏi &quot;sao lại kết luận như vậy?&quot; và câu trả lời trung thực duy nhất là &quot;hồi đó thấy hợp lý&quot;.</li>
+<li>Và tốn nhất: <strong>việc làm sau đó</strong>. Một kết luận được thừa kế mà không kèm xuất xứ sẽ dần được đối xử như sự thật. Người ta xây tiếp lên trên nó. Đến lúc phát hiện nó chỉ là một phỏng đoán, không còn ai biết phải lần ngược từ đâu.</li>
+</ul>
+<p>Đó là toàn bộ lý do AKM tồn tại: giữ lại phần cấu trúc của suy luận, để phiên sau — hoặc người sau — đi ngược lại được.</p>
+<p>Nhưng phải nói ngay mặt còn lại, vì skill này nói thẳng ngay ở đầu: <strong>ghi lại là có giá</strong>. Mỗi bước được ghi tốn thời gian và tốn công viết. Rất nhiều việc không ghi gì vẫn đúng và vẫn xong. Nên câu hỏi để quyết định chỉ có một:</p>
+<blockquote>
+<p>Sẽ có ai cần dựng lại xem kết luận này đã được rút ra như thế nào không?</p>
+</blockquote>
+<p>Nếu có, và để tới được kết luận cần hơn một lần nhìn — thì dùng. Nếu không, đừng. Một bản sửa lỗi đã biết cách sửa, một câu hỏi mà đọc một file là xong, một việc làm một lần rồi thôi: tất cả đều nằm ngoài vùng của nó. Và nó đặc biệt không phải chỗ đổ ghi chú lặt vặt.</p>
 </div>
 
-<script type="text/plain" id="src"># AKM — skill giữ lại lý do, không chỉ giữ kết luận
+</section>
 
-> Một cuộc điều tra kéo dài vài phiên làm việc. Khi nó xong, kết luận sống sót — còn lý do dẫn tới kết luận thì bốc hơi. AKM là skill dựng ra để giữ lại phần lý do đó.
-> Nó cũng là ví dụ rõ nhất trong bộ về một quyết định mà ai định tự dựng skill cũng sẽ gặp: khi nào skill là luật viết bằng lời, và khi nào nó chỉ là một file mỏng đứng trước một sản phẩm thật.
+<section class="sec" id="s2">
+  <div class="sec-head"><span class="sec-no">02</span><h2>Dùng lúc nào, và nhận lại được cái gì</h2></div>
+<div class="prose"><h3>Một tình huống cụ thể</h3>
+<p>Hàng đêm có một job đối soát dữ liệu. Từ đầu tháng, nó bắt đầu ghi trùng bản ghi. Không ai biết vì sao, và nhìn qua một lượt thì không thấy gì bất thường — nghĩa là chuyện này sẽ kéo dài hơn một buổi.</p>
+<p><strong>Buổi một.</strong> Mở một &quot;việc&quot; mới, và điều đầu tiên phải viết ra là <strong>hiểu biết ban đầu</strong> — thứ bạn tin <em>trước khi</em> điều tra: &quot;chỉ đường chạy tự động bị trùng, đường chạy tay thì không; chưa rõ nguyên nhân&quot;. Một câu thú nhận chưa biết gì ở đây tốt hơn hẳn một phỏng đoán tự tin, vì cái đáng theo dõi chính là hiểu biết thay đổi ra sao. Sau đó bạn đọc cấu hình lịch chạy, thấy job được đăng ký hai lần, và ghi lại bước đó: đã làm gì, nó cho thấy gì, bằng chứng nằm ở đâu, và câu hỏi mới nảy ra là gì.</p>
+<p><strong>Buổi hai, ba ngày sau.</strong> Có thể là bạn, có thể là người khác, có thể là một phiên làm việc mới của trợ lý AI. Không ai nhớ id của việc hôm trước. Liệt kê những việc đang mở trong dự án này, mở lại cái cần, và nhận về đúng phần tối thiểu để đi tiếp.</p>
+<h3>Bạn cầm được cái gì</h3>
+<p>Đầu ra của AKM <strong>không phải một file</strong>. Nó là dữ liệu nằm trong một cơ sở dữ liệu đồ thị chạy cục bộ, cộng với một gói văn bản nhỏ trả về mỗi khi bạn hỏi. Gói đó gồm:</p>
+<ul>
+<li><strong>hiểu biết hiện tại</strong> — một đoạn văn tự đứng được, không cần đọc lịch sử mới hiểu;</li>
+<li><strong>những câu hỏi đang mở</strong>, kèm id để bước sau nói rõ nó đang đóng câu hỏi nào;</li>
+<li><strong>các khẳng định</strong> mà việc này đã dùng hoặc đã tạo ra, mỗi cái kèm loại, <strong>tình trạng nhận thức</strong> (đã kiểm chứng, mới là giả thuyết, hay chỉ là giả định), mức tin cậy và số bằng chứng đứng sau;</li>
+<li><strong>xuất xứ của trạng thái hiện tại</strong>: vì sao nó tồn tại, nó khác gì trạng thái trước, bằng chứng nào gây ra thay đổi, và câu hỏi nào đang được trả lời;</li>
+<li><strong>quỹ đạo</strong>: mỗi bước gần đây một dòng ngắn, theo thứ tự cũ trước — kể cả những khúc quanh sau đó đã bị sửa lại.</li>
+</ul>
+<p>Bốn câu hỏi này là thước đo mà cả sản phẩm được dựng ra để trả lời, và trả lời <strong>chỉ bằng đồ thị</strong>, không cần lịch sử hội thoại:</p>
+<ol>
+<li>Vì sao hiểu biết hiện tại tồn tại?</li>
+<li>Nó khác gì hiểu biết trước đó?</li>
+<li>Bằng chứng nào gây ra thay đổi?</li>
+<li>Lúc đó đang trả lời câu hỏi nào?</li>
+</ol>
+<p>Xem trực tiếp thì có ba đường: trình duyệt đồ thị chạy ở địa chỉ cục bộ, dòng lệnh, hoặc — đường rẻ nhất — <strong>tự động rơi vào cuộc hội thoại mà không ai phải gọi</strong>. Phần 7 nói kỹ chỗ đó.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s3" data-toc-group="PHẦN 2 — Skill được dựng ra sao">
+  <div class="sec-head"><span class="sec-no">03</span><h2>Cấu trúc thư mục — hai cây, và khoảng trống giữa chúng</h2></div>
+<div class="prose"><p>Đây là chỗ AKM khác hẳn mọi skill khác trong bộ, nên nó cần <strong>hai</strong> cây thư mục chứ không phải một.</p>
+<h3>Cây A — thư mục skill</h3>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>~/.dotfiles/.claude/skills/akm/
+└── SKILL.md</code></pre></div>
+
+<div class="prose"><p>Hết. Một file.</p>
+<p>Với người mới, cần biết một thư mục skill thường có những gì, để hiểu ở đây đang thiếu cái gì:</p>
+<ul>
+<li><strong>Khối đầu file</strong> (<code>name</code> và <code>description</code>) là phần <strong>duy nhất luôn nằm trong bộ nhớ làm việc của trợ lý</strong>, kể cả khi skill không chạy. Nó là <em>mặt kích hoạt</em>: nó quyết định skill có được chọn hay không. Vì thế nó được viết như một danh sách tình huống, không phải một câu tóm tắt.</li>
+<li><strong>Phần thân <code>SKILL.md</code></strong> được đọc mỗi lần skill bật. Mọi chữ trong đó phải trả giá ở <em>mọi</em> lần chạy, nên chỗ này chỉ nên chứa quy trình và phán đoán, không chứa chi tiết.</li>
+<li><strong><code>references/</code></strong> chỉ được đọc khi quy trình dẫn tới. Chiều sâu nằm ở đây chính vì nó không phải lúc nào cũng bị tính tiền — đó là <strong>tiết lộ dần</strong>.</li>
+<li><strong><code>scripts/</code></strong> là phần việc giao cho code, vì code rẻ hơn và đáng tin hơn một đoạn hướng dẫn lặp lại bằng lời.</li>
+<li><strong><code>templates/</code></strong>, <strong><code>assets/</code></strong> là vật liệu để chép ra dùng, thay vì sinh lại mỗi lần.</li>
+</ul>
+<p>AKM <strong>không có ba thứ cuối</strong>. Sự vắng mặt đó không phải thiếu sót — nó nói rằng chiều sâu và phần việc thật <strong>không nằm trong skill</strong>:</p>
+<ul>
+<li>Không có <code>references/</code> vì phần chi tiết đã có người khác kể: khi máy chủ được kết nối, chính nó mô tả từng công cụ của mình cho trợ lý. Chép lại phần mô tả đó vào skill là trả tiền hai lần cho cùng một thông tin — và tệ hơn, là tạo ra một bản sao sẽ lệch dần khỏi bản thật.</li>
+<li>Không có <code>scripts/</code> vì việc không do một script skill mang theo làm, mà do <strong>một tiến trình sống lâu, chạy riêng</strong> làm.</li>
+<li>Không có <code>templates/</code> — dù các khuôn mẫu <em>có tồn tại</em>. Chúng thuộc về sản phẩm, không thuộc về skill, và trợ lý nhận được chúng bằng cách hỏi sản phẩm.</li>
+</ul>
+<p>Vậy trong <code>SKILL.md</code> còn gì? Gần như chỉ còn <strong>phán đoán</strong>: đây có phải công cụ đúng không, cái gì đáng ghi và cái gì không, một bước ghi lại có hình dạng ra sao, và gặp từng loại kết quả trả về thì xử lý thế nào. Nó là <strong>sách hướng dẫn vận hành cho một cỗ máy đặt ở nơi khác</strong>.</p>
+<h3>Cây B — sản phẩm mà skill đứng trước</h3>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>~/.dotfiles/projects/akm/
+├── akm/
+│   ├── model.py         nhãn nút, tên cạnh, các enum, sinh id
+│   ├── schema.py        ràng buộc và chỉ mục, chạy lại vô hại
+│   ├── delta.py         kiểm tra một bước ghi — thuần, không chạm CSDL
+│   ├── commit.py        đường ghi nguyên tử và chốt chặn tranh chấp
+│   ├── context.py       lắp gói ngữ cảnh nhỏ, và tiết lộ dần
+│   ├── server.py        bảy công cụ phơi ra qua MCP — mỏng
+│   ├── scope.py         tách dữ liệu theo dự án
+│   ├── push.py          quyết định đẩy gì vào một phiên làm việc
+│   ├── push_state.py    sổ sách từng phiên, nằm trên đĩa, không dùng CSDL
+│   ├── serve.py         tiến trình sống lâu giữ sẵn kết nối
+│   ├── serve_client.py  client chỉ dùng thư viện chuẩn
+│   ├── cli.py           các lệnh dòng lệnh
+│   ├── record.py        dựng một bước ghi từ khuôn mẫu
+│   ├── transcript.py    đọc ngược một phiên làm việc
+│   ├── session_view.py  hai lệnh chỉ-đọc xem lại phiên
+│   ├── config.py        toàn bộ nút vặn; bí mật chỉ lấy từ môi trường
+│   ├── driver.py        dựng kết nối CSDL
+│   └── seed.py          một ví dụ mồi có thật
+├── templates/           năm khuôn mẫu cho năm dạng bước
+├── scripts/             điểm vào: dòng lệnh, hook, chạy máy chủ, mồi, đếm
+├── tests/               bộ kiểm thử
+├── docs/
+├── docker-compose.yml   dựng cơ sở dữ liệu đồ thị
+└── pyproject.toml</code></pre></div>
+
+<div class="prose"><p>Một chỗ đáng để ý: <code>delta.py</code> và <code>commit.py</code> <strong>cố tình tách đôi</strong>. Kiểm tra phải xong hết và không có tác dụng phụ nào <em>trước khi</em> bước vào đường ghi. Một hàm vừa kiểm vừa ghi thì khi hỏng sẽ để lại nửa vời.</p>
+<h3>Phân công lao động mà cặp cây này minh hoạ</h3>
+</div>
+
+<div class="grid g2">
+  <div class="card"><h3>Cây A — thư mục skill</h3><div class="prose"><ul>
+<li>Đúng một file: SKILL.md</li>
+<li>Khối đầu file — mặt kích hoạt, luôn nằm trong bộ nhớ</li>
+<li>Phần thân — chỉ chứa phán đoán</li>
+<li>KHÔNG references/ — chiều sâu ở nơi khác</li>
+<li>KHÔNG scripts/ — việc thật do nơi khác làm</li>
+<li>KHÔNG templates/ — khuôn mẫu thuộc về sản phẩm</li>
+</ul>
+</div></div>
+  <div class="card"><h3>Cây B — sản phẩm đứng sau</h3><div class="prose"><ul>
+<li>Một codebase Python đầy đủ</li>
+<li>Mô hình đồ thị, ràng buộc, chỉ mục</li>
+<li>Máy chủ MCP phơi bảy công cụ</li>
+<li>Công cụ dòng lệnh dùng được ngoài trợ lý</li>
+<li>Hook tự đẩy tri thức ngược vào phiên</li>
+<li>Bộ kiểm thử — chỗ mọi khẳng định được chốt</li>
+</ul>
+</div></div>
+</div>
+<p class="blk-note">Hai cây, và khoảng trống giữa chúng. Ba thư mục mà một skill thường có — <code>references/</code>, <code>scripts/</code>, <code>templates/</code> — đều vắng mặt ở cây trái, vì cả ba đã có nhà ở cây phải.</p>
+
+<div class="prose"><p>Cái skill này dạy không phải &quot;làm thế nào&quot;, mà là &quot;<strong>khi nào thì đáng làm, và đọc kết quả ra sao</strong>&quot;. Giá phải trả rất thật: skill không tự đứng được. Nó phụ thuộc cứng vào một cơ sở dữ liệu đang chạy và một máy chủ đã đăng ký. Cái mua được cũng rất thật: năng lực đó <strong>kiểm thử được</strong>, có phiên bản, và dùng được cả ở ngoài Claude Code — vì nó cũng là một công cụ dòng lệnh bình thường.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s4">
+  <div class="sec-head"><span class="sec-no">04</span><h2>Luồng chạy — từ lúc kích hoạt tới lúc xong một bước</h2></div>
+<div class="prose"><p>Trước hết, mặt phơi ra cho trợ lý. Bảy công cụ, chia hai tầng tiết lộ: năm cái giữ cho ngữ cảnh nhỏ, hai cái dành cho lúc một con trỏ mách rằng chỗ đó có thứ đáng đọc đầy đủ.</p>
+</div>
+
+<div class="kv">  <div class="r sum"><span>Tầng 1</span><span><em>giữ ngữ cảnh nhỏ — văn bản dài bị cắt bớt</em></span></div>
+  <div class="r"><span><code>open_task</code></span><span>mở một mạch điều tra mới, kèm hiểu biết ban đầu</span></div>
+  <div class="r"><span><code>list_tasks</code></span><span>việc trong dự án này, mới nhất trước — cách duy nhất lấy lại một id cũ</span></div>
+  <div class="r"><span><code>find_information</code></span><span>tìm xem đã có ai ghi gì về chuyện này chưa</span></div>
+  <div class="r"><span><code>get_work_context</code></span><span>gói tối thiểu để đi tiếp một việc</span></div>
+  <div class="r"><span><code>submit_reasoning_delta</code></span><span>đề xuất một bước suy luận</span></div>
+  <div class="r sum"><span>Tầng 2</span><span><em>văn bản đầy đủ, không cắt</em></span></div>
+  <div class="r"><span><code>get_state</code></span><span>đọc trọn một trạng thái: lý do, câu hỏi đã đóng, thứ đã tạo ra</span></div>
+  <div class="r"><span><code>get_information</code></span><span>đọc trọn một khẳng định, kèm bằng chứng và nguồn của nó</span></div>
+</div>
+<p class="blk-note">Bảy công cụ, hai tầng tiết lộ. Tầng 1 giữ cho gói ngữ cảnh nhỏ; tầng 2 chỉ dùng khi một con trỏ ở tầng 1 mách rằng chỗ đó đáng đọc đầy đủ.</p>
+
+<div class="prose"><p>Vòng chạy thực tế:</p>
+</div>
+
+<ol class="steps">
+  <li><span class="sn">1</span><b>Tìm trước đã — chuyện này đã có ai ghi chưa?</b></li>
+  <li><span class="sn">2</span><b>Mở việc mới, hoặc liệt kê để lấy lại một việc cũ</b></li>
+  <li><span class="sn">3</span><b>Đọc gói ngữ cảnh: hiểu biết hiện tại, câu hỏi mở, quỹ đạo</b></li>
+  <li><span class="sn">4</span><b>Điều tra — bằng skill khác, AKM không suy luận hộ</b></li>
+  <li><span class="sn">5</span><b>Ghi một bước: đã làm gì, thấy gì, giờ hiểu gì, bằng chứng ở đâu</b></li>
+</ol>
+<div class="steps-loop">↺ bước vừa ghi làm nảy câu hỏi kế → quay lại đọc gói ngữ cảnh</div>
+<p class="blk-note">Động cơ của cả hệ thống: một trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, và câu trả lời sinh ra trạng thái mới.</p>
+
+<div class="prose"><p>Đi từng bước:</p>
+<ol>
+<li><strong>Kích hoạt.</strong> Phần mô tả của skill bắt khi công việc là một cuộc điều tra trải nhiều bước hoặc nhiều phiên — và cũng bắt khi người dùng nói &quot;ghi lại cái này&quot;, &quot;tiếp tục việc hôm trước&quot;, &quot;chúng ta đã xác định được gì về X rồi?&quot;.</li>
+<li><strong>Hỏi trước khi làm.</strong> Có ai sẽ cần dựng lại đường đi tới kết luận này không? Không thì dừng ở đây.</li>
+<li><strong>Tìm trước khi điều tra.</strong> Một lần tìm là rẻ, và nó chính là liều thuốc cho đúng cái bệnh mà cả hệ thống sinh ra để chữa: rút lại kết luận mà phiên trước đã rút rồi. Tìm ở đây là <strong>tìm toàn văn có gốc từ</strong> — &quot;subagents&quot; khớp &quot;subagent&quot; — nhưng <strong>không phải tìm theo nghĩa</strong>: gõ &quot;giá&quot; sẽ không ra một khẳng định chỉ nói &quot;chi phí&quot;. Thử vài cách diễn đạt trước khi kết luận là chưa ai ghi.</li>
+<li><strong>Mở việc mới, hoặc lấy lại việc cũ.</strong> Liệt kê là cách <em>duy nhất</em> lấy lại id của một việc mà phiên này không tạo ra.</li>
+<li><strong>Đọc gói ngữ cảnh.</strong> Nó cố tình không trả về toàn bộ lịch sử, và cắt bớt văn bản dài để giữ gói nhỏ.</li>
+<li><strong>Điều tra.</strong> AKM <em>lưu</em> suy luận, nó không <em>suy luận hộ</em>. Việc tìm nguyên nhân, việc giải thích, việc viết code là của các skill khác. AKM đi kèm bên cạnh chúng.</li>
+<li><strong>Ghi một bước.</strong> Rẻ nhất là ghi từ khuôn mẫu bằng một dòng lệnh. Chỉ khi bước đó có hình dạng không khuôn mẫu nào phủ được mới phải tự viết cấu trúc đầy đủ.</li>
+<li><strong>Xử lý kết quả trả về.</strong> Ba khả năng, và chúng khác nhau về bản chất:
+<ul>
+<li><strong>Ghi thành công.</strong> Trong phần trả lời có thể có mục &quot;đã gộp trùng&quot; — những câu bạn viết mà hệ thống thấy đã tồn tại y hệt, nên nó trỏ tới cái cũ thay vì chép thêm bản mới. Đây không phải lỗi; đây là tái dùng tri thức đang hoạt động đúng. Có thể có thêm <strong>cảnh báo</strong> cho những khẳng định chỉ thuật lại tình trạng — mã commit, &quot;test xanh&quot;, &quot;đã merge&quot;. Chúng vẫn được ghi, nhưng chúng đã có nhà khác rồi.</li>
+<li><strong>Bị từ chối vì trạng thái gốc đã cũ.</strong> Ai đó đã đẩy việc này tiến lên trong lúc bạn đang viết. <strong>Đây không phải lỗi.</strong> Đọc lại gói, tự quyết định phát hiện của mình còn đứng vững trước hiểu biết mới không, rồi ghi lại trên trạng thái mới.</li>
+<li><strong>Lỗi thật.</strong> Một tham chiếu trỏ vào hư không, hoặc một khẳng định mang tính sự thật mà không có xuất xứ. Sửa nội dung rồi gửi lại — đừng gửi lại y nguyên.</li>
+</ul>
+</li>
+<li><strong>Vòng lặp.</strong> Mỗi bước trả lời một câu hỏi và thường làm nảy ra câu tiếp theo. Đó là động cơ: trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, câu trả lời sinh ra trạng thái mới.</li>
+<li><strong>Đào sâu khi cần.</strong> Một dòng trong quỹ đạo bị cắt ngang giữa câu là một tín hiệu, không phải một ý trọn vẹn. Nếu nó có vẻ đã làm đổi cả bức tranh, mở nó ra đọc đủ. Và luôn đọc đủ trước khi trích dẫn một khẳng định hay đặt quyết định lên nó: một câu bị cắt ở ký tự thứ 240 không phải một trích dẫn.</li>
+</ol>
+</div>
+
+</section>
+
+<section class="sec" id="s5">
+  <div class="sec-head"><span class="sec-no">05</span><h2>Dữ liệu &amp; trạng thái — cái gì được ghi, ghi ở đâu</h2></div>
+<div class="prose"><h3>Đồ thị</h3>
+<p>Tri thức nằm trong một <strong>đồ thị</strong>: các <strong>nút</strong> (mẩu thông tin) nối với nhau bằng các <strong>cạnh</strong> có tên (quan hệ giữa chúng). Bảy loại nút:</p>
+</div>
+
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 0 980 502" role="img" aria-labelledby="fig-dothi-t"><title id="fig-dothi-t">Bảy loại nút và các cạnh giữa chúng. Nhóm giữa là phần mở rộng quan trọng nhất: bước suy luận được giữ lại thành một nút, chứ không phải một sợi dây trơn.</title>
+<defs><marker id="fig-dothi-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<text class="t-h" x="20" y="24">nút</text>
+<rect class="n-box" x="20" y="36" width="54" height="30" rx="15"/>
+<text class="t-m" x="47.0" y="55" text-anchor="middle">Task</text>
+<rect class="n-box" x="84" y="36" width="112" height="30" rx="15"/>
+<text class="t-m" x="140.0" y="55" text-anchor="middle">ProblemState</text>
+<rect class="n-box" x="206" y="36" width="83" height="30" rx="15"/>
+<text class="t-m" x="247.5" y="55" text-anchor="middle">Question</text>
+<rect class="n-box" x="299" y="36" width="105" height="30" rx="15"/>
+<text class="t-m" x="351.5" y="55" text-anchor="middle">Information</text>
+<rect class="n-box" x="414" y="36" width="83" height="30" rx="15"/>
+<text class="t-m" x="455.5" y="55" text-anchor="middle">Evidence</text>
+<rect class="n-box" x="507" y="36" width="69" height="30" rx="15"/>
+<text class="t-m" x="541.5" y="55" text-anchor="middle">Source</text>
+<rect class="n-new" x="586" y="36" width="126" height="30" rx="15"/>
+<text class="t-m" x="649.0" y="55" text-anchor="middle">ReasoningDelta</text>
+<rect class="band" x="10" y="90" width="960" height="152" rx="10"/>
+<text class="t-h" x="24" y="108">Khung suy luận</text>
+<rect class="n-box" x="26" y="120" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="139" text-anchor="middle">Task</text>
+<rect class="n-box" x="336" y="120" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="139" text-anchor="middle">ProblemState</text>
+<path class="w" d="M160 135H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="246.0" y="130" text-anchor="middle">HAS_STATE</text>
+<rect class="n-box" x="496" y="120" width="130" height="30" rx="7"/>
+<text class="t-m" x="561.0" y="139" text-anchor="middle">ProblemState</text>
+<rect class="n-box" x="806" y="120" width="130" height="30" rx="7"/>
+<text class="t-m" x="871.0" y="139" text-anchor="middle">ProblemState</text>
+<path class="w" d="M630 135H802" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="716.0" y="130" text-anchor="middle">NEXT_STATE</text>
+<rect class="n-box" x="26" y="160" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="179" text-anchor="middle">Information</text>
+<rect class="n-box" x="336" y="160" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="179" text-anchor="middle">Question</text>
+<path class="w" d="M160 175H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="246.0" y="170" text-anchor="middle">RAISES</text>
+<rect class="n-box" x="496" y="160" width="130" height="30" rx="7"/>
+<text class="t-m" x="561.0" y="179" text-anchor="middle">Information</text>
+<rect class="n-box" x="806" y="160" width="130" height="30" rx="7"/>
+<text class="t-m" x="871.0" y="179" text-anchor="middle">Question</text>
+<path class="w" d="M630 175H802" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="716.0" y="170" text-anchor="middle">ANSWERS</text>
+<rect class="n-box" x="26" y="200" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="219" text-anchor="middle">Information</text>
+<rect class="n-box" x="336" y="200" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="219" text-anchor="middle">Evidence</text>
+<path class="w" d="M160 215H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="246.0" y="210" text-anchor="middle">DERIVED_FROM</text>
+<rect class="n-box" x="496" y="200" width="130" height="30" rx="7"/>
+<text class="t-m" x="561.0" y="219" text-anchor="middle">Evidence</text>
+<rect class="n-box" x="806" y="200" width="130" height="30" rx="7"/>
+<text class="t-m" x="871.0" y="219" text-anchor="middle">Source</text>
+<path class="w" d="M630 215H802" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="716.0" y="210" text-anchor="middle">FROM</text>
+<rect class="band" x="10" y="252" width="960" height="152" rx="10"/>
+<text class="t-h" x="24" y="270">Bước suy luận, giữ lại thành nút</text>
+<rect class="n-new" x="26" y="282" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="301" text-anchor="middle">ReasoningDelta</text>
+<rect class="n-box" x="336" y="282" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="301" text-anchor="middle">ProblemState</text>
+<path class="w-acc" d="M160 297H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m t-acc" x="246.0" y="292" text-anchor="middle">FROM_STATE</text>
+<rect class="n-new" x="496" y="282" width="130" height="30" rx="7"/>
+<text class="t-m" x="561.0" y="301" text-anchor="middle">ReasoningDelta</text>
+<rect class="n-box" x="806" y="282" width="130" height="30" rx="7"/>
+<text class="t-m" x="871.0" y="301" text-anchor="middle">ProblemState</text>
+<path class="w-acc" d="M630 297H802" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m t-acc" x="716.0" y="292" text-anchor="middle">TO_STATE</text>
+<rect class="n-new" x="26" y="322" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="341" text-anchor="middle">ReasoningDelta</text>
+<rect class="n-box" x="336" y="322" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="341" text-anchor="middle">Question</text>
+<path class="w-acc" d="M160 337H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m t-acc" x="246.0" y="332" text-anchor="middle">ANSWERED</text>
+<rect class="n-new" x="496" y="322" width="130" height="30" rx="7"/>
+<text class="t-m" x="561.0" y="341" text-anchor="middle">ReasoningDelta</text>
+<rect class="n-box" x="806" y="322" width="130" height="30" rx="7"/>
+<text class="t-m" x="871.0" y="341" text-anchor="middle">Information</text>
+<path class="w-acc" d="M630 337H802" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m t-acc" x="716.0" y="332" text-anchor="middle">USED</text>
+<rect class="n-new" x="26" y="362" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="381" text-anchor="middle">ReasoningDelta</text>
+<rect class="n-box" x="336" y="362" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="381" text-anchor="middle">Information</text>
+<path class="w-acc" d="M160 377H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m t-acc" x="246.0" y="372" text-anchor="middle">INTRODUCED</text>
+<rect class="band" x="10" y="414" width="960" height="72" rx="10"/>
+<text class="t-h" x="24" y="432">Đính chính, không xoá</text>
+<rect class="n-box" x="26" y="444" width="130" height="30" rx="7"/>
+<text class="t-m" x="91.0" y="463" text-anchor="middle">Information</text>
+<rect class="n-box" x="336" y="444" width="130" height="30" rx="7"/>
+<text class="t-m" x="401.0" y="463" text-anchor="middle">Information</text>
+<path class="w" d="M160 459H332" marker-end="url(#fig-dothi-ah)"/>
+<text class="t-m" x="246.0" y="454" text-anchor="middle">SUPERSEDES</text>
+</svg>
+</div>
+  <figcaption>Bảy loại nút và các cạnh giữa chúng. Nhóm giữa là phần mở rộng quan trọng nhất: <strong>bước suy luận được giữ lại thành một nút</strong>, chứ không phải một sợi dây trơn.</figcaption>
+  <details><summary>Xem bản chữ thuần</summary><pre>Task ─ ProblemState ─ Question ─ Information ─ Evidence ─ Source ─ ReasoningDelta
+
+Khung suy luan
+  Task            HAS_STATE        ProblemState
+  ProblemState    NEXT_STATE       ProblemState
+  Information     RAISES           Question
+  Information     ANSWERS          Question
+  Information     DERIVED_FROM     Evidence
+  Evidence        FROM             Source
+
+Buoc suy luan duoc giu lai thanh nut
+  ReasoningDelta  FROM_STATE       ProblemState
+  ReasoningDelta  TO_STATE         ProblemState
+  ReasoningDelta  ANSWERED         Question
+  ReasoningDelta  USED             Information
+  ReasoningDelta  INTRODUCED       Information
+
+Sua mot khang dinh cu
+  Information     SUPERSEDES       Information</pre></details>
+</figure>
+
+<div class="prose"><p>Đọc theo lời thường: một <strong>việc</strong> có các <strong>trạng thái hiểu biết</strong> nối tiếp nhau. <strong>Khẳng định</strong> làm nảy ra hoặc trả lời <strong>câu hỏi</strong>, và rút ra từ <strong>bằng chứng</strong>, mà bằng chứng thì trỏ về <strong>nguồn</strong>. Và <strong>mỗi bước đi giữa hai trạng thái tự nó cũng là một nút</strong>, chứ không phải một sợi dây trơn — phần 9 giải thích vì sao đó là quyết định quan trọng nhất của cả sản phẩm.</p>
+<p>Vài quy tắc về dữ liệu đáng nhớ:</p>
+<ul>
+<li><strong>Bằng chứng trỏ, không chép.</strong> Một &quot;định vị&quot; là <code>src/queue/worker.py:88-140</code>, một câu truy vấn log, một URL, một mã commit. Dán nguyên nội dung file vào đồ thị vừa phá mất mục đích vừa làm gói ngữ cảnh phình to.</li>
+<li><strong>Khẳng định không bao giờ bị sửa.</strong> Khi một khẳng định sau phủ nhận một khẳng định trước, nó được ghi là khẳng định <em>mới</em> kèm một cạnh nói rõ nó thay thế cái nào. Không có cạnh đó, người đọc sau sẽ thấy hai câu mâu thuẫn và không có gì cho biết câu nào còn hiệu lực.</li>
+<li><strong>Trùng lặp được gộp, không được chép.</strong> Hai bước viết ra đúng cùng một câu thì câu thứ hai trỏ về nút đã có. Nhưng nút đã có <strong>giữ nguyên xuất xứ mà nó được ghi kèm lúc đầu</strong> — thêm bằng chứng vào nó sẽ làm đổi câu trả lời của mọi truy vấn xuất xứ trước đó. Lịch sử không được viết lại.</li>
+</ul>
+<h3>Đảo dữ liệu theo dự án</h3>
+<p>Mỗi nút được đóng dấu một <strong>phạm vi</strong>, và mọi lượt đọc đều lọc theo dấu đó. Phạm vi lấy từ <strong>tên kho git của thư mục đang làm việc</strong>; ngoài kho git thì tất cả rơi vào một thùng chung.</p>
+</div>
+
+<div class="kv">  <div class="r"><span>~/work/checkout-api</span><span>checkout-api</span></div>
+  <div class="r"><span>~/work/billing</span><span>billing</span></div>
+  <div class="r"><span>~/tmp/scratch (ngoài kho git)</span><span><strong>un-git-repo</strong></span></div>
+  <div class="r"><span>đặt biến môi trường AKM_SCOPE</span><span>giá trị bạn đặt</span></div>
+</div>
+<p class="blk-note">Hai kho trùng tên cơ sở sẽ dùng chung một đảo — hệ quả cố ý của quy tắc &quot;lấy tên kho&quot;. Phạm vi lấy từ tên kho git của thư mục đang làm việc. Một việc thuộc đảo khác đơn giản là không nhìn thấy — đó là thiết kế, không phải lỗi.</p>
+
+<div class="prose"><p>Hệ quả phải biết trước:</p>
+<ul>
+<li>Một việc thuộc dự án khác đơn giản là <strong>không nhìn thấy</strong> — không phải lỗi, không cần tìm cách lách.</li>
+<li>Việc gộp trùng <strong>không bao giờ vượt ranh giới</strong>: cùng một câu chữ nói về một hệ thống khác là một khẳng định khác.</li>
+<li>Hai kho git trùng tên cơ sở sẽ <strong>dùng chung một đảo</strong>. Đó là hệ quả cố ý của việc chọn quy tắc &quot;lấy tên kho&quot; cho dễ hiểu; muốn tách thì đặt phạm vi thủ công.</li>
+<li>Vì thư mục con của một kho vẫn thuộc kho đó, nhiều dự án nằm dưới cùng một kho sẽ dùng chung đảo. Hệ thống tự biết chuyện này và <strong>báo ra</strong> số thư mục làm việc đã ghi vào cùng một phạm vi, kèm cảnh báo khi nhiều hơn một.</li>
+</ul>
+<h3>Trạng thái nằm ngoài đồ thị</h3>
+<p>Có một loại trạng thái không vào đồ thị mà nằm trên đĩa, một file cho mỗi phiên làm việc: <strong>phiên này đang gắn với việc nào</strong>, <strong>đã tiêu bao nhiêu ký tự</strong> trong ngân sách ngữ cảnh, và <strong>những id nào đã được đưa vào rồi</strong> để không đưa lại lần hai. Nó bị quên đi ở lúc khởi động, lúc xoá ngữ cảnh và lúc nén ngữ cảnh — đúng những thời điểm cửa sổ hội thoại không còn giữ những thứ đó nữa.</p>
+<p>Một phiên <strong>tự gắn</strong> vào một việc chỉ bằng cách chạm vào nó: mở, đọc ngữ cảnh, ghi một bước, hoặc nhắc id của nó trong câu lệnh. Không ai phải khai báo gì.</p>
+<h3>Một chỗ tách đôi đáng học</h3>
+<p>Thông tin đăng nhập cơ sở dữ liệu đọc từ <strong>thư mục cài đặt</strong> của sản phẩm, theo đường dẫn tuyệt đối. Phạm vi cách ly thì lấy từ <strong>thư mục làm việc của người gọi</strong>. Chính cái tách đôi đó khiến <strong>một máy chủ phục vụ được mọi dự án</strong> mà tri thức của chúng vẫn nằm riêng.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s6">
+  <div class="sec-head"><span class="sec-no">06</span><h2>Đầu–cuối — một lượt chạy trọn vẹn</h2></div>
+<div class="prose"><p>Lấy lại vụ job đối soát ghi trùng ở phần 2.</p>
+<p><strong>Bước 0 — mở việc.</strong></p>
+<p>Mục tiêu: &quot;tìm vì sao job đối soát hàng đêm ghi trùng bản ghi từ đầu tháng&quot;. Hiểu biết ban đầu: &quot;chỉ đường chạy tự động bị trùng, đường chạy tay thì không; chưa rõ nguyên nhân&quot;. Nhận về id của việc và id của trạng thái đầu tiên. Cái id trạng thái đó là <strong>trạng thái gốc</strong> cho bước ghi đầu tiên.</p>
+<p><strong>Bước 1 — nhìn lần đầu và ghi lại.</strong></p>
+<p>Bạn đọc cấu hình lịch chạy, thấy job được đăng ký hai lần. Ghi bằng một dòng lệnh, từ khuôn mẫu &quot;quan sát&quot;:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>akm_cli.py record --task &lt;id việc&gt; --base-state &lt;id trạng thái đang đọc&gt; \
+    --template observation \
+    --why "đọc cấu hình lịch chạy đã triển khai, so với đường chạy tay" \
+    --state "job được đăng ký hai lần: một mục cũ và một mục mới thêm đầu tháng. Chưa xác lập được cả hai có thật sự chạy xong hay không." \
+    --claim "file lịch chạy đăng ký job đối soát hai lần" \
+    --evidence config_section:deploy/schedules.yaml:44-58 \
+    --question "cả hai mục có thật sự chạy, hay một cái thoát sớm?" \
+    --question-type verification</code></pre></div>
+
+<div class="prose"><p>Để ý <strong>cái không được khẳng định</strong>: rằng hai mục trùng <em>gây ra</em> bản ghi trùng. Đó là câu hỏi của bước sau, không phải kết luận của bước này. Sự kiềm chế đó chính là thứ làm cho đồ thị đáng tin.</p>
+<p>Dòng lệnh trên tự lo phần việc buồn tẻ: sinh các nhãn nội bộ, biến <code>--evidence TYPE:ĐỊNH_VỊ</code> thành một bằng chứng cộng một nguồn, gộp các bằng chứng trỏ cùng một file về chung một nguồn, và <strong>buộc mỗi bằng chứng vào khẳng định viết ngay trước nó</strong> (bằng chứng viết trước khẳng định đầu tiên thì đỡ cho mọi khẳng định).</p>
+<p><strong>Bước 2 — trả lời câu hỏi vừa nảy ra.</strong></p>
+<p>Đọc lại gói ngữ cảnh, lấy id câu hỏi đang mở. Bạn xem log thực thi, thấy hai lần chạy đều hoàn tất. Ghi bước thứ hai: trạng thái gốc là trạng thái vừa tạo ở bước 1, có khai rõ nó <strong>đóng câu hỏi nào</strong>, và khẳng định mới mang loại &quot;sự thật suy ra&quot; — vì nó là kết luận nhân quả rút ra từ bằng chứng log, không phải thứ quan sát trực tiếp.</p>
+<p><strong>Sau hai bước, đồ thị trả lời được:</strong></p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>Vi sao trang thai hien tai ton tai?   → ly do cua buoc 2, nguyen van
+No khac gi trang thai truoc?          → tom tat trang thai buoc 1
+Bang chung nao gay ra thay doi?       → dinh vi doan log
+Luc do dang tra loi cau hoi nao?      → "ca hai muc co that su chay?"</code></pre></div>
+
+<div class="prose"><p><strong>Bước 3 — ba ngày sau, một phiên khác.</strong></p>
+<p>Liệt kê việc đang mở, mở lại việc này, nhận đúng gói ngữ cảnh đó. Không cần đọc lại lịch sử hội thoại, vì lịch sử hội thoại không còn.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s7" data-toc-group="PHẦN 3 — Gắn vào đâu, và chặn cái gì">
+  <div class="sec-head"><span class="sec-no">07</span><h2>Hook — chỗ tri thức tự tìm tới, không chờ ai gọi</h2></div>
+<div class="prose"><p>Phần lớn skill không gắn vào hook nào. AKM là ngoại lệ, và lý do rất thực dụng: <strong>trợ lý không chủ động đi tra</strong>. Trên toàn bộ lịch sử làm việc từng chạm tới AKM, số lượt ghi xấp xỉ số lượt đọc, và phiên duy nhất được đo kỹ thì ghi mười bốn lần và đọc không lần nào. Một kho tri thức không ai mở là một kho tri thức vô dụng.</p>
+<p>Nên sản phẩm đảo chiều: nó <strong>đẩy</strong> vào phiên làm việc.</p>
+<p><strong>Hook</strong> là cơ chế của Claude Code cho phép chạy một lệnh ngoài tại những thời điểm cố định trong một phiên. AKM đăng ký đúng một script cho năm sự kiện:</p>
+</div>
+
+<div class="grid g2">
+  <div class="card"><h3><code>SessionStart</code></h3><div class="prose"><p><em>luồng chính — lúc bắt đầu, khôi phục, xoá ngữ cảnh, sau khi nén</em></p>
+<p>việc đang mở trong phạm vi, và việc mà phiên này đang gắn vào</p>
+</div></div>
+  <div class="card"><h3><code>UserPromptSubmit</code></h3><div class="prose"><p><em>luồng chính — mỗi lần người dùng gõ một câu</em></p>
+<p>khẳng định và câu hỏi mở khớp với câu đó, nếu cửa sổ chưa có</p>
+</div></div>
+  <div class="card"><h3><code>PreToolUse (Agent)</code></h3><div class="prose"><p><em>tác vụ con sắp được sinh ra</em></p>
+<p>khẳng định khớp với đề bài, nối thêm vào chính đề bài đó</p>
+</div></div>
+  <div class="card"><h3><code>SubagentStart</code></h3><div class="prose"><p><em>mỗi tác vụ con, và mỗi lượt của đồng đội trong tiến trình</em></p>
+<p>hiểu biết hiện tại và câu hỏi mở của việc đang gắn</p>
+</div></div>
+  <div class="card"><h3><code>PostToolUse (Bash, công cụ AKM)</code></h3><div class="prose"><p><em>không ai cả</em></p>
+<p>không đẩy gì — chỉ gắn phiên vào những việc mà lệnh vừa chạm</p>
+</div></div>
+</div>
+<p class="blk-note">Năm sự kiện, một script. Cách chia không tuỳ tiện: chỗ duy nhất nhìn thấy đề bài của một tác vụ con là ngay trước khi nó được sinh ra.</p>
+
+<div class="prose"><p>Cách chia đó không tuỳ tiện: <strong>chỗ duy nhất nhìn thấy đề bài của một tác vụ con là trước khi nó được sinh ra</strong>, còn sự kiện &quot;tác vụ con khởi động&quot; thì bắn <em>trước khi</em> bản ghi hội thoại của đứa con tồn tại và không mang theo đề bài. Mỗi chỗ nhận được thứ nó có thể nhận.</p>
+<p>Một tác vụ con không có công cụ MCP và không tự nạp sẵn skill này. Nó có thể gọi skill, nhưng skill <strong>không biết đường dẫn dòng lệnh của bản cài đặt này, cũng không biết phiên đang làm việc nào</strong>. Nên khối được đẩy vào mang theo đúng hai thứ đó: đường dẫn tuyệt đối tới dòng lệnh, và id của việc kèm câu lệnh chạy được. Đó là cách một tác vụ con tự đọc tiếp và tự ghi bước của nó.</p>
+<p><strong>Hai loại tác vụ không bao giờ nhận gì.</strong> Một tác vụ đi <em>review code</em> phải xét đoạn code mà không bị lời kể của tác giả neo trước; một &quot;thấu kính&quot; nghiên cứu chỉ được lấy đúng đầu vào đã khai báo. Với hai loại đó, không hook nào trả lời.</p>
+<p><strong>Hai luật giữ cho luồng chính không bị nhét lại thứ nó đã có.</strong> Một câu lệnh có quá ít từ có nghĩa thì không được đem đi tìm — &quot;commit and push&quot; từng kéo về hai khẳng định lạc đề, một trong đó đã cũ. Và những khẳng định do chính luồng chính viết ra trong cửa sổ hiện tại thì không đẩy ngược lại cho nó; ghi của tác vụ con thì có, vì luồng chính chưa từng thấy.</p>
+<p><strong>Luôn hỏng theo kiểu im lặng.</strong> Tắt công tắc, không có máy chủ, máy chủ khởi động chưa kịp hạn, đồ thị không với tới được — tất cả đều thoát êm và không in gì. Một script hook <strong>không bao giờ được báo lỗi ở sự kiện nhận câu lệnh người dùng</strong>, vì làm thế sẽ xoá mất câu lệnh đó.</p>
+<p>Việc đăng ký hook không làm bằng tay mà do một công cụ riêng ghi vào file cấu hình cục bộ của từng dự án, kèm sổ đánh dấu để gỡ ra sạch sẽ. Hook của dự án đi theo <strong>thư mục mà phiên được mở</strong>, chứ không theo gốc kho git, nên phải cài cho từng dự án muốn nhận.</p>
+<p>Một chỗ dễ nhầm, và skill nói thẳng ra: <strong>một phạm vi chưa ghi gì sẽ đẩy ra khối rỗng, trông y hệt như hook chưa được cài.</strong> Đừng suy ra gì từ sự im lặng — có lệnh chẩn đoán để hỏi cho chắc.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s8">
+  <div class="sec-head"><span class="sec-no">08</span><h2>Rào chắn — cái gì chặn người dùng làm sai</h2></div>
+<div class="prose"><h3>Luật xuất xứ, và nó được cưỡng chế</h3>
+<p>Đây là rào chắn quan trọng nhất, và nó là lý do tồn tại của cả cách thiết kế. Mỗi khẳng định mang một <strong>loại</strong>. Sáu loại mang tính sự thật — sự thật, quy tắc, định nghĩa, ràng buộc, quan sát, sự thật suy ra — <strong>bắt buộc</strong> phải thoả ít nhất một trong bốn đường:</p>
+</div>
+
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 0 980 286" role="img" aria-labelledby="fig-xuatxu-t"><title id="fig-xuatxu-t">Một khẳng định mang tính sự thật</title>
+<defs><marker id="fig-xuatxu-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-box" x="20" y="89" width="230" height="56" rx="10"/>
+<text class="t t-b" x="135" y="114" text-anchor="middle">Một khẳng định mang tính sự</text><text class="t t-b" x="135" y="131" text-anchor="middle">thật</text>
+<path class="w" d="M250 117 C 280 117, 260 41, 288 41" marker-end="url(#fig-xuatxu-ah)"/>
+<rect class="n-new" x="290" y="20" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="46">dẫn từ bằng chứng</text>
+<text class="t-s" x="508" y="45.0">có cạnh trỏ tới một Evidence cụ thể — đường thường dùng nhất</text>
+<path class="w" d="M250 117 C 280 117, 260 93, 288 93" marker-end="url(#fig-xuatxu-ah)"/>
+<rect class="n-new" x="290" y="72" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="98">người nói</text>
+<text class="t-s" x="508" y="97.0">một con người đã nói điều đó với bạn</text>
+<path class="w" d="M250 117 C 280 117, 260 145, 288 145" marker-end="url(#fig-xuatxu-ah)"/>
+<rect class="n-new" x="290" y="124" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="150">hệ thống báo</text>
+<text class="t-s" x="508" y="149.0">hệ thống tự báo cáo ra số liệu đó</text>
+<path class="w" d="M250 117 C 280 117, 260 197, 288 197" marker-end="url(#fig-xuatxu-ah)"/>
+<rect class="n-new" x="290" y="176" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="202">tự khai là chưa chắc</text>
+<text class="t-s" x="508" y="201.0">đánh dấu là giả định, giả thuyết, hoặc chưa kiểm chứng</text>
+<path class="w-dash" d="M250 117 C 280 117, 260 252, 288 252" marker-end="url(#fig-xuatxu-ah)"/>
+<rect class="n-bad" x="290" y="234" width="680" height="36" rx="8" stroke-dasharray="5 4"/>
+<text class="t t-b t-bad" x="302" y="257">Không đường nào → máy chủ từ chối cả bước ghi</text>
+</svg>
+</div>
+  <figcaption>Luật xuất xứ. Sáu loại khẳng định mang tính sự thật phải đi qua ít nhất một trong bốn cửa này; loại thứ bảy — giả định — được miễn vì tên nó đã tự khai.</figcaption>
+  <details><summary>Xem bản chữ thuần</summary><pre>Mot khang dinh mang tinh su that
+  dan tu bang chung     co canh tro toi mot Evidence cu the
+  nguoi noi             mot con nguoi da noi voi ban dieu do
+  he thong bao          he thong tu bao cao ra so lieu do
+  tu khai la chua chac  danh dau la gia dinh / gia thuyet / chua kiem chung
+Khong duong nao → may chu tu choi ca buoc ghi</pre></details>
+</figure>
+
+<div class="prose"><p>Loại thứ bảy — <strong>giả định</strong> — là lối thoát hiểm duy nhất được miễn, vì tự cái tên nó đã khai rằng nó không được khẳng định như sự thật.</p>
+<p>Vì sao gắt đến thế? Vì điều tệ nhất một hệ thống ghi suy luận có thể làm là <strong>để đầu ra của một mô hình trở thành một sự thật không có xuất xứ, rồi việc sau xây lên trên nó</strong>. Một phỏng đoán được dán nhãn phỏng đoán thì có ích. Một phỏng đoán được ghi như sự thật là một quả mìn.</p>
+<h3>Những rào chắn khác, và cái gì hỏng nếu thiếu</h3>
+<ul>
+<li><strong>Trường lạ bị từ chối thẳng.</strong> Gõ sai tên một quan hệ sẽ <em>báo lỗi to</em>, thay vì im lặng làm rơi mất liên kết đó.</li>
+<li><strong>Mọi lỗi được báo cùng lúc.</strong> Người gửi sửa xong một lượt, thay vì phát hiện từng lỗi một qua nhiều vòng.</li>
+<li><strong>Tham chiếu phải đúng <em>loại</em> nút.</strong> Một id tồn tại thật nhưng trỏ vào nguồn thay vì bằng chứng sẽ qua được phép kiểm tra &quot;có tồn tại không&quot;, rồi lặng lẽ không tạo ra cạnh nào — và để lại đúng cái mà luật xuất xứ sinh ra để cấm. Phép kiểm tra này nằm <strong>bên trong giao dịch ghi</strong>, không phải trước đó, vì kiểm trước rồi ghi sau là một cuộc đua.</li>
+<li><strong>Từ chối phải ném ra khỏi giao dịch, không được trả về bình thường.</strong> Một hàm giao dịch trả về bình thường sẽ được coi là thành công và <em>ghi luôn</em> đúng những thay đổi mà nó đang chối bỏ.</li>
+<li><strong>Hai cơ chế chống ghi đè, và phải biết cái nào mới là bảo đảm.</strong></li>
+</ul>
+</div>
+
+<div class="grid g2">
+  <div class="card"><span class="pill p-warn">Đường nhanh</span><h3>Đường nhanh · so-và-đổi</h3><div class="prose"><p>Chỉ ghi nếu con trỏ trạng thái hiện tại vẫn đúng bằng cái vừa đọc. Cho ra lời từ chối thân thiện kèm id trạng thái mới để ghi lại. Trong thực tế đây là cái bắt gần như mọi trường hợp. Nhưng nó không phải bảo đảm.</p>
+</div></div>
+  <div class="card"><span class="pill p-ok">Biên chứng đúng</span><h3>Biên chứng đúng · ràng buộc duy nhất</h3><div class="prose"><p>Cặp (việc, trạng thái cha) phải là duy nhất. Cơ sở dữ liệu mặc định ở mức đọc-đã-commit và câu lệnh ghi kia không tự lấy khoá, nên về lý thuyết hai bên cùng lọt qua đường nhanh. Ràng buộc này khiến lịch sử bị rẽ nhánh là bất khả thi, không phụ thuộc vào khoá.</p>
+</div></div>
+</div>
+<p class="blk-note">Hai cơ chế chống hai người cùng ghi đè. Cái bắt gần như mọi trường hợp <strong>không</strong> phải cái bảo đảm tính đúng đắn — và biết phân biệt hai thứ đó là cả vấn đề.</p>
+
+<div class="prose"><p>Vì đường nhanh gần như luôn thắng, ràng buộc kia được kiểm thử <strong>trực tiếp</strong> — bằng cách cố tình đi vòng qua đường nhanh và ghi tay một lịch sử bị rẽ nhánh — chứ không dựa vào bài kiểm tra tranh chấp để tình cờ chạm tới nó.</p>
+<ul>
+<li><strong>Trạng thái gốc dùng một giá trị đánh dấu, không dùng giá trị rỗng.</strong> Ràng buộc duy nhất của cơ sở dữ liệu này <em>không áp dụng</em> khi một thuộc tính rỗng, nên để rỗng sẽ lặng lẽ miễn trừ đúng cái trạng thái đầu tiên.</li>
+<li><strong>Bộ kiểm thử tự từ chối chạy ngoài phạm vi của riêng nó.</strong> Nó kiểm tra điều đó trước khi động vào bất cứ thứ gì. Luật này có vì đã từng có một lần nó xoá mất một đồ thị thật.</li>
+<li><strong>Gói ngữ cảnh có trần, và nói rõ khi đã cắt.</strong> Khi bị cắt, nó liệt kê danh sách nào mất bao nhiêu mục; số câu hỏi mở còn có cách riêng để thấy bị cắt. Nghĩa là <strong>im lặng không đồng nghĩa với đầy đủ</strong> — và hệ thống nói ra điều đó thay vì để người đọc tự đoán.</li>
+<li><strong>Khẳng định chỉ thuật lại tình trạng thì bị cảnh báo</strong>, hoặc bị từ chối nếu chỉnh chính sách. Mã commit, test xanh, đã merge, review đã duyệt — git, CI và công cụ review đã giữ rồi.</li>
+<li><strong>Máy chủ đẩy chỉ nghe ở địa chỉ nội bộ</strong> và không làm được gì hơn dòng lệnh chạy tại chỗ, nên không có cơ chế xác thực nào — và cũng không cần.</li>
+<li><strong>Tắt công tắc thì các công cụ vẫn gọi được và trả lời bằng một lời từ chối rõ ràng</strong>, thay vì biến mất. Trợ lý xuống cấp thành làm việc không có đồ thị, chứ không coi đó là hỏng.</li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="s9" data-toc-group="PHẦN 4 — Bài học rút ra được">
+  <div class="sec-head"><span class="sec-no">09</span><h2>Đặc trưng — những quyết định đáng học, và giá của từng cái</h2></div>
+<div class="prose"><p><strong>Giữ lại bước suy luận thành một nút riêng.</strong> Bản đặc tả gốc chỉ cho đúng một sợi dây giữa hai trạng thái, và sợi dây đó không mang theo lời biện minh nào. Nếu một trạng thái làm nảy ba câu hỏi và năm khẳng định trả lời chúng, không có gì ghi lại <em>cái nào</em> thực sự dẫn tới trạng thái kế. Nên bước suy luận được giữ lại thành một nút, với các cạnh riêng nói nó đi từ đâu tới đâu, đóng câu hỏi nào, dùng gì và tạo ra gì.</p>
+<p>Và đây là chỗ đáng học nhất về cách <em>chứng minh</em> một quyết định thiết kế:</p>
+</div>
+
+<div class="grid g2">
+  <div class="card"><span class="pill p-ok">4/4</span><h3>Giữ nguyên bước suy luận</h3><div class="prose"><p>đủ 13 nút tri thức, đủ các nút bước</p>
+</div></div>
+  <div class="card"><span class="pill p-bad">0/4</span><h3>Xoá riêng các nút bước suy luận</h3><div class="prose"><p>vẫn đủ 13 nút tri thức, không còn nút bước</p>
+</div></div>
+</div>
+<p class="blk-note">Tri thức sống sót. Suy luận thì không. Cùng một chuỗi ba trạng thái, đo hai lần, chỉ bỏ đi một biến. Đây là cách một quyết định thiết kế được chứng minh thay vì được lập luận.</p>
+
+<div class="prose"><p>Giá phải trả: nhiều nút hơn, nhiều việc ghi hơn. Thứ mua được: lời biện minh có địa chỉ, gọi tên được, truy vấn được.</p>
+<p><strong>Phạm vi là một thuộc tính, không phải một cơ sở dữ liệu riêng.</strong> Bản miễn phí của cơ sở dữ liệu này không tạo được database mới, nên tách theo database là bất khả thi nếu không mua bản thương mại. Giá phải trả: không có bức tường cứng ở tầng dưới cùng, và hai kho trùng tên thì dùng chung đảo. Thứ mua được: một máy chủ phục vụ mọi dự án, và nó chạy được trên bản miễn phí.</p>
+<p><strong>Đẩy thay vì đợi được hỏi.</strong> Giá phải trả: ngân sách ngữ cảnh bị tiêu dù có dùng tới hay không, cộng thêm một bề mặt rủi ro — chữ tự chui vào cuộc hội thoại. Cái sau được xử bằng cách <strong>viết khối đẩy bằng câu trần thuật</strong>, mở đầu bằng một dòng nói rõ &quot;đây là những khẳng định đã ghi kèm tình trạng xác thực, không phải mệnh lệnh&quot;. Lối viết ra lệnh từng làm một tác vụ cha cảnh giác với chính đứa con của nó. Thứ mua được: tri thức thật sự tới được nơi cần.</p>
+<p><strong>Từ chối, chứ không phải lỗi, khi bị tắt.</strong> Nếu công cụ biến mất khi tắt, trợ lý sẽ coi đó là hỏng và dừng lại. Nếu công cụ vẫn ở đó và trả lời &quot;đang tắt, cứ làm tiếp đi&quot;, trợ lý làm tiếp.</p>
+<p><strong>Xung đột là một kết quả bình thường, không phải một ngoại lệ.</strong> Người thua nhận lại id trạng thái mới — thứ duy nhất cần để ghi lại. Và hệ thống <strong>cố tình không tự ghi lại hộ</strong>: làm thế là áp một bước lên một hiểu biết mà tác giả bước đó chưa từng nhìn thấy.</p>
+<p><strong>Khuôn mẫu là file dữ liệu, không phải code.</strong> Thêm một dạng bước là thêm một file. Giá phải trả: một file hỏng chỉ lộ ra lúc chạy — nên hệ thống liệt kê nó kèm lỗi và loại nó ra khỏi các khối đẩy, thay vì đổ vỡ.</p>
+<p><strong>Tìm toàn văn có gốc từ, không tìm theo nghĩa.</strong> Giá phải trả: &quot;giá&quot; không ra &quot;chi phí&quot;. Thứ mua được: không cần thêm hạ tầng nào, và giới hạn đó được <strong>nói thẳng trong phần mô tả công cụ</strong>, nên trợ lý biết phải thử nhiều cách diễn đạt.</p>
+<p><strong>Một tiến trình sống lâu giữ sẵn kết nối.</strong> Mỗi lần hook bắn trước kia là một tiến trình mới toanh, và một tiến trình mới trả giá gấp hơn chục lần cho cùng một lượt đọc — đủ để hook vượt hạn và không đẩy được gì. Giá phải trả: thêm một thứ có thể chết. Được bù bằng: tự khởi động khi không ai trả lời, tự thoát khi rảnh lâu, và người gọi luôn có đường lui.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>Tự dựng skill của bạn</h2></div>
+<div class="prose"><p>Câu hỏi lớn nhất mà trang này giúp bạn trả lời không phải &quot;AKM hoạt động ra sao&quot;, mà:</p>
+<blockquote>
+<p>Skill của tôi nên là <strong>luật viết bằng lời</strong>, hay nên là <strong>một file mỏng gọi sang code thật</strong>?</p>
+</blockquote>
+<h3>Hai kiểu, đặt cạnh nhau</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Skill tự chứa</th>
+<th>Skill mỏng đứng trước sản phẩm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Năng lực nằm ở đâu</td>
+<td>trong chính <code>SKILL.md</code>, <code>references/</code>, <code>scripts/</code></td>
+<td>trong một codebase riêng, có vòng đời riêng</td>
+</tr>
+<tr>
+<td>Skill dạy cái gì</td>
+<td><strong>cách làm</strong></td>
+<td><strong>khi nào đáng làm, và đọc kết quả ra sao</strong></td>
+</tr>
+<tr>
+<td>Kiểm chứng bằng gì</td>
+<td>đọc, và thử vài lần</td>
+<td>bộ kiểm thử của sản phẩm</td>
+</tr>
+<tr>
+<td>Tốn context mỗi lần chạy</td>
+<td>mọi thứ phải đọc để làm được việc</td>
+<td>chỉ phần phán đoán</td>
+</tr>
+<tr>
+<td>Cài đặt</td>
+<td>không có</td>
+<td>có thật: dựng dịch vụ, đăng ký, khai báo</td>
+</tr>
+<tr>
+<td>Hỏng thì hỏng kiểu gì</td>
+<td>hướng dẫn sai, khó phát hiện</td>
+<td>không kết nối được — lộ ngay</td>
+</tr>
+<tr>
+<td>Dùng ngoài trợ lý AI được không</td>
+<td>không</td>
+<td>được, vì nó vốn là công cụ bình thường</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Ba phép thử để chọn</h3>
+<ol>
+<li><strong>Nó có giữ trạng thái sống lâu hơn một lần chạy không?</strong> Lời văn không giữ được trạng thái. Nếu công việc cần một cơ sở dữ liệu, một định dạng file, một chỉ mục — đó là sản phẩm.</li>
+<li><strong>Có bất biến nào phải <em>từ chối</em>, chứ không phải <em>khuyên</em>?</strong> Một luật mà bạn chỉ có thể <em>nhờ</em> trợ lý tuân theo là một luật sẽ bị vi phạm. Nếu vi phạm nó làm hỏng dữ liệu, nó phải được cưỡng chế bằng code biết nói không. Luật xuất xứ của AKM là ví dụ: nó không nằm trong skill, nó nằm trong máy chủ, và máy chủ từ chối.</li>
+<li><strong>Không có Claude Code thì năng lực này còn đáng có không?</strong> Nếu có — nếu tồn tại một công cụ dòng lệnh mà người ta sẽ gõ tay — thì đó là sản phẩm, còn skill là sách hướng dẫn của nó.</li>
+</ol>
+<p>Ba câu đều &quot;không&quot; thì làm skill tự chứa: <code>references/</code> cho chiều sâu, <code>scripts/</code> cho phần cơ học lặp lại. Một câu &quot;có&quot; trở lên thì tách sản phẩm ra, và chấp nhận rằng skill của bạn sẽ <strong>mỏng</strong>.</p>
+<h3>Những quyết định vẫn là của bạn, kể cả khi có sản phẩm ở sau</h3>
+<p><strong>Viết phần mô tả ở đầu file thế nào.</strong> Đây là phần duy nhất luôn nằm trong bộ nhớ, và nó quyết định skill có được chọn hay không. Cách viết của AKM đáng chép lại: một danh sách <strong>tình huống</strong> (điều tra chưa rõ nguyên nhân, quyết định kiến trúc tích luỹ bằng chứng theo thời gian, nghiên cứu cần truy được nguồn), cộng một số <strong>cách nói của người dùng</strong> (&quot;ghi lại phát hiện&quot;, &quot;tiếp tục việc hôm trước&quot;), cộng một <strong>mục kích hoạt thuần vận hành</strong> (&quot;cũng dùng khi nhặt lại việc cũ, vì đó là cách duy nhất lấy lại id&quot;), cộng một dòng <strong>đừng dùng cho</strong> liệt kê thẳng những thứ dễ bị nhầm. Mô tả <em>tóm tắt công cụ</em> thì bật theo chủ đề; mô tả <em>liệt kê tình huống</em> thì bật theo nhu cầu.</p>
+<p><strong>Cái gì được ở lại trong phần thân.</strong> Quy tắc rút ra được từ AKM: <strong>đừng viết vào <code>SKILL.md</code> thứ mà cỗ máy sẽ tự nói cho trợ lý nghe.</strong> Máy chủ đã tự mô tả từng công cụ; chép lại vào skill là trả tiền hai lần và tạo ra một bản sao sẽ lệch dần. Cái ở lại là những thứ máy không nói được: đây có phải công cụ đúng không, cái gì đáng ghi, gặp từng loại kết quả thì làm gì.</p>
+<p><strong>Phần cài đặt có đáng nằm trong skill không.</strong> AKM giữ nó, kèm cả <strong>một câu lệnh sai mà người ta hay gõ</strong> và mô tả đúng triệu chứng của nó. Lý do: cái hỏng đó <strong>im lặng</strong> — máy chủ trông như đã đăng ký mà không bao giờ trả lời. Quy tắc: một cách hỏng im lặng thì đáng cả một đoạn văn; một cách hỏng ồn ào thì không cần.</p>
+<p><strong>Skill cư xử ra sao khi cái ở sau nó chết.</strong> Phải viết đường xuống cấp vào skill, nếu không trợ lý sẽ đứng chờ. AKM viết đúng một câu: nói thẳng là không kết nối được, rồi làm tiếp công việc thật mà không có nó. Mất dấu vết là một thiệt hại thật, nhưng nhỏ hơn nhiều so với đứng lại giữa cuộc điều tra.</p>
+<p><strong>Luật nào có vì đã từng có sự cố.</strong> Đây là thứ làm cho luật đáng nhớ thay vì tuỳ tiện. Ở AKM: bộ kiểm thử tự kiểm tra phạm vi <em>vì đã từng xoá mất một đồ thị thật</em>; câu lệnh quá ngắn không được đem đi tìm <em>vì &quot;commit and push&quot; từng kéo về hai khẳng định lạc đề</em>; khối đẩy viết bằng câu trần thuật <em>vì lối viết ra lệnh từng làm một tác vụ cha cảnh giác với con nó</em>. Khi viết skill của bạn, mỗi lần bạn thêm một luật, hãy ghi luôn sự cố sinh ra nó.</p>
+<h3>Bắt đầu</h3>
+<p>Tạo thư mục, và viết đúng một file:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>.claude/skills/&lt;ten-skill&gt;/
+└── SKILL.md</code></pre></div>
+
+<div class="prose"><p>Trong đó, theo thứ tự:</p>
+<ol>
+<li>khối đầu file — <code>name</code>, và <code>description</code> viết theo kiểu liệt kê tình huống, có dòng &quot;đừng dùng cho&quot;;</li>
+<li>một đoạn mở nói <strong>thứ gì bị mất nếu không có skill này</strong> — không phải skill làm gì;</li>
+<li>mục &quot;đây có phải công cụ đúng không&quot;, có bảng đối chiếu sang các skill khác;</li>
+<li>vòng chạy, ngắn;</li>
+<li>mỗi loại kết quả trả về và cách xử lý — nhất là loại <em>không phải lỗi</em> mà trông giống lỗi;</li>
+<li>cài đặt, nếu có cách hỏng im lặng;</li>
+<li>một đoạn về việc phải làm gì khi cái ở sau nó không với tới được.</li>
+</ol>
+<p>Nếu viết xong mà thấy mục 3 ngắn hơn mục 4 rất nhiều, nhiều khả năng bạn đang viết tài liệu tham khảo chứ chưa phải skill.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>Thuật ngữ</h2></div>
+<div class="prose"><p>Đây là skill nhiều thuật ngữ nhất trong bộ, nên danh sách này dài. Xếp theo A–Z.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Thuật ngữ</th>
+<th>Nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>bằng chứng</strong> (Evidence)</td>
+<td>một con trỏ tới chỗ có thể kiểm chứng lại được: khoảng dòng trong file, câu truy vấn log, URL, mã commit. Nó <strong>trỏ</strong>, không chép nội dung.</td>
+</tr>
+<tr>
+<td><strong>bước suy luận</strong> (delta)</td>
+<td>một lần đẩy hiểu biết đi tới: đã làm gì, nó cho thấy gì, hiểu biết mới là gì. Ở AKM nó được giữ lại thành một nút riêng.</td>
+</tr>
+<tr>
+<td><strong>cạnh</strong> (edge)</td>
+<td>một mối quan hệ có tên giữa hai nút, ví dụ &quot;khẳng định này rút ra từ bằng chứng kia&quot;.</td>
+</tr>
+<tr>
+<td><strong>câu hỏi</strong> (Question)</td>
+<td>một điều chưa biết, được ghi lại kèm loại (chẩn đoán, thăm dò, kiểm chứng, quyết định, làm rõ) và tình trạng mở hay đã trả lời.</td>
+</tr>
+<tr>
+<td><strong>cưỡng chế</strong></td>
+<td>máy chủ <strong>từ chối</strong> ghi khi một luật bị vi phạm, thay vì chỉ khuyên.</td>
+</tr>
+<tr>
+<td><strong>đảo / phạm vi</strong> (scope)</td>
+<td>ranh giới tách dữ liệu giữa các dự án. Mỗi nút được đóng dấu, mọi lượt đọc lọc theo dấu.</td>
+</tr>
+<tr>
+<td><strong>đồ thị</strong> (graph)</td>
+<td>cách lưu dữ liệu bằng nút và cạnh, thay vì bằng bảng và dòng.</td>
+</tr>
+<tr>
+<td><strong>đồ thị tri thức</strong> (knowledge graph)</td>
+<td>một đồ thị mà các nút là mẩu tri thức và các cạnh là quan hệ giữa chúng — ở đây gồm cả quan hệ xuất xứ.</td>
+</tr>
+<tr>
+<td><strong>gói ngữ cảnh</strong> (work packet)</td>
+<td>phần tối thiểu trả về để đi tiếp một việc: hiểu biết hiện tại, câu hỏi mở, khẳng định chính, xuất xứ, quỹ đạo. Có trần kích thước.</td>
+</tr>
+<tr>
+<td><strong>gộp trùng</strong> (dedup)</td>
+<td>hai bước viết ra đúng cùng một câu thì câu sau trỏ về nút đã có, thay vì tạo bản sao. Không bao giờ vượt ranh giới đảo.</td>
+</tr>
+<tr>
+<td><strong>hiểu biết hiện tại / trạng thái</strong> (ProblemState)</td>
+<td>những gì được hiểu <strong>ngay lúc này, dựa trên bằng chứng đang có</strong>. Không phải một dòng nhật ký.</td>
+</tr>
+<tr>
+<td><strong>hook</strong></td>
+<td>cơ chế của Claude Code cho phép chạy một lệnh ngoài tại những thời điểm cố định của phiên làm việc.</td>
+</tr>
+<tr>
+<td><strong>hỏng êm</strong> (fail open)</td>
+<td>khi có trục trặc thì im lặng cho qua, thay vì báo lỗi và chặn công việc.</td>
+</tr>
+<tr>
+<td><strong>khẳng định</strong> (Information)</td>
+<td>một câu tuyên bố điều gì đó đúng, kèm loại và tình trạng nhận thức. Không bao giờ bị sửa — chỉ bị thay thế.</td>
+</tr>
+<tr>
+<td><strong>khuôn mẫu</strong> (template)</td>
+<td>một bộ khung sẵn cho một dạng bước hay gặp, để ghi bằng vài tham số thay vì viết cấu trúc đầy đủ. Năm cái: quan sát, đặt câu hỏi, trả lời, giả thuyết, đính chính.</td>
+</tr>
+<tr>
+<td><strong>loại khẳng định</strong></td>
+<td>sự thật, quy tắc, định nghĩa, ràng buộc, quan sát, sự thật suy ra, giả định. Sáu loại đầu bắt buộc có xuất xứ.</td>
+</tr>
+<tr>
+<td><strong>luồng chính</strong></td>
+<td>cuộc hội thoại chính với người dùng, phân biệt với <strong>tác vụ con</strong> do nó sinh ra.</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>một giao thức chuẩn để một chương trình ngoài phơi công cụ ra cho trợ lý AI gọi.</td>
+</tr>
+<tr>
+<td><strong>máy chủ MCP</strong></td>
+<td>chương trình ngoài đó. Ở đây, nó là cửa duy nhất ra vào đồ thị khi làm việc trong trợ lý.</td>
+</tr>
+<tr>
+<td><strong>nút</strong> (node)</td>
+<td>một mẩu dữ liệu trong đồ thị. AKM có bảy loại nút.</td>
+</tr>
+<tr>
+<td><strong>nguồn</strong> (Source)</td>
+<td>nơi bằng chứng được lấy ra: một file, một URL, một phép đo. Nhiều bằng chứng trỏ cùng một file thì dùng chung một nguồn.</td>
+</tr>
+<tr>
+<td><strong>so-và-đổi</strong> (compare-and-swap)</td>
+<td>chỉ ghi đè một giá trị nếu nó vẫn đúng bằng cái vừa đọc. Ở đây là đường nhanh, không phải bảo đảm.</td>
+</tr>
+<tr>
+<td><strong>tác vụ con</strong> (subagent)</td>
+<td>một trợ lý phụ được sinh ra để làm một phần việc, với bộ nhớ làm việc riêng.</td>
+</tr>
+<tr>
+<td><strong>tiết lộ dần</strong> (progressive disclosure)</td>
+<td>chỉ đưa ra phần tối thiểu, và để người đọc tự đào sâu khi cần, để tiết kiệm bộ nhớ làm việc.</td>
+</tr>
+<tr>
+<td><strong>tìm toàn văn có gốc từ</strong></td>
+<td>tìm theo từ khoá, có quy về gốc từ (&quot;subagents&quot; khớp &quot;subagent&quot;), nhưng <strong>không</strong> hiểu nghĩa gần.</td>
+</tr>
+<tr>
+<td><strong>tình trạng nhận thức</strong> (epistemic status)</td>
+<td>mức độ chắc chắn được khai báo của một khẳng định: giả định, giả thuyết, chưa kiểm chứng, đã xác lập.</td>
+</tr>
+<tr>
+<td><strong>trạng thái gốc</strong> (base state)</td>
+<td>trạng thái mà bước ghi của bạn xây lên trên. Nếu nó không còn là mới nhất, bước ghi bị trả về để làm lại.</td>
+</tr>
+<tr>
+<td><strong>thay thế</strong> (supersede)</td>
+<td>một khẳng định mới đính chính khẳng định cũ, ghi bằng một cạnh riêng.</td>
+</tr>
+<tr>
+<td><strong>việc</strong> (Task)</td>
+<td>một mạch điều tra được đặt tên, có mục tiêu, và có một chuỗi trạng thái hiểu biết nối tiếp.</td>
+</tr>
+<tr>
+<td><strong>xuất xứ</strong> (provenance)</td>
+<td>câu trả lời cho &quot;vì sao ta tin điều này&quot;: bằng chứng nào, ai nói, hay đây chỉ là phỏng đoán.</td>
+</tr>
+<tr>
+<td><strong>ULID</strong></td>
+<td>một dạng mã định danh duy nhất, sắp xếp được theo thời gian. Mọi nút đều mang một cái.</td>
+</tr>
+<tr>
+<td><strong>đẩy</strong> (push)</td>
+<td>tri thức đã ghi tự rơi vào phiên làm việc qua hook, không cần ai gọi.</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Những thứ bên ngoài mà AKM có nói chuyện</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Cái gì</th>
+<th>AKM đưa sang gì, nhận lại gì</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Neo4j</strong></td>
+<td>cơ sở dữ liệu đồ thị. AKM gửi sang câu truy vấn và lệnh ghi có ràng buộc; nhận lại nút, cạnh và lỗi ràng buộc khi có tranh chấp.</td>
+</tr>
+<tr>
+<td><strong>Docker</strong></td>
+<td>dùng để dựng cơ sở dữ liệu đó bằng một lệnh. AKM đưa sang một file khai báo dịch vụ; nhận lại một container đang chạy.</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>giao thức. AKM khai báo bảy công cụ kèm mô tả và kiểu dữ liệu; nhận lại các lượt gọi công cụ từ trợ lý.</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>nơi skill sống. AKM đăng ký năm hook và một máy chủ; nhận lại các sự kiện phiên làm việc và trả về đoạn văn bản được chèn vào ngữ cảnh.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+
+</section>
+
+<footer>Trang này mô tả một skill và sản phẩm đứng sau nó tại thời điểm viết. Phần mô tả ở đầu file skill, các luật cưỡng chế và cách chia hook là những thứ ổn định nhất; các con số ngưỡng thì nằm trong cấu hình và có thể được chỉnh.<br />
+Nếu bạn chỉ giữ lại một ý từ đây: một skill không bắt buộc phải tự làm được việc. Nó có thể chỉ là mặt trước — phần biết <em>khi nào</em> và biết <em>đọc kết quả ra sao</em> — của một năng lực được dựng, được kiểm thử và được bảo trì ở chỗ khác. Biết khi nào nên chọn hình dạng đó là quyết định kiến trúc lớn nhất khi dựng skill.</footer>
+  </div>
+  </div>
+
+  <!-- ======================= MARKDOWN ======================= -->
+  <div class="panel" id="panel-md" role="tabpanel" aria-labelledby="tab-md" hidden>
+    <div class="wrap">
+      <div class="md-head">
+        <div><div class="kicker">Nguồn</div><h2>akm-hay-de-toi-bo-sung-thong-tin.md</h2><small id="md-meta" style="color:var(--ink-3)"></small></div>
+        <div class="acts">
+          <button class="btn" data-action="copy:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button>
+          <button class="btn primary" data-action="download:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 19h16"/></svg>Tải .md</button>
+        </div>
+      </div>
+      <div class="md"><pre id="md-view"></pre></div>
+    </div>
+  </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="text/plain" id="md-source">
+# AKM — skill giữ lại lý do, không chỉ giữ kết luận
+
+*Skill Claude Code · tài liệu tìm hiểu*
+
+> Một cuộc điều tra kéo dài vài phiên làm việc. Khi nó xong, kết luận sống sót — còn lý do dẫn tới kết luận thì bốc hơi. AKM là skill dựng ra để giữ lại phần lý do đó.\
+Nó cũng là ví dụ rõ nhất trong bộ về một quyết định mà ai định tự dựng skill cũng sẽ gặp: khi nào skill là luật viết bằng lời, và khi nào nó chỉ là một file mỏng đứng trước một sản phẩm thật.
 
 ---
 
-# PHẦN 1 — Vấn đề, và thứ bạn cầm được khi xong
+*PHẦN 1 — Vấn đề, và thứ bạn cầm được khi xong*
 
-## 1. Mục đích — cái gì biến mất khi phiên làm việc kết thúc
+## 01. Mục đích — cái gì biến mất khi phiên làm việc kết thúc
 
 Một cuộc điều tra nghiêm túc hiếm khi xong trong một lần ngồi. Hôm nay đọc log, mai đọc cấu hình, tuần sau mới có người bảo "à cái đó liên quan tới đợt đổi hạ tầng tháng trước". Trong lúc đó bạn thử vài giả thuyết, loại bớt, đổi ý một lần, rồi mới tới được câu trả lời.
 
@@ -352,7 +1272,7 @@ Nhưng phải nói ngay mặt còn lại, vì skill này nói thẳng ngay ở �
 
 Nếu có, và để tới được kết luận cần hơn một lần nhìn — thì dùng. Nếu không, đừng. Một bản sửa lỗi đã biết cách sửa, một câu hỏi mà đọc một file là xong, một việc làm một lần rồi thôi: tất cả đều nằm ngoài vùng của nó. Và nó đặc biệt không phải chỗ đổ ghi chú lặt vặt.
 
-## 2. Dùng lúc nào, và nhận lại được cái gì
+## 02. Dùng lúc nào, và nhận lại được cái gì
 
 ### Một tình huống cụ thể
 
@@ -383,16 +1303,18 @@ Xem trực tiếp thì có ba đường: trình duyệt đồ thị chạy ở �
 
 ---
 
-# PHẦN 2 — Skill được dựng ra sao
+*PHẦN 2 — Skill được dựng ra sao*
 
-## 3. Cấu trúc thư mục — hai cây, và khoảng trống giữa chúng
+## 03. Cấu trúc thư mục — hai cây, và khoảng trống giữa chúng
 
 Đây là chỗ AKM khác hẳn mọi skill khác trong bộ, nên nó cần **hai** cây thư mục chứ không phải một.
 
 ### Cây A — thư mục skill
 
-    ~/.dotfiles/.claude/skills/akm/
-    └── SKILL.md
+```text
+~/.dotfiles/.claude/skills/akm/
+└── SKILL.md
+```
 
 Hết. Một file.
 
@@ -414,80 +1336,88 @@ Vậy trong `SKILL.md` còn gì? Gần như chỉ còn **phán đoán**: đây c
 
 ### Cây B — sản phẩm mà skill đứng trước
 
-    ~/.dotfiles/projects/akm/
-    ├── akm/
-    │   ├── model.py         nhãn nút, tên cạnh, các enum, sinh id
-    │   ├── schema.py        ràng buộc và chỉ mục, chạy lại vô hại
-    │   ├── delta.py         kiểm tra một bước ghi — thuần, không chạm CSDL
-    │   ├── commit.py        đường ghi nguyên tử và chốt chặn tranh chấp
-    │   ├── context.py       lắp gói ngữ cảnh nhỏ, và tiết lộ dần
-    │   ├── server.py        bảy công cụ phơi ra qua MCP — mỏng
-    │   ├── scope.py         tách dữ liệu theo dự án
-    │   ├── push.py          quyết định đẩy gì vào một phiên làm việc
-    │   ├── push_state.py    sổ sách từng phiên, nằm trên đĩa, không dùng CSDL
-    │   ├── serve.py         tiến trình sống lâu giữ sẵn kết nối
-    │   ├── serve_client.py  client chỉ dùng thư viện chuẩn
-    │   ├── cli.py           các lệnh dòng lệnh
-    │   ├── record.py        dựng một bước ghi từ khuôn mẫu
-    │   ├── transcript.py    đọc ngược một phiên làm việc
-    │   ├── session_view.py  hai lệnh chỉ-đọc xem lại phiên
-    │   ├── config.py        toàn bộ nút vặn; bí mật chỉ lấy từ môi trường
-    │   ├── driver.py        dựng kết nối CSDL
-    │   └── seed.py          một ví dụ mồi có thật
-    ├── templates/           năm khuôn mẫu cho năm dạng bước
-    ├── scripts/             điểm vào: dòng lệnh, hook, chạy máy chủ, mồi, đếm
-    ├── tests/               bộ kiểm thử
-    ├── docs/
-    ├── docker-compose.yml   dựng cơ sở dữ liệu đồ thị
-    └── pyproject.toml
+```text
+~/.dotfiles/projects/akm/
+├── akm/
+│   ├── model.py         nhãn nút, tên cạnh, các enum, sinh id
+│   ├── schema.py        ràng buộc và chỉ mục, chạy lại vô hại
+│   ├── delta.py         kiểm tra một bước ghi — thuần, không chạm CSDL
+│   ├── commit.py        đường ghi nguyên tử và chốt chặn tranh chấp
+│   ├── context.py       lắp gói ngữ cảnh nhỏ, và tiết lộ dần
+│   ├── server.py        bảy công cụ phơi ra qua MCP — mỏng
+│   ├── scope.py         tách dữ liệu theo dự án
+│   ├── push.py          quyết định đẩy gì vào một phiên làm việc
+│   ├── push_state.py    sổ sách từng phiên, nằm trên đĩa, không dùng CSDL
+│   ├── serve.py         tiến trình sống lâu giữ sẵn kết nối
+│   ├── serve_client.py  client chỉ dùng thư viện chuẩn
+│   ├── cli.py           các lệnh dòng lệnh
+│   ├── record.py        dựng một bước ghi từ khuôn mẫu
+│   ├── transcript.py    đọc ngược một phiên làm việc
+│   ├── session_view.py  hai lệnh chỉ-đọc xem lại phiên
+│   ├── config.py        toàn bộ nút vặn; bí mật chỉ lấy từ môi trường
+│   ├── driver.py        dựng kết nối CSDL
+│   └── seed.py          một ví dụ mồi có thật
+├── templates/           năm khuôn mẫu cho năm dạng bước
+├── scripts/             điểm vào: dòng lệnh, hook, chạy máy chủ, mồi, đếm
+├── tests/               bộ kiểm thử
+├── docs/
+├── docker-compose.yml   dựng cơ sở dữ liệu đồ thị
+└── pyproject.toml
+```
 
 Một chỗ đáng để ý: `delta.py` và `commit.py` **cố tình tách đôi**. Kiểm tra phải xong hết và không có tác dụng phụ nào *trước khi* bước vào đường ghi. Một hàm vừa kiểm vừa ghi thì khi hỏng sẽ để lại nửa vời.
 
 ### Phân công lao động mà cặp cây này minh hoạ
 
-@fig:haicay
-    CÂY A — skill                      CÂY B — sản phẩm
-    ---------------------------        ----------------------------------
-    SKILL.md                           mot codebase Python day du
-      . khoi dau file: kich hoat         . mo hinh do thi + rang buoc
-      . than: phan doan                  . may chu MCP
-                                         . dong lenh
-                                         . hook day nguoc vao phien
-                                         . bo kiem thu
-    KHONG references/                  chieu sau o day
-    KHONG scripts/                     viec that lam o day
-    KHONG templates/                   khuon mau o day
-@endfig
+```text
+CÂY A — skill                      CÂY B — sản phẩm
+---------------------------        ----------------------------------
+SKILL.md                           mot codebase Python day du
+  . khoi dau file: kich hoat         . mo hinh do thi + rang buoc
+  . than: phan doan                  . may chu MCP
+                                     . dong lenh
+                                     . hook day nguoc vao phien
+                                     . bo kiem thu
+KHONG references/                  chieu sau o day
+KHONG scripts/                     viec that lam o day
+KHONG templates/                   khuon mau o day
+```
+
+*Hai cây, và khoảng trống giữa chúng. Ba thư mục mà một skill thường có — `references/`, `scripts/`, `templates/` — đều vắng mặt ở cây trái, vì cả ba đã có nhà ở cây phải.*
 
 Cái skill này dạy không phải "làm thế nào", mà là "**khi nào thì đáng làm, và đọc kết quả ra sao**". Giá phải trả rất thật: skill không tự đứng được. Nó phụ thuộc cứng vào một cơ sở dữ liệu đang chạy và một máy chủ đã đăng ký. Cái mua được cũng rất thật: năng lực đó **kiểm thử được**, có phiên bản, và dùng được cả ở ngoài Claude Code — vì nó cũng là một công cụ dòng lệnh bình thường.
 
-## 4. Luồng chạy — từ lúc kích hoạt tới lúc xong một bước
+## 04. Luồng chạy — từ lúc kích hoạt tới lúc xong một bước
 
 Trước hết, mặt phơi ra cho trợ lý. Bảy công cụ, chia hai tầng tiết lộ: năm cái giữ cho ngữ cảnh nhỏ, hai cái dành cho lúc một con trỏ mách rằng chỗ đó có thứ đáng đọc đầy đủ.
 
-@fig:tang
-    TANG 1 — giu ngu canh nho
-      open_task              mo mot viec moi
-      list_tasks             liet ke viec trong du an nay
-      find_information       tim xem da biet gi ve X chua
-      get_work_context       goi toi thieu de di tiep
-      submit_reasoning_delta de xuat mot buoc suy luan
+```text
+TANG 1 — giu ngu canh nho
+  open_task              mo mot viec moi
+  list_tasks             liet ke viec trong du an nay
+  find_information       tim xem da biet gi ve X chua
+  get_work_context       goi toi thieu de di tiep
+  submit_reasoning_delta de xuat mot buoc suy luan
 
-    TANG 2 — van ban day du
-      get_state              doc tron mot trang thai
-      get_information        doc tron mot khang dinh + xuat xu
-@endfig
+TANG 2 — van ban day du
+  get_state              doc tron mot trang thai
+  get_information        doc tron mot khang dinh + xuat xu
+```
+
+*Bảy công cụ, hai tầng tiết lộ. Tầng 1 giữ cho gói ngữ cảnh nhỏ; tầng 2 chỉ dùng khi một con trỏ ở tầng 1 mách rằng chỗ đó đáng đọc đầy đủ.*
 
 Vòng chạy thực tế:
 
-@fig:vonglap
-    find_information ──> "cai nay biet roi chua?"
-                                │
-    open_task ─┐                ▼
-               ├─> get_work_context ─> dieu tra ─> submit_reasoning_delta ─┐
-    list_tasks ─┘        ▲                                                 │
-                         └─────────────────────────────────────────────────┘
-@endfig
+```text
+find_information ──> "cai nay biet roi chua?"
+                            │
+open_task ─┐                ▼
+           ├─> get_work_context ─> dieu tra ─> submit_reasoning_delta ─┐
+list_tasks ─┘        ▲                                                 │
+                     └─────────────────────────────────────────────────┘
+```
+
+*Động cơ của cả hệ thống: một trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, và câu trả lời sinh ra trạng thái mới.*
 
 Đi từng bước:
 
@@ -505,33 +1435,35 @@ Vòng chạy thực tế:
 9. **Vòng lặp.** Mỗi bước trả lời một câu hỏi và thường làm nảy ra câu tiếp theo. Đó là động cơ: trạng thái làm nảy câu hỏi, bằng chứng trả lời một câu, câu trả lời sinh ra trạng thái mới.
 10. **Đào sâu khi cần.** Một dòng trong quỹ đạo bị cắt ngang giữa câu là một tín hiệu, không phải một ý trọn vẹn. Nếu nó có vẻ đã làm đổi cả bức tranh, mở nó ra đọc đủ. Và luôn đọc đủ trước khi trích dẫn một khẳng định hay đặt quyết định lên nó: một câu bị cắt ở ký tự thứ 240 không phải một trích dẫn.
 
-## 5. Dữ liệu & trạng thái — cái gì được ghi, ghi ở đâu
+## 05. Dữ liệu & trạng thái — cái gì được ghi, ghi ở đâu
 
 ### Đồ thị
 
 Tri thức nằm trong một **đồ thị**: các **nút** (mẩu thông tin) nối với nhau bằng các **cạnh** có tên (quan hệ giữa chúng). Bảy loại nút:
 
-@fig:dothi
-    Task ─ ProblemState ─ Question ─ Information ─ Evidence ─ Source ─ ReasoningDelta
+```text
+Task ─ ProblemState ─ Question ─ Information ─ Evidence ─ Source ─ ReasoningDelta
 
-    Khung suy luan
-      Task            HAS_STATE        ProblemState
-      ProblemState    NEXT_STATE       ProblemState
-      Information     RAISES           Question
-      Information     ANSWERS          Question
-      Information     DERIVED_FROM     Evidence
-      Evidence        FROM             Source
+Khung suy luan
+  Task            HAS_STATE        ProblemState
+  ProblemState    NEXT_STATE       ProblemState
+  Information     RAISES           Question
+  Information     ANSWERS          Question
+  Information     DERIVED_FROM     Evidence
+  Evidence        FROM             Source
 
-    Buoc suy luan duoc giu lai thanh nut
-      ReasoningDelta  FROM_STATE       ProblemState
-      ReasoningDelta  TO_STATE         ProblemState
-      ReasoningDelta  ANSWERED         Question
-      ReasoningDelta  USED             Information
-      ReasoningDelta  INTRODUCED       Information
+Buoc suy luan duoc giu lai thanh nut
+  ReasoningDelta  FROM_STATE       ProblemState
+  ReasoningDelta  TO_STATE         ProblemState
+  ReasoningDelta  ANSWERED         Question
+  ReasoningDelta  USED             Information
+  ReasoningDelta  INTRODUCED       Information
 
-    Sua mot khang dinh cu
-      Information     SUPERSEDES       Information
-@endfig
+Sua mot khang dinh cu
+  Information     SUPERSEDES       Information
+```
+
+*Bảy loại nút và các cạnh giữa chúng. Nhóm giữa là phần mở rộng quan trọng nhất: **bước suy luận được giữ lại thành một nút**, chứ không phải một sợi dây trơn.*
 
 Đọc theo lời thường: một **việc** có các **trạng thái hiểu biết** nối tiếp nhau. **Khẳng định** làm nảy ra hoặc trả lời **câu hỏi**, và rút ra từ **bằng chứng**, mà bằng chứng thì trỏ về **nguồn**. Và **mỗi bước đi giữa hai trạng thái tự nó cũng là một nút**, chứ không phải một sợi dây trơn — phần 9 giải thích vì sao đó là quyết định quan trọng nhất của cả sản phẩm.
 
@@ -545,12 +1477,14 @@ Vài quy tắc về dữ liệu đáng nhớ:
 
 Mỗi nút được đóng dấu một **phạm vi**, và mọi lượt đọc đều lọc theo dấu đó. Phạm vi lấy từ **tên kho git của thư mục đang làm việc**; ngoài kho git thì tất cả rơi vào một thùng chung.
 
-@fig:dao
-    ~/work/checkout-api        →  checkout-api
-    ~/work/billing             →  billing
-    ~/tmp/scratch              →  un-git-repo
-    dat bien AKM_SCOPE         →  gia tri ban dat
-@endfig
+```text
+~/work/checkout-api        →  checkout-api
+~/work/billing             →  billing
+~/tmp/scratch              →  un-git-repo
+dat bien AKM_SCOPE         →  gia tri ban dat
+```
+
+*Hai kho trùng tên cơ sở sẽ dùng chung một đảo — hệ quả cố ý của quy tắc "lấy tên kho". Phạm vi lấy từ tên kho git của thư mục đang làm việc. Một việc thuộc đảo khác đơn giản là không nhìn thấy — đó là thiết kế, không phải lỗi.*
 
 Hệ quả phải biết trước:
 
@@ -569,7 +1503,7 @@ Một phiên **tự gắn** vào một việc chỉ bằng cách chạm vào nó
 
 Thông tin đăng nhập cơ sở dữ liệu đọc từ **thư mục cài đặt** của sản phẩm, theo đường dẫn tuyệt đối. Phạm vi cách ly thì lấy từ **thư mục làm việc của người gọi**. Chính cái tách đôi đó khiến **một máy chủ phục vụ được mọi dự án** mà tri thức của chúng vẫn nằm riêng.
 
-## 6. Đầu–cuối — một lượt chạy trọn vẹn
+## 06. Đầu–cuối — một lượt chạy trọn vẹn
 
 Lấy lại vụ job đối soát ghi trùng ở phần 2.
 
@@ -581,14 +1515,16 @@ Mục tiêu: "tìm vì sao job đối soát hàng đêm ghi trùng bản ghi t�
 
 Bạn đọc cấu hình lịch chạy, thấy job được đăng ký hai lần. Ghi bằng một dòng lệnh, từ khuôn mẫu "quan sát":
 
-    akm_cli.py record --task <id việc> --base-state <id trạng thái đang đọc> \
-        --template observation \
-        --why "đọc cấu hình lịch chạy đã triển khai, so với đường chạy tay" \
-        --state "job được đăng ký hai lần: một mục cũ và một mục mới thêm đầu tháng. Chưa xác lập được cả hai có thật sự chạy xong hay không." \
-        --claim "file lịch chạy đăng ký job đối soát hai lần" \
-        --evidence config_section:deploy/schedules.yaml:44-58 \
-        --question "cả hai mục có thật sự chạy, hay một cái thoát sớm?" \
-        --question-type verification
+```text
+akm_cli.py record --task <id việc> --base-state <id trạng thái đang đọc> \
+    --template observation \
+    --why "đọc cấu hình lịch chạy đã triển khai, so với đường chạy tay" \
+    --state "job được đăng ký hai lần: một mục cũ và một mục mới thêm đầu tháng. Chưa xác lập được cả hai có thật sự chạy xong hay không." \
+    --claim "file lịch chạy đăng ký job đối soát hai lần" \
+    --evidence config_section:deploy/schedules.yaml:44-58 \
+    --question "cả hai mục có thật sự chạy, hay một cái thoát sớm?" \
+    --question-type verification
+```
 
 Để ý **cái không được khẳng định**: rằng hai mục trùng *gây ra* bản ghi trùng. Đó là câu hỏi của bước sau, không phải kết luận của bước này. Sự kiềm chế đó chính là thứ làm cho đồ thị đáng tin.
 
@@ -600,10 +1536,12 @@ Dòng lệnh trên tự lo phần việc buồn tẻ: sinh các nhãn nội bộ
 
 **Sau hai bước, đồ thị trả lời được:**
 
-    Vi sao trang thai hien tai ton tai?   → ly do cua buoc 2, nguyen van
-    No khac gi trang thai truoc?          → tom tat trang thai buoc 1
-    Bang chung nao gay ra thay doi?       → dinh vi doan log
-    Luc do dang tra loi cau hoi nao?      → "ca hai muc co that su chay?"
+```text
+Vi sao trang thai hien tai ton tai?   → ly do cua buoc 2, nguyen van
+No khac gi trang thai truoc?          → tom tat trang thai buoc 1
+Bang chung nao gay ra thay doi?       → dinh vi doan log
+Luc do dang tra loi cau hoi nao?      → "ca hai muc co that su chay?"
+```
 
 **Bước 3 — ba ngày sau, một phiên khác.**
 
@@ -611,9 +1549,9 @@ Liệt kê việc đang mở, mở lại việc này, nhận đúng gói ngữ c
 
 ---
 
-# PHẦN 3 — Gắn vào đâu, và chặn cái gì
+*PHẦN 3 — Gắn vào đâu, và chặn cái gì*
 
-## 7. Hook — chỗ tri thức tự tìm tới, không chờ ai gọi
+## 07. Hook — chỗ tri thức tự tìm tới, không chờ ai gọi
 
 Phần lớn skill không gắn vào hook nào. AKM là ngoại lệ, và lý do rất thực dụng: **trợ lý không chủ động đi tra**. Trên toàn bộ lịch sử làm việc từng chạm tới AKM, số lượt ghi xấp xỉ số lượt đọc, và phiên duy nhất được đo kỹ thì ghi mười bốn lần và đọc không lần nào. Một kho tri thức không ai mở là một kho tri thức vô dụng.
 
@@ -621,18 +1559,20 @@ Nên sản phẩm đảo chiều: nó **đẩy** vào phiên làm việc.
 
 **Hook** là cơ chế của Claude Code cho phép chạy một lệnh ngoài tại những thời điểm cố định trong một phiên. AKM đăng ký đúng một script cho năm sự kiện:
 
-@fig:hooks
-    SessionStart      → luong chinh, luc bat dau / khoi phuc / xoa ngu canh / sau nen
-                        viec dang mo trong pham vi, va viec phien nay dang gan
-    UserPromptSubmit  → luong chinh, moi lan nguoi dung go mot cau
-                        khang dinh + cau hoi mo khop voi cau do, chua co trong cua so
-    PreToolUse(Agent) → dung tac vu con sap duoc sinh ra
-                        khang dinh khop voi de bai, noi them vao de bai do
-    SubagentStart     → moi tac vu con, va moi luot cua dong doi trong tien trinh
-                        hieu biet hien tai va cau hoi mo cua viec dang gan
-    PostToolUse       → khong day gi ca
-                        chi gan phien nay vao nhung viec ma cac lenh cua no vua cham
-@endfig
+```text
+SessionStart      → luong chinh, luc bat dau / khoi phuc / xoa ngu canh / sau nen
+                    viec dang mo trong pham vi, va viec phien nay dang gan
+UserPromptSubmit  → luong chinh, moi lan nguoi dung go mot cau
+                    khang dinh + cau hoi mo khop voi cau do, chua co trong cua so
+PreToolUse(Agent) → dung tac vu con sap duoc sinh ra
+                    khang dinh khop voi de bai, noi them vao de bai do
+SubagentStart     → moi tac vu con, va moi luot cua dong doi trong tien trinh
+                    hieu biet hien tai va cau hoi mo cua viec dang gan
+PostToolUse       → khong day gi ca
+                    chi gan phien nay vao nhung viec ma cac lenh cua no vua cham
+```
+
+*Năm sự kiện, một script. Cách chia không tuỳ tiện: chỗ duy nhất nhìn thấy đề bài của một tác vụ con là ngay trước khi nó được sinh ra.*
 
 Cách chia đó không tuỳ tiện: **chỗ duy nhất nhìn thấy đề bài của một tác vụ con là trước khi nó được sinh ra**, còn sự kiện "tác vụ con khởi động" thì bắn *trước khi* bản ghi hội thoại của đứa con tồn tại và không mang theo đề bài. Mỗi chỗ nhận được thứ nó có thể nhận.
 
@@ -648,20 +1588,22 @@ Việc đăng ký hook không làm bằng tay mà do một công cụ riêng ghi
 
 Một chỗ dễ nhầm, và skill nói thẳng ra: **một phạm vi chưa ghi gì sẽ đẩy ra khối rỗng, trông y hệt như hook chưa được cài.** Đừng suy ra gì từ sự im lặng — có lệnh chẩn đoán để hỏi cho chắc.
 
-## 8. Rào chắn — cái gì chặn người dùng làm sai
+## 08. Rào chắn — cái gì chặn người dùng làm sai
 
 ### Luật xuất xứ, và nó được cưỡng chế
 
 Đây là rào chắn quan trọng nhất, và nó là lý do tồn tại của cả cách thiết kế. Mỗi khẳng định mang một **loại**. Sáu loại mang tính sự thật — sự thật, quy tắc, định nghĩa, ràng buộc, quan sát, sự thật suy ra — **bắt buộc** phải thoả ít nhất một trong bốn đường:
 
-@fig:xuatxu
-    Mot khang dinh mang tinh su that
-      dan tu bang chung     co canh tro toi mot Evidence cu the
-      nguoi noi             mot con nguoi da noi voi ban dieu do
-      he thong bao          he thong tu bao cao ra so lieu do
-      tu khai la chua chac  danh dau la gia dinh / gia thuyet / chua kiem chung
-    Khong duong nao → may chu tu choi ca buoc ghi
-@endfig
+```text
+Mot khang dinh mang tinh su that
+  dan tu bang chung     co canh tro toi mot Evidence cu the
+  nguoi noi             mot con nguoi da noi voi ban dieu do
+  he thong bao          he thong tu bao cao ra so lieu do
+  tu khai la chua chac  danh dau la gia dinh / gia thuyet / chua kiem chung
+Khong duong nao → may chu tu choi ca buoc ghi
+```
+
+*Luật xuất xứ. Sáu loại khẳng định mang tính sự thật phải đi qua ít nhất một trong bốn cửa này; loại thứ bảy — giả định — được miễn vì tên nó đã tự khai.*
 
 Loại thứ bảy — **giả định** — là lối thoát hiểm duy nhất được miễn, vì tự cái tên nó đã khai rằng nó không được khẳng định như sự thật.
 
@@ -675,16 +1617,18 @@ Vì sao gắt đến thế? Vì điều tệ nhất một hệ thống ghi suy l
 - **Từ chối phải ném ra khỏi giao dịch, không được trả về bình thường.** Một hàm giao dịch trả về bình thường sẽ được coi là thành công và *ghi luôn* đúng những thay đổi mà nó đang chối bỏ.
 - **Hai cơ chế chống ghi đè, và phải biết cái nào mới là bảo đảm.**
 
-@fig:chan
-    DUONG NHANH — so-va-doi tren con tro trang thai hien tai
-    Cho ra loi tu choi than thien kem id trang thai moi de ghi lai. Trong
-    thuc te no la cai bat gan nhu moi truong hop. Nhung no KHONG phai bao dam.
+```text
+DUONG NHANH — so-va-doi tren con tro trang thai hien tai
+Cho ra loi tu choi than thien kem id trang thai moi de ghi lai. Trong
+thuc te no la cai bat gan nhu moi truong hop. Nhung no KHONG phai bao dam.
 
-    BIEN CHUNG DUNG — rang buoc duy nhat tren (viec, trang thai cha)
-    CSDL mac dinh doc-da-commit va cau lenh ghi o day khong tu lay khoa, nen
-    ve ly thuyet hai ben cung lot qua duong nhanh. Rang buoc nay khien viec
-    re nhanh lich su la bat kha thi, khong phu thuoc vao khoa.
-@endfig
+BIEN CHUNG DUNG — rang buoc duy nhat tren (viec, trang thai cha)
+CSDL mac dinh doc-da-commit va cau lenh ghi o day khong tu lay khoa, nen
+ve ly thuyet hai ben cung lot qua duong nhanh. Rang buoc nay khien viec
+re nhanh lich su la bat kha thi, khong phu thuoc vao khoa.
+```
+
+*Hai cơ chế chống hai người cùng ghi đè. Cái bắt gần như mọi trường hợp **không** phải cái bảo đảm tính đúng đắn — và biết phân biệt hai thứ đó là cả vấn đề.*
 
 Vì đường nhanh gần như luôn thắng, ràng buộc kia được kiểm thử **trực tiếp** — bằng cách cố tình đi vòng qua đường nhanh và ghi tay một lịch sử bị rẽ nhánh — chứ không dựa vào bài kiểm tra tranh chấp để tình cờ chạm tới nó.
 
@@ -697,20 +1641,22 @@ Vì đường nhanh gần như luôn thắng, ràng buộc kia được kiểm t
 
 ---
 
-# PHẦN 4 — Bài học rút ra được
+*PHẦN 4 — Bài học rút ra được*
 
-## 9. Đặc trưng — những quyết định đáng học, và giá của từng cái
+## 09. Đặc trưng — những quyết định đáng học, và giá của từng cái
 
 **Giữ lại bước suy luận thành một nút riêng.** Bản đặc tả gốc chỉ cho đúng một sợi dây giữa hai trạng thái, và sợi dây đó không mang theo lời biện minh nào. Nếu một trạng thái làm nảy ba câu hỏi và năm khẳng định trả lời chúng, không có gì ghi lại *cái nào* thực sự dẫn tới trạng thái kế. Nên bước suy luận được giữ lại thành một nút, với các cạnh riêng nói nó đi từ đâu tới đâu, đóng câu hỏi nào, dùng gì và tạo ra gì.
 
 Và đây là chỗ đáng học nhất về cách *chứng minh* một quyết định thiết kế:
 
-@fig:chungminh
-    Chuoi ba trang thai hoan chinh, giu nguyen 13 nut tri thuc
-      con nguyen buoc suy luan   → 4/4 cau hoi tra loi duoc
-      xoa rieng buoc suy luan    → 0/4 cau hoi tra loi duoc
-    Tri thuc song sot. Suy luan thi khong.
-@endfig
+```text
+Chuoi ba trang thai hoan chinh, giu nguyen 13 nut tri thuc
+  con nguyen buoc suy luan   → 4/4 cau hoi tra loi duoc
+  xoa rieng buoc suy luan    → 0/4 cau hoi tra loi duoc
+Tri thuc song sot. Suy luan thi khong.
+```
+
+*Tri thức sống sót. Suy luận thì không. Cùng một chuỗi ba trạng thái, đo hai lần, chỉ bỏ đi một biến. Đây là cách một quyết định thiết kế được chứng minh thay vì được lập luận.*
 
 Giá phải trả: nhiều nút hơn, nhiều việc ghi hơn. Thứ mua được: lời biện minh có địa chỉ, gọi tên được, truy vấn được.
 
@@ -770,8 +1716,10 @@ Ba câu đều "không" thì làm skill tự chứa: `references/` cho chiều s
 
 Tạo thư mục, và viết đúng một file:
 
-    .claude/skills/<ten-skill>/
-    └── SKILL.md
+```text
+.claude/skills/<ten-skill>/
+└── SKILL.md
+```
 
 Trong đó, theo thứ tự:
 
@@ -835,706 +1783,181 @@ Nếu viết xong mà thấy mục 3 ngắn hơn mục 4 rất nhiều, nhiều 
 
 ---
 
-Trang này mô tả một skill và sản phẩm đứng sau nó tại thời điểm viết. Phần mô tả ở đầu file skill, các luật cưỡng chế và cách chia hook là những thứ ổn định nhất; các con số ngưỡng thì nằm trong cấu hình và có thể được chỉnh.
-
-Nếu bạn chỉ giữ lại một ý từ đây: một skill không bắt buộc phải tự làm được việc. Nó có thể chỉ là mặt trước — phần biết *khi nào* và biết *đọc kết quả ra sao* — của một năng lực được dựng, được kiểm thử và được bảo trì ở chỗ khác. Biết khi nào nên chọn hình dạng đó là quyết định kiến trúc lớn nhất khi dựng skill.
+*Trang này mô tả một skill và sản phẩm đứng sau nó tại thời điểm viết. Phần mô tả ở đầu file skill, các luật cưỡng chế và cách chia hook là những thứ ổn định nhất; các con số ngưỡng thì nằm trong cấu hình và có thể được chỉnh.\
+Nếu bạn chỉ giữ lại một ý từ đây: một skill không bắt buộc phải tự làm được việc. Nó có thể chỉ là mặt trước — phần biết *khi nào* và biết *đọc kết quả ra sao* — của một năng lực được dựng, được kiểm thử và được bảo trì ở chỗ khác. Biết khi nào nên chọn hình dạng đó là quyết định kiến trúc lớn nhất khi dựng skill.*
 </script>
-<script>/* ===================================================================
-   LAYER 1 . DATA
-   No DOM work, no logic. STATE is mutable view state; SRC is the single
-   source of truth for prose; FIG holds figure payloads keyed by the
-   directive id used in the markdown.
-   =================================================================== */
+<script>
+/*
+ * Architecture
+ *  1. Atoms      — the only data state: small observable values (theme, tab, menu, section, filter, toast).
+ *  2. Components — shared UI bound to atoms; they only render, never decide.
+ *  3. Workflows  — business actions that combine atom updates and side effects.
+ *  4. Events     — one combined dispatcher: clicks (data-action), keys, scroll, media and hash
+ *                  are normalised into workflow calls.
+ */
+(() => {
+  "use strict";
 
-var STATE = { view: 'doc', nav: false };
-
-var I18N = {
-  kick: 'Skill Claude Code · tài liệu tìm hiểu',
-  navHead: 'Mục lục',
-  contents: 'Mục lục',
-  doc: 'Xem bản tài liệu',
-  md: 'Xem bản markdown',
-  copy: 'Chép markdown',
-  done: 'Đã chép',
-  mdNote: 'Cùng một nội dung, dạng markdown thuần — chép về để dán vào repo hay chat.'
-};
-
-var SRC = document.getElementById('src').textContent;
-
-var FIG = {
-
-  haicay: {
-    type: 'versus',
-    cap: 'Hai cây, và khoảng trống giữa chúng. Ba thư mục mà một skill thường có — ' +
-         '`references/`, `scripts/`, `templates/` — đều vắng mặt ở cây trái, vì cả ba ' +
-         'đã có nhà ở cây phải.',
-    left: {
-      tag: 'Cây A — thư mục skill',
-      thin: true,
-      rows: [
-        'Đúng một file: SKILL.md',
-        'Khối đầu file — mặt kích hoạt, luôn nằm trong bộ nhớ',
-        'Phần thân — chỉ chứa phán đoán',
-        'KHÔNG references/ — chiều sâu ở nơi khác',
-        'KHÔNG scripts/ — việc thật do nơi khác làm',
-        'KHÔNG templates/ — khuôn mẫu thuộc về sản phẩm'
-      ]
-    },
-    right: {
-      tag: 'Cây B — sản phẩm đứng sau',
-      rows: [
-        'Một codebase Python đầy đủ',
-        'Mô hình đồ thị, ràng buộc, chỉ mục',
-        'Máy chủ MCP phơi bảy công cụ',
-        'Công cụ dòng lệnh dùng được ngoài trợ lý',
-        'Hook tự đẩy tri thức ngược vào phiên',
-        'Bộ kiểm thử — chỗ mọi khẳng định được chốt'
-      ]
-    }
-  },
-
-  tang: {
-    type: 'levels',
-    cap: 'Bảy công cụ, hai tầng tiết lộ. Tầng 1 giữ cho gói ngữ cảnh nhỏ; tầng 2 chỉ ' +
-         'dùng khi một con trỏ ở tầng 1 mách rằng chỗ đó đáng đọc đầy đủ.',
-    levels: [
-      { name: 'Tầng 1', note: 'giữ ngữ cảnh nhỏ — văn bản dài bị cắt bớt',
-        tools: [
-          ['open_task', 'mở một mạch điều tra mới, kèm hiểu biết ban đầu'],
-          ['list_tasks', 'việc trong dự án này, mới nhất trước — cách duy nhất lấy lại một id cũ'],
-          ['find_information', 'tìm xem đã có ai ghi gì về chuyện này chưa'],
-          ['get_work_context', 'gói tối thiểu để đi tiếp một việc'],
-          ['submit_reasoning_delta', 'đề xuất một bước suy luận']
-        ] },
-      { name: 'Tầng 2', note: 'văn bản đầy đủ, không cắt',
-        tools: [
-          ['get_state', 'đọc trọn một trạng thái: lý do, câu hỏi đã đóng, thứ đã tạo ra'],
-          ['get_information', 'đọc trọn một khẳng định, kèm bằng chứng và nguồn của nó']
-        ] }
-    ]
-  },
-
-  vonglap: {
-    type: 'loop',
-    cap: 'Động cơ của cả hệ thống: một trạng thái làm nảy câu hỏi, bằng chứng trả lời ' +
-         'một câu, và câu trả lời sinh ra trạng thái mới.',
-    steps: [
-      'Tìm trước đã — chuyện này đã có ai ghi chưa?',
-      'Mở việc mới, hoặc liệt kê để lấy lại một việc cũ',
-      'Đọc gói ngữ cảnh: hiểu biết hiện tại, câu hỏi mở, quỹ đạo',
-      'Điều tra — bằng skill khác, AKM không suy luận hộ',
-      'Ghi một bước: đã làm gì, thấy gì, giờ hiểu gì, bằng chứng ở đâu'
-    ],
-    back: 'bước vừa ghi làm nảy câu hỏi kế → quay lại đọc gói ngữ cảnh'
-  },
-
-  dothi: {
-    type: 'graph',
-    cap: 'Bảy loại nút và các cạnh giữa chúng. Nhóm giữa là phần mở rộng quan trọng ' +
-         'nhất: **bước suy luận được giữ lại thành một nút**, chứ không phải một sợi dây trơn.',
-    nodes: [
-      ['Task', false], ['ProblemState', false], ['Question', false],
-      ['Information', false], ['Evidence', false], ['Source', false],
-      ['ReasoningDelta', true]
-    ],
-    groups: [
-      { title: 'Khung suy luận',
-        edges: [
-          ['Task', 'HAS_STATE', 'ProblemState'],
-          ['ProblemState', 'NEXT_STATE', 'ProblemState'],
-          ['Information', 'RAISES', 'Question'],
-          ['Information', 'ANSWERS', 'Question'],
-          ['Information', 'DERIVED_FROM', 'Evidence'],
-          ['Evidence', 'FROM', 'Source']
-        ] },
-      { title: 'Bước suy luận, giữ lại thành nút',
-        edges: [
-          ['ReasoningDelta', 'FROM_STATE', 'ProblemState'],
-          ['ReasoningDelta', 'TO_STATE', 'ProblemState'],
-          ['ReasoningDelta', 'ANSWERED', 'Question'],
-          ['ReasoningDelta', 'USED', 'Information'],
-          ['ReasoningDelta', 'INTRODUCED', 'Information']
-        ] },
-      { title: 'Đính chính, không xoá',
-        edges: [
-          ['Information', 'SUPERSEDES', 'Information']
-        ] }
-    ]
-  },
-
-  dao: {
-    type: 'islands',
-    cap: 'Phạm vi lấy từ tên kho git của thư mục đang làm việc. Một việc thuộc đảo khác ' +
-         'đơn giản là không nhìn thấy — đó là thiết kế, không phải lỗi.',
-    rows: [
-      { where: '~/work/checkout-api', scope: 'checkout-api' },
-      { where: '~/work/billing', scope: 'billing' },
-      { where: '~/tmp/scratch (ngoài kho git)', scope: 'un-git-repo', shared: true },
-      { where: 'đặt biến môi trường AKM_SCOPE', scope: 'giá trị bạn đặt' }
-    ],
-    note: 'Hai kho trùng tên cơ sở sẽ dùng chung một đảo — hệ quả cố ý của quy tắc "lấy tên kho".'
-  },
-
-  hooks: {
-    type: 'hooks',
-    cap: 'Năm sự kiện, một script. Cách chia không tuỳ tiện: chỗ duy nhất nhìn thấy đề ' +
-         'bài của một tác vụ con là ngay trước khi nó được sinh ra.',
-    rows: [
-      { hook: 'SessionStart',
-        reaches: 'luồng chính — lúc bắt đầu, khôi phục, xoá ngữ cảnh, sau khi nén',
-        carries: 'việc đang mở trong phạm vi, và việc mà phiên này đang gắn vào' },
-      { hook: 'UserPromptSubmit',
-        reaches: 'luồng chính — mỗi lần người dùng gõ một câu',
-        carries: 'khẳng định và câu hỏi mở khớp với câu đó, nếu cửa sổ chưa có' },
-      { hook: 'PreToolUse (Agent)',
-        reaches: 'tác vụ con sắp được sinh ra',
-        carries: 'khẳng định khớp với đề bài, nối thêm vào chính đề bài đó' },
-      { hook: 'SubagentStart',
-        reaches: 'mỗi tác vụ con, và mỗi lượt của đồng đội trong tiến trình',
-        carries: 'hiểu biết hiện tại và câu hỏi mở của việc đang gắn' },
-      { hook: 'PostToolUse (Bash, công cụ AKM)',
-        reaches: 'không ai cả',
-        carries: 'không đẩy gì — chỉ gắn phiên vào những việc mà lệnh vừa chạm',
-        none: true }
-    ]
-  },
-
-  xuatxu: {
-    type: 'routes',
-    cap: 'Luật xuất xứ. Sáu loại khẳng định mang tính sự thật phải đi qua ít nhất một ' +
-         'trong bốn cửa này; loại thứ bảy — giả định — được miễn vì tên nó đã tự khai.',
-    top: 'Một khẳng định mang tính sự thật',
-    routes: [
-      ['dẫn từ bằng chứng', 'có cạnh trỏ tới một Evidence cụ thể — đường thường dùng nhất'],
-      ['người nói', 'một con người đã nói điều đó với bạn'],
-      ['hệ thống báo', 'hệ thống tự báo cáo ra số liệu đó'],
-      ['tự khai là chưa chắc', 'đánh dấu là giả định, giả thuyết, hoặc chưa kiểm chứng']
-    ],
-    bottom: 'Không đường nào → máy chủ từ chối cả bước ghi'
-  },
-
-  chan: {
-    type: 'guards',
-    cap: 'Hai cơ chế chống hai người cùng ghi đè. Cái bắt gần như mọi trường hợp **không** ' +
-         'phải cái bảo đảm tính đúng đắn — và biết phân biệt hai thứ đó là cả vấn đề.',
-    rows: [
-      { kind: 'fast', tag: 'Đường nhanh · so-và-đổi',
-        text: 'Chỉ ghi nếu con trỏ trạng thái hiện tại vẫn đúng bằng cái vừa đọc. Cho ra ' +
-              'lời từ chối thân thiện kèm id trạng thái mới để ghi lại. Trong thực tế đây ' +
-              'là cái bắt gần như mọi trường hợp. Nhưng nó không phải bảo đảm.' },
-      { kind: 'bound', tag: 'Biên chứng đúng · ràng buộc duy nhất',
-        text: 'Cặp (việc, trạng thái cha) phải là duy nhất. Cơ sở dữ liệu mặc định ở mức ' +
-              'đọc-đã-commit và câu lệnh ghi kia không tự lấy khoá, nên về lý thuyết hai bên ' +
-              'cùng lọt qua đường nhanh. Ràng buộc này khiến lịch sử bị rẽ nhánh là bất khả ' +
-              'thi, không phụ thuộc vào khoá.' }
-    ]
-  },
-
-  chungminh: {
-    type: 'proof',
-    cap: 'Cùng một chuỗi ba trạng thái, đo hai lần, chỉ bỏ đi một biến. Đây là cách một ' +
-         'quyết định thiết kế được chứng minh thay vì được lập luận.',
-    rows: [
-      { kind: 'keep', n: '4/4',
-        what: 'Giữ nguyên bước suy luận',
-        detail: 'đủ 13 nút tri thức, đủ các nút bước' },
-      { kind: 'gone', n: '0/4',
-        what: 'Xoá riêng các nút bước suy luận',
-        detail: 'vẫn đủ 13 nút tri thức, không còn nút bước' }
-    ],
-    note: 'Tri thức sống sót. Suy luận thì không.'
-  }
-};
-
-
-/* ===================================================================
-   LAYER 2 . COMPONENTS
-   Pure: data in, DOM out. Must not read STATE.
-   =================================================================== */
-
-function esc(s){ return String(s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function el(tag, attrs, kids){
-  var n = document.createElement(tag);
-  if(attrs) for(var k in attrs){
-    if(k === 'html') n.innerHTML = attrs[k];
-    else if(k === 'text') n.textContent = attrs[k];
-    else n.setAttribute(k, attrs[k]);
-  }
-  (kids || []).forEach(function(c){ if(c) n.appendChild(c); });
-  return n;
-}
-
-/* Code spans are pulled out before escaping and put back after, so that
-   markup inside them is never interpreted. The sentinel is ordinary text,
-   not a control character, so the source stays copy-paste safe. */
-function inline(s){
-  var keep = [];
-  s = String(s).replace(/`([^`]+)`/g, function(_, c){
-    keep.push(c); return 'K0DE' + (keep.length - 1) + 'K0DE';
-  });
-  s = esc(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[^*\w])\*([^*]+)\*(?![*\w])/g, '$1<em>$2</em>');
-  return s.replace(/K0DE(\d+)K0DE/g, function(_, i){
-    return '<code>' + esc(keep[+i]) + '</code>';
-  });
-}
-
-var BLOCK = {
-  h: function(b){
-    var tag = b.level === 1 ? 'h2' : b.level === 2 ? 'h3' : 'h4';
-    var m = /^(PHAN|PHẦN|PART)\s+(\d+)\s*—\s*(.*)$/.exec(b.text);
-    if(tag === 'h2' && m){
-      return el('h2', null, [
-        el('span', { class: 'eyebrow', text: m[1] + ' ' + m[2] }),
-        el('span', { html: inline(m[3]) })
-      ]);
-    }
-    return el(tag, { html: inline(b.text) });
-  },
-  p:  function(b){ return el('p', { html: inline(b.text) }); },
-  ul: function(b){ return el('ul', null, b.items.map(function(t){
-        return el('li', { html: inline(t) }); })); },
-  ol: function(b){ return el('ol', null, b.items.map(function(t){
-        return el('li', { html: inline(t) }); })); },
-  quote: function(b){ return el('blockquote', null, b.items.map(function(t){
-        return el('p', { html: inline(t) }); })); },
-  code: function(b){
-    return el('div', { class: 'pre' }, [ el('pre', { text: b.text }) ]);
-  },
-  hr: function(){ return el('hr'); },
-  table: function(b){
-    var head = el('tr', null, b.head.map(function(c){
-      return el('th', { html: inline(c) }); }));
-    var body = b.rows.map(function(r){
-      return el('tr', null, r.map(function(c){ return el('td', { html: inline(c) }); }));
-    });
-    return el('div', { class: 'tw' }, [
-      el('table', null, [ el('thead', null, [head]), el('tbody', null, body) ])
-    ]);
-  },
-  fig: function(b){
-    var f = FIG[b.id];
-    if(!f) return el('p', { text: '[missing figure: ' + b.id + ']' });
-    var render = FIGURE[f.type];
-    if(!render) return el('p', { text: '[no renderer: ' + f.type + ']' });
-    return el('figure', null, [
-      el('div', { class: 'fig' }, [ render(f) ]),
-      f.cap ? el('figcaption', { html: inline(f.cap) }) : null
-    ]);
-  }
-};
-
-/* -- markdown ------------------------------------------------------- */
-
-var MD = {
-  parse: function(src){
-    var lines = src.split('\n'), out = [], i = 0;
-    function blank(s){ return !s.trim(); }
-    function cells(s){
-      return s.trim().replace(/^\|/, '').replace(/\|$/, '')
-              .split('|').map(function(c){ return c.trim(); });
-    }
-
-    while(i < lines.length){
-      var ln = lines[i];
-      if(blank(ln)){ i++; continue; }
-
-      /* figure directive: keep the id, skip the ASCII fallback body */
-      var fm = /^@fig:(\S+)\s*$/.exec(ln);
-      if(fm){
-        var id = fm[1]; i++;
-        while(i < lines.length && !/^@endfig\s*$/.test(lines[i])) i++;
-        i++;
-        out.push({ t: 'fig', id: id });
-        continue;
-      }
-
-      var hm = /^(#{1,4})\s+(.*)$/.exec(ln);
-      if(hm){ out.push({ t: 'h', level: hm[1].length, text: hm[2].trim() }); i++; continue; }
-
-      if(/^---\s*$/.test(ln)){ out.push({ t: 'hr' }); i++; continue; }
-
-      if(/^\|/.test(ln) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])){
-        var head = cells(ln); i += 2;
-        var rows = [];
-        while(i < lines.length && /^\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
-        out.push({ t: 'table', head: head, rows: rows });
-        continue;
-      }
-
-      if(/^>\s?/.test(ln)){
-        var q = [];
-        while(i < lines.length && /^>\s?/.test(lines[i])){
-          q.push(lines[i].replace(/^>\s?/, '')); i++;
-        }
-        out.push({ t: 'quote', items: q });
-        continue;
-      }
-
-      var lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(ln);
-      if(lm){
-        var ordered = /\d/.test(lm[2]), items = [];
-        while(i < lines.length){
-          var m2 = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
-          if(m2){ items.push(m2[3]); i++; }
-          else if(/^\s{2,}\S/.test(lines[i]) && items.length){
-            items[items.length - 1] += ' ' + lines[i].trim(); i++;
-          } else break;
-        }
-        out.push({ t: ordered ? 'ol' : 'ul', items: items });
-        continue;
-      }
-
-      /* Four-space indented code. Blank lines inside one block are kept,
-         then trimmed off the end, so a diagram split by blank lines stays
-         a single block instead of becoming several. */
-      if(/^ {4}\S/.test(ln)){
-        var buf = [];
-        while(i < lines.length){
-          if(/^ {4}/.test(lines[i])){ buf.push(lines[i].slice(4)); i++; }
-          else if(blank(lines[i]) && /^ {4}/.test(lines[i + 1] || '')){ buf.push(''); i++; }
-          else break;
-        }
-        while(buf.length && !buf[buf.length - 1].trim()) buf.pop();
-        out.push({ t: 'code', text: buf.join('\n') });
-        continue;
-      }
-
-      var para = [ln.trim()]; i++;
-      while(i < lines.length && !blank(lines[i]) &&
-            !/^(#{1,4}\s|@fig:|@endfig|---\s*$|\||>\s?|\s*([-*]|\d+\.)\s|\s{4}\S)/.test(lines[i])){
-        para.push(lines[i].trim()); i++;
-      }
-      out.push({ t: 'p', text: para.join(' ') });
-    }
-    return out;
-  },
-
-  render: function(blocks){
-    var frag = document.createDocumentFragment();
-    blocks.forEach(function(b){
-      var fn = BLOCK[b.t];
-      if(fn) frag.appendChild(fn(b));
-    });
-    return frag;
-  }
-};
-
-
-/* -- figure renderers ---------------------------------------------- */
-/* Pure: one FIG entry in, DOM out. Must not read STATE. */
-
-var FIGURE = {
-
-  versus: function(f){
-    function panel(side, extra){
-      return el('div', { class: 'vs ' + extra }, [
-        el('b', { text: side.tag }),
-        el('ul', null, side.rows.map(function(t){
-          return el('li', { html: inline(t) }); }))
-      ]);
-    }
-    return el('div', { class: 'versus' }, [
-      panel(f.left, f.left.thin ? 'thin' : 'full'),
-      panel(f.right, f.right.thin ? 'thin' : 'full')
-    ]);
-  },
-
-  proof: function(f){
-    return el('div', null, [
-      el('div', { class: 'proof' }, f.rows.map(function(r){
-        return el('div', { class: 'proof-row ' + r.kind }, [
-          el('div', { class: 'proof-what' }, [
-            el('span', { html: inline(r.what) }),
-            el('em', { text: r.detail })
-          ]),
-          el('div', { class: 'proof-n', text: r.n })
-        ]);
-      })),
-      f.note ? el('div', { class: 'proof-note', html: inline(f.note) }) : null
-    ]);
-  },
-
-  graph: function(f){
-    var kids = [ el('div', { class: 'gnodes' }, f.nodes.map(function(n){
-      return el('span', { class: 'gn' + (n[1] ? ' core' : ''), text: n[0] }); })) ];
-    f.groups.forEach(function(g){
-      if(g.title) kids.push(el('div', { class: 'gsplit', text: g.title }));
-      kids.push(el('div', { class: 'gedges' }, g.edges.map(function(e){
-        return el('div', { class: 'ge' }, [
-          el('i', { text: e[0] }), el('b', { text: e[1] }), el('s', { text: e[2] })
-        ]);
-      })));
-    });
-    return el('div', null, kids);
-  },
-
-  loop: function(f){
-    var kids = f.steps.map(function(s, i){
-      return el('div', { class: 'lp' }, [
-        el('em', { text: String(i + 1) }),
-        el('div', { html: inline(s) })
-      ]);
-    });
-    if(f.back) kids.push(el('div', { class: 'loop-back', text: f.back }));
-    return el('div', { class: 'loop' }, kids);
-  },
-
-  levels: function(f){
-    return el('div', null, f.levels.map(function(L){
-      return el('div', { class: 'lvl' }, [
-        el('div', { class: 'lvl-h' }, [
-          el('span', { text: L.name + '  ' }),
-          el('span', { text: L.note })
-        ])
-      ].concat(L.tools.map(function(t){
-        return el('div', { class: 'tool' }, [
-          el('b', { text: t[0] }), el('span', { html: inline(t[1]) })
-        ]);
-      })));
-    }));
-  },
-
-  routes: function(f){
-    return el('div', null, [
-      el('div', { class: 'routes-top', text: f.top }),
-      el('div', { class: 'routes' }, f.routes.map(function(r){
-        return el('div', { class: 'rt' }, [
-          el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
-        ]);
-      })),
-      el('div', { class: 'routes-bot', text: f.bottom })
-    ]);
-  },
-
-  hooks: function(f){
-    return el('div', { class: 'hooks' }, f.rows.map(function(r){
-      return el('div', { class: 'hk' + (r.none ? ' none' : '') }, [
-        el('b', { text: r.hook }),
-        el('i', { text: r.reaches }),
-        el('span', { html: inline(r.carries) })
-      ]);
-    }));
-  },
-
-  islands: function(f){
-    var kids = f.rows.map(function(r){
-      return el('div', { class: 'is' + (r.shared ? ' shared' : '') }, [
-        el('s', { text: r.where }),
-        el('i', { text: '→' }),
-        el('b', { text: r.scope })
-      ]);
-    });
-    if(f.note) kids.push(el('div', { class: 'isl-note', text: f.note }));
-    return el('div', { class: 'isl' }, kids);
-  },
-
-  guards: function(f){
-    return el('div', { class: 'guards' }, f.rows.map(function(r){
-      return el('div', { class: 'gd ' + r.kind }, [
-        el('b', { text: r.tag }),
-        el('p', { html: inline(r.text) })
-      ]);
-    }));
-  }
-};
-
-
-/* ===================================================================
-   LAYER 3 . LOGIC
-   Binds DATA to COMPONENTS. The only layer that touches STATE.
-   Pipeline:  SRC -> sections(front | body | footer) -> MD.parse
-                  -> MD.render -> DOM -> table of contents
-   Both views read the SAME text, so they cannot drift apart.
-   =================================================================== */
-
-/* front matter (title + lede) | body | footer, split on the outer rules */
-function sections(){
-  var t = SRC.replace(/^﻿/, '');
-  var first = t.indexOf('\n---\n');
-  var last = t.lastIndexOf('\n---\n');
-  var head = t.slice(0, first).split('\n');
-  return {
-    title: (head.filter(function(l){ return l.indexOf('# ') === 0; })[0] || '# ').slice(2),
-    lede: head
-           .filter(function(l){ return l.indexOf('> ') === 0; })
-           .map(function(l){ return l.slice(2); }),
-    body: t.slice(first + 5, last),
-    footer: t.slice(last + 5).split('\n\n')
-             .map(function(p){ return p.trim(); })
-             .filter(Boolean)
+  // ---------- 1. Atoms ----------
+  const atom = (initial) => {
+    let value = initial;
+    const subs = new Set();
+    return {
+      get: () => value,
+      set: (next) => { if (next === value) return; value = next; subs.forEach((f) => f(value)); },
+      sub: (f) => { subs.add(f); f(value); return () => subs.delete(f); },
+    };
   };
-}
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
+  };
+  const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const mqNarrow = window.matchMedia("(max-width: 900px)");
 
-/* the copy-out markdown drops layout directives; prose and ASCII stay */
-function forCopy(){
-  return SRC.split('\n')
-    .filter(function(l){ return !/^@(fig:|endfig|box:|endbox)/.test(l); })
-    .join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
-}
+  const state = {
+    theme: atom(store.get("akm-hay-de-toi-bo-sung-thong-tin-theme") || (mqDark.matches ? "dark" : "light")),
+    tab: atom(location.hash === "#markdown" ? "md" : "html"),
+    menuOpen: atom(!mqNarrow.matches),
+    section: atom("start"),
+    filter: atom("all"),
+    toast: atom(""),
+    checklist: atom(new Set((() => { try { return JSON.parse(store.get("akm-hay-de-toi-bo-sung-thong-tin-checklist") || "[]"); } catch { return []; } })())),
+  };
 
-function slug(s, i){
-  var base = String(s).toLowerCase()
-    .replace(/[^a-z0-9À-ỹ]+/g, '-')
-    .replace(/^-+|-+$/g, '').slice(0, 44);
-  return (base || 'muc') + '-' + i;
-}
+  // ---------- 2. Components ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const mdText = $("#md-source").textContent.replace(/^\n/, "");
 
-/* ---- rendering -------------------------------------------------- */
-
-function buildToc(root){
-  var toc = document.getElementById('toc');
-  toc.textContent = '';
-  var heads = root.querySelectorAll('h2, h3');
-  var n = 0;
-  Array.prototype.forEach.call(heads, function(h){
-    n++;
-    if(!h.id) h.id = slug(h.textContent, n);
-    var isPart = h.tagName === 'H2';
-    var label = h.textContent;
-    if(isPart){
-      var eb = h.querySelector('.eyebrow');
-      if(eb) label = eb.textContent + ' — ' + label.slice(eb.textContent.length);
-    }
-    var a = el('a', {
-      href: '#' + h.id,
-      class: isPart ? 'part' : 'lv3',
-      text: label
+  const ThemeSwitch = (theme) => { document.documentElement.dataset.theme = theme; };
+  const TabBar = (tab) => {
+    $$(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.action === `tab:${tab}`)));
+    $("#panel-html").hidden = tab !== "html";
+    $("#panel-md").hidden = tab !== "md";
+  };
+  const Menu = (open) => {
+    document.body.dataset.menu = open ? "open" : "closed";
+    $('[data-action="menu:toggle"]').setAttribute("aria-expanded", String(open));
+  };
+  const Toc = (id) => $$(".toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${id}`)));
+  const FindingFilter = (f) => {
+    $$(".fbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.action === `filter:${f}`)));
+    $$("#findings .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split(" ").includes(f); });
+  };
+  let toastTimer;
+  const Toast = (msg) => {
+    const el = $("#toast");
+    if (!msg) return el.classList.remove("on");
+    el.textContent = msg; el.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => state.toast.set(""), 1800);
+  };
+  const Checklist = (done) => {
+    const steps = $$(".ck");
+    if (!steps.length) return;
+    steps.forEach((el) => {
+      const on = done.has(el.dataset.step);
+      el.classList.toggle("done", on);
+      el.querySelector("input").checked = on;
     });
-    a.addEventListener('click', function(){ if(!wide()) setNav(false); });
-    toc.appendChild(a);
+    $("#ck-bar").style.width = `${(done.size / steps.length) * 100}%`;
+    $("#ck-count").textContent = "Đã xong {done}/{total}".replace("{done}", done.size).replace("{total}", steps.length);
+  };
+  const MarkdownView = () => {
+    const pre = $("#md-view");
+    const frag = document.createDocumentFragment();
+    let fence = "";
+    mdText.split("\n").forEach((line) => {
+      const span = document.createElement("span");
+      span.className = "ln";
+      const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      if (mark && (!fence || (mark[1][0] === fence[0] && mark[1].length >= fence.length && !line.trim().slice(mark[1].length)))) {
+        fence = fence ? "" : mark[1]; span.classList.add("fence");
+      }
+      else if (!fence && /^#{1,6} /.test(line)) span.classList.add("h");
+      else if (!fence && line.startsWith("|")) span.classList.add("tr");
+      span.textContent = line || " ";
+      frag.appendChild(span);
+    });
+    pre.replaceChildren(frag);
+    $("#md-meta").textContent = `${mdText.split("\n").length} dòng · ${(new Blob([mdText]).size / 1024).toFixed(1)} KB`;
+  };
+
+  state.theme.sub(ThemeSwitch);
+  state.tab.sub(TabBar);
+  state.menuOpen.sub(Menu);
+  state.section.sub(Toc);
+  state.filter.sub(FindingFilter);
+  state.toast.sub(Toast);
+  state.checklist.sub(Checklist);
+  MarkdownView();
+
+  // ---------- 3. Workflows ----------
+  const copy = async (text, done) => {
+    try { await navigator.clipboard.writeText(text); state.toast.set(done); }
+    catch { state.toast.set("Trình duyệt không cho chép ở đây"); }
+  };
+  const workflows = {
+    "theme:toggle": () => {
+      const next = state.theme.get() === "dark" ? "light" : "dark";
+      state.theme.set(next); store.set("akm-hay-de-toi-bo-sung-thong-tin-theme", next);
+    },
+    "menu:toggle": () => state.menuOpen.set(!state.menuOpen.get()),
+    "menu:close": () => state.menuOpen.set(false),
+    "tab:html": () => { state.tab.set("html"); history.replaceState(null, "", " "); },
+    "tab:md": () => { state.tab.set("md"); history.replaceState(null, "", "#markdown"); window.scrollTo(0, 0); },
+    nav: (el, ev) => {
+      ev.preventDefault();
+      state.tab.set("html");
+      if (mqNarrow.matches) state.menuOpen.set(false);
+      const target = $(el.hash);
+      if (target && target.hidden) state.filter.set("all");
+      if (target) { target.scrollIntoView({ behavior: "smooth" }); history.replaceState(null, "", el.hash); }
+      state.section.set(el.hash.slice(1));
+    },
+    filter: (el) => state.filter.set(el.dataset.action.split(":")[1]),
+    check: (el) => {
+      const next = new Set(state.checklist.get());
+      const step = el.dataset.action.split(":")[1];
+      if (el.checked) next.add(step); else next.delete(step);
+      state.checklist.set(next);
+      store.set("akm-hay-de-toi-bo-sung-thong-tin-checklist", JSON.stringify([...next]));
+    },
+    "copy:md": () => copy(mdText, "Đã chép Markdown"),
+    "copy:code": (el) => copy(el.closest(".codebox").querySelector("code").textContent, "Đã chép code"),
+    "download:md": () => {
+      const url = URL.createObjectURL(new Blob([mdText], { type: "text/markdown;charset=utf-8" }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: "akm-hay-de-toi-bo-sung-thong-tin.md" });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      state.toast.set("Đã tải Markdown");
+    },
+  };
+  const run = (action, el, ev) => {
+    const key = action.startsWith("filter:") ? "filter" : action.startsWith("check:") ? "check" : action;
+    (workflows[key] || (() => {}))(el, ev);
+  };
+
+  // ---------- 4. Events (combined) ----------
+  document.addEventListener("click", (ev) => {
+    const el = ev.target.closest("[data-action]");
+    if (el) run(el.dataset.action, el, ev);
   });
-}
-
-function render(){
-  var s = sections();
-
-  var h1 = document.getElementById('title');
-  h1.textContent = s.title;
-  document.title = s.title;
-
-  var lede = document.getElementById('lede');
-  lede.textContent = '';
-  s.lede.forEach(function(p){ lede.appendChild(el('p', { html: inline(p) })); });
-
-  var doc = document.getElementById('doc');
-  doc.textContent = '';
-  doc.appendChild(MD.render(MD.parse(s.body)));
-
-  var foot = document.getElementById('foot');
-  foot.textContent = '';
-  s.footer.forEach(function(p){ foot.appendChild(el('p', { html: inline(p) })); });
-
-  document.getElementById('mdtext').textContent = forCopy();
-
-  buildToc(doc);
-
-  var isDoc = STATE.view === 'doc';
-  document.getElementById('docview').hidden = !isDoc;
-  document.getElementById('md').hidden = isDoc;
-  var vb = document.getElementById('viewbtn');
-  vb.textContent = isDoc ? I18N.md : I18N.doc;
-  vb.setAttribute('aria-pressed', isDoc ? 'false' : 'true');
-
-  /* no anchors to jump to in the markdown view */
-  var nb = document.getElementById('navbtn');
-  nb.hidden = !isDoc;
-  if(!isDoc && STATE.nav) setNav(false);
-
-  spy();
-}
-
-/* ---- controls ---------------------------------------------------- */
-
-function wide(){ return (window.innerWidth || 1280) >= 1180; }
-
-function setView(v){ STATE.view = v; render(); }
-
-function setNav(open){
-  STATE.nav = open;
-  document.getElementById('nav').classList.toggle('open', open);
-  document.getElementById('scrim').hidden = !open || wide();
-  document.getElementById('navbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
-}
-
-function copyMd(){
-  var btn = document.getElementById('copybtn');
-  var text = document.getElementById('mdtext').textContent;
-  function flash(msg){
-    var old = btn.textContent; btn.textContent = msg;
-    setTimeout(function(){ btn.textContent = old; }, 1600);
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && mqNarrow.matches) run("menu:close");
+  });
+  mqDark.addEventListener("change", (e) => { if (!store.get("akm-hay-de-toi-bo-sung-thong-tin-theme")) state.theme.set(e.matches ? "dark" : "light"); });
+  mqNarrow.addEventListener("change", (e) => state.menuOpen.set(!e.matches));
+  window.addEventListener("hashchange", () => { if (location.hash === "#markdown") state.tab.set("md"); });
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.filter((e) => e.isIntersecting).forEach((e) => state.section.set(e.target.id));
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    $$("section.sec").forEach((s) => io.observe(s));
   }
-  function fallback(){
-    try{
-      var r = document.createRange();
-      r.selectNodeContents(document.getElementById('mdtext'));
-      var sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(r);
-      var ok = false;
-      try{ ok = document.execCommand('copy'); }catch(e){}
-      flash(ok ? I18N.done : 'Đã bôi đen — Cmd/Ctrl+C');
-    }catch(e){ flash('Bôi đen thủ công'); }
-  }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){ flash(I18N.done); }, fallback);
-  } else fallback();
-}
-
-/* ---- scrollspy ---------------------------------------------------- */
-
-var spyTimer = null;
-function spy(){
-  if(spyTimer) return;
-  spyTimer = setTimeout(function(){
-    spyTimer = null;
-    var links = document.querySelectorAll('#toc a');
-    var best = null, bestTop = -1e9;
-    Array.prototype.forEach.call(links, function(a){
-      var t = document.getElementById(a.getAttribute('href').slice(1));
-      if(!t) return;
-      var top = t.getBoundingClientRect().top - 90;
-      if(top <= 0 && top > bestTop){ bestTop = top; best = a; }
-    });
-    Array.prototype.forEach.call(links, function(a){
-      a.classList.toggle('on', a === best);
-    });
-  }, 90);
-}
-
-/* ---- wiring ------------------------------------------------------- */
-
-function boot(){
-  document.getElementById('kick').textContent = I18N.kick;
-  document.getElementById('navhead').textContent = I18N.navHead;
-  document.getElementById('copybtn').textContent = I18N.copy;
-  document.getElementById('mdnote').textContent = I18N.mdNote;
-  document.getElementById('navbtn').textContent = I18N.contents;
-
-  document.getElementById('viewbtn').addEventListener('click', function(){
-    setView(STATE.view === 'doc' ? 'md' : 'doc');
-  });
-  document.getElementById('navbtn').addEventListener('click', function(){
-    setNav(!STATE.nav);
-  });
-  document.getElementById('scrim').addEventListener('click', function(){ setNav(false); });
-  document.getElementById('copybtn').addEventListener('click', copyMd);
-
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && STATE.nav) setNav(false);
-  });
-  window.addEventListener('scroll', spy, { passive: true });
-  window.addEventListener('resize', function(){
-    setNav(wide() ? false : STATE.nav);
-  });
-
-  render();
-  setNav(false);
-}
-
-boot();
+  const initial = location.hash && location.hash !== "#markdown" ? $(location.hash) : null;
+  if (initial) requestAnimationFrame(() => initial.scrollIntoView());
+})();
 </script>
 </body>
 </html>

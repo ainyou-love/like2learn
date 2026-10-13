@@ -1,0 +1,50 @@
+{% macro cellhtml(b, c) %}{% set s = c|string %}{% if b.get('matrix') and s in ['✓', '~', '✗'] %}<span class="{{ {'✓': 'cy', '~': 'cp', '✗': 'cn'}[s] }}">{{ s }}</span>{% else %}{{ s|inl }}{% endif %}{% endmacro %}
+{% macro html(b, inner) %}
+{% if b.caption is defined %}<p class="sec-intro" style="margin-bottom:0"><b>{{ b.caption|inl }}</b></p>
+{% endif %}
+<div class="tw{{ ' wide' if b.get('wide') }}"><table{% if b.get('matrix') %} class="mx"{% endif %}>
+  <thead><tr>{% for h in b.head %}<th>{{ h|inl }}</th>{% endfor %}</tr></thead>
+  <tbody>
+{% for r in b.rows %}
+{% if r is mapping %}
+    <tr class="grp"><td colspan="{{ b.head|length }}">{{ r.group }}</td></tr>
+{% else %}
+    <tr{% if loop.index0 in b.get('hl', []) %} class="hl"{% endif %}>{% for c in r %}<td{% if loop.first and b.get('key', true) %} class="k"{% elif b.get('matrix') and not loop.first %} class="c{{ ' sel' if loop.index0 == b.get('sel') }}"{% endif %}>{{ cellhtml(b, c) }}</td>{% endfor %}</tr>
+{% endif %}
+{% endfor %}
+  </tbody>
+</table></div>
+{% if b.legend is defined %}<div class="legend">{% for l in b.legend %}<span>{{ l|inl }}</span>{% endfor %}</div>
+{% endif %}
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+{% if b.caption is defined %}
+**{{ b.caption }}**
+
+{% endif %}
+| {% for h in b.head %}{{ h|cell }} | {% endfor +%}
+|{% for h in b.head %}---|{% endfor +%}
+{% for r in b.rows %}
+{% if r is mapping %}
+| **{{ r.group|cell }}** |{% for h in b.head[1:] %} |{% endfor +%}
+{% else %}
+| {% for c in r %}{{ c|cell }} | {% endfor +%}
+{% endif %}
+{% endfor %}
+{% if b.legend is defined %}
+
+{% for l in b.legend %}{{ l }}{{ ' · ' if not loop.last }}{% endfor +%}
+{% endif %}
+{% endif %}
+{% if b.note is defined %}
+
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

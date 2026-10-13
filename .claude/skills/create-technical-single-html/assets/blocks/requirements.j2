@@ -1,0 +1,11 @@
+{% macro html(b, inner) %}
+<ol class="fr">
+{% for r in b['items'] %}  <li>{{ r|inl }}</li>
+{% endfor %}
+</ol>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for r in b['items'] %}
+{{ loop.index }}. {{ r }}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

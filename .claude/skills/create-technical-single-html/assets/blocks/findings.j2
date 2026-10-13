@@ -1,0 +1,18 @@
+{% from "_fcard.j2" import card, card_md %}
+{% macro html(b, inner) %}
+<div class="filters" role="group" aria-label="{{ b.get('filter_label', '__UI:filter__') }}">
+  <button class="fbtn" data-action="filter:all" aria-pressed="true">{{ b.get('all_label', '__UI:all__') }}</button>
+{% for t in b.filters %}
+  <button class="fbtn" data-action="filter:{{ t }}" aria-pressed="false">{{ t }}</button>
+{% endfor %}
+</div>
+<div id="findings">
+{% for c in b['items'] %}{{ card(c) }}{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for c in b['items'] %}
+{{ card_md(c) }}
+
+{% endfor %}
+{% endautoescape %}{% endmacro %}

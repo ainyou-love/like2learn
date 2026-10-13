@@ -1,0 +1,1756 @@
+{
+ "meta": {
+  "title": "Claude trả về gì? 8 lớp của một response",
+  "brand": "8 lớp của Claude response",
+  "date": "2026-10-11",
+  "desc": "Hướng dẫn dễ hiểu về 8 lớp của một response từ Claude API, dành cho người thiết kế sản phẩm và AI agent.",
+  "lang": "vi",
+  "md_filename": "claude-response-8-lop.md",
+  "storage_key": "claude-response-8-lop",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Claude API · tài liệu cho cả team",
+  "title": "Claude trả về gì? *8 lớp của một response*",
+  "lede": "Khi một ứng dụng hỏi Claude qua API, thứ nhận về không chỉ là một đoạn chữ. Đó là một gói hàng nhiều lớp: món hàng bên trong, ghi chú của người giao, hóa đơn, nhãn vận đơn, và đôi khi là hàng bị trả lại.",
+  "chips": [
+   {
+    "label": "Đối tượng",
+    "value": "product, business, vận hành và kỹ sư thiết kế ứng dụng hoặc AI agent dùng Claude API"
+   },
+   {
+    "label": "Nguồn",
+    "value": "Đối chiếu với tài liệu chính thức của Anthropic vào tháng 10/2026"
+   }
+  ],
+  "stats": [
+   {
+    "n": "8",
+    "l": "lớp trong một response, cộng lớp nền ở phía yêu cầu"
+   },
+   {
+    "n": "4",
+    "l": "nhóm: đặt hàng, trong thùng, đường đi, sổ sách"
+   },
+   {
+    "n": "24",
+    "l": "thuật ngữ giải thích bằng lời thường"
+   },
+   {
+    "n": "12",
+    "l": "mục checklist triển khai"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "overview",
+   "no": "01",
+   "title": "Tổng quan",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Tài liệu này tách gói hàng đó thành 8 lớp, cộng thêm một lớp nền nằm ở phía yêu cầu. Mục tiêu là để mọi người trong team, kể cả người không viết code, cùng dùng một ngôn ngữ khi thiết kế sản phẩm có AI.\n\nHãy hình dung mỗi lần ứng dụng hỏi Claude giống như đặt một đơn hàng giao tận nơi. Bạn điền phiếu đặt hàng, hàng được đóng thùng, đi trên một tuyến đường, tới tay bạn kèm hóa đơn và nhãn dán. Mỗi phần đó tương ứng với một lớp bên dưới."
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Ý chính",
+     "text": "Một ứng dụng chỉ đọc phần chữ trong response giống như nhận hàng mà không đọc ghi chú giao hàng hay hóa đơn. Phần lớn thời gian mọi thứ vẫn ổn, cho tới ngày hàng bị giao thiếu mà không ai phát hiện."
+    }
+   ]
+  },
+  {
+   "id": "purpose",
+   "no": "02",
+   "title": "Mục đích và lợi ích",
+   "intro": "Mục đích của cách nhìn 8 lớp là biến một việc trông có vẻ đơn giản (gọi AI, nhận câu trả lời) thành một hệ thống vận hành được: biết khi nào câu trả lời đã xong, khi nào bị cắt, tốn bao nhiêu, lỗi ở đâu và ai chịu trách nhiệm.",
+   "blocks": [
+    {
+     "type": "cards",
+     "cols": 3,
+     "items": [
+      {
+       "title": "Ít lỗi âm thầm",
+       "text": "Nhiều sự cố AI không gây sập hệ thống mà tạo ra kết quả sai lặng lẽ: câu trả lời bị cắt giữa chừng, agent dừng nửa đường, dữ liệu thiếu trường. Đọc đúng lớp 2 chặn được phần lớn các lỗi này.",
+       "meta": "Hữu ích nhất cho: Kỹ sư, QA"
+      },
+      {
+       "title": "Kiểm soát chi phí",
+       "text": "Mỗi response kèm số liệu sử dụng. Ghi lại theo từng tính năng và từng khách hàng cho biết tính năng nào đáng tiền và bộ nhớ đệm có thật sự tiết kiệm.",
+       "meta": "Hữu ích nhất cho: Product, tài chính"
+      },
+      {
+       "title": "Truy vết nhanh",
+       "text": "Mỗi response có mã định danh riêng. Lưu mã này giúp tìm ra nguyên nhân một sự cố trong vài phút thay vì vài ngày, và là thông tin cần có khi nhờ nhà cung cấp hỗ trợ.",
+       "meta": "Hữu ích nhất cho: Vận hành, support"
+      },
+      {
+       "title": "Agent an toàn hơn",
+       "text": "Khi AI được phép làm việc thật như tạo đơn hay hoàn tiền, ranh giới giữa “AI đang trả lời” và “AI đang muốn làm gì đó” là điểm kiểm soát an toàn quan trọng nhất.",
+       "meta": "Hữu ích nhất cho: Kỹ sư, bảo mật"
+      },
+      {
+       "title": "Chia việc rõ ràng",
+       "text": "Mỗi lớp gắn với một nhóm phụ trách. Khi có vấn đề, team biết ngay câu hỏi thuộc về ai thay vì dồn hết vào “phần AI”.",
+       "meta": "Hữu ích nhất cho: Lead, quản lý"
+      },
+      {
+       "title": "Nâng cấp model dễ hơn",
+       "text": "Model mới có thể thêm loại nội dung hoặc lý do dừng mới. Hệ thống thiết kế theo lớp xử lý được giá trị lạ một cách an toàn thay vì vỡ.",
+       "meta": "Hữu ích nhất cho: Kỹ sư, kiến trúc"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "glossary",
+   "no": "03",
+   "title": "Thuật ngữ",
+   "intro": "Các thuật ngữ được dùng trong phần chi tiết bên dưới, giải thích bằng ngôn ngữ đời thường.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "API *(Application Programming Interface)*",
+       "Cổng để phần mềm nói chuyện với phần mềm khác. Ứng dụng của bạn gửi câu hỏi tới Claude qua API thay vì qua giao diện chat."
+      ],
+      [
+       "Request *(yêu cầu)*",
+       "Gói thông tin ứng dụng gửi đi: câu hỏi, lịch sử hội thoại và các tùy chọn."
+      ],
+      [
+       "Response *(phản hồi)*",
+       "Gói thông tin nhận về sau mỗi request. Tài liệu này mô tả các lớp bên trong nó."
+      ],
+      [
+       "Token",
+       "Đơn vị mà mô hình dùng để đọc, viết và tính phí, đại khái là các mẩu từ. Cả phần gửi đi và phần nhận về đều được đếm."
+      ],
+      [
+       "Content block *(khối nội dung)*",
+       "Một phần của câu trả lời có loại riêng, ví dụ một đoạn chữ hoặc một yêu cầu gọi công cụ."
+      ],
+      [
+       "Tool *(công cụ)*",
+       "Một chức năng mà Claude được phép nhờ ứng dụng thực hiện, ví dụ tra cứu đơn hàng hay gửi email."
+      ],
+      [
+       "Tool call *(gọi công cụ)*",
+       "Khi Claude không trả lời ngay mà yêu cầu chạy một công cụ với dữ liệu cụ thể, rồi dùng kết quả để tiếp tục."
+      ],
+      [
+       "Client tool *(công cụ phía bạn)*",
+       "Công cụ do ứng dụng của bạn thực thi. Bạn chịu trách nhiệm về quyền, an toàn và kết quả."
+      ],
+      [
+       "Server tool *(công cụ phía Anthropic)*",
+       "Công cụ do Anthropic thực thi, như tìm kiếm web. Ứng dụng chỉ nhận kết quả."
+      ],
+      [
+       "Structured output *(đầu ra có cấu trúc)*",
+       "Câu trả lời buộc phải theo một khuôn dữ liệu định sẵn, để phần mềm đọc được chắc chắn."
+      ],
+      [
+       "JSON và JSON Schema",
+       "JSON là định dạng dữ liệu phổ biến giữa các phần mềm. JSON Schema là bản mô tả khuôn: có những trường nào, mỗi trường kiểu gì."
+      ],
+      [
+       "stop_reason *(lý do dừng)*",
+       "Trường cho biết vì sao Claude dừng viết: đã xong, đang chờ công cụ, hết giới hạn độ dài, hay từ chối."
+      ],
+      [
+       "Streaming *(truyền từng phần)*",
+       "Nhận câu trả lời thành từng mẩu ngay khi được viết ra, thay vì chờ trọn gói."
+      ],
+      [
+       "Batch *(xử lý theo lô)*",
+       "Gửi nhiều yêu cầu cùng lúc, không cần kết quả ngay, nhận kết quả sau."
+      ],
+      [
+       "Rate limit *(giới hạn tốc độ)*",
+       "Số request hoặc token tối đa được gửi trong một khoảng thời gian."
+      ],
+      [
+       "Retry và backoff *(thử lại có giãn cách)*",
+       "Thử lại một request lỗi sau một khoảng chờ, khoảng chờ tăng dần sau mỗi lần thất bại."
+      ],
+      [
+       "request-id *(mã truy vết)*",
+       "Mã duy nhất gắn với mỗi response, dùng để tra cứu và gửi cho đội hỗ trợ."
+      ],
+      [
+       "Prompt caching *(bộ nhớ đệm prompt)*",
+       "Lưu lại phần đầu vào lặp đi lặp lại để các lần gọi sau rẻ hơn và nhanh hơn."
+      ],
+      [
+       "Context window *(cửa sổ ngữ cảnh)*",
+       "Lượng thông tin tối đa mà mô hình xem được trong một lần, gồm cả lịch sử hội thoại."
+      ],
+      [
+       "Agent",
+       "Ứng dụng để AI tự thực hiện nhiều bước, như tra cứu, quyết định và hành động, thay vì chỉ trả lời một câu."
+      ],
+      [
+       "Agent loop *(vòng lặp agent)*",
+       "Chu trình: hỏi Claude, đọc lý do dừng, chạy công cụ nếu cần, gửi kết quả lại, lặp tới khi xong."
+      ],
+      [
+       "Idempotency *(chống trùng lặp)*",
+       "Thiết kế để một hành động có chạy lại nhiều lần cũng chỉ có tác dụng một lần, ví dụ không hoàn tiền hai lần."
+      ],
+      [
+       "SDK *(bộ công cụ lập trình)*",
+       "Thư viện chính thức giúp gọi API dễ hơn, đã tích hợp sẵn một số việc như tự thử lại."
+      ],
+      [
+       "HTTP status code *(mã trạng thái)*",
+       "Con số cho biết request thành công hay thất bại, ví dụ 200 là thành công, 429 là vượt giới hạn."
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "layers",
+   "no": "04",
+   "title": "Chi tiết từng lớp",
+   "intro": "Mỗi lớp được trình bày theo cùng một khung: hình dung, là gì, lợi ích, nên và tránh, ai phụ trách.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Lớp",
+      "Tên",
+      "Hình dung như",
+      "Nhóm"
+     ],
+     "rows": [
+      [
+       "[0](#l0)",
+       "Yêu cầu định hình",
+       "Phiếu đặt hàng",
+       "Đặt hàng"
+      ],
+      [
+       "[1](#l1)",
+       "Nội dung",
+       "Món hàng trong thùng",
+       "Trong thùng"
+      ],
+      [
+       "[2](#l2)",
+       "Lý do dừng",
+       "Ghi chú của người giao hàng",
+       "Trong thùng"
+      ],
+      [
+       "[3](#l3)",
+       "Cách giao",
+       "Hình thức vận chuyển",
+       "Đường đi"
+      ],
+      [
+       "[4](#l4)",
+       "Hóa đơn",
+       "Hóa đơn đi kèm",
+       "Sổ sách"
+      ],
+      [
+       "[5](#l5)",
+       "Nhãn vận đơn",
+       "Nhãn dán ngoài thùng",
+       "Đường đi"
+      ],
+      [
+       "[6](#l6)",
+       "Lỗi",
+       "Hàng không giao được",
+       "Đường đi"
+      ],
+      [
+       "[7](#l7)",
+       "Trạng thái lô",
+       "Trạng thái từng đơn trong lô",
+       "Đường đi"
+      ],
+      [
+       "[8](#l8)",
+       "Đồ gửi kèm",
+       "Tài liệu gửi riêng theo đơn",
+       "Sổ sách"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "Các lớp được chia thành bốn nhóm theo màu: **Đặt hàng**: mình yêu cầu gì; **Trong thùng**: Claude trả về gì, vì sao dừng; **Đường đi**: response tới tay mình ra sao; **Sổ sách**: chi phí và đồ gửi kèm."
+    }
+   ]
+  },
+  {
+   "id": "l0",
+   "no": "L0",
+   "title": "Yêu cầu định hình · `Request control`",
+   "toc_label": "Yêu cầu định hình",
+   "intro": "Những tùy chọn gửi kèm câu hỏi quyết định hình dạng của câu trả lời.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Phiếu đặt hàng"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Mình đã yêu cầu gì?"
+      ]
+     ]
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "title": "Phiếu đặt hàng (request)",
+       "text": "- `max_tokens` — 1024\n- `tools` — tra_don, hoan_tien\n- `output_config.format` — khuôn JSON\n- `thinking` — bật"
+      },
+      {
+       "title": "Response nhận về",
+       "text": "- Có thể bị cắt nếu giới hạn quá thấp\n- Có thể chứa khối `tool_use`\n- JSON đúng khuôn\n- Có khối `thinking`"
+      }
+     ],
+     "note": "Mỗi tùy chọn ở bên trái để lại dấu vết ở bên phải. Giá trị là ví dụ minh họa.",
+     "ascii": "PHIẾU ĐẶT HÀNG (request)            RESPONSE NHẬN VỀ\n+-------------------------+         +---------------------------+\n| max_tokens   = 1024     |  --->   | có thể bị cắt nếu quá thấp|\n| tools        = [tra_don]|  --->   | có thể có khối tool_use   |\n| format       = schema   |  --->   | JSON đúng khuôn           |\n| thinking     = bật      |  --->   | có khối thinking          |\n+-------------------------+         +---------------------------+"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nTrước khi Claude trả lời, ứng dụng gửi một request gồm câu hỏi và các tùy chọn. Các tùy chọn này không phải là câu trả lời, nhưng chúng quyết định câu trả lời trông thế nào: dài tối đa bao nhiêu, có được nhờ công cụ không, có buộc điền theo một khuôn cố định không.\n\nLớp này nằm ở phía yêu cầu, không thuộc response. Nó được đưa vào đây vì phần lớn vấn đề ở 8 lớp còn lại bắt nguồn từ việc đặt sai tùy chọn ở bước này."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Tùy chọn",
+      "Đời thường",
+      "Ảnh hưởng tới response"
+     ],
+     "rows": [
+      [
+       "`max_tokens`",
+       "Giới hạn độ dài câu trả lời",
+       "Đặt quá thấp thì câu trả lời bị cắt, lý do dừng là `max_tokens`"
+      ],
+      [
+       "`tools`, `tool_choice`",
+       "Danh sách việc Claude được nhờ làm, và có bắt buộc nhờ hay không",
+       "Có xuất hiện khối `tool_use` hay không"
+      ],
+      [
+       "`output_config.format`",
+       "Mẫu đơn bắt buộc điền",
+       "Câu trả lời là JSON đúng khuôn đã định"
+      ],
+      [
+       "`strict: true` trên tool",
+       "Kiểm tra kiểu dữ liệu khi nhờ công cụ",
+       "Dữ liệu gửi cho công cụ luôn đúng kiểu"
+      ],
+      [
+       "`stop_sequences`",
+       "Từ khóa báo dừng",
+       "Lý do dừng là `stop_sequence`"
+      ],
+      [
+       "`thinking`",
+       "Cho phép Claude suy nghĩ trước khi trả lời",
+       "Có thêm khối `thinking` trong response"
+      ]
+     ],
+     "caption": "Các tùy chọn chính"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nSửa ở đầu nguồn rẻ hơn nhiều so với vá ở cuối nguồn. Một khuôn JSON bắt buộc thay được hàng chục dòng code đoán và kiểm tra định dạng."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Dùng structured outputs để ép định dạng, thay vì dặn trong prompt “chỉ trả về JSON”.\n- Chỉ đưa vào request những công cụ cần cho bước đó.\n- Đặt `max_tokens` theo độ dài thực tế cần, có dư một khoảng an toàn."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Viết sẵn phần đầu câu trả lời (prefill) để ép JSON. Một số model đời mới không còn hỗ trợ cách này.\n- Gửi toàn bộ danh sách công cụ của hệ thống trong mọi request.\n- Tin rằng đúng khuôn nghĩa là đúng nội dung."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "warn",
+     "title": "Đúng khuôn chưa chắc đúng nội dung",
+     "text": "Structured outputs đảm bảo **định dạng** nhờ cơ chế ràng buộc ngay lúc sinh chữ (constrained decoding). Nó không đảm bảo **nội dung**. Một số tiền hoàn có thể đúng kiểu dữ liệu nhưng sai giá trị, nên vẫn cần kiểm tra quy tắc nghiệp vụ phía sau."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Product định nghĩa khuôn dữ liệu; kỹ sư cấu hình request."
+    }
+   ],
+   "toc_group": "Các lớp"
+  },
+  {
+   "id": "l1",
+   "no": "L1",
+   "title": "Nội dung · `Content blocks`",
+   "toc_label": "Nội dung",
+   "intro": "Câu trả lời là một danh sách các khối, mỗi khối có một loại riêng.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Món hàng trong thùng"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Claude trả về những gì?"
+      ]
+     ]
+    },
+    {
+     "type": "kv",
+     "title": "response.content",
+     "rows": [
+      [
+       "`thinking`",
+       "Khách hỏi về đơn hàng, cần tra trạng thái trước."
+      ],
+      [
+       "`text`",
+       "Để mình kiểm tra đơn của bạn nhé."
+      ],
+      [
+       "`tool_use`",
+       "tra_don { ma_don: \"DH-1024\" }"
+      ]
+     ],
+     "ascii": "response.content = [\n  { type: thinking  }  -> nháp suy nghĩ\n  { type: text      }  -> lời nhắn bằng chữ\n  { type: tool_use  }  -> nhờ ứng dụng làm một việc\n]\n\nAi đọc?  Con người  -> chữ tự do\n         Phần mềm   -> dữ liệu có cấu trúc\n         Hệ thống   -> gọi công cụ"
+    },
+    {
+     "type": "cards",
+     "cols": 3,
+     "items": [
+      {
+       "title": "Con người đọc",
+       "text": "Chữ tự do"
+      },
+      {
+       "title": "Phần mềm đọc",
+       "text": "Dữ liệu có cấu trúc"
+      },
+      {
+       "title": "Hệ thống thực thi",
+       "text": "Gọi công cụ"
+      }
+     ],
+     "note": "Một response có thể chứa nhiều khối khác loại. Nội dung là ví dụ minh họa."
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nPhần `content` của response không phải một đoạn chữ duy nhất mà là một danh sách các khối. Một response có thể chứa nhiều khối khác loại: một đoạn giải thích, một yêu cầu gọi công cụ, một đoạn suy luận.\n\nTheo cách dùng, có ba kiểu chính. Chữ tự do để con người đọc. Dữ liệu có cấu trúc để phần mềm đọc. Gọi công cụ khi Claude cần lấy thêm dữ liệu hoặc thực hiện hành động."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Loại khối",
+      "Đời thường",
+      "Ứng dụng cần làm gì"
+     ],
+     "rows": [
+      [
+       "`text`",
+       "Lời nhắn bằng chữ, có thể kèm trích dẫn nguồn",
+       "Hiển thị hoặc lưu lại"
+      ],
+      [
+       "`tool_use`",
+       "Nhờ ứng dụng làm giúp một việc",
+       "Chạy công cụ, gửi kết quả `tool_result` lại cho Claude"
+      ],
+      [
+       "`thinking`",
+       "Nháp suy nghĩ trước khi trả lời",
+       "Giữ nguyên khi gửi lại trong vòng gọi công cụ, không chỉnh sửa"
+      ],
+      [
+       "`redacted_thinking`",
+       "Nháp đã được niêm phong",
+       "Giữ nguyên, không đọc được"
+      ],
+      [
+       "`server_tool_use`",
+       "Claude tự dùng công cụ do Anthropic vận hành, như tìm kiếm web",
+       "Không cần thực thi, chỉ theo dõi"
+      ],
+      [
+       "`web_search_tool_result` và tương tự",
+       "Kết quả của công cụ phía Anthropic",
+       "Đọc hoặc hiển thị nếu cần"
+      ]
+     ],
+     "caption": "Các loại khối thường gặp"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Kiểu dùng",
+      "Ai đọc",
+      "Dùng khi"
+     ],
+     "rows": [
+      [
+       "Chữ tự do",
+       "Con người",
+       "Trả lời chat, soạn email, giải thích"
+      ],
+      [
+       "Dữ liệu có cấu trúc (JSON)",
+       "Phần mềm",
+       "Phân loại, trích xuất thông tin, ra quyết định tự động"
+      ],
+      [
+       "Gọi công cụ",
+       "Hệ thống chạy agent",
+       "Cần dữ liệu thật hoặc cần thực hiện hành động"
+      ]
+     ],
+     "caption": "Ba kiểu dùng nội dung"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nBiết rõ từng loại khối giúp ứng dụng không bỏ sót việc cần làm, ví dụ không quên chạy công cụ Claude đã yêu cầu, và không vô tình hiển thị phần nội bộ cho người dùng cuối."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Lọc khối theo `type`, không lấy theo vị trí như “khối đầu tiên”.\n- Tách rõ công cụ phía bạn và công cụ phía Anthropic, vì trách nhiệm và quyền hạn khác nhau.\n- Với công cụ có tác động thật như hoàn tiền, thêm bước kiểm tra hoặc người duyệt."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Dùng biểu thức tìm chuỗi (regex) để lấy dữ liệu từ chữ tự do.\n- Giả định mọi response chỉ có đúng một khối `text`.\n- Cho Claude một công cụ vạn năng, như chạy bất kỳ câu lệnh cơ sở dữ liệu nào."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Một câu hỏi để chọn kiểu dùng",
+     "text": "**Ai sẽ đọc kết quả này?** Con người đọc thì dùng chữ. Phần mềm ra quyết định dựa trên kết quả thì dùng dữ liệu có cấu trúc. Cần thay đổi điều gì đó bên ngoài thì dùng công cụ."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Kỹ sư backend và người thiết kế agent."
+    }
+   ]
+  },
+  {
+   "id": "l2",
+   "no": "L2",
+   "title": "Lý do dừng · `stop_reason`",
+   "toc_label": "Lý do dừng",
+   "intro": "Một trường duy nhất cho biết câu trả lời đã hoàn tất, bị cắt, hay đang chờ ứng dụng làm gì đó.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Ghi chú của người giao hàng"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Đã xong chưa, hay đang chờ mình?"
+      ]
+     ]
+    },
+    {
+     "type": "tags",
+     "items": [
+      {
+       "kind": "ok",
+       "code": "end_turn",
+       "text": "Đã xong, dùng được"
+      },
+      {
+       "kind": "warn",
+       "code": "tool_use",
+       "text": "Chờ ứng dụng chạy công cụ"
+      },
+      {
+       "kind": "warn",
+       "code": "pause_turn",
+       "text": "Gửi lại để đi tiếp"
+      },
+      {
+       "kind": "warn",
+       "code": "stop_sequence",
+       "text": "Gặp từ khóa dừng"
+      },
+      {
+       "kind": "bad",
+       "code": "max_tokens",
+       "text": "Bị cắt, chưa trọn vẹn"
+      },
+      {
+       "kind": "bad",
+       "code": "refusal",
+       "text": "Từ chối trả lời"
+      },
+      {
+       "kind": "bad",
+       "code": "model_context_window_exceeded",
+       "text": "Hết sức chứa"
+      }
+     ],
+     "legend": [
+      {
+       "kind": "ok",
+       "text": "Dùng kết quả"
+      },
+      {
+       "kind": "warn",
+       "text": "Ứng dụng cần hành động rồi gọi tiếp"
+      },
+      {
+       "kind": "bad",
+       "text": "Kết quả không dùng được như bình thường"
+      }
+     ],
+     "note": "Đọc ghi chú này trước khi mở thùng hàng.",
+     "ascii": "stop_reason\n  end_turn       -> dùng kết quả\n  tool_use       -> chạy công cụ, gửi kết quả, gọi lại\n  pause_turn     -> gửi lại để Claude đi tiếp\n  stop_sequence  -> xử lý theo quy ước riêng\n  max_tokens     -> bị cắt, KHÔNG dùng như kết quả hoàn chỉnh\n  refusal        -> không thử lại, chuyển phương án dự phòng\n  model_context_window_exceeded -> rút gọn lịch sử\n  (giá trị lạ)   -> ghi cảnh báo, dừng an toàn"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nMỗi response thành công đều có trường `stop_reason`, cho biết vì sao Claude dừng viết. Đây là trường quyết định bước tiếp theo, quan trọng không kém bản thân nội dung.\n\nCùng một đoạn chữ, nếu lý do dừng là “đã xong” thì dùng được ngay. Nếu lý do dừng là “hết giới hạn độ dài” thì đoạn chữ đó đang bị cắt dở và không nên tin."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Giá trị",
+      "Đời thường",
+      "Ứng dụng nên làm"
+     ],
+     "rows": [
+      [
+       "`end_turn`",
+       "Giao xong",
+       "Dùng kết quả"
+      ],
+      [
+       "`tool_use`",
+       "Người giao chờ bạn làm một việc rồi mới đi tiếp",
+       "Chạy công cụ, gửi kết quả, gọi lại Claude"
+      ],
+      [
+       "`max_tokens`",
+       "Hết chỗ trên xe, hàng chỉ giao được một phần",
+       "Không dùng như kết quả hoàn chỉnh; tăng giới hạn hoặc cho viết tiếp"
+      ],
+      [
+       "`stop_sequence`",
+       "Gặp từ khóa dừng bạn đã đặt",
+       "Xử lý theo quy ước riêng"
+      ],
+      [
+       "`pause_turn`",
+       "Tạm dừng giữa chuyến khi dùng công cụ phía Anthropic",
+       "Gửi lại hội thoại kèm phần đang dở để Claude đi tiếp"
+      ],
+      [
+       "`refusal`",
+       "Từ chối giao",
+       "Không thử lại liên tục; ghi log và chuyển sang phương án dự phòng"
+      ],
+      [
+       "`model_context_window_exceeded`",
+       "Hết sức chứa của cuộc hội thoại",
+       "Tóm tắt hoặc cắt bớt lịch sử"
+      ]
+     ],
+     "caption": "Các giá trị và cách xử lý"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nXử lý đủ các giá trị là cách rẻ nhất để chặn lỗi âm thầm: dữ liệu bị cắt dở được ghi vào hệ thống, agent dừng nửa đường mà không ai biết, hoặc thử lại vô ích một yêu cầu đã bị từ chối."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Luôn kiểm tra `stop_reason` trước khi dùng nội dung.\n- Có nhánh xử lý cho giá trị chưa biết: ghi cảnh báo và dừng an toàn.\n- Theo dõi tỷ lệ từng giá trị theo từng tính năng."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Chỉ kiểm tra `tool_use`, coi mọi trường hợp còn lại là đã xong.\n- Đọc dữ liệu JSON khi lý do dừng là `max_tokens`.\n- Tự động thử lại khi gặp `refusal`."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Ba chi tiết hay bị bỏ qua",
+     "text": "Đôi khi Claude trả về response rỗng với `end_turn`, nên cần xử lý cả trường hợp không có nội dung. `pause_turn` chỉ xuất hiện với công cụ phía Anthropic; khi Claude chờ công cụ của bạn, lý do dừng luôn là `tool_use`. Danh sách giá trị đã được mở rộng theo thời gian, nên code không nên giả định danh sách này là cố định."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Người viết vòng lặp agent (orchestrator)."
+    }
+   ]
+  },
+  {
+   "id": "l3",
+   "no": "L3",
+   "title": "Cách giao · `Transport: sync, streaming, batch`",
+   "toc_label": "Cách giao",
+   "intro": "Cùng một nội dung có thể được giao một lần, giao từng phần, hoặc gom lô giao sau.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Hình thức vận chuyển"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Response tới tay mình theo cách nào?"
+      ]
+     ]
+    },
+    {
+     "type": "figure",
+     "file": "transport.svg",
+     "caption": "Cùng một nội dung, ba cách tới tay. Streaming cho người dùng thấy chữ sớm nhất; batch phù hợp việc không gấp.",
+     "ascii": "Đồng bộ   : gửi ............................ [nhận trọn gói]\nStreaming : gửi [m][m][m][m][m][m][m][m][m][m] xong\nBatch     : gửi nhiều ~~~~~~~ (tới 24 giờ) ~~~~ [file kết quả]"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nBa cách nhận response không thay đổi nội dung bên trong, chỉ thay đổi thời điểm và hình thức nhận.\n\nGiao một lần (đồng bộ): chờ Claude viết xong rồi nhận trọn gói. Giao từng phần (streaming): nhận từng mẩu ngay khi được viết, như khi người dùng thấy chữ hiện dần trong khung chat. Gom lô (batch): gửi nhiều yêu cầu cùng lúc, nhận kết quả sau."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Hình thức",
+      "Phù hợp khi",
+      "Cần lưu ý"
+     ],
+     "rows": [
+      [
+       "Đồng bộ",
+       "Câu trả lời ngắn, xử lý phía hệ thống, không có người đang chờ xem",
+       "Câu trả lời dài khiến người dùng chờ lâu và dễ bị ngắt kết nối"
+      ],
+      [
+       "Streaming",
+       "Có người đang nhìn màn hình, câu trả lời dài",
+       "Phải ráp các mẩu lại; lỗi vẫn có thể xảy ra giữa chừng"
+      ],
+      [
+       "Batch",
+       "Xử lý hàng loạt không gấp: phân loại dữ liệu cũ, tóm tắt hàng nghìn tài liệu",
+       "Có thể mất tới 24 giờ; kết quả không theo thứ tự gửi"
+      ]
+     ],
+     "caption": "So sánh ba hình thức"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Sự kiện",
+      "Ý nghĩa"
+     ],
+     "rows": [
+      [
+       "`message_start`",
+       "Bắt đầu một response"
+      ],
+      [
+       "`content_block_start`",
+       "Bắt đầu một khối nội dung mới"
+      ],
+      [
+       "`content_block_delta`",
+       "Thêm một mẩu vào khối đang mở"
+      ],
+      [
+       "`content_block_stop`",
+       "Khối hiện tại đã xong"
+      ],
+      [
+       "`message_delta`",
+       "Cập nhật ở cấp response, ví dụ `stop_reason` và số liệu sử dụng"
+      ],
+      [
+       "`message_stop`",
+       "Response kết thúc"
+      ],
+      [
+       "`ping`",
+       "Tín hiệu giữ kết nối, có thể bỏ qua"
+      ]
+     ],
+     "caption": "Các sự kiện khi streaming"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nChọn đúng hình thức giao giúp cân bằng giữa trải nghiệm người dùng (chữ hiện ngay), độ ổn định (ít bị ngắt kết nối) và chi phí (xử lý lô cho việc không gấp)."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Dùng streaming cho giao diện có người đang chờ.\n- Dùng batch cho công việc không cần kết quả ngay.\n- Bỏ qua loại sự kiện chưa biết thay vì báo lỗi."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Gọi đồng bộ cho câu trả lời rất dài trong giao diện chat.\n- Dùng batch cho việc người dùng đang chờ.\n- Coi stream đã bắt đầu là stream sẽ thành công."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Đường đi không đổi món hàng",
+     "text": "Nội dung bên trong (lớp 1 và 2) giống nhau dù giao theo cách nào. Khi streaming, `stop_reason` tới ở gần cuối, trong sự kiện `message_delta`."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Kỹ sư platform hoặc backend."
+    }
+   ]
+  },
+  {
+   "id": "l4",
+   "no": "L4",
+   "title": "Hóa đơn · `Metadata và usage`",
+   "toc_label": "Hóa đơn",
+   "intro": "Thông tin đi kèm cho biết model nào đã trả lời và đã dùng bao nhiêu token.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Hóa đơn đi kèm"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Lần này tốn bao nhiêu, ai đã trả lời?"
+      ]
+     ]
+    },
+    {
+     "type": "kv",
+     "title": "Hóa đơn của một response",
+     "sum": [
+      5
+     ],
+     "rows": [
+      [
+       "model",
+       "claude-…"
+      ],
+      [
+       "input_tokens",
+       "1.200"
+      ],
+      [
+       "cache_read_input_tokens",
+       "8.000"
+      ],
+      [
+       "cache_creation_input_tokens",
+       "0"
+      ],
+      [
+       "output_tokens",
+       "350"
+      ],
+      [
+       "Tỷ lệ đọc từ bộ nhớ đệm",
+       "87%"
+      ]
+     ],
+     "note": "Số liệu là ví dụ minh họa. Tỷ lệ đọc từ bộ nhớ đệm cao nghĩa là phần lớn đầu vào được tái sử dụng.",
+     "ascii": "+---------- HÓA ĐƠN (ví dụ minh họa) ----------+\n| model                         claude-...     |\n| input_tokens                       1.200     |\n| cache_read_input_tokens            8.000     |\n| cache_creation_input_tokens            0     |\n| output_tokens                        350     |\n+----------------------------------------------+"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nBên cạnh nội dung, response có các trường mô tả chính nó: mã của response (`id`), model thực sự đã trả lời (`model`), và quan trọng nhất là `usage`, tức số token đã dùng.\n\nToken là đơn vị tính toán và tính phí, đại khái là các mẩu từ. Phần gửi đi và phần nhận về được đếm riêng, phần lấy lại từ bộ nhớ đệm cũng được đếm riêng."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Trường",
+      "Đời thường",
+      "Dùng để"
+     ],
+     "rows": [
+      [
+       "`id`",
+       "Số hóa đơn",
+       "Đối chiếu, lưu vết"
+      ],
+      [
+       "`model`",
+       "Ai đã giao hàng",
+       "Kiểm tra đúng model mong muốn"
+      ],
+      [
+       "`usage.input_tokens`",
+       "Lượng gửi đi (không tính phần từ bộ nhớ đệm)",
+       "Tính chi phí đầu vào"
+      ],
+      [
+       "`usage.output_tokens`",
+       "Lượng nhận về",
+       "Tính chi phí đầu ra"
+      ],
+      [
+       "`usage.cache_read_input_tokens`",
+       "Phần đầu vào lấy lại từ bộ nhớ đệm",
+       "Kiểm tra bộ nhớ đệm có hoạt động"
+      ],
+      [
+       "`usage.cache_creation_input_tokens`",
+       "Phần đầu vào vừa được lưu vào bộ nhớ đệm",
+       "Theo dõi chi phí tạo bộ nhớ đệm"
+      ],
+      [
+       "`service_tier`",
+       "Hạng dịch vụ đã phục vụ",
+       "Đối chiếu với gói đã cam kết"
+      ]
+     ],
+     "caption": "Các trường chính"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nĐây là nguồn dữ liệu cho câu hỏi kinh doanh quan trọng nhất về AI: mỗi tính năng, mỗi khách hàng tốn bao nhiêu. Nó cũng cho biết prompt caching có thật sự tiết kiệm hay không."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Ghi `usage` theo từng tính năng và từng khách hàng.\n- Theo dõi tỷ lệ token đọc từ bộ nhớ đệm trên tổng token đầu vào.\n- Cảnh báo khi chi phí trung bình mỗi tác vụ tăng bất thường."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Ước tính chi phí bằng cách đếm số ký tự.\n- Chỉ nhìn tổng hóa đơn cuối tháng.\n- Không ghi lại model thực tế đã dùng."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Bộ nhớ đệm có lợi gấp đôi",
+     "text": "Với phần lớn model, chỉ token đầu vào **không** lấy từ bộ nhớ đệm mới bị tính vào giới hạn tốc độ token đầu vào. Bộ nhớ đệm hiệu quả vừa giảm chi phí, vừa giúp hệ thống chịu tải tốt hơn."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Product, tài chính, kỹ sư theo dõi hệ thống."
+    }
+   ]
+  },
+  {
+   "id": "l5",
+   "no": "L5",
+   "title": "Nhãn vận đơn · `Response headers`",
+   "toc_label": "Nhãn vận đơn",
+   "intro": "Thông tin dán bên ngoài response: mã truy vết và hạn mức còn lại.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Nhãn dán ngoài thùng"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Truy vết thế nào, còn được gửi bao nhiêu?"
+      ]
+     ]
+    },
+    {
+     "type": "kv",
+     "title": "Nhãn vận đơn",
+     "rows": [
+      [
+       "request-id",
+       "`req_ví_dụ_123`"
+      ],
+      [
+       "Lượt gửi còn lại",
+       "12 / 50"
+      ],
+      [
+       "Token còn lại",
+       "18.000 / 80.000"
+      ],
+      [
+       "retry-after",
+       "chỉ có khi bị giới hạn"
+      ]
+     ],
+     "note": "Giá trị là ví dụ. Khi thanh hạn mức xuống thấp, hệ thống nên tự giảm tốc.",
+     "ascii": "+============ NHÃN VẬN ĐƠN (ví dụ) ============+\n| request-id               req_ví_dụ_123      |\n| requests-remaining       12 / 50            |\n| tokens-remaining         18.000 / 80.000    |\n| retry-after              (khi bị giới hạn)  |\n+=============================================+"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nHTTP header là phần thông tin đi kèm bên ngoài nội dung, giống nhãn dán ngoài thùng hàng. Người dùng cuối không thấy, nhưng hệ thống cần chúng để vận hành.\n\nCó ba nhóm quan trọng: mã truy vết `request-id`, các header về giới hạn tốc độ bắt đầu bằng `anthropic-ratelimit-`, và `retry-after` cho biết nên chờ bao lâu trước khi thử lại."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Header",
+      "Đời thường",
+      "Dùng để"
+     ],
+     "rows": [
+      [
+       "`request-id`",
+       "Mã vận đơn",
+       "Truy vết sự cố, gửi cho đội hỗ trợ"
+      ],
+      [
+       "`anthropic-ratelimit-requests-remaining`",
+       "Số lượt gửi còn lại trong kỳ",
+       "Chủ động giảm tốc trước khi bị chặn"
+      ],
+      [
+       "`anthropic-ratelimit-tokens-remaining`",
+       "Số token còn lại trong kỳ, làm tròn tới hàng nghìn",
+       "Như trên, theo khối lượng"
+      ],
+      [
+       "`anthropic-ratelimit-requests-limit`, `...-tokens-limit`",
+       "Hạn mức tối đa trong kỳ",
+       "Biết trần hiện tại"
+      ],
+      [
+       "`retry-after`",
+       "Nên chờ bao lâu",
+       "Thời gian chờ trước khi thử lại"
+      ]
+     ],
+     "caption": "Các header chính"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nMã truy vết biến câu hỏi “hôm qua AI trả lời sai cho khách A, vì sao?” từ đoán mò thành tra cứu. Header hạn mức giúp hệ thống tự điều tiết thay vì đâm vào giới hạn rồi mới xử lý."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Lưu `request-id` vào log của từng bước, gắn với mã phiên của người dùng.\n- Giảm tốc khi hạn mức còn lại xuống thấp.\n- Tôn trọng `retry-after` khi thử lại."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Chỉ lưu nội dung chữ, bỏ qua header.\n- Thử lại ngay lập tức nhiều lần khi bị giới hạn.\n- Không có cách nối một sự cố của khách hàng với request cụ thể."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Không cần đọc header thủ công",
+     "text": "SDK chính thức cho Python và TypeScript đưa `request-id` ra thành thuộc tính `_request_id` trên đối tượng response."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Vận hành, SRE, support."
+    }
+   ]
+  },
+  {
+   "id": "l6",
+   "no": "L6",
+   "title": "Lỗi · `Errors`",
+   "toc_label": "Lỗi",
+   "intro": "Khi request thất bại, thứ nhận về là một lỗi có mã và loại rõ ràng, mỗi loại cần một cách xử lý riêng.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Hàng không giao được"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Không có câu trả lời thì chuyện gì đã xảy ra?"
+      ]
+     ]
+    },
+    {
+     "type": "cards",
+     "cols": 3,
+     "items": [
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "400 · 401 · 403 · 404 · 413"
+       },
+       "title": "Do mình gửi sai",
+       "text": "Sửa code hoặc cấu hình, không thử lại."
+      },
+      {
+       "pill": {
+        "kind": "warn",
+        "text": "429 tốc độ · 500 · 529"
+       },
+       "title": "Tạm thời",
+       "text": "Chờ rồi thử lại, khoảng chờ tăng dần."
+      },
+      {
+       "pill": {
+        "kind": "info",
+        "text": "429 hạn mức"
+       },
+       "title": "Hạn mức chi tiêu",
+       "text": "Thử lại không giúp gì, cần xử lý ở cấp tài khoản."
+      }
+     ],
+     "note": "Câu hỏi đầu tiên khi gặp lỗi: thử lại có giúp được không?",
+     "ascii": "LỖI\n +-- Do mình gửi sai    : 400 401 403 404 413   -> sửa, không thử lại\n +-- Tạm thời           : 429 500 529           -> chờ, thử lại có giãn cách\n +-- Hạn mức chi tiêu   : 429 (spend cap)       -> xử lý ở cấp tài khoản"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nLỗi không phải một loại response, nhưng cần được thiết kế như một luồng xử lý chính thức. Mỗi lỗi có mã HTTP và một loại (type) cho biết nguyên nhân.\n\nĐiểm mấu chốt là phân ba nhóm: lỗi do mình (sửa, không thử lại), lỗi tạm thời (chờ rồi thử lại), và lỗi do hạn mức chi tiêu (thử lại không giải quyết được)."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Mã và loại",
+      "Nguyên nhân",
+      "Cách xử lý"
+     ],
+     "rows": [
+      [
+       "400 `invalid_request_error`",
+       "Request sai định dạng hoặc nội dung",
+       "Sửa code, không thử lại"
+      ],
+      [
+       "401 `authentication_error`",
+       "Khóa API không hợp lệ",
+       "Kiểm tra khóa"
+      ],
+      [
+       "403 `permission_error`",
+       "Khóa không có quyền dùng tài nguyên",
+       "Kiểm tra quyền"
+      ],
+      [
+       "404 `not_found_error`",
+       "Không tìm thấy tài nguyên",
+       "Kiểm tra đường dẫn và mã định danh"
+      ],
+      [
+       "413 `request_too_large`",
+       "Request quá lớn",
+       "Cắt bớt dữ liệu gửi đi"
+      ],
+      [
+       "429 `rate_limit_error`",
+       "Vượt giới hạn tốc độ, hoặc chạm hạn mức chi tiêu",
+       "Chờ rồi thử lại; nếu do hạn mức chi tiêu thì xử lý ở cấp tài khoản"
+      ],
+      [
+       "500 `api_error`",
+       "Lỗi bất ngờ phía hệ thống",
+       "Thử lại có giãn cách"
+      ],
+      [
+       "529 `overloaded_error`",
+       "Hệ thống tạm thời quá tải",
+       "Thử lại có giãn cách, hoặc chuyển phương án dự phòng"
+      ]
+     ],
+     "caption": "Các lỗi thường gặp"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nPhân loại đúng giúp tránh hai thái cực tốn kém: thử lại vô ích một lỗi không bao giờ tự khỏi, hoặc bỏ cuộc với một lỗi chỉ cần chờ vài giây."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Thử lại với khoảng chờ tăng dần (exponential backoff) cho lỗi tạm thời.\n- Kiểm tra lỗi trong suốt luồng streaming, không chỉ mã HTTP ban đầu.\n- Ghi `request-id` cùng mỗi lỗi."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Thử lại mọi lỗi giống nhau, kể cả lỗi 400.\n- Coi mã 200 là thành công khi đang streaming.\n- Hiển thị thông báo lỗi kỹ thuật thô cho người dùng cuối."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "warn",
+     "title": "Lỗi có thể tới sau mã 200",
+     "text": "Khi streaming, lỗi có thể xảy ra **sau khi** đã nhận mã 200. Ngoài ra, SDK chính thức đã tự thử lại các lỗi tạm thời (mặc định 2 lần, có giãn cách, tôn trọng `retry-after`), nên tránh tự thêm một lớp thử lại chồng lên mà không tính toán. Kích thước request tối đa của Messages API là 32 MB."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Kỹ sư platform, vận hành."
+    }
+   ]
+  },
+  {
+   "id": "l7",
+   "no": "L7",
+   "title": "Trạng thái lô · `Batch result state`",
+   "toc_label": "Trạng thái lô",
+   "intro": "Khi xử lý theo lô, mỗi yêu cầu con có kết quả riêng. Lô kết thúc không có nghĩa là mọi yêu cầu đều thành công.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Trạng thái từng đơn trong lô"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Trong lô đã gửi, đơn nào thành công?"
+      ]
+     ]
+    },
+    {
+     "type": "tags",
+     "items": [
+      {
+       "kind": "ok",
+       "code": "succeeded",
+       "text": "50"
+      },
+      {
+       "kind": "bad",
+       "code": "errored",
+       "text": "30"
+      },
+      {
+       "kind": "mute",
+       "code": "canceled",
+       "text": "10"
+      },
+      {
+       "kind": "warn",
+       "code": "expired",
+       "text": "10"
+      }
+     ],
+     "note": "Ví dụ một lô 100 yêu cầu đã kết thúc. Lô đã xong nhưng một nửa cần xử lý lại.",
+     "ascii": "Lô 100 yêu cầu (ví dụ)\n[##### succeeded 50 #####][### errored 30 ###][canceled 10][expired 10]\nGhép kết quả bằng custom_id, KHÔNG bằng thứ tự dòng."
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nVới Message Batches, bạn gửi nhiều yêu cầu cùng lúc và nhận kết quả sau. Lô chỉ kết thúc khi mọi yêu cầu con đã ở một trong bốn trạng thái cuối cùng.\n\nKết quả trả về dưới dạng một file, mỗi dòng là kết quả của một yêu cầu. Thứ tự kết quả không giống thứ tự gửi, nên mỗi yêu cầu cần một mã riêng (`custom_id`) để ghép lại."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Trạng thái",
+      "Đời thường",
+      "Nên làm"
+     ],
+     "rows": [
+      [
+       "`succeeded`",
+       "Giao thành công",
+       "Đọc response như bình thường, vẫn kiểm tra `stop_reason`"
+      ],
+      [
+       "`errored`",
+       "Giao thất bại",
+       "Xem lỗi, sửa hoặc gửi lại ở lô sau"
+      ],
+      [
+       "`canceled`",
+       "Đơn bị hủy trước khi xử lý",
+       "Quyết định có gửi lại không"
+      ],
+      [
+       "`expired`",
+       "Quá hạn mà chưa xử lý xong",
+       "Gửi lại ở lô mới"
+      ]
+     ],
+     "caption": "Bốn trạng thái cuối"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nTheo dõi đúng trạng thái từng yêu cầu giúp xử lý hàng loạt đáng tin cậy, không bỏ sót những mục thất bại lẫn trong hàng nghìn mục thành công."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Đặt `custom_id` có ý nghĩa, ví dụ mã tài liệu hoặc mã khách hàng.\n- Tự động gom các mục `errored` và `expired` để gửi lại.\n- Tải và lưu kết quả sớm, vì kết quả không được giữ vĩnh viễn."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Ghép kết quả theo thứ tự dòng.\n- Coi lô đã xong là mọi mục đã thành công.\n- Dùng batch cho việc cần kết quả trong vài phút."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Thời gian và vòng đời",
+     "text": "Một lô có thể mất tới 24 giờ và có thể bị hủy bất cứ lúc nào trước khi kết thúc. Sau một thời gian, lô được lưu trữ và kết quả không còn tải được."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Kỹ sư data hoặc backend, người vận hành job."
+    }
+   ]
+  },
+  {
+   "id": "l8",
+   "no": "L8",
+   "title": "Đồ gửi kèm · `Artifacts: file và container`",
+   "toc_label": "Đồ gửi kèm",
+   "intro": "Một số kết quả, như file Claude tạo khi chạy code, không nằm trong response mà được lưu riêng và chỉ được tham chiếu bằng mã.",
+   "blocks": [
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Hình dung như",
+       "Tài liệu gửi riêng theo đơn"
+      ],
+      [
+       "Trả lời câu hỏi",
+       "Claude có tạo ra thứ gì nằm ngoài câu trả lời không?"
+      ]
+     ]
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Response",
+       "text": "Chỉ chứa mã file"
+      },
+      {
+       "title": "Files API",
+       "text": "Tải nội dung thật"
+      },
+      {
+       "title": "Hệ thống của bạn",
+       "text": "Lưu ở đâu, ai được xem, xóa khi nào"
+      }
+     ],
+     "note": "File nằm ngoài cuộc hội thoại, nên cần chính sách quản lý riêng.",
+     "ascii": "response (chỉ có mã file)  -->  Files API (tải nội dung)  -->  hệ thống của bạn\n                                                              (lưu ở đâu? ai được xem? xóa khi nào?)"
+    },
+    {
+     "type": "md",
+     "text": "#### Là gì\n\nKhi dùng công cụ chạy code, Claude có thể tạo file như biểu đồ hoặc bảng tính. Response không chứa nội dung file mà chỉ chứa mã định danh file. Ứng dụng dùng Files API để tải nội dung thật về.\n\nMôi trường chạy code (container) cũng là một dạng trạng thái tồn tại bên ngoài cuộc hội thoại và có thể được dùng lại giữa các request."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Thành phần",
+      "Đời thường",
+      "Cần quyết định"
+     ],
+     "rows": [
+      [
+       "File do Claude tạo",
+       "Tài liệu gửi kèm",
+       "Có lưu về hệ thống của mình không, lưu bao lâu"
+      ],
+      [
+       "Mã định danh file",
+       "Phiếu nhận tài liệu",
+       "Ai được dùng mã này để tải file"
+      ],
+      [
+       "Container",
+       "Phòng làm việc tạm",
+       "Có dùng lại giữa các lượt không, dọn dẹp khi nào"
+      ]
+     ],
+     "caption": "Cần quyết định gì"
+    },
+    {
+     "type": "md",
+     "text": "#### Lợi ích\n\nNhận diện lớp này giúp team không bỏ sót dữ liệu nằm ngoài cuộc hội thoại, vốn là nơi dễ phát sinh rủi ro về quyền truy cập và lưu trữ."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Có chính sách vòng đời rõ ràng: tải về, lưu ở đâu, xóa khi nào.\n- Kiểm tra quyền truy cập trước khi đưa file cho người dùng.\n- Ghi lại liên kết giữa file và request đã tạo ra nó."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Coi file do AI tạo là dữ liệu tạm không cần quản lý.\n- Chia sẻ mã file mà không kiểm soát quyền.\n- Để dữ liệu nhạy cảm tồn tại lâu trong môi trường chạy code."
+      }
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Không phải ứng dụng nào cũng chạm tới",
+     "text": "Lớp này chỉ xuất hiện khi dùng các công cụ có tạo file. Nhiều ứng dụng chat đơn giản không bao giờ dùng tới nó."
+    },
+    {
+     "type": "md",
+     "text": "**Ai phụ trách:** Kỹ sư, bảo mật, quản trị dữ liệu."
+    }
+   ]
+  },
+  {
+   "id": "flow",
+   "no": "05",
+   "title": "Ghép lại: một vòng agent",
+   "toc_group": "Ghép lại",
+   "intro": "Ví dụ một agent hỗ trợ khách hàng nhận câu hỏi: “Đơn hàng của tôi đâu? Tôi muốn hoàn tiền.” Các lớp xuất hiện lần lượt như sau.",
+   "blocks": [
+    {
+     "type": "figure",
+     "file": "loop.svg",
+     "ascii": "        +--------------------+\n        |  Ứng dụng gửi      |<--------------------+\n        |  request           |                     |\n        +---------+----------+                     |\n                  v                                |\n        +--------------------+          +----------+---------+\n        |  Claude trả về     |          |  Chạy công cụ,     |\n        |  response          |          |  gửi tool_result   |\n        +---------+----------+          +----------^---------+\n                  v                                |\n        +--------------------+     tool_use        |\n        |  Đọc stop_reason   +---------------------+\n        +---------+----------+\n                  | end_turn\n                  v\n        +--------------------+\n        |  Trả lời người dùng|\n        +--------------------+",
+     "caption": "Vòng lặp chạy tới khi lý do dừng là `end_turn`, hoặc một giá trị cần xử lý riêng."
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Ứng dụng gửi request",
+       "text": "Kèm công cụ tra đơn, kiểm tra chính sách, tạo hoàn tiền; bật streaming cho phần trả lời khách. *(Lớp 0, 3)*"
+      },
+      {
+       "title": "Claude yêu cầu tra đơn",
+       "text": "Response có khối `tool_use` và `stop_reason` là `tool_use`. *(Lớp 1, 2)*"
+      },
+      {
+       "title": "Ứng dụng chạy công cụ",
+       "text": "Gửi `tool_result` lại cho Claude; ghi `request-id` và `usage` của lượt này. *(Lớp 4, 5)*"
+      },
+      {
+       "title": "Gặp lỗi 529 giữa chừng",
+       "text": "Hệ thống tạm quá tải; thử lại có giãn cách, không báo lỗi cho khách. *(Lớp 6)*"
+      },
+      {
+       "title": "Claude đề xuất hoàn tiền",
+       "text": "Dữ liệu có cấu trúc gồm số tiền và lý do; code kiểm tra quy tắc nghiệp vụ, số tiền vượt ngưỡng nên chuyển người duyệt. *(Lớp 1)*"
+      },
+      {
+       "title": "Claude trả lời khách",
+       "text": "Chữ hiện dần trên màn hình; kết thúc với `end_turn`. *(Lớp 1, 2, 3)*"
+      },
+      {
+       "title": "Cuối ngày",
+       "text": "Một batch phân loại toàn bộ hội thoại trong ngày; mục lỗi được gom lại gửi lô sau. *(Lớp 7)*"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ownership",
+   "no": "06",
+   "title": "Ai phụ trách lớp nào",
+   "intro": "Mỗi lớp nên có một nơi chịu trách nhiệm trong hệ thống. Không nên để một hàm “gọi AI” duy nhất gánh tất cả.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Lớp",
+      "Thành phần phụ trách",
+      "Câu hỏi thành phần đó trả lời"
+     ],
+     "rows": [
+      [
+       "0. Yêu cầu định hình",
+       "Product và cấu hình request",
+       "Mình muốn nhận về gì, theo khuôn nào?"
+      ],
+      [
+       "1. Nội dung",
+       "Giao diện và logic nghiệp vụ",
+       "Hiển thị gì, quyết định gì từ kết quả?"
+      ],
+      [
+       "2. Lý do dừng",
+       "Vòng lặp agent (orchestrator)",
+       "Bước tiếp theo là gì?"
+      ],
+      [
+       "3. Cách giao",
+       "Lớp kết nối API (client)",
+       "Nhận theo cách nào cho phù hợp?"
+      ],
+      [
+       "4. Hóa đơn",
+       "Theo dõi chi phí",
+       "Tốn bao nhiêu, cho ai?"
+      ],
+      [
+       "5. Nhãn vận đơn",
+       "Log và giám sát",
+       "Truy vết thế nào, còn hạn mức không?"
+      ],
+      [
+       "6. Lỗi",
+       "Chính sách thử lại và cảnh báo",
+       "Thử lại, sửa, hay báo động?"
+      ],
+      [
+       "7. Trạng thái lô",
+       "Hàng đợi công việc (job queue)",
+       "Mục nào cần xử lý lại?"
+      ],
+      [
+       "8. Đồ gửi kèm",
+       "Lưu trữ và quản trị dữ liệu",
+       "Giữ ở đâu, ai được xem, xóa khi nào?"
+      ]
+     ]
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Cách tách tối thiểu",
+     "text": "Cách tách tối thiểu là ba tầng: tầng kết nối lo lớp 3, 5 và 6; tầng điều phối lo lớp 1, 2 và 7; tầng theo dõi lo lớp 4 và 8. Khi một lớp thay đổi, chỉ một tầng phải sửa."
+    }
+   ]
+  },
+  {
+   "id": "checklist",
+   "no": "07",
+   "title": "Checklist triển khai",
+   "head": false,
+   "blocks": [
+    {
+     "type": "checklist",
+     "kicker": "07 · Checklist triển khai",
+     "title": "Checklist triển khai",
+     "intro": "Đánh dấu để tự rà soát. Dấu tích được lưu trong trình duyệt này.",
+     "steps": [
+      {
+       "title": "Mọi chỗ dùng nội dung đều kiểm tra `stop_reason` trước.",
+       "where": [
+        [
+         "L2",
+         "#l2"
+        ]
+       ]
+      },
+      {
+       "title": "Có nhánh xử lý cho giá trị `stop_reason` chưa biết.",
+       "where": [
+        [
+         "L2",
+         "#l2"
+        ]
+       ]
+      },
+      {
+       "title": "Định dạng JSON được ép bằng structured outputs, không chỉ dặn trong prompt.",
+       "where": [
+        [
+         "L0",
+         "#l0"
+        ]
+       ]
+      },
+      {
+       "title": "Có bước kiểm tra quy tắc nghiệp vụ sau khi nhận dữ liệu có cấu trúc.",
+       "where": [
+        [
+         "L0",
+         "#l0"
+        ],
+        [
+         "L1",
+         "#l1"
+        ]
+       ]
+      },
+      {
+       "title": "Công cụ ghi dữ liệu có kiểm soát quyền, chống trùng lặp và ngưỡng cần người duyệt.",
+       "where": [
+        [
+         "L1",
+         "#l1"
+        ]
+       ]
+      },
+      {
+       "title": "Nội dung được lấy theo `type` của khối, không theo vị trí.",
+       "where": [
+        [
+         "L1",
+         "#l1"
+        ]
+       ]
+      },
+      {
+       "title": "Luồng streaming bắt được lỗi xảy ra sau mã 200.",
+       "where": [
+        [
+         "L3",
+         "#l3"
+        ],
+        [
+         "L6",
+         "#l6"
+        ]
+       ]
+      },
+      {
+       "title": "Lỗi được phân loại: sửa, chờ thử lại, hay xử lý cấp tài khoản.",
+       "where": [
+        [
+         "L6",
+         "#l6"
+        ]
+       ]
+      },
+      {
+       "title": "`request-id` được lưu cùng log của từng bước.",
+       "where": [
+        [
+         "L5",
+         "#l5"
+        ]
+       ]
+      },
+      {
+       "title": "`usage` được ghi theo tính năng và khách hàng.",
+       "where": [
+        [
+         "L4",
+         "#l4"
+        ]
+       ]
+      },
+      {
+       "title": "Kết quả batch được ghép bằng `custom_id`; mục lỗi và quá hạn được gửi lại.",
+       "where": [
+        [
+         "L7",
+         "#l7"
+        ]
+       ]
+      },
+      {
+       "title": "File do Claude tạo có chính sách lưu trữ và quyền truy cập.",
+       "where": [
+        [
+         "L8",
+         "#l8"
+        ]
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "refs",
+   "no": "08",
+   "title": "Tài liệu tham khảo",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "- [Tổng quan Claude API](https://platform.claude.com/docs/en/api): Các API chính, header bắt buộc, giới hạn kích thước request.\n- [Messages API reference](https://platform.claude.com/docs/en/api/messages/create): Cấu trúc đầy đủ của request và response.\n- [Working with Messages](https://platform.claude.com/docs/en/build-with-claude/working-with-messages): Hướng dẫn nhập môn cách dùng Messages API.\n- [Handling stop reasons](https://platform.claude.com/docs/en/api/handling-stop-reasons): Ý nghĩa và cách xử lý từng giá trị stop_reason (lớp 2).\n- [Structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs): JSON outputs và strict tool use (lớp 0, 1).\n- [Tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use): Cách định nghĩa và xử lý công cụ (lớp 1).\n- [Errors](https://platform.claude.com/docs/en/api/errors): Mã lỗi, request-id, lỗi trong streaming (lớp 5, 6).\n- [Rate limits](https://platform.claude.com/docs/en/api/rate-limits): Giới hạn tốc độ và các header anthropic-ratelimit (lớp 5).\n- [Batch processing](https://docs.claude.com/en/docs/build-with-claude/batch-processing): Message Batches và trạng thái kết quả (lớp 3, 7).\n- [Files API](https://platform.claude.com/docs/en/build-with-claude/files): Tải và quản lý file (lớp 8)."
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "text": "Thông tin trong tài liệu được đối chiếu với tài liệu chính thức của Anthropic vào tháng 10/2026. API có thể thay đổi; khi triển khai, hãy kiểm tra lại tài liệu gốc ở phần Tài liệu tham khảo. Các con số trong hình minh họa là ví dụ."
+    }
+   ]
+  }
+ ],
+ "footer": "Claude trả về gì? 8 lớp của một response · Đối chiếu với tài liệu chính thức của Anthropic vào tháng 10/2026"
+}

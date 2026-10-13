@@ -1,0 +1,997 @@
+{
+ "meta": {
+  "title": "Deep Dive: Tool Call trong Claude",
+  "brand": "Deep Dive · Tool Call",
+  "date": "2026-10-12",
+  "desc": "Tool call trong Claude: là gì, bao nhiêu loại, dùng ở đâu, nguyên tắc, ranh giới, best/bad practice và ví dụ từ atomic đến workflow.",
+  "lang": "vi",
+  "md_filename": "claude-tool-call-deep-dive.md",
+  "storage_key": "claude-tool-call-deep-dive",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Claude chỉ đề xuất. Harness quyết định và thực thi.",
+  "title": "Deep Dive: *Tool Call trong Claude*",
+  "lede": "Tài liệu tổng hợp về cách Claude dùng công cụ: là gì, có bao nhiêu loại, dùng ở đâu, nguyên tắc và ranh giới, best/bad practice, kèm ví dụ từ thao tác đơn lẻ đến workflow nghiệp vụ.",
+  "chips": [
+   {
+    "label": "Bài liên quan",
+    "value": "Claude Inside trên Like2Learn",
+    "href": "https://like2learn.ainyou.life/read.html?p=topics/ai/claude-inside-26-10-11.html"
+   },
+   {
+    "label": "Đối chiếu",
+    "value": "tài liệu chính thức của Anthropic, 10/2026"
+   }
+  ],
+  "stats": [
+   {
+    "n": "6",
+    "l": "loại tool theo ba scope"
+   },
+   {
+    "n": "13",
+    "l": "ví dụ từ atomic đến workflow"
+   },
+   {
+    "n": "4",
+    "l": "cấp độ: atomic, composite, business, workflow"
+   },
+   {
+    "n": "18",
+    "l": "mục checklist triển khai"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "s1",
+   "no": "01",
+   "title": "Mục tiêu và phạm vi",
+   "blocks": [
+    {
+     "type": "callout",
+     "kind": "note",
+     "text": "Thông tin được đối chiếu với tài liệu chính thức của Anthropic vào tháng 10/2026. API và sản phẩm có thể thay đổi; khi triển khai hãy kiểm tra lại tài liệu gốc ở mục Tài liệu tham khảo. Các payload JSON và cấu hình trong tài liệu là ví dụ minh họa."
+    },
+    {
+     "type": "md",
+     "text": "### Mục tiêu\n\nSau khi đọc, người đọc nên trả lời được:\n\n| Câu hỏi | Phần |\n|---|---|\n| Tool call là gì, ai thực sự chạy công cụ? | 2 |\n| Có bao nhiêu loại tool, khác nhau ở đâu? | 3 |\n| Mỗi loại dùng được trên sản phẩm nào? | 4 |\n| Tool trong Messages API, trong Skill và qua MCP vận hành ra sao? | 5 |\n| Nguyên tắc, hợp đồng kỹ thuật và ranh giới an toàn là gì? | 6 |\n| Áp dụng vào tình huống thực tế thế nào? | 7 |\n| Nên và tránh làm gì? | 8 |\n\n### Phạm vi (scope)\n\nTài liệu chia tool thành ba phạm vi theo **ai sở hữu năng lực**:\n\n| Scope | Ý nghĩa | Ví dụ |\n|---|---|---|\n| **Built-in Claude** | Năng lực có sẵn do Anthropic hoặc harness của Anthropic cung cấp | Tìm kiếm web, chạy code, đọc/ghi file trong Claude Code |\n| **External integration** | Kết nối tới dịch vụ bên thứ ba có sẵn connector | Slack, Jira, Google Drive qua MCP |\n| **Custom business** | Năng lực do chính doanh nghiệp xây dựng | API nội bộ, MCP server riêng, Skill quy trình nghiệp vụ |\n\nVà ba **cơ chế** để Claude chạm tới công cụ:\n\n| Cơ chế | Một câu mô tả |\n|---|---|\n| **Tool trong Message** | Ứng dụng khai báo tool trong request Messages API, tự thực thi khi Claude yêu cầu |\n| **Tool call trong Skill** | Skill là gói hướng dẫn và script; Claude làm theo bằng cách dùng các tool khác |\n| **Tool qua MCP** | Tool nằm trên một MCP server, được khám phá và gọi qua giao thức chuẩn |"
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "no": "02",
+   "title": "Tool call là gì",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 2.1 Mental model một câu"
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "text": "**Claude không bao giờ tự thực thi công cụ. Claude chỉ đề xuất; một chương trình bao quanh (harness) quyết định có chạy hay không, chạy thế nào, rồi báo kết quả lại.**"
+    },
+    {
+     "type": "md",
+     "text": "Harness có thể là:\n\n- Backend của bạn (khi dùng Messages API với custom tool).\n- Claude Code hoặc Claude Agent SDK.\n- Ứng dụng claude.ai.\n- Hạ tầng của Anthropic (với server tool như tìm kiếm web).\n\n### 2.2 Giải phẫu một tool call\n\nMột tool call gồm ba mảnh:"
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Ứng dụng khai báo · `tool definition`",
+       "text": "Tên, mô tả, JSON Schema của đầu vào"
+      },
+      {
+       "title": "Claude đề xuất · `tool_use`",
+       "text": "“Tôi muốn gọi tool X với input Y”"
+      },
+      {
+       "title": "Harness thực thi · `tool_result`",
+       "text": "Kiểm tra quyền, chạy, gửi kết quả kèm đúng id"
+      }
+     ],
+     "note": "Ba mảnh của mọi tool call, dù tool nằm ở Anthropic, trong Claude Code, trên MCP server hay trong backend của bạn.",
+     "ascii": "1. TOOL DEFINITION   (ứng dụng khai báo)    tên + mô tả + JSON Schema đầu vào\n2. TOOL_USE          (Claude trả về)        \"tôi muốn gọi tool X với input Y\"\n3. TOOL_RESULT       (harness gửi lại)      kết quả, gắn đúng id của tool_use"
+    },
+    {
+     "type": "md",
+     "text": "**Tool definition** (gửi trong request):\n\n```json\n{\n  \"name\": \"tra_don\",\n  \"description\": \"Tra trạng thái đơn hàng theo mã đơn. Dùng khi khách hỏi đơn đang ở đâu.\",\n  \"input_schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"ma_don\": { \"type\": \"string\", \"description\": \"Mã đơn, dạng DH-xxxx\" }\n    },\n    \"required\": [\"ma_don\"]\n  }\n}\n```\n\n**tool_use** (Claude trả về trong `content`, kèm `stop_reason: \"tool_use\"`):\n\n```json\n{\n  \"type\": \"tool_use\",\n  \"id\": \"toolu_01ABC\",\n  \"name\": \"tra_don\",\n  \"input\": { \"ma_don\": \"DH-1024\" }\n}\n```\n\n**tool_result** (harness gửi lại trong message `user` kế tiếp):\n\n```json\n{\n  \"type\": \"tool_result\",\n  \"tool_use_id\": \"toolu_01ABC\",\n  \"content\": \"{\\\"trang_thai\\\": \\\"dang_giao\\\", \\\"du_kien\\\": \\\"2026-10-14\\\"}\"\n}\n```\n\n### 2.3 Vòng lặp agent"
+    },
+    {
+     "type": "figure",
+     "file": "loop.svg",
+     "ascii": "        ┌──────────────────────────┐\n        │ Harness gửi request      │◀─────────────────────────┐\n        │ (messages + tools)       │                          │\n        └────────────┬─────────────┘                          │\n                     ▼                                        │\n        ┌──────────────────────────┐                          │\n        │ Claude trả response      │                          │\n        └────────────┬─────────────┘                          │\n                     ▼                                        │\n        ┌──────────────────────────┐   tool_use    ┌──────────┴─────────┐\n        │ Đọc stop_reason          ├──────────────▶│ Kiểm tra quyền,    │\n        └────────────┬─────────────┘               │ thực thi tool,     │\n                     │ end_turn                    │ gửi tool_result    │\n                     ▼                             └────────────────────┘\n        ┌──────────────────────────┐\n        │ Trả kết quả cho người    │\n        └──────────────────────────┘",
+     "caption": "Vòng lặp chạy tới khi `stop_reason` là `end_turn`, hoặc một giá trị cần xử lý riêng."
+    },
+    {
+     "type": "md",
+     "text": "Các giá trị `stop_reason` liên quan trực tiếp tới tool:\n\n| Giá trị | Ý nghĩa với tool | Harness làm gì |\n|---|---|---|\n| `tool_use` | Claude chờ harness chạy tool phía client | Thực thi, gửi `tool_result`, gọi lại |\n| `pause_turn` | Vòng lặp server tool (phía Anthropic) tạm dừng | Gửi lại hội thoại để Claude đi tiếp |\n| `end_turn` | Đã xong | Dùng kết quả |\n| `max_tokens` | Bị cắt, có thể cắt ngang giữa một tool_use | Không thực thi tool bị cắt dở |"
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "text": "`pause_turn` chỉ liên quan tới server tool. Khi Claude chờ tool phía bạn, lý do dừng luôn là `tool_use`."
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "no": "03",
+   "title": "Phân loại: bao nhiêu loại tool",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 3.1 Bản đồ tổng quát"
+    },
+    {
+     "type": "cards",
+     "cols": 3,
+     "ascii": "                         ┌─ A1. Server tool         Anthropic thực thi\n          Built-in ──────┤                          (web search, web fetch, code execution)\n          Claude         └─ A2. Harness built-in    Claude Code / Agent SDK thực thi\n                                                    (Read, Write, Edit, Glob, Grep, Bash…)\n\n          External  ─────── B1. Connector MCP       MCP server của bên thứ ba\n          integration                               (Slack, Jira, Google Drive…)\n\n                         ┌─ C1. Custom tool         Backend của bạn thực thi\n          Custom   ──────┼─ C2. MCP server riêng    Server MCP của bạn thực thi\n          business       └─ C3. Skill               KHÔNG phải tool: gói hướng dẫn + script,\n                                                    thực hiện qua tool khác (A1, A2, B1, C2)",
+     "items": [
+      {
+       "title": "Built-in Claude",
+       "meta": "Anthropic cung cấp",
+       "text": "- **A1. Server tool** — Anthropic thực thi: web search, web fetch, code execution\n- **A2. Harness built-in** — Claude Code / Agent SDK thực thi: Read, Edit, Bash…"
+      },
+      {
+       "title": "External integration",
+       "meta": "Bên thứ ba",
+       "text": "- **B1. Connector MCP** — MCP server bên thứ ba: Slack, Jira, Drive…"
+      },
+      {
+       "title": "Custom business",
+       "meta": "Doanh nghiệp xây dựng",
+       "text": "- **C1. Custom tool** — Backend của bạn thực thi, khai báo trong request\n- **C2. MCP server riêng** — Server MCP của bạn thực thi\n- **C3. Skill** — Không phải tool: hướng dẫn + script, chạy qua tool khác"
+      }
+     ],
+     "note": "Sáu loại theo ba scope. C3 Skill không phải tool. Bảng so sánh chi tiết ở 3.2."
+    },
+    {
+     "type": "md",
+     "text": "### 3.2 So sánh chi tiết\n\n| Loại | Ai định nghĩa | Ai thực thi | Block Claude trả về | Kiểm soát chính |\n|---|---|---|---|---|\n| A1. Server tool | Anthropic | Anthropic | `server_tool_use` + `*_tool_result` | Tham số cấu hình (giới hạn số lần, domain) |\n| A2. Harness built-in | Anthropic (trong harness) | Harness, trên máy/server của bạn | `tool_use` | Permission + hook |\n| B1. Connector MCP | Bên thứ ba | MCP server bên thứ ba | `tool_use` (host chuyển sang MCP) | OAuth của dịch vụ + permission phía host |\n| C1. Custom tool | Bạn, trong request | Backend của bạn | `tool_use` | Toàn quyền trong code |\n| C2. MCP server riêng | Bạn, trên server | MCP server của bạn | `tool_use` hoặc `mcp_tool_use` | Auth ở server + permission phía host |\n| C3. Skill | Bạn hoặc tổ chức | Tool khác đảm nhận | Không có block riêng | Nội dung skill + kiểm soát của tool được dùng |\n\n### 3.3 Hai điểm hay nhầm\n\n**Skill không phải tool.** Skill là thư mục có `SKILL.md` (hướng dẫn) và có thể kèm `scripts/`. Khi Claude chạy script, model chỉ thấy một tool call kiểu `Bash: python scripts/tinh_phi.py`. Không tồn tại block `skill_use`.\n\n**MCP là giao thức, không phải loại tool.** Cùng một MCP server có thể được dùng qua Claude Code, claude.ai, Messages API (MCP connector) hoặc backend của bạn đóng vai MCP client. Cách dùng quyết định ai thực thi và ai kiểm soát (xem 5.3)."
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "no": "04",
+   "title": "Được sử dụng ở đâu",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Bề mặt sử dụng | A1 Server tool | A2 Harness built-in | B1/C2 MCP | C1 Custom tool | C3 Skill |\n|---|---|---|---|---|---|\n| **Messages API** (tự viết backend) | Có | Không | Có, qua tham số `mcp_servers` hoặc backend làm MCP client | Có, đây là cơ chế gốc | Có, khi dùng cùng môi trường chạy code |\n| **claude.ai** (web, app) | Có | Không | Có, qua connector | Không | Có |\n| **Claude Code** | Có (dạng WebSearch, WebFetch) | Có | Có | Không trực tiếp | Có |\n| **Claude Agent SDK** | Có | Có | Có | Có, dưới dạng hàm của bạn | Có |\n\nGợi ý đọc bảng:\n\n- **Xây sản phẩm cho khách hàng** thường dùng Messages API hoặc Agent SDK.\n- **Nhân viên nội bộ làm việc** thường dùng claude.ai hoặc Claude Code kèm MCP và Skill.\n- **Agent SDK** là cách dùng lại vòng lặp của Claude Code (tool có sẵn, permission, hook, subagent) bên trong ứng dụng của bạn, thay vì tự viết vòng lặp."
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "no": "05",
+   "title": "Ba cơ chế chi tiết: Message, Skill, MCP",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 5.1 Tool trong Message (Messages API)\n\n#### Cách hoạt động\n\nBackend của bạn chính là harness: khai báo tool, nhận `tool_use`, tự thực thi, gửi `tool_result`, lặp tới khi xong.\n\n```text\nUser ─▶ Chat backend ──(tools=[…])──▶ Claude API\n             ▲                             │ tool_use\n             │◀────────────────────────────┘\n             ├─▶ Business API (backend tự gọi, biết user là ai)\n             └──(tool_result)──▶ Claude API ─▶ … ─▶ end_turn ─▶ User\n```\n\n#### Các tham số điều khiển\n\n| Tham số | Tác dụng |\n|---|---|\n| `tools` | Danh sách tool Claude được phép đề xuất |\n| `tool_choice: auto` | Claude tự quyết có dùng tool hay không (mặc định khi có tools) |\n| `tool_choice: any` | Bắt buộc dùng ít nhất một tool |\n| `tool_choice: {type: tool, name}` | Bắt buộc dùng đúng tool chỉ định |\n| `tool_choice: none` | Không cho dùng tool |\n| `disable_parallel_tool_use` | Trong `tool_choice`: chỉ cho tối đa một tool call mỗi lượt |\n| `strict: true` (trên từng tool) | Đảm bảo input của tool đúng JSON Schema |\n\n#### Vòng lặp tối thiểu (Python, minh họa)\n\n```python\nimport anthropic\n\nclient = anthropic.Anthropic()\nMAX_STEPS = 10\n\ndef run_agent(user_text, tools, executors):\n    messages = [{\"role\": \"user\", \"content\": user_text}]\n    for _ in range(MAX_STEPS):\n        resp = client.messages.create(\n            model=MODEL, max_tokens=2048, tools=tools, messages=messages\n        )\n        messages.append({\"role\": \"assistant\", \"content\": resp.content})\n\n        if resp.stop_reason == \"end_turn\":\n            return resp\n        if resp.stop_reason == \"tool_use\":\n            results = []\n            for block in resp.content:\n                if block.type != \"tool_use\":\n                    continue\n                try:\n                    output = executors[block.name](**block.input)   # kiểm tra quyền bên trong\n                    results.append({\"type\": \"tool_result\",\n                                    \"tool_use_id\": block.id,\n                                    \"content\": output})\n                except Exception as e:\n                    results.append({\"type\": \"tool_result\",\n                                    \"tool_use_id\": block.id,\n                                    \"content\": f\"Lỗi: {e}\",\n                                    \"is_error\": True})\n            messages.append({\"role\": \"user\", \"content\": results})\n            continue\n        if resp.stop_reason == \"pause_turn\":\n            continue                      # gửi lại để server tool đi tiếp\n        handle_other(resp)                # max_tokens, refusal, giá trị lạ…\n        return resp\n    raise RuntimeError(\"Vượt số bước tối đa\")\n```\n\nĐiểm cần chú ý trong vòng lặp:\n\n- **Parallel tool use:** một response có thể chứa nhiều `tool_use`. Trả **tất cả** `tool_result` trong **cùng một** message `user`, mỗi kết quả khớp đúng `tool_use_id`.\n- **Thinking block:** nếu bật extended thinking, giữ nguyên các block `thinking` khi gửi lại trong vòng lặp, không chỉnh sửa.\n- **`is_error: true`:** báo lỗi có cấu trúc để Claude tự điều chỉnh, thay vì làm sập vòng lặp.\n- **Giới hạn số bước:** luôn có trần để tránh vòng lặp vô hạn và chi phí mất kiểm soát.\n\n#### Server tool trong Messages API\n\nServer tool được khai báo trong cùng tham số `tools`, nhưng do Anthropic thực thi:\n\n```json\n{ \"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 5 }\n```\n\nResponse trả về `server_tool_use` và `web_search_tool_result`. Backend không cần thực thi gì, nhưng phải xử lý `pause_turn`.\n\n### 5.2 Tool call trong Skill\n\n#### Cấu trúc một skill\n\n```text\nquy-trinh-hoan-tien/\n├── SKILL.md          ← bắt buộc: frontmatter (name, description) + hướng dẫn\n├── references/       ← tùy chọn: chính sách, bảng phí, ví dụ\n└── scripts/          ← tùy chọn: code tất định (tính toán, validate, định dạng)\n```"
+    },
+    {
+     "type": "code",
+     "lang": "markdown",
+     "text": "---\nname: quy-trinh-hoan-tien\ndescription: Xử lý yêu cầu hoàn tiền của khách. Dùng khi khách yêu cầu hoàn tiền, trả hàng hoặc khiếu nại thanh toán.\n---\n\n# Quy trình hoàn tiền\n\n1. Dùng tool `tra_don` để lấy trạng thái và giá trị đơn.\n2. Chạy `scripts/kiem_tra_dieu_kien.py` với dữ liệu đơn để xác định điều kiện hoàn.\n3. Nếu đủ điều kiện, gọi `tao_hoan_tien`. Hệ thống sẽ yêu cầu người duyệt nếu vượt ngưỡng.\n4. Soạn phản hồi cho khách theo mẫu trong `references/mau_phan_hoi.md`."
+    },
+    {
+     "type": "md",
+     "text": "#### Progressive disclosure\n\nSkill được nạp theo ba tầng, nên có thể cài nhiều skill mà không làm phình context:\n\n| Tầng | Nạp khi nào | Nội dung |\n|---|---|---|\n| 1 | Luôn luôn, từ đầu phiên | Tên và mô tả (frontmatter) |\n| 2 | Khi yêu cầu khớp mô tả | Toàn bộ `SKILL.md` |\n| 3 | Khi đang làm tới bước cần | File trong `references/`, `scripts/` |\n\nHệ quả thiết kế: **phần `description` quyết định skill có được kích hoạt hay không.** Mô tả phải nói rõ cả skill làm gì lẫn khi nào dùng.\n\n#### Ba đường để skill chạm tới hệ thống"
+    },
+    {
+     "type": "figure",
+     "file": "paths.svg",
+     "ascii": "                     ┌─ (A) SKILL.md hướng dẫn → Claude gọi MCP/custom tool ──┐\nSkill ── Claude ─────┤                                                        ├──▶ Business API\n                     ├─ (B) script ── gọi HTTP API trực tiếp ─────────────────┤\n                     └─ (C) script ── gọi MCP server bằng code ───────────────┘",
+     "caption": "Ba đường đều phải đi qua Business API: đó là nơi rule bắt buộc được thực thi."
+    },
+    {
+     "type": "md",
+     "text": "| Đường | Dùng khi | Policy được thực thi ở đâu | Rủi ro |\n|---|---|---|---|\n| (A) Hướng dẫn gọi tool | Hành động nghiệp vụ, nhất là ghi dữ liệu | Hook + MCP server + API | Thấp nhất |\n| (B) Script gọi API | Đọc, tính toán, công cụ legacy | Chỉ ở API | Hook chỉ thấy `Bash: python …`, không thấy ý nghĩa nghiệp vụ; credential nằm trong môi trường |\n| (C) Script gọi MCP | Dữ liệu lớn, chuỗi xử lý nhiều bước | MCP server + API | Mất tính minh bạch theo từng hành động |\n\nĐường (C) là pattern Anthropic đề xuất trong bài \"Code execution with MCP\": trình bày MCP server như API dạng code để agent viết code gọi, giúp nạp tool khi cần, lọc dữ liệu trước khi tới model, và giữ kết quả trung gian trong môi trường thực thi."
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "text": "Script trong skill có gọi được mạng hay không phụ thuộc môi trường. Ví dụ sandbox của claude.ai giới hạn mạng ra theo danh sách domain cho phép, nên script gọi API nội bộ có thể chạy trong Claude Code trên máy dev nhưng bị chặn trên claude.ai."
+    },
+    {
+     "type": "md",
+     "text": "### 5.3 Tool qua MCP\n\n#### Giao thức\n\nMCP (Model Context Protocol) là giao thức mở để expose tool, resource và prompt. Hai lệnh cốt lõi với tool:\n\n```json\n{ \"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/list\" }\n```\n\n```json\n{\n  \"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/call\",\n  \"params\": { \"name\": \"create_issue\", \"arguments\": { \"project\": \"SUP\", \"title\": \"Khách phản ánh giao trễ\" } }\n}\n```\n\nTrong Claude Code, tool MCP được đặt tên theo mẫu `mcp__<server>__<tool>` và đi qua cùng hệ thống permission và hook như tool có sẵn.\n\n#### Bốn cách dùng MCP\n\n| # | Cách dùng | Ai thực thi | Ai giữ vòng lặp | Phù hợp |\n|---|---|---|---|---|\n| 1 | Host có sẵn (Claude Code, claude.ai) | Host gọi MCP server | Host | Nhân viên nội bộ |\n| 2 | MCP connector trong Messages API (`mcp_servers`) | Anthropic gọi MCP server | Phía Claude API | Prototype, công cụ ít rủi ro |\n| 3 | Backend làm MCP client, chuyển MCP tool thành custom tool | Backend gọi MCP server | Backend | Sản phẩm cho khách hàng |\n| 4 | Script gọi MCP bằng code (code execution with MCP) | Môi trường chạy code | Code do agent viết | Xử lý dữ liệu lớn |\n\n#### MCP connector (cách 2) và custom tool: khác biệt quan trọng\n\n| Tiêu chí | Custom tool / backend làm MCP client | MCP connector |\n|---|---|---|\n| Biết user cuối là ai | Có sẵn trong session của backend | Phải truyền token riêng theo từng user |\n| Lọc dữ liệu trước khi model đọc | Được, backend lọc trước khi gửi `tool_result` | Không, phải lọc ngay tại MCP server |\n| Chèn bước người duyệt | Dễ, backend dừng vòng lặp | Khó, phải thiết kế ở MCP server |\n| Đường mạng | Nội bộ | MCP server phải truy cập được từ internet |\n| Công sức backend | Phải tự viết vòng lặp | Ít |\n\nResponse khi dùng MCP connector chứa block `mcp_tool_use` và `mcp_tool_result`: backend chỉ thấy kết quả **sau khi** model đã đọc.\n\n#### Skill và MCP bổ trợ nhau\n\n| | Skill | MCP |\n|---|---|---|\n| Trả lời câu hỏi | **Làm thế nào** | **Làm được gì** |\n| Chứa | Quy trình, tiêu chí, script hỗ trợ | Năng lực truy cập hệ thống thật |\n| Quan hệ | SKILL.md nhắc tên tool MCP cần dùng | Không cần biết skill nào đang dùng mình |"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "no": "06",
+   "title": "Nguyên tắc, protocol và ranh giới",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 6.1 Mười nguyên tắc\n\n1. **AI đề xuất, hệ thống tất định quyết định.** Mọi hành động có tác động thật đi qua code mà bạn kiểm soát.\n2. **Policy nằm ở nơi hành động xảy ra.** Business rule bắt buộc nằm ở Business API; hook và permission là lớp phòng thủ sớm, không phải lớp duy nhất.\n3. **Hook cho điều bắt buộc, prompt/skill cho điều nên biết.** “Hoàn trên 2 triệu cần người duyệt” là code; “xưng hô thân thiện” là hướng dẫn.\n4. **Một năng lực, một cổng.** Mỗi business API expose qua một MCP server (hoặc một lớp tool); không viết lại auth trong từng script.\n5. **Tool nhỏ, đơn nhiệm, tên rõ nghĩa.** Tránh tool vạn năng như “chạy SQL bất kỳ”.\n6. **Tách đọc và ghi.** Tool đọc có thể tự chạy; tool ghi có kiểm soát quyền, chống trùng lặp và ngưỡng duyệt.\n7. **Quyền tối thiểu.** Credential theo từng agent, từng user, phạm vi hẹp nhất.\n8. **Model chọn, code tính, server cho phép.** Không để model tự tính tiền hay tự quyết quyền hạn.\n9. **Lỗi là dữ liệu.** Trả lỗi có cấu trúc trong `tool_result` để Claude tự điều chỉnh.\n10. **Truy vết đầu-cuối.** Mọi tác động ghi truy ngược được: user → phiên → `request-id` → tool call → API call.\n\n### 6.2 Protocol: những điều kiện bắt buộc của vòng lặp\n\n| Quy tắc | Nếu vi phạm |\n|---|---|\n| Mỗi `tool_use` phải có đúng một `tool_result` với `tool_use_id` khớp | API trả lỗi 400 ở lượt tiếp theo |\n| `tool_result` nằm trong message `user` ngay sau message `assistant` chứa `tool_use` | API trả lỗi |\n| Kết quả của các tool call song song trả trong cùng một message | Claude có thể hiểu sai thứ tự hoặc API báo lỗi |\n| Giữ nguyên block `thinking` khi tiếp tục vòng lặp có tool | Lỗi hoặc mất mạch suy luận |\n| Kiểm tra `stop_reason` trước khi dùng nội dung | Thực thi tool bị cắt dở, hoặc agent dừng nửa đường |\n| Có nhánh xử lý cho `stop_reason` chưa biết | Code vỡ khi API bổ sung giá trị mới |\n| Có trần số bước | Vòng lặp vô hạn, chi phí mất kiểm soát |\n\n### 6.3 Ranh giới (boundaries)"
+    },
+    {
+     "type": "figure",
+     "file": "boundary.svg",
+     "ascii": "┌──────────────────────────────────────────────────────────────────────┐\n│ Skill / prompt     \"Làm thế nào\"     có thể sai, có thể bị bỏ qua     │\n├──────────────────────────────────────────────────────────────────────┤\n│ Model              \"Quyết định\"      không tất định                   │\n├──────────────────────────────────────────────────────────────────────┤\n│ Harness: hook,     \"Phòng thủ sớm\"   có thể bị đi vòng (script gọi    │\n│ permission                           API trực tiếp)                   │\n├──────────────────────────────────────────────────────────────────────┤\n│ MCP server / tool  \"Cổng chuẩn\"      auth theo agent, validate input  │\n├──────────────────────────────────────────────────────────────────────┤\n│ Business API       \"Nguồn sự thật\"   rule, quyền, idempotency         │\n└──────────────────────────────────────────────────────────────────────┘\n        Càng xuống dưới càng tất định, càng khó bị đi vòng",
+     "caption": "Càng xuống dưới càng tất định, càng khó bị đi vòng."
+    },
+    {
+     "type": "md",
+     "text": "| Ranh giới | Câu hỏi kiểm tra | Biện pháp |\n|---|---|---|\n| **Tin cậy** | Nội dung nào đến từ nguồn không tin cậy (email khách, trang web, tool bên thứ ba)? | Coi là dữ liệu, không là chỉ thị; quyền ghi không phụ thuộc vào nội dung đó |\n| **Danh tính** | Tool biết đang phục vụ user nào? | Token theo user/phiên; lọc dữ liệu theo user ở API |\n| **Dữ liệu** | Dữ liệu nào rời khỏi hệ thống, đi tới model hay bên thứ ba? | Che dữ liệu nhạy cảm trước khi trả `tool_result`; không đưa dữ liệu mật vào query tìm kiếm web |\n| **Quyền hạn** | Agent làm được những gì, tối đa bao nhiêu? | Ma trận allow / ask / deny; hạn mức ở API |\n| **Đảo ngược** | Hành động có hoàn tác được không? | Không hoàn tác được thì phải có người duyệt hoặc ngưỡng chặt |\n| **Context** | Bao nhiêu tool và dữ liệu đang chiếm context? | Progressive disclosure, gom nhóm tool, lọc dữ liệu trong code |\n\n### 6.4 Ma trận quyền mẫu\n\n| Nhóm hành động | Mặc định | Ví dụ |\n|---|---|---|\n| Đọc dữ liệu không nhạy cảm | Allow | `tra_don`, Read file trong `src/` |\n| Ghi rủi ro thấp, hoàn tác được | Allow + log | Tạo ticket, sửa file trong repo có git |\n| Ghi có tác động tiền, khách hàng, production | Ask (người duyệt) | Hoàn tiền vượt ngưỡng, `git push`, gửi email hàng loạt |\n| Không hoàn tác được, phá hủy | Deny hoặc không cấp tool | Xóa tài khoản, `rm -rf`, đọc `.env` |"
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "no": "07",
+   "title": "Ví dụ từ atomic đến workflow",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Các ví dụ được xếp theo bốn cấp độ:\n\n| Cấp độ | Đặc điểm | Ví dụ |\n|---|---|---|\n| [**L1 Atomic**](#l1) | Một tool call, một mục đích | E1 đến E3 |\n| [**L2 Composite**](#l2) | Vài tool call phối hợp, có bước kiểm tra | E4 đến E6 |\n| [**L3 Business**](#l3) | Tool nghiệp vụ qua MCP hoặc custom tool | E7 đến E10 |\n| [**L4 Workflow**](#l4) | Nhiều cơ chế, nhiều bước, có người tham gia | E11 đến E13 |\n\nMỗi ví dụ trình bày: yêu cầu, loại tool, luồng, payload, nên và tránh."
+    }
+   ]
+  },
+  {
+   "id": "l1",
+   "no": "L1",
+   "title": "Atomic",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "#### E1. Tìm kiếm và đọc thông tin trên web\n\n**Yêu cầu:** “Tìm xem giới hạn kích thước request của Claude API hiện là bao nhiêu.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Built-in Claude"
+      ],
+      [
+       "Loại",
+       "A1 Server tool (`web_search`, `web_fetch`)"
+      ],
+      [
+       "Bề mặt",
+       "Messages API, claude.ai, Claude Code"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\nClaude ─ server_tool_use: web_search {\"query\": \"Claude API request size limit\"}\n       ◀ web_search_tool_result: danh sách kết quả\nClaude ─ server_tool_use: web_fetch {\"url\": \"<trang tài liệu trong kết quả>\"}\n       ◀ web_fetch_tool_result: nội dung trang\nClaude ─ text: câu trả lời kèm trích dẫn nguồn         stop_reason: end_turn\n```\n\n**Khai báo trong Messages API:**\n\n```json\n{ \"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 3 }\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Giới hạn số lần tìm và, nếu cần, giới hạn domain được phép.\n- Yêu cầu trích dẫn nguồn trong câu trả lời.\n- Xử lý `pause_turn` khi vòng lặp tìm kiếm chạy dài."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Đưa dữ liệu nội bộ hoặc dữ liệu khách hàng vào câu truy vấn web.\n- Coi nội dung trang web là chỉ thị: trang web có thể chứa prompt injection."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E2. Đọc, liệt kê, ghi file trong thư mục\n\n**Yêu cầu:** “Liệt kê các file cấu hình trong `config/`, đọc file `app.yaml`, rồi đổi `timeout` thành 30.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Built-in Claude"
+      ],
+      [
+       "Loại",
+       "A2 Harness built-in (Glob, Read, Edit)"
+      ],
+      [
+       "Bề mặt",
+       "Claude Code, Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\ntool_use: Glob  {\"pattern\": \"config/**/*.yaml\"}       → danh sách file\ntool_use: Read  {\"file_path\": \"config/app.yaml\"}      → nội dung file\ntool_use: Edit  {\"file_path\": \"config/app.yaml\",\n                 \"old_string\": \"timeout: 10\",\n                 \"new_string\": \"timeout: 30\"}          → permission check → sửa file\ntext: \"Đã đổi timeout từ 10 thành 30 trong config/app.yaml.\"\n```\n\n**Cấu hình permission minh họa** (`.claude/settings.json`; kiểm tra cú pháp hiện hành trong tài liệu Claude Code):\n\n```json\n{\n  \"permissions\": {\n    \"allow\": [\"Read(./config/**)\", \"Glob\"],\n    \"ask\":   [\"Edit(./config/**)\"],\n    \"deny\":  [\"Read(./.env)\", \"Read(./secrets/**)\"]\n  }\n}\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Đọc trước khi sửa; dùng sửa từng đoạn (`Edit`) thay vì ghi đè cả file khi chỉ đổi một dòng.\n- Chặn đọc file bí mật bằng `deny`.\n- Làm việc trong repo có git để mọi thay đổi hoàn tác được."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Cho phép ghi tự động vào thư mục cấu hình production.\n- Để agent đọc `.env` rồi vô tình đưa secret vào câu trả lời hoặc log."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E3. Chạy một lệnh bash\n\n**Yêu cầu:** “Chạy test của module thanh toán.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Built-in Claude"
+      ],
+      [
+       "Loại",
+       "A2 Harness built-in (Bash)"
+      ],
+      [
+       "Bề mặt",
+       "Claude Code, Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\ntool_use: Bash {\"command\": \"npm test -- payments\"}\n   → PreToolUse hook (nếu có) → permission: allow \"Bash(npm test:*)\" → chạy\ntool_result: \"42 passed, 1 failed: refund.spec.ts …\"\ntext: tóm tắt kết quả và test bị lỗi\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Allow-list theo tiền tố lệnh an toàn (`npm test`, `git status`).\n- Đặt timeout cho lệnh chạy lâu.\n- Trả output gọn: cắt bớt log quá dài trước khi đưa vào context."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Allow toàn bộ `Bash`.\n- Chạy lệnh có tác động ra ngoài (deploy, push, gọi API production) mà không hỏi."
+      }
+     ]
+    }
+   ],
+   "toc_group": "Các cấp độ ví dụ"
+  },
+  {
+   "id": "l2",
+   "no": "L2",
+   "title": "Composite",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "#### E4. Tìm lệnh bash theo yêu cầu rồi thực thi\n\n**Yêu cầu:** “Tìm và xóa các file log cũ hơn 30 ngày trong `logs/`.”\n\nĐây là mẫu **đề xuất → xem trước → duyệt → thực thi → xác minh**, áp dụng cho mọi lệnh có tác động phá hủy."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Built-in Claude"
+      ],
+      [
+       "Loại",
+       "A2 Harness built-in (Bash) + permission `ask` + hook"
+      ],
+      [
+       "Bề mặt",
+       "Claude Code, Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\n1. Xem trước (chỉ đọc)\n   tool_use: Bash {\"command\": \"find logs/ -name '*.log' -mtime +30 -print\"}\n   tool_result: 128 file, tổng 2,3 GB\n\n2. Đề xuất lệnh thực thi, kèm giải thích\n   text: \"Lệnh sẽ xóa 128 file ở trên: find logs/ -name '*.log' -mtime +30 -delete\"\n\n3. Thực thi, đi qua kiểm soát\n   tool_use: Bash {\"command\": \"find logs/ -name '*.log' -mtime +30 -delete\"}\n   → PreToolUse hook: kiểm tra đường dẫn nằm trong logs/, không chứa ký tự nguy hiểm\n   → permission: ask → người dùng duyệt\n\n4. Xác minh\n   tool_use: Bash {\"command\": \"find logs/ -name '*.log' -mtime +30 | wc -l\"}\n   tool_result: 0\n```\n\n**Hook minh họa** (PreToolUse, matcher `Bash`): script đọc input JSON từ stdin, chặn nếu lệnh xóa nằm ngoài thư mục cho phép. Hook chặn bằng cách trả quyết định deny hoặc thoát với mã lỗi chặn theo tài liệu hooks; Claude nhận lý do và tự điều chỉnh."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Luôn có bước xem trước bằng lệnh chỉ đọc.\n- Dùng hook để giới hạn phạm vi đường dẫn, không chỉ dựa vào việc người duyệt đọc kỹ.\n- Xác minh kết quả sau khi chạy."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Gộp tìm và xóa vào một lệnh không có bước xem trước.\n- Dùng chế độ bỏ qua permission cho tác vụ có xóa dữ liệu.\n- Duyệt theo phản xạ: nếu người dùng phải duyệt quá nhiều, cần thu hẹp phạm vi `ask`."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E5. Trích xuất dữ liệu có cấu trúc\n\n**Yêu cầu (backend):** “Từ email khách gửi, trích ra mã đơn, loại yêu cầu, mức độ khẩn cấp.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "Structured outputs, hoặc C1 Custom tool với `tool_choice` bắt buộc"
+      ],
+      [
+       "Bề mặt",
+       "Messages API"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Cách 1, structured outputs** (khuyến nghị khi chỉ cần dữ liệu trả về):\n\n```json\n{\n  \"output_config\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n      \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"ma_don\":   { \"type\": \"string\" },\n          \"loai\":     { \"type\": \"string\", \"enum\": [\"hoan_tien\", \"doi_hang\", \"hoi_trang_thai\", \"khac\"] },\n          \"khan_cap\": { \"type\": \"string\", \"enum\": [\"thap\", \"trung_binh\", \"cao\"] }\n        },\n        \"required\": [\"ma_don\", \"loai\", \"khan_cap\"],\n        \"additionalProperties\": false\n      }\n    }\n  }\n}\n```\n\n**Cách 2, ép dùng một tool** (khi đang trong một vòng lặp có nhiều tool khác):\n\n```json\n{ \"tool_choice\": { \"type\": \"tool\", \"name\": \"ghi_nhan_yeu_cau\" } }\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Dùng `enum` cho mọi giá trị hữu hạn.\n- Validate nghiệp vụ sau khi nhận (mã đơn có tồn tại không)."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Dặn “chỉ trả JSON” trong prompt rồi parse bằng regex.\n- Tin rằng đúng schema nghĩa là đúng nội dung."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E6. Gọi nhiều tool song song\n\n**Yêu cầu:** “So sánh trạng thái ba đơn DH-1, DH-2, DH-3.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "C1 Custom tool, parallel tool use"
+      ],
+      [
+       "Bề mặt",
+       "Messages API"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\nassistant content:\n  tool_use id=a  tra_don {\"ma_don\": \"DH-1\"}\n  tool_use id=b  tra_don {\"ma_don\": \"DH-2\"}\n  tool_use id=c  tra_don {\"ma_don\": \"DH-3\"}\nstop_reason: tool_use\n\nuser content (MỘT message, đủ ba kết quả):\n  tool_result tool_use_id=a …\n  tool_result tool_use_id=b …\n  tool_result tool_use_id=c …\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Thực thi song song phía backend nếu tool độc lập và chỉ đọc.\n- Trả đủ mọi kết quả trong cùng một message, đúng id."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Gửi từng kết quả trong các message riêng.\n- Cho chạy song song các tool ghi có phụ thuộc lẫn nhau; khi đó dùng `disable_parallel_tool_use`."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "l3",
+   "no": "L3",
+   "title": "Business",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "#### E7. Gọi MCP theo nghiệp vụ\n\n**Yêu cầu (nhân viên support trong Claude Code hoặc claude.ai):** “Tạo ticket Jira cho lỗi giao hàng trễ mà khách vừa báo, gán cho team Logistics, rồi báo vào kênh Slack #support.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "External integration"
+      ],
+      [
+       "Loại",
+       "B1 Connector MCP (Jira, Slack)"
+      ],
+      [
+       "Bề mặt",
+       "claude.ai, Claude Code"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\ntool_use: mcp__jira__create_issue {\"project\": \"LOG\", \"summary\": \"Giao trễ đơn DH-1024\", \"assignee\": \"logistics\"}\n   → host gọi tools/call tới Jira MCP server (OAuth của nhân viên)\ntool_result: {\"key\": \"LOG-311\"}\ntool_use: mcp__slack__send_message {\"channel\": \"#support\", \"text\": \"Đã tạo LOG-311 cho đơn DH-1024\"}\n   → permission: ask (gửi tin nhắn là hành động ra bên ngoài)\ntool_result: ok\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Dùng OAuth theo từng nhân viên để hành động mang danh tính thật.\n- Đặt `ask` cho tool gửi tin nhắn, email ra bên ngoài.\n- Chỉ kết nối MCP server từ nguồn tin cậy, vì mô tả tool của server đi thẳng vào context của model."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Dùng chung một tài khoản bot có quyền rộng cho mọi người.\n- Bật quá nhiều connector cùng lúc khi không cần, gây phình context và chọn nhầm tool."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E8. Custom API tool trong Message rồi backend thực thi\n\n**Yêu cầu (khách hàng trên chatbot của công ty):** “Đơn DH-1024 của tôi đang ở đâu?”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "C1 Custom tool (hoặc C2 MCP server riêng, backend làm MCP client)"
+      ],
+      [
+       "Bề mặt",
+       "Messages API"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\nChat backend (biết session: khach_id = K-77)\n  → request: tools=[tra_don], messages=[…]\n  ◀ tool_use: tra_don {\"ma_don\": \"DH-1024\"}\n  → backend gọi Order API: GET /orders/DH-1024?owner=K-77     ← lọc theo user Ở API\n  ◀ 200 {trang_thai, du_kien, dia_chi, so_dien_thoai}\n  → backend che dữ liệu: bỏ số điện thoại, rút gọn địa chỉ\n  → tool_result: {\"trang_thai\": \"dang_giao\", \"du_kien\": \"14/10\"}\n  ◀ text: \"Đơn của bạn đang được giao, dự kiến ngày 14/10.\"   stop_reason: end_turn\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Gắn danh tính user từ session vào lời gọi API; không lấy user id từ input của model.\n- Che dữ liệu nhạy cảm trước khi trả `tool_result`.\n- Trả lỗi nghiệp vụ rõ ràng, ví dụ “Không tìm thấy đơn thuộc tài khoản này”."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Cho model truyền `khach_id` làm tham số tool: prompt injection có thể đổi sang khách khác.\n- Trả nguyên bản ghi database vào `tool_result`."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E9. Tool lỗi và Claude tự điều chỉnh\n\n**Yêu cầu:** “Hoàn tiền 3 triệu cho đơn DH-1024.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "C1 Custom tool với `is_error`"
+      ],
+      [
+       "Bề mặt",
+       "Messages API, Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\ntool_use: tao_hoan_tien {\"ma_don\": \"DH-1024\", \"so_tien\": 3000000}\ntool_result (is_error: true):\n  \"VUOT_HAN_MUC: giá trị đơn là 2.400.000. Số tiền hoàn tối đa bằng giá trị đơn.\"\ntool_use: tao_hoan_tien {\"ma_don\": \"DH-1024\", \"so_tien\": 2400000}\ntool_result: {\"trang_thai\": \"cho_duyet\", \"ma_yeu_cau\": \"RF-88\"}\ntext: \"Yêu cầu hoàn 2.400.000 đã được tạo và đang chờ duyệt.\"\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Mã lỗi ổn định cùng thông điệp đủ để model hiểu cách sửa.\n- Giới hạn số lần thử lại cho cùng một tool."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Ném exception làm sập vòng lặp.\n- Lỗi mơ hồ như “Error 500” khiến model đoán mò."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E10. Skill kết hợp script và MCP\n\n**Yêu cầu (quản lý trong claude.ai hoặc Claude Code):** “Làm báo cáo doanh thu tuần này theo mẫu công ty.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "C3 Skill + C2 MCP server riêng + A2/A1 chạy script"
+      ],
+      [
+       "Bề mặt",
+       "claude.ai, Claude Code, Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Phân vai:**\n\n| Thành phần | Nằm ở | Lý do |\n|---|---|---|\n| Định nghĩa “doanh thu thuần”, cấu trúc báo cáo | `SKILL.md` | Know-how theo domain |\n| Lấy dữ liệu bán hàng | MCP `sales.query` | Auth và phân quyền ở server |\n| Tính tăng trưởng, vẽ biểu đồ | `scripts/tinh_toan.py` | Thuần tính toán, tất định |\n| Gửi báo cáo | MCP `email.send` với `ask` | Tác động ra ngoài, cần hiện rõ và log |\n| “Không gửi số liệu ra ngoài domain công ty” | Rule ở Email API | Bắt buộc, không đi vòng được |\n\n**Luồng:**\n\n```text\nYêu cầu khớp description → nạp SKILL.md\ntool_use: mcp__sales__query {\"tu_ngay\": \"2026-10-05\", \"den_ngay\": \"2026-10-11\"}\ntool_use: Bash {\"command\": \"python scripts/tinh_toan.py --input data.json\"}\ntext: bản nháp báo cáo\ntool_use: mcp__email__send {...}  → ask → người dùng duyệt\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Script chỉ tính toán; hành động có tác động đi qua tool MCP để được nhìn thấy và duyệt.\n- Mô tả skill nêu rõ khi nào dùng."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Script tự chứa API key và tự gọi API ghi dữ liệu.\n- Business rule chỉ nằm trong `SKILL.md`."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "l4",
+   "no": "L4",
+   "title": "Workflow",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "#### E11. Agent hỗ trợ hoàn tiền end-to-end\n\n**Bối cảnh:** chatbot cho khách hàng, có quyền tạo hoàn tiền."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "C1/C2 qua backend làm MCP client + structured outputs + người duyệt"
+      ],
+      [
+       "Bề mặt",
+       "Messages API hoặc Agent SDK"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Kiến trúc:**\n\n```text\n                      ┌─▶ Claude Code / claude.ai   ← nhân viên (MCP qua host)\nBusiness API ◀─ MCP ──┤\n (authz, rule,        └─▶ Chat backend làm MCP client ← khách hàng\n  idempotency)              session user, che dữ liệu, người duyệt, trần số bước\n```\n\n**Luồng:**\n\n```text\n1. Khách: \"Đơn DH-1024 giao trễ 5 ngày, tôi muốn hoàn tiền.\"\n2. tool_use: tra_don                    → allow                   (đọc)\n3. tool_use: kiem_tra_chinh_sach        → allow                   (đọc)\n4. Claude trả dữ liệu có cấu trúc: {hanh_dong: \"hoan_tien\", so_tien: 2400000, ly_do: \"giao_tre\"}\n5. Backend validate nghiệp vụ:\n     ≤ 500.000             → tự tạo hoàn tiền\n     > 500.000             → tạo yêu cầu chờ duyệt, dừng vòng lặp\n     đơn đã hoàn trước đó  → từ chối, trả lý do cho Claude\n6. tool_use: tao_hoan_tien (idempotency_key = phiên + mã đơn) → API trả \"cho_duyet\"\n7. Giữa chừng gặp lỗi 529 → backend thử lại có giãn cách, khách không thấy lỗi\n8. text (streaming): \"Yêu cầu hoàn tiền đã được ghi nhận, bạn sẽ nhận phản hồi trong 24 giờ.\"\n9. Nhân viên duyệt trên hệ thống nội bộ → API thực hiện hoàn tiền → thông báo cho khách\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Ngưỡng và quy tắc nằm ở API; backend chỉ là lớp kiểm tra sớm để cho trải nghiệm tốt hơn.\n- Idempotency key cho mọi tool ghi.\n- Log `request-id`, `usage`, user, tool call cho từng bước."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Dùng MCP connector với một token hệ thống chung cho chatbot khách hàng.\n- Để model tự quyết số tiền hoàn mà không có kiểm tra phía code."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E12. Xử lý dữ liệu lớn bằng code execution với MCP\n\n**Yêu cầu:** “Trong 50.000 giao dịch tháng này, tìm các giao dịch bất thường và tóm tắt.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "Custom business"
+      ],
+      [
+       "Loại",
+       "MCP được gọi từ code (cách 4 ở mục 5.3)"
+      ],
+      [
+       "Bề mặt",
+       "Môi trường có code execution và MCP client"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Ý tưởng:**\n\n```text\nKhông nên:  tool_use lấy 50.000 dòng → toàn bộ đi vào context → model tự đọc\nNên:        Claude viết code:\n              rows = sales.query(thang=\"2026-09\")      # gọi MCP trong môi trường chạy code\n              bat_thuong = loc_bat_thuong(rows)        # lọc trong code\n              print(tom_tat(bat_thuong[:50]))          # chỉ phần nhỏ quay về model\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Lọc và tổng hợp trong môi trường chạy code, chỉ đưa kết quả gọn về model.\n- Giữ dữ liệu nhạy cảm trong môi trường thực thi."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Đưa toàn bộ dữ liệu thô vào context.\n- Quên rằng hook ở tầng agent chỉ thấy một lần chạy code, không thấy từng lời gọi MCP bên trong: quyền phải được kiểm soát ở MCP server."
+      }
+     ]
+    },
+    {
+     "type": "md",
+     "text": "#### E13. Báo cáo trạng thái định kỳ từ hệ thống quản lý công việc\n\n**Yêu cầu:** “Mỗi sáng tổng hợp ticket thay đổi hôm qua và gửi lên kênh của team.”"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Scope",
+       "External integration + Custom business"
+      ],
+      [
+       "Loại",
+       "C3 Skill (định dạng báo cáo) + B1 MCP (Jira, Slack)"
+      ],
+      [
+       "Bề mặt",
+       "Claude Code, Agent SDK chạy theo lịch"
+      ]
+     ]
+    },
+    {
+     "type": "md",
+     "text": "**Luồng:**\n\n```text\nSkill \"bao-cao-hang-ngay\": định nghĩa nhóm ticket, thứ tự ưu tiên, giọng văn\ntool_use: mcp__jira__search {\"jql\": \"updated >= -1d AND project = SUP\"}\ntext (nội bộ): phân nhóm Done / In progress / Blocked\ntool_use: mcp__slack__send_message {\"channel\": \"#team\", \"text\": \"…\"}\n```"
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "pill": {
+        "kind": "ok",
+        "text": "✓ Nên"
+       },
+       "text": "- Quyền chỉ đọc với hệ thống ticket, quyền gửi giới hạn vào đúng một kênh.\n- Có cơ chế dừng khi dữ liệu trả về bất thường (rỗng, quá lớn) thay vì gửi báo cáo sai."
+      },
+      {
+       "pill": {
+        "kind": "bad",
+        "text": "✕ Tránh"
+       },
+       "text": "- Dùng token cá nhân có quyền admin cho tác vụ chạy tự động.\n- Không ghi log nội dung đã gửi."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "no": "08",
+   "title": "Best practice và bad practice tổng hợp",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### 8.1 Thiết kế tool\n\n| Nên | Tránh |\n|---|---|\n| Tên động từ + danh từ rõ nghĩa: `tra_don`, `tao_hoan_tien` | Tên chung chung: `process`, `handle` |\n| Mô tả nói rõ khi nào dùng và khi nào không | Mô tả một dòng, không có ngữ cảnh |\n| Schema chặt: `enum`, `required`, `additionalProperties: false`, bật `strict` | Tham số string tự do cho mọi thứ |\n| Một tool một việc; tách đọc và ghi | Tool vạn năng: “chạy SQL”, “gọi API bất kỳ” |\n| Kết quả gọn, chỉ trường cần thiết | Trả nguyên bản ghi hoặc log hàng nghìn dòng |\n\n### 8.2 Thực thi và vòng lặp\n\n| Nên | Tránh |\n|---|---|\n| Kiểm tra `stop_reason` mọi lượt, có nhánh cho giá trị lạ | Chỉ kiểm tra `tool_use` |\n| Trả đủ `tool_result` khớp id, gom kết quả song song vào một message | Bỏ sót hoặc tách rời kết quả |\n| Trần số bước, timeout cho từng tool | Vòng lặp không giới hạn |\n| Lỗi có cấu trúc với `is_error` | Exception làm sập vòng lặp |\n| Idempotency key cho tool ghi | Thử lại tạo hành động trùng |\n\n### 8.3 Bảo mật\n\n| Nên | Tránh |\n|---|---|\n| Danh tính user lấy từ session, không từ input model | Cho model truyền `user_id` |\n| Rule bắt buộc ở API; hook là lớp thêm | Rule chỉ nằm trong prompt hoặc skill |\n| Che dữ liệu nhạy cảm trước khi trả kết quả | Trả số thẻ, CMND, secret vào context |\n| Chỉ kết nối MCP server và cài skill từ nguồn tin cậy, review script | Cài skill hoặc MCP lạ mà không review |\n| Coi nội dung web, email, tài liệu là dữ liệu | Để nội dung bên ngoài điều khiển quyền ghi |\n\n### 8.4 Vận hành\n\n| Nên | Tránh |\n|---|---|\n| Log `request-id`, user, tool, input đã che, kết quả | Chỉ log câu trả lời cuối |\n| Đo tỷ lệ chọn đúng tool, tỷ lệ lỗi tool, số bước trung bình | Không có số liệu về hành vi agent |\n| Version định nghĩa tool, ma trận quyền, hook như code | Sửa trực tiếp trên production |\n| Theo dõi số tool đang nạp vào context | Thêm tool liên tục không đánh giá |"
+    }
+   ],
+   "toc_group": "Tổng hợp"
+  },
+  {
+   "id": "s9",
+   "no": "09",
+   "title": "Hướng dẫn chọn cơ chế",
+   "blocks": [
+    {
+     "type": "kv",
+     "ascii": "Cần năng lực chung (tìm web, chạy code)?\n └─ Có → A1 Server tool\n\nLàm việc với file, lệnh trong môi trường dev?\n └─ Có → A2 Claude Code / Agent SDK built-in\n\nCần kết nối dịch vụ bên thứ ba phổ biến (Slack, Jira, Drive)?\n └─ Có → B1 Connector MCP\n\nCần đưa năng lực của hệ thống nội bộ cho agent?\n ├─ Nhiều client dùng chung (nhân viên, nhiều app)  → C2 MCP server riêng\n ├─ Chỉ một app, cần kiểm soát chặt từng user     → C1 Custom tool\n └─ Cả hai                                         → C2, và app khách hàng làm MCP client (C2 + vòng lặp ở backend)\n\nCần đóng gói cách làm, quy trình, tiêu chuẩn?\n └─ Có → C3 Skill (kết hợp với tool ở trên để thực hiện)\n\nCần quy tắc bắt buộc tuân thủ?\n └─ Có → Business API, cộng thêm hook ở harness",
+     "sum": [
+      6
+     ],
+     "rows": [
+      [
+       "Cần năng lực chung: tìm web, chạy code",
+       "A1 Server tool"
+      ],
+      [
+       "Làm việc với file, lệnh trong môi trường dev",
+       "A2 Claude Code / Agent SDK"
+      ],
+      [
+       "Kết nối dịch vụ bên thứ ba phổ biến",
+       "B1 Connector MCP"
+      ],
+      [
+       "Năng lực nội bộ, nhiều client dùng chung",
+       "C2 MCP server riêng"
+      ],
+      [
+       "Năng lực nội bộ, một app, kiểm soát chặt từng user",
+       "C1 Custom tool"
+      ],
+      [
+       "Đóng gói cách làm, quy trình, tiêu chuẩn",
+       "C3 Skill + tool để thực hiện"
+      ],
+      [
+       "Quy tắc bắt buộc tuân thủ",
+       "Business API + hook"
+      ]
+     ],
+     "note": "Chọn theo việc bạn cần đưa cho agent, không theo cơ chế nào mạnh hơn."
+    },
+    {
+     "type": "md",
+     "text": "| Tình huống | Lựa chọn |\n|---|---|\n| Chatbot khách hàng, có dữ liệu cá nhân và hành động tốn tiền | C1, hoặc C2 với backend làm MCP client |\n| Nhân viên tra cứu, thao tác hệ thống nội bộ | C2 qua Claude Code hoặc claude.ai |\n| Prototype nhanh, rủi ro thấp | C2 qua MCP connector trong Messages API |\n| Xử lý dữ liệu lớn | MCP gọi từ code (code execution with MCP) |\n| Chuẩn hóa cách làm việc của team | C3 Skill |"
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "no": "10",
+   "title": "Checklist triển khai",
+   "head": false,
+   "blocks": [
+    {
+     "type": "checklist",
+     "kicker": "10 · Checklist triển khai",
+     "title": "Checklist triển khai",
+     "intro": "Đánh dấu để tự rà soát. Dấu tích được lưu trong trình duyệt này.",
+     "steps": [
+      {
+       "title": "*Thiết kế* — Mỗi tool có tên rõ nghĩa, mô tả nêu khi nào dùng, schema chặt với `strict`."
+      },
+      {
+       "title": "*Thiết kế* — Đọc và ghi được tách thành tool riêng."
+      },
+      {
+       "title": "*Thiết kế* — Có ma trận allow / ask / deny cho toàn bộ tool."
+      },
+      {
+       "title": "*Thiết kế* — Business rule bắt buộc nằm ở API, không chỉ ở prompt, skill hoặc hook."
+      },
+      {
+       "title": "*Vòng lặp* — Xử lý đủ `stop_reason`, có nhánh cho giá trị chưa biết."
+      },
+      {
+       "title": "*Vòng lặp* — Mỗi `tool_use` có đúng một `tool_result` khớp id; kết quả song song gom một message."
+      },
+      {
+       "title": "*Vòng lặp* — Có trần số bước và timeout."
+      },
+      {
+       "title": "*Vòng lặp* — Lỗi tool trả về có cấu trúc với `is_error`."
+      },
+      {
+       "title": "*Bảo mật* — Danh tính user lấy từ session; API lọc dữ liệu theo user."
+      },
+      {
+       "title": "*Bảo mật* — Tool ghi có idempotency key và ngưỡng duyệt."
+      },
+      {
+       "title": "*Bảo mật* — Dữ liệu nhạy cảm được che trước khi vào context."
+      },
+      {
+       "title": "*Bảo mật* — Credential theo agent và theo user, phạm vi hẹp."
+      },
+      {
+       "title": "*Bảo mật* — MCP server và skill bên ngoài đã được review."
+      },
+      {
+       "title": "*Bảo mật* — Đã thử prompt injection qua nội dung bên ngoài (web, email, ticket)."
+      },
+      {
+       "title": "*Vận hành* — Log `request-id`, user, tool, input đã che, kết quả cho từng bước."
+      },
+      {
+       "title": "*Vận hành* — Có số liệu: tỷ lệ chọn đúng tool, tỷ lệ lỗi, số bước trung bình, chi phí mỗi tác vụ."
+      },
+      {
+       "title": "*Vận hành* — Định nghĩa tool, quyền và hook được version và review như code."
+      },
+      {
+       "title": "*Vận hành* — Đã test ba đường đi vòng (tool, script gọi API, script gọi MCP) đều bị chặn ở API khi vi phạm rule."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "no": "11",
+   "title": "Thuật ngữ",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Thuật ngữ | Giải thích |\n|---|---|\n| **Tool** | Chức năng Claude được phép đề xuất sử dụng, mô tả bằng tên, mô tả và JSON Schema |\n| **Tool call** | Việc Claude trả về khối `tool_use` yêu cầu chạy một tool với input cụ thể |\n| **Harness** | Chương trình bao quanh model: giữ vòng lặp, thực thi tool, áp quyền |\n| **Server tool** | Tool do Anthropic thực thi (tìm web, chạy code) |\n| **Client tool** | Tool do ứng dụng của bạn thực thi |\n| **MCP** | Model Context Protocol, giao thức mở để expose tool, resource, prompt |\n| **MCP connector** | Tính năng của Messages API cho phép Anthropic gọi trực tiếp MCP server từ xa |\n| **Skill** | Thư mục chứa `SKILL.md` và tài nguyên kèm theo, dạy agent cách làm một việc |\n| **Progressive disclosure** | Nạp thông tin theo tầng, chỉ khi cần |\n| **Hook** | Code tất định chạy tại điểm cố định trong vòng lặp, ví dụ trước mỗi tool call |\n| **Permission** | Quy tắc allow / ask / deny cho từng tool hoặc mẫu lệnh |\n| **Agent SDK** | Thư viện chạy vòng lặp agent của Claude Code trong ứng dụng của bạn |\n| **Idempotency** | Thiết kế để một hành động chạy lại nhiều lần chỉ có tác dụng một lần |\n| **Prompt injection** | Nội dung bên ngoài cố tình chứa chỉ dẫn để điều khiển model |\n| **Tool poisoning** | Chỉ dẫn độc hại được cài trong mô tả tool của một MCP server |"
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "no": "12",
+   "title": "Tài liệu tham khảo",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "- [Bài liên quan: Claude Inside (Like2Learn)](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-inside-26-10-11.html): bài viết liên quan trong cùng chủ đề.\n- [Tổng quan Claude API](https://platform.claude.com/docs/en/api): các API chính, header, giới hạn.\n- [Messages API reference](https://platform.claude.com/docs/en/api/messages/create): cấu trúc request và response.\n- [Tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use): định nghĩa tool, `tool_choice`, vòng lặp tool.\n- [Structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs): JSON outputs và strict tool use.\n- [Handling stop reasons](https://platform.claude.com/docs/en/api/handling-stop-reasons): ý nghĩa và cách xử lý `stop_reason`.\n- [Errors](https://platform.claude.com/docs/en/api/errors): mã lỗi, `request-id`.\n- [Claude Code Hooks](https://code.claude.com/docs/en/Hooks): sự kiện hook, PreToolUse, matcher cho tool MCP.\n- [Code execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp): gọi MCP từ code để tiết kiệm context.\n- [Files API](https://platform.claude.com/docs/en/build-with-claude/files): quản lý file.\n- [Batch processing](https://docs.claude.com/en/docs/build-with-claude/batch-processing): xử lý theo lô."
+    }
+   ]
+  }
+ ],
+ "footer": "Deep Dive: Tool Call trong Claude · đối chiếu với tài liệu chính thức của Anthropic vào tháng 10/2026"
+}

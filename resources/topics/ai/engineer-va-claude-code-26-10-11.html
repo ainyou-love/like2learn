@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -7,194 +7,1150 @@
 <meta name="description" content="Engineer nên tập trung vào gì lúc này, và tổng quan cách Claude Code hoạt động: dữ liệu, ngữ cảnh, luồng xử lý, hook.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ---------- tokens ---------- */
 :root{
-  --bg:#F3F5F2; --surface:#FFFFFF; --ink:#1D2422; --muted:#56615C; --line:#D6DCD5;
-  --accent:#2457C5; --accent-soft:#E7EEFC; --mark:#D9A93A; --mark-soft:#FBF3DF;
-  --code-bg:#EEF1ED;
-  --sidebar:288px; --topbar:56px;
-  --font:"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono:ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
-  box-sizing:border-box;
+  --bg:#f5f2ea; --bg-2:#ede8dc; --surface:#fffdf8; --surface-2:#f8f4ea; --line:#d9d1bf; --line-2:#e7e0d0;
+  --ink:#1c1f24; --ink-2:#4a4f57; --ink-3:#7a7f87;
+  --accent:#0d6e66; --accent-ink:#ffffff; --accent-soft:#d6ece8;
+  --ok:#1f7a3a; --ok-soft:#dcefe0; --warn:#a85a07; --warn-soft:#f6e6cf; --bad:#b0281c; --bad-soft:#f7dcd8; --info:#2c5d8f; --info-soft:#dbe6f1;
+  --code-bg:#f1ece0; --shadow:0 1px 0 rgba(28,31,36,.04),0 8px 24px -16px rgba(28,31,36,.25);
+  --grain:.035;
+  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --side:272px; --head:60px;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#121614; --surface:#191E1C; --ink:#E3E8E5; --muted:#9BA6A0; --line:#2D3532;
-    --accent:#8AABF3; --accent-soft:#1D2840; --mark:#D2AE57; --mark-soft:#2A2516;
-    --code-bg:#1F2522;
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+    --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+    --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+    --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+    --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
   }
 }
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:calc(var(--topbar) + 16px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.65}
-a{color:var(--accent);text-underline-offset:3px}
-a:hover{text-decoration-thickness:2px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+:root[data-theme="dark"]{
+  --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+  --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+  --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+  --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+  --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
+}
 
-/* top bar */
-.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
-  min-height:calc(var(--topbar) + env(safe-area-inset-top,0px));
-  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));
-  background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line)}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;
-  border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--head) + 16px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--f-body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:var(--accent);text-underline-offset:3px}
+code,pre,kbd{font-family:var(--f-mono)}
+code{font-size:.86em;background:var(--code-bg);border:1px solid var(--line-2);padding:.05em .35em;border-radius:5px;overflow-wrap:anywhere}
+pre code{background:none;border:0;padding:0;font-size:inherit;border-radius:0;overflow-wrap:normal}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;line-height:1.15;margin:0}
+h2{font-size:clamp(1.45rem,1.1rem + 1.4vw,2rem)}
+h1 code,h2 code{font-size:.62em;vertical-align:.18em;font-weight:500}
+h3{font-size:1.12rem;font-family:var(--f-body);font-weight:600;letter-spacing:0;margin:1.6rem 0 .6rem}
+p{margin:.6rem 0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:30;height:var(--head);display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3);white-space:nowrap}
+.icon-btn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;flex:none}
 .icon-btn:hover{border-color:var(--accent)}
 .icon-btn svg{width:20px;height:20px}
-.brand{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
-.tabs{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.tab{font:inherit;font-size:14px;font-weight:500;padding:6px 14px;border:0;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer}
-.tab[aria-selected="true"]{background:var(--accent);color:#fff}
-@media (prefers-color-scheme: dark){.tab[aria-selected="true"]{color:#0E1424}}
+.tabs{display:flex;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--surface);flex:none}
+.tab{border:0;background:none;padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:500;font-size:.88rem;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab svg{width:15px;height:15px}
+.theme-sun,.theme-moon{display:none}
+:root[data-theme="dark"] .theme-sun,:root[data-theme="light"] .theme-moon{display:block}
 
-/* layout */
-.shell{display:flex;min-height:calc(100vh - var(--topbar))}
-.sidebar{width:var(--sidebar);flex:none;position:sticky;top:calc(var(--topbar) + env(safe-area-inset-top,0px));
-  height:calc(100vh - var(--topbar) - env(safe-area-inset-top,0px));overflow:auto;
-  border-right:1px solid var(--line);padding:20px 12px 40px 16px;background:var(--bg);
-  transition:margin-left .2s ease}
-body:not(.menu-open) .sidebar{margin-left:calc(-1 * var(--sidebar))}
-.toc-title{font-size:13px;font-weight:600;color:var(--muted);margin:0 8px 8px}
-.toc{list-style:none;margin:0;padding:0}
-.toc a{display:block;padding:6px 10px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:14.5px;line-height:1.4}
-.toc a:hover{background:var(--accent-soft)}
-.toc a.lvl3{padding-left:24px;font-size:14px;color:var(--muted)}
-.toc a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+/* ---------- layout ---------- */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--side) minmax(0,1fr);transition:grid-template-columns .25s ease}
+body[data-menu="closed"] .shell{grid-template-columns:0 minmax(0,1fr)}
+.side{position:sticky;top:var(--head);height:calc(100dvh - var(--head));overflow:auto;border-right:1px solid var(--line);background:var(--bg-2);padding:20px 14px 40px}
+body[data-menu="closed"] .side{visibility:hidden;padding:0;border:0}
+.side h4{font:600 .7rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:6px 8px 10px}
+.toc{list-style:none;margin:0;padding:0;counter-reset:none}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;line-height:1.3}
+.toc a span{font:500 .72rem var(--f-mono);color:var(--ink-3);min-width:1.6em}
+.toc a:hover{background:var(--surface)}
+.toc a[aria-current="true"]{background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.toc a[aria-current="true"] span{color:var(--accent)}
+.side .ext{margin:18px 8px 0;padding:12px;border:1px dashed var(--line);border-radius:10px;font-size:.82rem;color:var(--ink-2)}
 .scrim{display:none}
-main{flex:1;min-width:0;padding:32px max(20px,env(safe-area-inset-right,0px)) calc(64px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+main{min-width:0;padding:0 16px 80px}
+.wrap{max-width:1060px;margin:0 auto}
 .panel[hidden]{display:none}
-.doc{max-width:74ch;margin:0 auto}
 
-@media (max-width:1023px){
-  .sidebar{position:fixed;left:0;top:calc(var(--topbar) + env(safe-area-inset-top,0px));z-index:25;
-    height:calc(100% - var(--topbar) - env(safe-area-inset-top,0px));background:var(--surface);
-    box-shadow:2px 0 18px rgba(0,0,0,.18);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
-  body:not(.menu-open) .sidebar{margin-left:calc(-1 * var(--sidebar) - 24px)}
-  body.menu-open .scrim{display:block;position:fixed;inset:0;z-index:20;background:rgba(10,14,12,.38)}
-  body.menu-open{overflow:hidden}
-}
-@media (max-width:560px){
-  body{font-size:16px}
-  .brand{font-size:14px}
-  .tab{padding:6px 10px}
-  main{padding-top:20px}
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)!important}
+  .side{position:fixed;left:0;top:var(--head);bottom:0;height:auto;width:min(86vw,320px);z-index:40;transform:translateX(-102%);transition:transform .25s ease;visibility:visible!important;padding:20px 14px 40px!important;border-right:1px solid var(--line)!important;box-shadow:var(--shadow)}
+  body[data-menu="open"] .side{transform:none}
+  body[data-menu="open"] .scrim{display:block;position:fixed;inset:var(--head) 0 0 0;background:rgba(0,0,0,.35);z-index:35}
+  .brand small{display:none}
+  .tab .lbl{display:none}
+  .tab{padding:7px 10px}
 }
 
-/* document typography */
-.doc h1{font-size:clamp(30px,5vw,44px);line-height:1.15;letter-spacing:-.01em;font-weight:700;margin:8px 0 18px;text-wrap:balance}
-.doc h2{font-size:clamp(23px,3.2vw,29px);line-height:1.25;font-weight:700;margin:64px 0 14px;padding-top:20px;border-top:2px solid var(--ink)}
-.doc h3{font-size:19px;line-height:1.35;font-weight:600;margin:36px 0 10px}
-.doc h4{font-size:17px;font-weight:600;margin:24px 0 8px}
-.doc p{margin:0 0 14px}
-.doc ul,.doc ol{margin:0 0 16px;padding-left:1.4em}
-.doc li{margin:4px 0}
-.doc ol li::marker{font-weight:600;color:var(--accent)}
-.doc strong{font-weight:600}
-.doc code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:.1em .35em;border-radius:4px}
-.doc hr{border:0;border-top:1px solid var(--line);margin:32px 0}
-.doc .lead{font-size:1.12em;color:var(--muted)}
-pre.code{font-family:var(--mono);font-size:13.5px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);
-  border-radius:8px;padding:14px 16px;overflow-x:auto;margin:0 0 18px;white-space:pre}
-pre.code code{background:none;padding:0;font-size:inherit}
-.table-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
-th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
-th{font-weight:600;background:var(--accent-soft)}
-tbody tr:last-child td{border-bottom:0}
-td:first-child{font-weight:500}
-.note{margin:0 0 20px;padding:12px 16px;background:var(--mark-soft);border-left:4px solid var(--mark);border-radius:0 8px 8px 0}
-.note p:last-child{margin-bottom:0}
+/* ---------- hero ---------- */
+.hero{position:relative;padding:44px 0 28px;border-bottom:1px solid var(--line);overflow:hidden}
+.kicker{font:500 .74rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(2.1rem,1.4rem + 3.4vw,3.6rem);margin:.35rem 0 .6rem;max-width:16ch}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:1.06rem;color:var(--ink-2);max-width:62ch}
+.signal-line{display:block;width:100%;height:70px;margin:18px 0 6px;color:var(--accent)}
+.signal-line path{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.4s ease-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.8rem;color:var(--ink-2)}
+.chip b{color:var(--ink);font-weight:600}
+.chip a{color:var(--accent);font-weight:600;text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);animation:rise .5s ease forwards}
+.stat:nth-child(2){animation-delay:.08s}.stat:nth-child(3){animation-delay:.16s}.stat:nth-child(4){animation-delay:.24s}
+@keyframes rise{to{opacity:1;transform:none}}
+.stat .n{font:700 1.9rem/1 var(--f-display);letter-spacing:-.02em}
+.stat .n .from{color:var(--ink-3);font-weight:500}
+.stat .n .arr{color:var(--accent);font-size:1.3rem;margin:0 6px;vertical-align:4px}
+.stat .l{font-size:.82rem;color:var(--ink-2);margin-top:6px}
+@media (max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* glossary: the list right after its heading */
-#bang-thuat-ngu + ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--line)}
-#bang-thuat-ngu + ul li{margin:0;padding:12px 0;border-bottom:1px solid var(--line)}
-#bang-thuat-ngu + ul li strong{color:var(--accent)}
-@media (min-width:900px){#bang-thuat-ngu + ul{grid-template-columns:1fr 1fr;column-gap:32px}}
+/* ---------- sections ---------- */
+section.sec{padding:44px 0 8px;border-bottom:1px solid var(--line-2)}
+.sec-head{display:flex;gap:14px;align-items:baseline;margin-bottom:10px}
+.sec-no{font:500 .8rem var(--f-mono);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:2px 7px;flex:none;transform:translateY(-4px)}
+.sec-intro{color:var(--ink-2);max-width:70ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:820px){.g2,.g3{grid-template-columns:minmax(0,1fr)}}
+.pill{display:inline-block;font:600 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-info{background:var(--info-soft);color:var(--info)}.p-acc{background:var(--accent-soft);color:var(--accent)}.p-mute{background:var(--bg-2);color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0;color:var(--ink)}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
 
-/* hero figure */
-.hero-fig{margin:6px 0 28px;padding:18px 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.hero-fig svg{display:block;width:100%;height:auto}
-.hero-fig .fig-narrow{display:none;max-width:360px;margin:0 auto}
-@media (max-width:600px){.hero-fig .fig-wide{display:none}.hero-fig .fig-narrow{display:block}}
-.hero-fig figcaption{font-size:14px;color:var(--muted);padding:6px 4px 6px}
-.f-box{fill:none;stroke:var(--ink);stroke-width:1.4}
-.f-main{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
-.f-cloud{fill:var(--mark-soft);stroke:var(--mark);stroke-width:2}
-.f-name{font:600 15px var(--font);fill:var(--ink)}
-.f-sub{font:400 12.5px var(--font);fill:var(--muted)}
-.f-lab{font:500 12.5px var(--font);fill:var(--ink)}
-.f-line{stroke:var(--muted);stroke-width:1.4;fill:none}
-.f-head{fill:var(--muted)}
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line-2)}
+th{font:600 .72rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:600;white-space:nowrap}
+.hl{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.tw.wide table{min-width:720px}
 
-/* markdown panel */
-.md-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
-.md-tools p{margin:0;color:var(--muted);font-size:14.5px;flex:1 1 260px}
-.btn{font:inherit;font-size:14.5px;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--accent);cursor:pointer;background:var(--accent);color:#fff}
-.btn.secondary{background:var(--surface);color:var(--accent)}
-@media (prefers-color-scheme: dark){.btn{color:#0E1424}.btn.secondary{color:var(--accent)}}
-.md-source{font-family:var(--font);font-size:14.5px;line-height:1.65;background:var(--surface);border:1px solid var(--line);border-radius:10px;
-  padding:16px 18px;margin:0;white-space:pre-wrap;word-break:break-word;max-width:100%}
+/* diagrams */
+.fig{margin:16px 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.fig .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto;min-width:680px}
+.fig.fit svg{min-width:0}
+.fig figcaption{font-size:.8rem;color:var(--ink-3);padding:8px 4px 0}
+svg .n-box{fill:var(--surface-2);stroke:var(--line)}
+svg .n-new{fill:var(--accent-soft);stroke:var(--accent)}
+svg .n-ok{fill:var(--ok-soft);stroke:var(--ok)}
+svg .n-bad{fill:var(--bad-soft);stroke:var(--bad)}
+svg .n-warn{fill:var(--warn-soft);stroke:var(--warn)}
+svg .n-info{fill:var(--info-soft);stroke:var(--info)}
+svg .band{fill:var(--bg-2);stroke:none}
+svg .t{fill:var(--ink);font:500 13px var(--f-body)}
+svg .t-s{fill:var(--ink-2);font:400 11.5px var(--f-body)}
+svg .t-m{fill:var(--ink-2);font:400 11px var(--f-mono)}
+svg .t-h{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+svg .t-acc{fill:var(--accent)}
+svg .w{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .w-acc{stroke:var(--accent);stroke-width:1.8;fill:none}
+svg .w-dash{stroke:var(--ink-3);stroke-width:1.2;fill:none;stroke-dasharray:4 4}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg .w-ok{stroke:var(--ok);stroke-width:1.8;fill:none}svg .w-warn{stroke:var(--warn);stroke-width:1.8;fill:none}svg .w-bad{stroke:var(--bad);stroke-width:1.8;fill:none}
+svg .t-ok{fill:var(--ok)}svg .t-warn{fill:var(--warn)}svg .t-bad{fill:var(--bad)}svg .t-b{font-weight:700}
 
-.footer{max-width:74ch;margin:64px auto 0;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;
-  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14.5px;pointer-events:none;
-  transition:opacity .2s ease, transform .2s ease;z-index:40}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-@media (prefers-reduced-motion: reduce){*{transition:none !important;scroll-behavior:auto !important}}
-@media print{.topbar,.sidebar,.scrim,#panel-md,.toast{display:none !important}main{padding:0}.doc{max-width:none}}
+/* moment cards */
+.mcard{position:relative;padding:14px 16px 14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.mcard::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c,var(--line))}
+.mcard h5{margin:0 0 6px;font:600 .92rem var(--f-mono);display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 8px;align-items:center}
+.mcard p{margin:.25rem 0;font-size:.86rem;color:var(--ink-2)}
+.mcard .src{font-size:.78rem;color:var(--ink-3)}
+
+/* findings */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.fbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.82rem;cursor:pointer}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.finding{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.finding[hidden]{display:none}
+.finding .what{font-weight:500}
+.finding .why{font-size:.86rem;color:var(--ink-2);margin-top:3px}
+@media (max-width:520px){.finding{grid-template-columns:minmax(0,1fr)}}
+
+/* state map */
+.store{font:600 .66rem/1 var(--f-mono);padding:3px 6px;border-radius:5px;margin-right:4px;display:inline-block;margin-bottom:3px}
+.s-pg{background:var(--info-soft);color:var(--info)}.s-rd{background:var(--bad-soft);color:var(--bad)}.s-pb{background:var(--warn-soft);color:var(--warn)}.s-none{background:var(--bg-2);color:var(--ink-3)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.8rem;color:var(--ink-2);margin:6px 0}
+
+/* lists & questions */
+ol.fr{counter-reset:fr;list-style:none;padding:0;margin:12px 0}
+ol.fr li{counter-increment:fr;position:relative;padding:10px 12px 10px 48px;border-bottom:1px dashed var(--line)}
+ol.fr li::before{content:counter(fr,decimal-leading-zero);position:absolute;left:10px;top:10px;font:600 .8rem var(--f-mono);color:var(--accent)}
+.qs{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:820px){.qs{grid-template-columns:minmax(0,1fr)}}
+.q{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+.q b{display:block;margin-bottom:3px}
+.q .n{font:600 .72rem var(--f-mono);color:var(--accent)}
+
+/* code */
+.codebox{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--code-bg);margin:12px 0}
+.codebox pre{margin:0;padding:16px;overflow:auto;font-size:.8rem;line-height:1.55;max-height:560px;tab-size:4}
+.codebox .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--line);font:500 .74rem var(--f-mono);color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn svg{width:14px;height:14px}
+
+/* markdown tab */
+.md-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:28px 0 12px}
+.md-head h2{font-size:1.5rem}
+.md-head .acts{display:flex;gap:8px;flex-wrap:wrap}
+.md{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.md pre{margin:0;padding:14px 0;overflow:auto;font:400 .8rem/1.6 var(--f-mono);counter-reset:ln}
+.md .ln{display:block;padding:0 16px 0 58px;position:relative;white-space:pre}
+.md .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:44px;text-align:right;color:var(--ink-3);opacity:.6}
+.md .h{color:var(--accent);font-weight:500}
+.md .tr{color:var(--ink-2)}
+.md .fence{color:var(--warn)}
+.md .li{color:var(--ink)}
+
+
+/* start here */
+.start{margin:28px 0 4px;border:1px solid var(--accent);border-radius:16px;background:linear-gradient(180deg,var(--accent-soft),transparent 70%);padding:18px 18px 8px}
+.start .route{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 .78rem var(--f-mono);color:var(--ink-2);margin:6px 0 14px}
+.start .route a{color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 9px}
+.start .route i{color:var(--accent);font-style:normal}
+.start ol{margin:0;padding-left:1.2rem}
+.start li{margin:.35rem 0}
+.start li b{font-weight:600}
+.start .refs a{font:500 .72rem var(--f-mono);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;color:var(--accent);background:var(--surface)}
+.start h3{margin:.2rem 0 .5rem;font-size:.95rem}
+/* findings */
+.fcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);scroll-margin-top:calc(var(--head) + 16px)}
+.fcard[hidden]{display:none}
+.fcard header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.fcard .fid{font:600 .8rem var(--f-mono);color:var(--accent)}
+.fcard h4{margin:0;font:600 1rem var(--f-body);flex:1 1 260px}
+.fcard dl{display:grid;grid-template-columns:78px minmax(0,1fr);gap:6px 12px;margin:0;font-size:.9rem}
+.fcard dt{font:600 .68rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.fcard dd{margin:0;color:var(--ink-2)}
+.fcard dd.ex{background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;color:var(--ink)}
+.fcard dd.val{color:var(--ink)}
+.fcard dd ul{margin:.2rem 0;padding-left:1.1rem}
+.fcard>svg{display:block;width:100%;max-width:620px;height:auto;margin-top:8px}
+@media (max-width:560px){.fcard dl{grid-template-columns:minmax(0,1fr)}.fcard dt{line-height:1.2;margin-top:4px}}
+/* questions */
+.qgroup{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px}
+.qgroup h4{margin:0 0 2px;font:600 1rem var(--f-body);display:flex;gap:8px;align-items:center}
+.qgroup .sub{font-size:.82rem;color:var(--ink-3);margin-bottom:8px}
+.qitem{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px dashed var(--line-2)}
+.qitem .qid{font:600 .74rem var(--f-mono);color:var(--accent);padding-top:2px}
+.qitem b{font-weight:500;display:block}
+.qitem span.ex{font-size:.82rem;color:var(--ink-3)}
+/* schema options */
+.opt{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;position:relative}
+.opt.chosen{border:2px solid var(--accent)}
+.opt .tag{position:absolute;top:-10px;right:12px}
+.opt h4{margin:0;font:600 1rem var(--f-body)}
+.opt .why{font-size:.82rem;color:var(--ink-3);margin:2px 0 10px}
+.tbl{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.tbl .tn{font:600 .78rem var(--f-mono);padding:6px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.tbl .tn small{font-weight:400;color:var(--ink-3)}
+.tbl .cols{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px}
+.col{font:400 .7rem var(--f-mono);padding:2px 6px;border-radius:5px;background:var(--bg-2);color:var(--ink-2)}
+.col.key{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.col.bad{background:var(--bad-soft);color:var(--bad)}
+.col.warn{background:var(--warn-soft);color:var(--warn)}
+.opt .note{font-size:.8rem;color:var(--ink-2);margin:6px 0 0}
+.mx td.c{text-align:center;white-space:nowrap;width:15%}
+.mx th:not(:first-child){text-align:center}
+.mx.objs{table-layout:fixed}
+.mx.objs .pill{white-space:normal;line-height:1.3}
+.mx.objs th{text-align:left}
+.mx.objs td{white-space:normal}
+.mx.objs th:nth-child(1){width:20%}.mx.objs th:nth-child(2){width:28%}.mx.objs th:nth-child(3){width:12%}.mx.objs th:nth-child(4){width:40%}
+.mx td.c.sel{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.mx tr.grp td{background:var(--surface-2);font:600 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.cy,.cp,.cn{display:inline-block;min-width:26px;font:700 .8rem var(--f-mono);border-radius:6px;padding:2px 6px}
+.cy{background:var(--ok-soft);color:var(--ok)}.cp{background:var(--warn-soft);color:var(--warn)}.cn{background:var(--bad-soft);color:var(--bad)}
+
+
+.opt dl.intent{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;margin:0 0 10px;font-size:.84rem}
+.opt dl.intent dt{font:600 .66rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.opt dl.intent dd{margin:0;color:var(--ink-2)}
+
+/* review checklist */
+.checklist{margin:28px 0 4px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:18px;box-shadow:var(--shadow)}
+.checklist .bar{height:8px;border-radius:99px;background:var(--bg-2);overflow:hidden;margin:10px 0 4px}
+.checklist .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s ease}
+.checklist .count{font:500 .76rem var(--f-mono);color:var(--ink-3)}
+.ck{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:12px 0;border-top:1px dashed var(--line-2)}
+.ck input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+.ck b{font-weight:600}
+.ck .where{font:500 .74rem var(--f-mono);margin-left:6px}
+.ck .where a{color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;background:var(--surface-2)}
+.ck ul{grid-column:2;margin:2px 0 0;padding-left:1.1rem;font-size:.88rem;color:var(--ink-2)}
+.ck.done b{color:var(--ink-3);text-decoration:line-through}
+/* state machines */
+.sm{margin:12px 0}
+.sm h4{margin:0 0 6px;font:600 .95rem var(--f-body)}
+.sm .fig{margin-top:6px}
+.sm svg .bad{fill:var(--bad);font:400 11.5px var(--f-body)}
+.sm svg .lane{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.06em}
+/* toc groups */
+.toc li.grp{font:600 .66rem/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:16px 10px 4px}
+.toc li.grp:first-child{padding-top:4px}
+/* prose (markdown blocks) */
+.prose>p,.prose>ul,.prose>ol,.prose>blockquote,.prose>h3,.prose>h4{max-width:76ch}
+.prose h3{margin:1.6rem 0 .5rem}
+.prose h4{font:600 1rem var(--f-body);margin:1.2rem 0 .4rem}
+.prose ul,.prose ol{padding-left:1.3rem;margin:.6rem 0}
+.prose li{margin:.3rem 0}
+.prose li>p{margin:.2rem 0}
+.prose hr{border:0;border-top:1px dashed var(--line);margin:1.6rem 0}
+.prose blockquote,blockquote.quote{margin:16px 0;padding:6px 0 6px 16px;border-left:3px solid var(--accent);font:500 1.08rem/1.5 var(--f-display);color:var(--ink)}
+.prose blockquote p{margin:.3rem 0}
+.callout p{margin:.3rem 0}
+.callout .ct{display:block;font:600 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.callout.warn .ct{color:var(--warn)}
+.callout.key{border-color:var(--ink);background:var(--surface-2)}
+.callout.key .ct{color:var(--ink)}
+.card h3{margin:0 0 .4rem;font-size:1rem}
+.card .pill{margin-bottom:6px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card ul{padding-left:1.1rem;margin:.4rem 0}
+.card .meta-line{font-size:.8rem;color:var(--ink-3);margin-top:8px}
+/* steps */
+ol.steps{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+ol.steps li{position:relative;padding:12px 14px 12px 46px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+ol.steps li .sn{position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:600 .74rem var(--f-mono)}
+ol.steps li b{display:block;margin-bottom:2px}
+ol.steps li span.d{color:var(--ink-2)}
+.steps-loop{font:500 .8rem var(--f-mono);color:var(--accent);margin:-4px 0 14px}
+/* key-value sheet */
+.kv{border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:560px;margin:14px 0;box-shadow:var(--shadow)}
+.kv .kt{font:600 .72rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px 14px}
+.kv .r{display:flex;justify-content:space-between;gap:14px;padding:7px 14px;border-top:1px dashed var(--line-2);font-size:.88rem}
+.kv .r>span:first-child{flex:0 1 auto;max-width:50%;font-size:.84rem;color:var(--ink-2)}
+.kv code{overflow-wrap:normal;white-space:nowrap}
+.kv .r>span:last-child{text-align:right;font-weight:500}
+.kv .r.sum{border-top:1px solid var(--line);font-weight:600}
+/* tag grid */
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tg{--c:var(--line);display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-left:3px solid var(--c);border-radius:10px;background:var(--surface);font-size:.86rem;min-width:0;max-width:100%}
+.tg code{align-self:flex-start}
+.tg.k-ok{--c:var(--ok)}.tg.k-warn{--c:var(--warn)}.tg.k-bad{--c:var(--bad)}.tg.k-info{--c:var(--info)}.tg.k-acc{--c:var(--accent)}.tg.k-mute{--c:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.blk-note{font-size:.8rem;color:var(--ink-3);margin:-4px 0 16px}
+/* ascii fallback under a diagram */
+.fig details{margin:8px 4px 0;font-size:.8rem;color:var(--ink-3)}
+.fig details summary{cursor:pointer}
+.fig details pre{margin:8px 0 0;padding:12px;background:var(--code-bg);border-radius:10px;overflow:auto;font:400 .76rem/1.5 var(--f-mono);color:var(--ink-2)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:.85rem;transition:.2s;z-index:60;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{padding:32px 0;color:var(--ink-3);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stat{opacity:1;transform:none}.signal-line path{stroke-dashoffset:0}}
+@media print{.top,.side,.scrim{display:none}.shell{display:block}.panel[hidden]{display:none}}
 </style>
 </head>
-<body>
-
-<header class="topbar">
-  <button class="icon-btn" id="menuBtn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Mở hoặc đóng mục lục">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+<body data-menu="open">
+<header class="top">
+  <button class="icon-btn" data-action="menu:toggle" aria-label="Mở / đóng mục lục" aria-controls="side" aria-expanded="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
   </button>
-  <div class="brand">Engineer &amp; Claude Code</div>
-  <div class="tabs" role="tablist" aria-label="Chọn dạng hiển thị">
-    <button class="tab" role="tab" id="tab-html" aria-controls="panel-html" data-view="html" type="button">HTML</button>
-    <button class="tab" role="tab" id="tab-md" aria-controls="panel-md" data-view="md" type="button">Markdown</button>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="7" fill="var(--accent)"/><path d="M5 14h4l2-5 3 9 2-6 1 2h4" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <b>Engineer &amp; Claude Code</b><small>2026-10-11</small>
   </div>
+  <div class="tabs" role="tablist" aria-label="Chế độ xem">
+    <button class="tab" role="tab" id="tab-html" aria-controls="panel-html" data-action="tab:html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><span class="lbl">Tài liệu</span>
+    </button>
+    <button class="tab" role="tab" id="tab-md" aria-controls="panel-md" data-action="tab:md">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15V9l3 3 3-3v6M16 9v6m0 0-2-2m2 2 2-2"/></svg><span class="lbl">Markdown</span>
+    </button>
+  </div>
+  <button class="icon-btn" data-action="theme:toggle" aria-label="Đổi giao diện sáng / tối">
+    <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
 </header>
 
 <div class="shell">
-  <nav class="sidebar" id="sidebar" aria-label="Mục lục">
-    <p class="toc-title">Mục lục</p>
-    <ul class="toc" id="toc"></ul>
+  <nav class="side" id="side" aria-label="Các mục">
+    <h4>Mục lục</h4>
+    <ul class="toc">
+      <li><a href="#tai-lieu-nay-de-lam-gi" data-action="nav"><span>01</span>Tài liệu này để làm gì</a></li>
+      <li><a href="#phan-1-engineer-nen-tap-trung-vao-gi-luc-nay" data-action="nav"><span>P1</span>Engineer nên tập trung vào gì lúc này</a></li>
+      <li><a href="#phan-2-claude-code-hoat-dong-nhu-the-nao" data-action="nav"><span>P2</span>Claude Code hoạt động như thế nào</a></li>
+      <li><a href="#bai-viet-nghien-cuu-chi-tiet" data-action="nav"><span>02</span>Bài viết nghiên cứu chi tiết</a></li>
+      <li><a href="#bang-thuat-ngu" data-action="nav"><span>03</span>Bảng thuật ngữ</a></li>
+      <li class="grp">Chi tiết</li>
+      <li><a href="#chi-tiet-luong-khoi-dong" data-action="nav"><span>04</span>Luồng khởi động</a></li>
+      <li><a href="#chi-tiet-luong-xu-ly-mot-yeu-cau" data-action="nav"><span>05</span>Luồng xử lý một yêu cầu</a></li>
+      <li><a href="#chi-tiet-du-lieu-nam-o-dau" data-action="nav"><span>06</span>Dữ liệu nằm ở đâu</a></li>
+      <li><a href="#chi-tiet-cac-tang-cua-context" data-action="nav"><span>07</span>Các tầng của context</a></li>
+      <li><a href="#chi-tiet-hook-va-nen-can-thiep-o-dau" data-action="nav"><span>08</span>Hook và nên can thiệp ở đâu</a></li>
+      <li><a href="#chi-tiet-che-do-quyen-va-cac-bay-thuong-gap" data-action="nav"><span>09</span>Chế độ quyền và các bẫy thường gặp</a></li>
+      <li><a href="#chi-tiet-tu-kiem-chung-tren-may-cua-ban" data-action="nav"><span>10</span>Tự kiểm chứng trên máy của bạn</a></li>
+      <li><a href="#chi-tiet-cach-tim-hieu-mot-he-thong-nhu-the-nay" data-action="nav"><span>11</span>Cách tìm hiểu một hệ thống như thế này</a></li>
+      <li class="grp">Tham khảo</li>
+      <li><a href="#nguon-tham-khao" data-action="nav"><span>12</span>Nguồn tham khảo</a></li>
+    </ul>
+    
   </nav>
-  <div class="scrim" id="scrim" aria-hidden="true"></div>
+  <div class="scrim" data-action="menu:close"></div>
 
   <main>
-    <section class="panel" id="panel-html" role="tabpanel" aria-labelledby="tab-html">
-      <article class="doc" id="doc"></article>
-      <footer class="footer">Tổng hợp từ một buổi trao đổi kỹ thuật, tháng 10/2026. Thông tin về Claude Code có thể thay đổi theo phiên bản; hãy đối chiếu với tài liệu chính thức trong mục Nguồn tham khảo.</footer>
-    </section>
-    <section class="panel" id="panel-md" role="tabpanel" aria-labelledby="tab-md" hidden>
-      <div class="doc">
-        <div class="md-tools">
-          <p>Toàn bộ nội dung ở dạng Markdown, dùng để dán vào wiki, Notion hoặc repo.</p>
-          <button class="btn" id="copyMd" type="button">Sao chép Markdown</button>
-          <button class="btn secondary" id="downloadMd" type="button">Tải file .md</button>
-        </div>
-        <pre class="md-source" id="mdSource" tabindex="0"></pre>
-      </div>
-    </section>
-  </main>
+  <!-- ======================= HTML REPORT ======================= -->
+  <div class="panel" id="panel-html" role="tabpanel" aria-labelledby="tab-html">
+  <div class="wrap">
+<header class="hero">
+  <div class="kicker">Engineer &amp; Claude Code · tổng quan cho cả team</div>
+  <h1>Engineer trong giai đoạn AI: <em>nên tập trung vào đâu, và Claude Code hoạt động ra sao</em></h1>
+  <p class="lede">Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì lúc này, và một công cụ lập trình bằng AI như Claude Code thực sự làm việc thế nào. Nội dung được viết để cả người không làm kỹ thuật cũng đọc được.</p>
+  <svg class="signal-line" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 H260 L280 40 L295 14 L312 62 L330 8 L348 52 L360 40 H560 L575 40 L588 22 L602 56 L616 40 H1000" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+  <div class="stats">
+    <div class="stat"><div class="n">5</div><div class="l">hướng ưu tiên để đầu tư kỹ năng</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">cách điều chỉnh hành vi của Claude Code</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">nhóm hook và nơi nên can thiệp</div></div>
+    <div class="stat"><div class="n">28</div><div class="l">thuật ngữ giải thích bằng lời thường</div></div>
+  </div>
+</header>
+
+<section class="sec" id="tai-lieu-nay-de-lam-gi">
+  <div class="sec-head"><span class="sec-no">01</span><h2>Tài liệu này để làm gì</h2></div>
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 28 720 202" role="img" aria-labelledby="eng-loop-t"><title id="eng-loop-t">Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo</title>
+  <defs><marker id="eng-hd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-3)"/></marker></defs>
+  <rect class="n-box" x="16" y="64" width="120" height="64" rx="10"/>
+  <text class="t t-b" x="76" y="92" text-anchor="middle">Bạn</text>
+  <text class="t-s" x="76" y="112" text-anchor="middle">giao việc, duyệt</text>
+  <rect class="n-new" x="194" y="48" width="214" height="96" rx="10"/>
+  <text class="t t-b" x="301" y="80" text-anchor="middle">Claude Code</text>
+  <text class="t-s" x="301" y="100" text-anchor="middle">"đôi tay", chạy trên máy bạn</text>
+  <text class="t-s" x="301" y="122" text-anchor="middle">đọc file, chạy lệnh, sửa code</text>
+  <rect class="n-info" x="556" y="48" width="150" height="96" rx="10"/>
+  <text class="t t-b" x="631" y="80" text-anchor="middle">Mô hình AI</text>
+  <text class="t-s" x="631" y="100" text-anchor="middle">"bộ não", trên cloud</text>
+  <text class="t-s" x="631" y="122" text-anchor="middle">quyết định bước tiếp</text>
+  <path class="w" d="M136 96H190" marker-end="url(#eng-hd)"/>
+  <path class="w" d="M408 82H552" marker-end="url(#eng-hd)"/>
+  <path class="w" d="M556 112H412" marker-end="url(#eng-hd)"/>
+  <text class="t-m" x="482" y="72" text-anchor="middle">gửi điều đã thấy</text>
+  <text class="t-m" x="482" y="132" text-anchor="middle">trả bước tiếp theo</text>
+  <path class="w-acc" d="M267 144 C267 196, 335 196, 335 148" marker-end="url(#eng-hd)"/>
+  <text class="t-s t-acc" x="301" y="214" text-anchor="middle">lặp lại đến khi xong việc</text>
+</svg>
+</div>
+  <figcaption>Việc làm diễn ra trên máy bạn; mọi thứ AI nhìn thấy được gửi lên cloud để suy nghĩ.</figcaption>
+</figure>
+
+<div class="prose"><p><strong>Mục đích:</strong> giúp mọi người có chung một bức tranh về hai điều. Thứ nhất, hướng phát triển kỹ năng khi AI đang thay đổi nghề làm phần mềm. Thứ hai, cách một &quot;AI agent&quot; lập trình vận hành, để dùng nó an toàn và hiệu quả.</p>
+<p><strong>Lợi ích cho từng người đọc:</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Người đọc</th>
+<th>Nhận được gì</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engineer</td>
+<td>Biết nên ưu tiên học gì; hiểu Claude Code đủ sâu để dự đoán, gỡ lỗi và tùy chỉnh nó</td>
+</tr>
+<tr>
+<td>Tech lead, quản lý</td>
+<td>Hiểu rủi ro dữ liệu, chi phí, và cách đặt quy tắc chung cho cả team</td>
+</tr>
+<tr>
+<td>Người không làm kỹ thuật</td>
+<td>Hiểu AI agent làm gì trên máy tính, dữ liệu đi đâu, và vì sao cần quy tắc</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Cách đọc:</strong> Phần 1 và Phần 2 là tổng quan, đọc khoảng 10 phút. Tiếp theo là bảng thuật ngữ. Phần chi tiết ở cuối dành cho người muốn đi sâu.</p>
 </div>
 
+</section>
+
+<section class="sec" id="phan-1-engineer-nen-tap-trung-vao-gi-luc-nay">
+  <div class="sec-head"><span class="sec-no">P1</span><h2>Engineer nên tập trung vào gì lúc này</h2></div>
+<div class="prose"><h3>Thay đổi lớn nhất</h3>
+<p>AI đã viết được phần lớn code thông thường. Vì vậy, giá trị của engineer đang dịch chuyển: từ &quot;tự tay viết từng dòng&quot; sang &quot;thiết kế hệ thống, giao việc cho AI, kiểm soát và chịu trách nhiệm về kết quả&quot;.</p>
+<p>Người làm tốt giai đoạn này là người biết AI giỏi ở đâu, yếu ở đâu, và biết dựng &quot;lan can an toàn&quot; quanh nó.</p>
+<h3>Cách chọn thứ đáng học</h3>
+<p>Một kỹ năng đáng đầu tư nếu đạt ít nhất 2 trong 3 điều sau:</p>
+<ul>
+<li><strong>Dùng được ngay</strong> trong công việc hiện tại.</li>
+<li><strong>Thị trường đang cần</strong>, thể hiện trong mô tả tuyển dụng ở vị trí bạn nhắm tới.</li>
+<li><strong>Sống lâu</strong>, ít nhất 5 năm. Nghĩa là học khái niệm nền tảng, không chỉ học thuộc một công cụ.</li>
+</ul>
+<h3>Năm hướng ưu tiên</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Hướng</th>
+<th>Nói đơn giản</th>
+<th>Vì sao quan trọng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Làm việc cùng AI</td>
+<td>Giao việc cho AI viết code, kiểm tra kết quả, và xây sản phẩm có AI bên trong</td>
+<td>Đây là thay đổi lớn nhất của nghề; ai chưa biết sẽ tụt lại</td>
+</tr>
+<tr>
+<td>Nền tảng hệ thống</td>
+<td>Hiểu cách phần mềm lớn chịu tải, lưu dữ liệu và xử lý lỗi</td>
+<td>AI viết code nhanh, nhưng chưa thay được phán đoán khi thiết kế và khi xử lý sự cố</td>
+</tr>
+<tr>
+<td>Cloud và hạ tầng</td>
+<td>Đưa phần mềm lên máy chủ, tự động hóa việc phát hành, quay lui an toàn khi lỗi</td>
+<td>Sản phẩm nào cũng phải chạy ổn định ở đâu đó</td>
+</tr>
+<tr>
+<td>Ngôn ngữ lập trình, chọn theo hướng</td>
+<td>Python và TypeScript cho backend và AI; Go hoặc Rust cho hạ tầng; TypeScript cho full-stack</td>
+<td>Hiểu sâu 2–3 ngôn ngữ có giá trị hơn biết sơ 5–6 ngôn ngữ</td>
+</tr>
+<tr>
+<td>Kỹ năng không phải code</td>
+<td>Viết tài liệu thiết kế rõ ràng, đánh giá rủi ro, review code (kể cả code do AI viết)</td>
+<td>Quyết định khả năng lên vị trí senior và lead</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Cụ thể trong từng hướng</h3>
+<p><strong>Làm việc cùng AI:</strong></p>
+<ul>
+<li>Dùng công cụ lập trình bằng AI (như Claude Code) hằng ngày, và học cách kiểm soát, review code do AI viết.</li>
+<li>Hiểu các khái niệm: gọi công cụ (tool use), MCP, RAG, dữ liệu trả về có cấu trúc.</li>
+<li>Vận hành: đo chất lượng (eval), theo dõi chi phí và độ trễ, phòng tấn công prompt injection.</li>
+</ul>
+<p><strong>Nền tảng hệ thống:</strong></p>
+<ul>
+<li>Thiết kế hệ thống: cache, hàng đợi, xử lý lặp lại an toàn (idempotency), chịu tải khi quá đông (backpressure).</li>
+<li>Cơ sở dữ liệu, đặc biệt PostgreSQL: index, đọc query plan, cơ chế khóa.</li>
+<li>Quan sát hệ thống (observability): log, metric, trace, OpenTelemetry.</li>
+</ul>
+<p><strong>Cloud và hạ tầng:</strong></p>
+<ul>
+<li>Thành thạo một nhà cung cấp cloud ở mức thiết kế được, không chỉ triển khai được.</li>
+<li>Docker là bắt buộc. Kubernetes học đủ hiểu, trừ khi bạn đi theo hướng hạ tầng.</li>
+<li>Hạ tầng dưới dạng code (Terraform hoặc OpenTofu), CI/CD, và các cách phát hành an toàn: feature flag, canary, rollback.</li>
+</ul>
+<h3>Thứ tự gợi ý khi thời gian có hạn</h3>
+<ol>
+<li>Làm việc cùng AI.</li>
+<li>Lấp các lỗ hổng trong nền tảng hệ thống.</li>
+<li>Cloud và hạ tầng, theo nhu cầu công việc thực tế.</li>
+</ol>
+</div>
+
+<div class="callout"><span class="ct">Lưu ý</span><div class="prose"><p>Công cụ AI thay đổi theo tháng. Hãy học khái niệm (đo chất lượng, quản lý ngữ cảnh, các kiểu lỗi thường gặp) thay vì học thuộc một framework cụ thể. Thứ tự ưu tiên cũng khác nhau tùy vị trí hiện tại, định hướng nghề và thị trường mục tiêu của mỗi người.</p>
+</div></div>
+
+</section>
+
+<section class="sec" id="phan-2-claude-code-hoat-dong-nhu-the-nao">
+  <div class="sec-head"><span class="sec-no">P2</span><h2>Claude Code hoạt động như thế nào</h2></div>
+<div class="prose"><h3>Hình dung đơn giản</h3>
+<p>Hãy hình dung Claude Code như một kỹ sư làm việc trên máy tính của bạn, nhưng được tách làm hai nửa:</p>
+<ul>
+<li><strong>Bộ não</strong> là mô hình AI (model), đặt trên máy chủ của Anthropic. Nó chỉ suy nghĩ và quyết định bước tiếp theo.</li>
+<li><strong>Đôi tay</strong> là phần mềm Claude Code chạy trên máy bạn, thường gọi là harness. Nó đọc file, chạy lệnh, sửa code, và hỏi bạn khi cần cấp quyền.</li>
+</ul>
+<p>Mỗi khi cần suy nghĩ, đôi tay gửi lên bộ não mọi thứ liên quan: yêu cầu của bạn, các file đã đọc, kết quả lệnh vừa chạy. Bộ não trả lời &quot;hãy làm việc này&quot;. Đôi tay làm, rồi gửi kết quả lên. Vòng này lặp lại đến khi việc xong.</p>
+<h3>Vòng lặp làm việc</h3>
+<p>Mỗi yêu cầu đi qua ba nhịp, đan xen nhau:</p>
+<ol>
+<li><strong>Thu thập thông tin:</strong> đọc file, tìm kiếm trong code, chạy lệnh để hiểu tình hình.</li>
+<li><strong>Hành động:</strong> sửa file, chạy lệnh, gọi công cụ bên ngoài.</li>
+<li><strong>Kiểm tra:</strong> chạy test, đọc lỗi, sửa tiếp cho đến khi đạt.</li>
+</ol>
+<p>Bạn có thể can thiệp bất cứ lúc nào: nhấn Esc để dừng, hoặc gõ thêm chỉ dẫn. Claude sẽ đọc chỉ dẫn mới ngay khi xong bước hiện tại.</p>
+<h3>Điều quan trọng nhất về dữ liệu</h3>
+<p>Việc <em>làm</em> diễn ra trên máy bạn, nhưng mọi thứ AI <em>nhìn thấy</em> đều được gửi lên máy chủ. Nếu Claude đọc một file chứa mật khẩu, nội dung file đó đã nằm trong yêu cầu gửi đi.</p>
+</div>
+
+<div class="callout key"><span class="ct">Hệ quả thực tế</span><div class="prose"><p>Đừng để AI đọc file chứa bí mật, ví dụ <code>.env</code>. Hãy cấu hình quy tắc chặn đọc những file này ngay từ đầu.</p>
+</div></div>
+
+<div class="prose"><p>Lịch sử mỗi phiên làm việc được lưu thành file văn bản thường trên máy bạn. Nhờ đó có thể mở lại phiên cũ, quay lui, hoặc rẽ nhánh.</p>
+<h3>Trí nhớ làm việc có giới hạn</h3>
+<p>AI có một &quot;bàn làm việc&quot; với diện tích cố định, gọi là context window. Mọi thứ nó cần để suy nghĩ phải nằm trên bàn: hướng dẫn, file đã đọc, cuộc trò chuyện. Bàn càng đầy thì mỗi lượt càng tốn chi phí, và AI càng dễ bỏ sót chi tiết.</p>
+<p>Khi bàn gần đầy, Claude Code tự dọn: xóa bớt kết quả cũ, rồi tóm tắt cuộc trò chuyện. Việc này gọi là compaction. Những chỉ dẫn chỉ nói trong chat có thể bị mất khi đó.</p>
+</div>
+
+<div class="callout key"><span class="ct">Hệ quả thực tế</span><div class="prose"><p>Quy tắc nào quan trọng thì ghi vào file <code>CLAUDE.md</code> (sổ tay của dự án). File này được nạp lại sau mỗi lần dọn bàn.</p>
+</div></div>
+
+<div class="prose"><h3>Sáu cách điều chỉnh hành vi của Claude Code</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Công cụ</th>
+<th>Ví von</th>
+<th>Dùng khi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLAUDE.md</td>
+<td>Sổ tay dự án, AI đọc mỗi đầu phiên</td>
+<td>Quy tắc luôn phải theo: cách build, chuẩn code, điều cấm</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>Quy trình mẫu, chỉ lấy ra khi cần</td>
+<td>Việc lặp lại có các bước cố định, ví dụ review theo checklist</td>
+</tr>
+<tr>
+<td>Hook</td>
+<td>Quy tắc tự động &quot;trước hoặc sau khi làm X thì làm Y&quot;</td>
+<td>Bắt buộc chạy test, chặn lệnh nguy hiểm, tự định dạng code</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>Ổ cắm nối với công cụ bên ngoài</td>
+<td>Đọc ticket, tài liệu, dữ liệu từ hệ thống khác</td>
+</tr>
+<tr>
+<td>Subagent</td>
+<td>Trợ lý phụ làm việc riêng rồi báo cáo tóm tắt</td>
+<td>Việc cần đọc nhiều, để giữ bàn làm việc chính gọn gàng</td>
+</tr>
+<tr>
+<td>Permissions</td>
+<td>Quyền hạn được cấp</td>
+<td>Quy định AI được tự làm gì, phải hỏi gì, bị cấm gì</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Hiểu những điều này để làm gì</h3>
+<ul>
+<li><strong>Dự đoán được:</strong> biết AI sẽ làm gì trước khi chạy.</li>
+<li><strong>Gỡ lỗi nhanh:</strong> khi AI làm điều lạ, biết tìm nguyên nhân ở đâu: sổ tay, hook hay skill.</li>
+<li><strong>Tùy chỉnh đúng chỗ:</strong> chọn đúng một trong sáu công cụ ở trên.</li>
+<li><strong>Kiểm soát chi phí và bảo mật:</strong> biết dữ liệu nào rời khỏi máy, và vì sao bàn làm việc đầy thì tốn tiền.</li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="bai-viet-nghien-cuu-chi-tiet">
+  <div class="sec-head"><span class="sec-no">02</span><h2>Bài viết nghiên cứu chi tiết</h2></div>
+<div class="prose"><p>Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến trúc Claude Code, được thực hiện theo đặc tả xây dựng trong buổi trao đổi này.</p>
+<ul>
+<li><a href="https://like2learn.ainyou.life/read.html?p=topics/ai/claude-inside-26-10-11.html" target="_blank" rel="noopener">Bên trong Claude Code</a></li>
+<li><a href="https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html" target="_blank" rel="noopener">Hướng dẫn áp dụng Claude Code cho team</a></li>
+<li><a href="https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html" target="_blank" rel="noopener">Báo cáo nghiên cứu</a></li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="bang-thuat-ngu">
+  <div class="sec-head"><span class="sec-no">03</span><h2>Bảng thuật ngữ</h2></div>
+<div class="tw"><table>
+  <thead><tr><th>Thuật ngữ</th><th>Nghĩa</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Agent (tác tử AI)</strong></td><td>chương trình AI tự lên kế hoạch và tự làm nhiều bước để hoàn thành một việc, thay vì chỉ trả lời một câu.</td></tr>
+    <tr><td><strong>Agentic loop (vòng lặp tác tử)</strong></td><td>chu trình &quot;suy nghĩ, hành động, xem kết quả, suy nghĩ tiếp&quot; lặp đến khi xong việc.</td></tr>
+    <tr><td><strong>Harness</strong></td><td>phần mềm bao quanh mô hình AI, cung cấp công cụ và quản lý những gì AI được nhìn thấy. Claude Code là một harness.</td></tr>
+    <tr><td><strong>Model (mô hình AI)</strong></td><td>&quot;bộ não&quot; chạy trên máy chủ, đọc thông tin được gửi lên và quyết định bước tiếp theo.</td></tr>
+    <tr><td><strong>Prompt</strong></td><td>yêu cầu hoặc chỉ dẫn bạn gửi cho AI.</td></tr>
+    <tr><td><strong>Context, context window</strong></td><td>toàn bộ thông tin AI nhìn thấy trong một lần suy nghĩ, và giới hạn dung lượng của nó. Ví như diện tích bàn làm việc.</td></tr>
+    <tr><td><strong>Token</strong></td><td>đơn vị đo lượng chữ mà AI xử lý; chi phí tính theo token.</td></tr>
+    <tr><td><strong>Compaction</strong></td><td>việc tự động dọn bàn làm việc khi gần đầy, bằng cách xóa kết quả cũ và tóm tắt hội thoại.</td></tr>
+    <tr><td><strong>CLAUDE.md</strong></td><td>file &quot;sổ tay dự án&quot; viết bằng chữ thường, được nạp vào đầu mỗi phiên.</td></tr>
+    <tr><td><strong>Memory (MEMORY.md)</strong></td><td>ghi chú Claude tự lưu lại giữa các phiên; phần đầu file được nạp khi bắt đầu phiên.</td></tr>
+    <tr><td><strong>Skill</strong></td><td>gói hướng dẫn cho một loại việc. Ban đầu chỉ có mô tả ngắn được nạp; nội dung đầy đủ chỉ nạp khi dùng.</td></tr>
+    <tr><td><strong>Hook</strong></td><td>đoạn lệnh do bạn cài, tự chạy tại các thời điểm cố định (trước khi dùng công cụ, khi kết thúc lượt...). Có thể chặn hành động hoặc bổ sung thông tin.</td></tr>
+    <tr><td><strong>MCP (Model Context Protocol)</strong></td><td>chuẩn kết nối giúp AI dùng công cụ và dữ liệu từ hệ thống khác.</td></tr>
+    <tr><td><strong>Subagent</strong></td><td>một AI phụ làm việc trong bàn làm việc riêng, xong thì chỉ gửi bản tóm tắt về.</td></tr>
+    <tr><td><strong>Tool, tool call</strong></td><td>công cụ AI được dùng (đọc file, chạy lệnh, tìm kiếm...) và mỗi lần AI yêu cầu dùng một công cụ.</td></tr>
+    <tr><td><strong>Permission mode (chế độ quyền)</strong></td><td>mức độ AI được tự làm mà không cần hỏi bạn.</td></tr>
+    <tr><td><strong>Plan mode</strong></td><td>chế độ AI chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.</td></tr>
+    <tr><td><strong>Session, transcript</strong></td><td>một phiên làm việc, và bản ghi đầy đủ của phiên đó trên máy bạn.</td></tr>
+    <tr><td><strong>Checkpoint</strong></td><td>bản lưu trạng thái file trước khi AI sửa, để có thể quay lui.</td></tr>
+    <tr><td><strong>Prompt cache</strong></td><td>cơ chế tái sử dụng phần thông tin lặp lại giữa các lần gửi, giúp giảm chi phí.</td></tr>
+    <tr><td><strong>System reminder</strong></td><td>ghi chú do Claude Code tự chèn vào hội thoại, ví dụ báo file vừa thay đổi.</td></tr>
+    <tr><td><strong>Prompt injection</strong></td><td>kiểu tấn công giấu chỉ dẫn độc hại trong file, trang web hay dữ liệu để AI làm theo.</td></tr>
+    <tr><td><strong>Eval</strong></td><td>bài đo chất lượng đầu ra của AI một cách có hệ thống.</td></tr>
+    <tr><td><strong>RAG</strong></td><td>kỹ thuật tìm tài liệu liên quan rồi đưa cho AI đọc trước khi trả lời.</td></tr>
+    <tr><td><strong>Observability</strong></td><td>khả năng nhìn vào bên trong hệ thống đang chạy qua log, metric và trace.</td></tr>
+    <tr><td><strong>Idempotency</strong></td><td>tính chất &quot;làm lại nhiều lần vẫn cho cùng kết quả&quot;, giúp hệ thống an toàn khi phải thử lại.</td></tr>
+    <tr><td><strong>CI/CD</strong></td><td>quy trình tự động kiểm tra và phát hành phần mềm.</td></tr>
+    <tr><td><strong>Feature flag, canary, rollback</strong></td><td>bật tắt tính năng không cần phát hành lại; phát hành cho một nhóm nhỏ trước; quay về bản cũ khi có lỗi.</td></tr>
+  </tbody>
+</table></div>
+
+</section>
+
+<section class="sec" id="chi-tiet-luong-khoi-dong" data-toc-label="Luồng khởi động" data-toc-group="Chi tiết">
+  <div class="sec-head"><span class="sec-no">04</span><h2>Chi tiết: luồng khởi động</h2></div>
+<div class="prose"><p>Đây là những gì xảy ra khi bạn gõ lệnh <code>claude</code> trong terminal.</p>
+<ol>
+<li><strong>Nạp cấu hình.</strong> Claude Code gộp settings từ nhiều tầng: quản trị tổ chức (managed), người dùng (<code>~/.claude/settings.json</code>), dự án (<code>.claude/settings.json</code>), cá nhân trong dự án (<code>.claude/settings.local.json</code>) và plugin. Hook từ các tầng được cộng dồn, không ghi đè nhau. Hook của tầng quản trị không thể bị tắt từ các tầng khác.</li>
+<li><strong>Kiểm tra tin cậy thư mục.</strong> Với thư mục lạ, Claude Code hỏi bạn có tin cậy không (workspace trust). Một số hook của dự án chỉ chạy sau khi bạn chấp nhận.</li>
+<li><strong>Lập danh mục skill, plugin, cấu hình MCP.</strong> Mới chỉ lập danh mục, chưa nạp nội dung.</li>
+<li><strong>Chạy hook SessionStart</strong> (nếu có). Hook chạy nền; câu trả lời đầu tiên phải chờ nó xong. Những gì hook in ra được đưa vào context. MCP chưa sẵn sàng ở bước này, nên hook muốn gọi MCP sẽ bị bỏ qua.</li>
+<li><strong>Nạp hướng dẫn.</strong> <code>CLAUDE.md</code>, các rule trong <code>.claude/rules/</code>, và 200 dòng hoặc 25KB đầu của <code>MEMORY.md</code>, tùy cái nào đến trước. Hook InstructionsLoaded báo lại việc này, chỉ để quan sát.</li>
+<li><strong>Kết nối MCP.</strong> Chỉ tên công cụ được đưa vào context. Mô tả chi tiết của công cụ chỉ nạp khi nó được dùng lần đầu.</li>
+<li><strong>Chờ yêu cầu của bạn.</strong> Đến lúc này chưa có gì được gửi lên máy chủ.</li>
+</ol>
+<p><strong>Kết quả sau khởi động:</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Ở đâu</th>
+<th>Có gì</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bộ nhớ trên máy</td>
+<td>Settings đã gộp, danh sách hook, danh mục skill, kết nối MCP</td>
+</tr>
+<tr>
+<td>Context ban đầu</td>
+<td>CLAUDE.md, memory, trạng thái git, mô tả ngắn của skill, kết quả SessionStart</td>
+</tr>
+<tr>
+<td>Máy chủ (cloud)</td>
+<td>Chưa nhận gì</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-luong-xu-ly-mot-yeu-cau" data-toc-label="Luồng xử lý một yêu cầu">
+  <div class="sec-head"><span class="sec-no">05</span><h2>Chi tiết: luồng xử lý một yêu cầu</h2></div>
+<div class="prose"><p>Ví dụ: bạn gõ &quot;review PR này theo checklist của team&quot;, và team có sẵn skill <code>team-review</code>.</p>
+<h3>Giai đoạn 1: trên máy, trước khi gửi đi</h3>
+<ol>
+<li><strong>Nếu bạn gõ <code>/team-review</code> trực tiếp:</strong> hook UserPromptExpansion chạy, có thể chặn hoặc thêm thông tin; nội dung skill được chèn vào yêu cầu.</li>
+<li><strong>Nếu yêu cầu có <code>@tên-file</code>:</strong> nội dung file được chèn thẳng vào yêu cầu, không đi qua hook PreToolUse.</li>
+<li><strong>Hook UserPromptSubmit chạy</strong> (mặc định tối đa 30 giây): có thể chặn yêu cầu, thêm thông tin hoặc đặt tên phiên, nhưng không sửa được nội dung bạn gõ.</li>
+<li><strong>Đóng gói yêu cầu cuối cùng</strong> và gửi lên mô hình.</li>
+</ol>
+<p>Cấu trúc yêu cầu được gửi lên:</p>
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>system   : hướng dẫn của Claude Code
+tools    : công cụ có sẵn + tên công cụ MCP + công cụ Skill
+messages :
+  [đầu phiên] CLAUDE.md, memory, git, mô tả skill, kết quả SessionStart
+  [lịch sử]   yêu cầu, trả lời, yêu cầu dùng công cụ, kết quả công cụ...
+  [lượt này]  yêu cầu của bạn + nội dung @file
+              + ghi chú hệ thống + thông tin do hook thêm</code></pre></div><p>Phần ổn định thường đặt ở đầu để tận dụng prompt cache. Thứ tự chính xác và nội dung hướng dẫn nội bộ không được công bố.</p>
+<h3>Giai đoạn 2: vòng lặp làm việc</h3>
+<ol>
+<li><strong>Mô hình trả lời</strong>, bằng chữ, hoặc bằng yêu cầu dùng công cụ (ví dụ Skill, Bash, Edit).</li>
+<li><strong>Hook PreToolUse:</strong> cho phép, từ chối, hỏi bạn, hoặc sửa đầu vào của công cụ.</li>
+<li><strong>Kiểm tra quyền</strong> theo chế độ và quy tắc. Nếu cần hỏi, hook PermissionRequest chạy rồi Claude Code hỏi bạn.</li>
+<li><strong>Thực thi trên máy bạn.</strong> Với Skill: nội dung <code>SKILL.md</code> được nạp vào context, và hook khai báo trong skill được đăng ký.</li>
+<li><strong>Hook PostToolUse</strong> (hoặc PostToolUseFailure khi lỗi): có thể thêm thông tin hoặc thay kết quả. Khi xong một loạt công cụ chạy song song, hook PostToolBatch chạy.</li>
+<li><strong>Kết quả được nối vào lịch sử</strong> và gửi lên mô hình lần nữa. Vòng lặp tiếp tục.</li>
+</ol>
+<h3>Giai đoạn 3: kết thúc lượt</h3>
+<ol>
+<li><strong>Mô hình không gọi công cụ nữa</strong> thì hook Stop chạy. Hook có thể buộc Claude làm tiếp, ví dụ khi test chưa qua. Sau 8 lần bị chặn liên tiếp, lượt tự kết thúc để tránh lặp vô hạn.</li>
+<li><strong>Lịch sử được ghi</strong> vào file JSONL trên máy, theo kiểu bất đồng bộ.</li>
+<li><strong>Nếu bàn làm việc gần đầy:</strong> PreCompact chạy, Claude Code dọn bàn, rồi PostCompact chạy. Hướng dẫn trong CLAUDE.md được nạp lại.</li>
+</ol>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-du-lieu-nam-o-dau" data-toc-label="Dữ liệu nằm ở đâu">
+  <div class="sec-head"><span class="sec-no">06</span><h2>Chi tiết: dữ liệu nằm ở đâu</h2></div>
+<div class="prose"><div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>ĐĨA (trên máy, lâu dài)
+  Cấu hình      settings.json (quản trị / người dùng / dự án / cá nhân)
+  Hướng dẫn     CLAUDE.md, .claude/rules/*.md
+  Ghi nhớ       MEMORY.md
+  Khả năng      skills/, plugins/, cấu hình MCP, agents/
+  Phiên làm việc  transcript JSONL, checkpoint
+
+BỘ NHỚ (trên máy, trong một phiên)
+  Lịch sử hội thoại đang mở, danh sách hook, chế độ quyền
+
+TỪ XA
+  Máy chủ mô hình  không giữ hội thoại giữa các lần gửi
+  Máy chủ MCP      có dữ liệu riêng của chúng</code></pre></div><div class="tw"><table>
+<thead>
+<tr>
+<th>Dữ liệu</th>
+<th>Ai ghi</th>
+<th>Khi nào được dùng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cấu hình</td>
+<td>Bạn, quản trị viên, plugin</td>
+<td>Lúc khởi động và khi file thay đổi</td>
+</tr>
+<tr>
+<td>CLAUDE.md, rules</td>
+<td>Bạn</td>
+<td>Đầu phiên, khi vào thư mục con, sau khi dọn bàn</td>
+</tr>
+<tr>
+<td>MEMORY.md</td>
+<td>Claude tự ghi</td>
+<td>Đầu phiên, giới hạn 200 dòng hoặc 25KB</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>Bạn, plugin</td>
+<td>Đầu phiên chỉ có mô tả; nội dung nạp khi dùng</td>
+</tr>
+<tr>
+<td>Transcript, checkpoint</td>
+<td>Claude Code</td>
+<td>Khi mở lại phiên, quay lui, rẽ nhánh</td>
+</tr>
+<tr>
+<td>Lịch sử hội thoại</td>
+<td>Claude Code</td>
+<td>Gửi lại toàn bộ lên mô hình ở mỗi lần gọi</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+
+<div class="callout key"><span class="ct">Điểm then chốt</span><div class="prose"><p>Máy chủ mô hình không nhớ gì giữa các lần gửi. &quot;Trí nhớ&quot; của phiên là lịch sử hội thoại, được gửi lại đầy đủ mỗi lần. Ranh giới bảo mật thực sự vì thế là context: thứ gì vào context là đã rời khỏi máy; thứ gì ghi vào transcript thì nằm trên đĩa ở dạng văn bản thường.</p>
+</div></div>
+
+</section>
+
+<section class="sec" id="chi-tiet-cac-tang-cua-context" data-toc-label="Các tầng của context">
+  <div class="sec-head"><span class="sec-no">07</span><h2>Chi tiết: các tầng của context</h2></div>
+<div class="prose"><div class="tw"><table>
+<thead>
+<tr>
+<th>Tầng</th>
+<th>Gồm</th>
+<th>Sau khi dọn bàn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C0. Phần cố định</td>
+<td>Hướng dẫn hệ thống, định nghĩa công cụ</td>
+<td>Còn nguyên</td>
+</tr>
+<tr>
+<td>C1. Đầu phiên</td>
+<td>CLAUDE.md, MEMORY.md, git, mô tả skill, kết quả SessionStart</td>
+<td>Được nạp lại</td>
+</tr>
+<tr>
+<td>C2. Hội thoại</td>
+<td>Yêu cầu, trả lời, kết quả công cụ; tăng dần theo lượt</td>
+<td>Kết quả cũ bị xóa trước, sau đó hội thoại bị tóm tắt</td>
+</tr>
+<tr>
+<td>C3. Theo lượt</td>
+<td>Nội dung @file, ghi chú hệ thống, thông tin hook thêm</td>
+<td>Có thể chỉ còn dạng tóm tắt (suy luận)</td>
+</tr>
+<tr>
+<td>C4. Theo nhu cầu</td>
+<td>Nội dung skill, mô tả công cụ MCP, CLAUDE.md trong thư mục con</td>
+<td>Có thể chỉ còn dạng tóm tắt (suy luận)</td>
+</tr>
+<tr>
+<td>C5. Riêng biệt</td>
+<td>Bàn làm việc của subagent</td>
+<td>Không ảnh hưởng phiên chính</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Hệ quả khi thiết kế cách dùng:</strong></p>
+<ul>
+<li>Quy tắc bắt buộc thì đặt ở C1 (CLAUDE.md), vì nó sống qua lần dọn bàn.</li>
+<li>Quy trình dài, ít dùng thì đặt ở C4 (skill), chỉ tốn chỗ khi cần.</li>
+<li>Việc phải đọc nhiều file thì giao cho subagent (C5), giữ bàn chính gọn.</li>
+<li>Chi phí mỗi lần gửi tăng theo kích thước lịch sử, nên lượt thứ 30 của một phiên tốn hơn lượt thứ 3 nhiều lần, kể cả khi có prompt cache.</li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-hook-va-nen-can-thiep-o-dau" data-toc-label="Hook và nên can thiệp ở đâu">
+  <div class="sec-head"><span class="sec-no">08</span><h2>Chi tiết: hook và nên can thiệp ở đâu</h2></div>
+<div class="prose"><div class="tw"><table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Chạy khi</th>
+<th>Chặn được không</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SessionStart</td>
+<td>Bắt đầu, mở lại, xóa, hoặc sau khi dọn bàn</td>
+<td>Không; dùng để thêm thông tin</td>
+</tr>
+<tr>
+<td>InstructionsLoaded</td>
+<td>Nạp CLAUDE.md hoặc rules</td>
+<td>Không; chỉ để quan sát</td>
+</tr>
+<tr>
+<td>UserPromptExpansion</td>
+<td>Bạn gõ trực tiếp <code>/tên-skill</code></td>
+<td>Có</td>
+</tr>
+<tr>
+<td>UserPromptSubmit</td>
+<td>Gửi một yêu cầu</td>
+<td>Có</td>
+</tr>
+<tr>
+<td>PreToolUse</td>
+<td>Trước mỗi lần dùng công cụ</td>
+<td>Có</td>
+</tr>
+<tr>
+<td>PostToolUse</td>
+<td>Sau khi công cụ chạy xong</td>
+<td>Không chặn; có thể thêm thông tin hoặc thay kết quả</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td>Khi Claude định kết thúc lượt</td>
+<td>Có; buộc làm tiếp</td>
+</tr>
+<tr>
+<td>PreCompact, PostCompact</td>
+<td>Trước và sau khi dọn bàn</td>
+<td>PreCompact chặn được</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nhu cầu nào thì can thiệp ở đâu:</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Nhu cầu</th>
+<th>Điểm can thiệp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quy tắc cố định cho mọi phiên</td>
+<td>CLAUDE.md</td>
+</tr>
+<tr>
+<td>Thông tin động lúc khởi động (nhánh git, ticket đang làm)</td>
+<td>SessionStart</td>
+</tr>
+<tr>
+<td>Thông tin động theo từng yêu cầu</td>
+<td>UserPromptSubmit</td>
+</tr>
+<tr>
+<td>Chặn hoặc ghi log việc dùng skill</td>
+<td>UserPromptExpansion và PreToolUse cho Skill</td>
+</tr>
+<tr>
+<td>Chặn lệnh nguy hiểm</td>
+<td>Quy tắc deny trong permissions trước, PreToolUse bổ sung</td>
+</tr>
+<tr>
+<td>Tự định dạng code sau khi sửa file</td>
+<td>PostToolUse cho Edit và Write</td>
+</tr>
+<tr>
+<td>Bắt buộc test phải qua</td>
+<td>Stop</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-che-do-quyen-va-cac-bay-thuong-gap" data-toc-label="Chế độ quyền và các bẫy thường gặp">
+  <div class="sec-head"><span class="sec-no">09</span><h2>Chi tiết: chế độ quyền và các bẫy thường gặp</h2></div>
+<div class="prose"><p><strong>Chế độ quyền</strong> (chuyển bằng Shift+Tab):</p>
+<ul>
+<li><strong>Auto:</strong> một bộ phân loại xem xét phần lớn hành động ở chế độ nền và chặn những hành động rủi ro, thay vì hỏi bạn.</li>
+<li><strong>Manual:</strong> hỏi trước khi sửa file hoặc chạy lệnh.</li>
+<li><strong>Accept edits:</strong> tự sửa file, vẫn hỏi với các lệnh khác.</li>
+<li><strong>Plan:</strong> chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.</li>
+</ul>
+<p><strong>Các bẫy thường gặp:</strong></p>
+<ul>
+<li>Hook PreToolUse im lặng (không in gì, thoát mã 0) không có nghĩa là cho phép; hành động vẫn đi qua bước kiểm tra quyền như bình thường.</li>
+<li>Muốn hook chặn thật thì phải thoát mã 2 hoặc trả JSON từ chối. Thoát mã 1 hoặc hết thời gian chờ đều không chặn.</li>
+<li>File đưa vào bằng <code>@tên-file</code> không đi qua PreToolUse. Muốn chặn phải dùng quy tắc deny cho Read trong permissions.</li>
+<li>Hook khai báo trong skill sống đến hết phiên, cả ở các lượt sau, trừ khi đặt <code>once: true</code>.</li>
+<li>Checkpoint không quay lui được hành động bên ngoài như ghi database, gọi API hay deploy. Với những việc này, quyền hạn là lớp bảo vệ duy nhất.</li>
+<li>Đầu ra của hook bị giới hạn 10.000 ký tự. Dài hơn thì được lưu ra file, và chỉ đường dẫn cùng 2.000 ký tự đầu vào context.</li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-tu-kiem-chung-tren-may-cua-ban" data-toc-label="Tự kiểm chứng trên máy của bạn">
+  <div class="sec-head"><span class="sec-no">10</span><h2>Chi tiết: tự kiểm chứng trên máy của bạn</h2></div>
+<div class="prose"><ol>
+<li>Gõ <code>/context</code> để xem thứ gì đang chiếm bàn làm việc.</li>
+<li>Mở file JSONL trong <code>~/.claude/projects/</code> để thấy chuỗi thật: yêu cầu, yêu cầu dùng công cụ, kết quả.</li>
+<li>Gõ <code>/hooks</code> để xem mỗi hook đến từ tầng cấu hình nào.</li>
+<li>Cài một hook ghi log cho mọi sự kiện, rồi chạy một yêu cầu có dùng skill. Thứ tự trong log chính là các luồng đã mô tả ở trên.</li>
+</ol>
+<p><strong>Bốn câu hỏi thử hiểu biết</strong> (đoán trước, rồi chạy để so):</p>
+<ul>
+<li>Dùng một skill có hook, rồi sang lượt sau làm việc khác: hook đó còn chạy không?</li>
+<li>Đưa một file vào bằng <code>@tên-file</code> trong khi PreToolUse đang chặn Read: file có lọt vào không?</li>
+<li>Sau <code>/compact</code>, chỉ dẫn nào còn được tuân thủ, chỉ dẫn nào bị quên?</li>
+<li>Nghỉ 2 giờ rồi mở lại phiên: chi phí lần gửi đầu tiên thay đổi thế nào?</li>
+</ul>
+</div>
+
+</section>
+
+<section class="sec" id="chi-tiet-cach-tim-hieu-mot-he-thong-nhu-the-nay" data-toc-label="Cách tìm hiểu một hệ thống như thế này">
+  <div class="sec-head"><span class="sec-no">11</span><h2>Chi tiết: cách tìm hiểu một hệ thống như thế này</h2></div>
+<div class="prose"><p>Đi từ ngoài vào trong, từ tĩnh sang động. Mỗi góc nhìn trả lời một loại câu hỏi và có dạng tài liệu đi kèm.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Góc nhìn</th>
+<th>Trả lời câu hỏi</th>
+<th>Dạng tài liệu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ranh giới</td>
+<td>Hệ thống nói chuyện với ai, dữ liệu vượt ranh giới nào</td>
+<td>Sơ đồ ngữ cảnh, sơ đồ ranh giới tin cậy</td>
+</tr>
+<tr>
+<td>Cấu trúc</td>
+<td>Gồm những khối nào, khối nào làm gì</td>
+<td>Sơ đồ thành phần, bảng trách nhiệm</td>
+</tr>
+<tr>
+<td>Hành vi</td>
+<td>Các khối tương tác theo thứ tự nào, có những trạng thái nào</td>
+<td>Sơ đồ tuần tự, sơ đồ trạng thái, lưu đồ</td>
+</tr>
+<tr>
+<td>Dữ liệu</td>
+<td>Dữ liệu nằm đâu, chảy đi đâu, sống bao lâu</td>
+<td>Bảng kho dữ liệu, sơ đồ luồng dữ liệu</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>AI thấy gì, khi nào, tốn bao nhiêu</td>
+<td>Sơ đồ tầng, biểu đồ token theo lượt</td>
+</tr>
+<tr>
+<td>Điểm can thiệp</td>
+<td>Móc vào đâu, cấu hình nào thắng</td>
+<td>Bảng hook, ma trận lựa chọn</td>
+</tr>
+<tr>
+<td>Chất lượng</td>
+<td>Bảo mật, độ trễ, chi phí, kiểu hỏng</td>
+<td>Bảng mối đe dọa, biểu đồ độ trễ, bảng lỗi</td>
+</tr>
+<tr>
+<td>Quyết định</td>
+<td>Vì sao thiết kế như vậy, đánh đổi gì</td>
+<td>Ghi chú quyết định, bảng đánh đổi</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Phương pháp bốn bước:</strong></p>
+<ol>
+<li>Đọc tài liệu chính thức, viết bản nháp; mọi điều chưa kiểm chứng đều là giả thuyết.</li>
+<li>Gắn công cụ đo: hook ghi log và đọc transcript.</li>
+<li>Dựng lại sơ đồ và biểu đồ từ log thật.</li>
+<li>Dự đoán trước, chạy, so sánh, rồi sửa mô hình hiểu biết.</li>
+</ol>
+</div>
+
+</section>
+
+<section class="sec" id="nguon-tham-khao" data-toc-group="Tham khảo">
+  <div class="sec-head"><span class="sec-no">12</span><h2>Nguồn tham khảo</h2></div>
+<div class="prose"><ul>
+<li><a href="https://code.claude.com/docs/en/how-claude-code-works" target="_blank" rel="noopener">How Claude Code works</a>: tài liệu chính thức về vòng lặp, công cụ, phiên làm việc và context.</li>
+<li><a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">Hooks reference</a>: danh sách hook, thời điểm chạy, mã thoát, dữ liệu vào ra.</li>
+<li><a href="https://code.claude.com/docs/en/best-practices" target="_blank" rel="noopener">Best practices for Claude Code</a>: cách dùng hiệu quả, quản lý context.</li>
+<li><a href="https://anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Effective context engineering for AI agents</a>: nguyên lý quản lý context cho AI agent của Anthropic.</li>
+</ul>
+</div>
+
+</section>
+
+<footer>Tổng hợp từ một buổi trao đổi kỹ thuật, tháng 10/2026. Thông tin về Claude Code có thể thay đổi theo phiên bản; hãy đối chiếu với tài liệu chính thức trong mục Nguồn tham khảo.</footer>
+  </div>
+  </div>
+
+  <!-- ======================= MARKDOWN ======================= -->
+  <div class="panel" id="panel-md" role="tabpanel" aria-labelledby="tab-md" hidden>
+    <div class="wrap">
+      <div class="md-head">
+        <div><div class="kicker">Nguồn</div><h2>engineer-va-claude-code.md</h2><small id="md-meta" style="color:var(--ink-3)"></small></div>
+        <div class="acts">
+          <button class="btn" data-action="copy:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button>
+          <button class="btn primary" data-action="download:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 19h16"/></svg>Tải .md</button>
+        </div>
+      </div>
+      <div class="md"><pre id="md-view"></pre></div>
+    </div>
+  </div>
+  </main>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<noscript><p style="padding:24px;max-width:70ch;margin:auto">Trang này cần JavaScript để hiển thị nội dung.</p></noscript>
 
-<!-- ===================== CONTENT (single source of truth) ===================== -->
-<script type="text/markdown" id="content">
-# Engineer trong giai đoạn AI: nên tập trung vào đâu, và Claude Code hoạt động ra sao
+<script type="text/plain" id="md-source">
+# Engineer trong giai đoạn AI: *nên tập trung vào đâu, và Claude Code hoạt động ra sao*
 
-Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì lúc này, và một công cụ lập trình bằng AI như Claude Code thực sự làm việc thế nào. Nội dung được viết để cả người không làm kỹ thuật cũng đọc được.
+*Engineer & Claude Code · tổng quan cho cả team*
 
-<!-- figure:loop -->
+> Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì lúc này, và một công cụ lập trình bằng AI như Claude Code thực sự làm việc thế nào. Nội dung được viết để cả người không làm kỹ thuật cũng đọc được.
 
-## Tài liệu này để làm gì
+| 5 | 6 | 8 | 28 | 
+|---|---|---|---|
+| hướng ưu tiên để đầu tư kỹ năng | cách điều chỉnh hành vi của Claude Code | nhóm hook và nơi nên can thiệp | thuật ngữ giải thích bằng lời thường | 
+
+## 01. Tài liệu này để làm gì
+
+*Việc làm diễn ra trên máy bạn; mọi thứ AI nhìn thấy được gửi lên cloud để suy nghĩ.*
 
 **Mục đích:** giúp mọi người có chung một bức tranh về hai điều. Thứ nhất, hướng phát triển kỹ năng khi AI đang thay đổi nghề làm phần mềm. Thứ hai, cách một "AI agent" lập trình vận hành, để dùng nó an toàn và hiệu quả.
 
@@ -208,7 +1164,7 @@ Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì 
 
 **Cách đọc:** Phần 1 và Phần 2 là tổng quan, đọc khoảng 10 phút. Tiếp theo là bảng thuật ngữ. Phần chi tiết ở cuối dành cho người muốn đi sâu.
 
-## Phần 1. Engineer nên tập trung vào gì lúc này
+## P1. Engineer nên tập trung vào gì lúc này
 
 ### Thay đổi lớn nhất
 
@@ -260,9 +1216,11 @@ Một kỹ năng đáng đầu tư nếu đạt ít nhất 2 trong 3 điều sau
 2. Lấp các lỗ hổng trong nền tảng hệ thống.
 3. Cloud và hạ tầng, theo nhu cầu công việc thực tế.
 
-> **Lưu ý:** công cụ AI thay đổi theo tháng. Hãy học khái niệm (đo chất lượng, quản lý ngữ cảnh, các kiểu lỗi thường gặp) thay vì học thuộc một framework cụ thể. Thứ tự ưu tiên cũng khác nhau tùy vị trí hiện tại, định hướng nghề và thị trường mục tiêu của mỗi người.
+> **Lưu ý**
+>
+> Công cụ AI thay đổi theo tháng. Hãy học khái niệm (đo chất lượng, quản lý ngữ cảnh, các kiểu lỗi thường gặp) thay vì học thuộc một framework cụ thể. Thứ tự ưu tiên cũng khác nhau tùy vị trí hiện tại, định hướng nghề và thị trường mục tiêu của mỗi người.
 
-## Phần 2. Claude Code hoạt động như thế nào
+## P2. Claude Code hoạt động như thế nào
 
 ### Hình dung đơn giản
 
@@ -287,7 +1245,9 @@ Bạn có thể can thiệp bất cứ lúc nào: nhấn Esc để dừng, hoặ
 
 Việc *làm* diễn ra trên máy bạn, nhưng mọi thứ AI *nhìn thấy* đều được gửi lên máy chủ. Nếu Claude đọc một file chứa mật khẩu, nội dung file đó đã nằm trong yêu cầu gửi đi.
 
-> **Hệ quả thực tế:** đừng để AI đọc file chứa bí mật, ví dụ `.env`. Hãy cấu hình quy tắc chặn đọc những file này ngay từ đầu.
+> **Hệ quả thực tế**
+>
+> Đừng để AI đọc file chứa bí mật, ví dụ `.env`. Hãy cấu hình quy tắc chặn đọc những file này ngay từ đầu.
 
 Lịch sử mỗi phiên làm việc được lưu thành file văn bản thường trên máy bạn. Nhờ đó có thể mở lại phiên cũ, quay lui, hoặc rẽ nhánh.
 
@@ -297,7 +1257,9 @@ AI có một "bàn làm việc" với diện tích cố định, gọi là conte
 
 Khi bàn gần đầy, Claude Code tự dọn: xóa bớt kết quả cũ, rồi tóm tắt cuộc trò chuyện. Việc này gọi là compaction. Những chỉ dẫn chỉ nói trong chat có thể bị mất khi đó.
 
-> **Hệ quả thực tế:** quy tắc nào quan trọng thì ghi vào file `CLAUDE.md` (sổ tay của dự án). File này được nạp lại sau mỗi lần dọn bàn.
+> **Hệ quả thực tế**
+>
+> Quy tắc nào quan trọng thì ghi vào file `CLAUDE.md` (sổ tay của dự án). File này được nạp lại sau mỗi lần dọn bàn.
 
 ### Sáu cách điều chỉnh hành vi của Claude Code
 
@@ -317,7 +1279,7 @@ Khi bàn gần đầy, Claude Code tự dọn: xóa bớt kết quả cũ, rồi
 - **Tùy chỉnh đúng chỗ:** chọn đúng một trong sáu công cụ ở trên.
 - **Kiểm soát chi phí và bảo mật:** biết dữ liệu nào rời khỏi máy, và vì sao bàn làm việc đầy thì tốn tiền.
 
-## Bài viết nghiên cứu chi tiết
+## 02. Bài viết nghiên cứu chi tiết
 
 Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến trúc Claude Code, được thực hiện theo đặc tả xây dựng trong buổi trao đổi này.
 
@@ -325,38 +1287,44 @@ Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến t
 - [Hướng dẫn áp dụng Claude Code cho team](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html)
 - [Báo cáo nghiên cứu](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)
 
-## Bảng thuật ngữ
+## 03. Bảng thuật ngữ
 
-- **Agent (tác tử AI)**: chương trình AI tự lên kế hoạch và tự làm nhiều bước để hoàn thành một việc, thay vì chỉ trả lời một câu.
-- **Agentic loop (vòng lặp tác tử)**: chu trình "suy nghĩ, hành động, xem kết quả, suy nghĩ tiếp" lặp đến khi xong việc.
-- **Harness**: phần mềm bao quanh mô hình AI, cung cấp công cụ và quản lý những gì AI được nhìn thấy. Claude Code là một harness.
-- **Model (mô hình AI)**: "bộ não" chạy trên máy chủ, đọc thông tin được gửi lên và quyết định bước tiếp theo.
-- **Prompt**: yêu cầu hoặc chỉ dẫn bạn gửi cho AI.
-- **Context, context window**: toàn bộ thông tin AI nhìn thấy trong một lần suy nghĩ, và giới hạn dung lượng của nó. Ví như diện tích bàn làm việc.
-- **Token**: đơn vị đo lượng chữ mà AI xử lý; chi phí tính theo token.
-- **Compaction**: việc tự động dọn bàn làm việc khi gần đầy, bằng cách xóa kết quả cũ và tóm tắt hội thoại.
-- **CLAUDE.md**: file "sổ tay dự án" viết bằng chữ thường, được nạp vào đầu mỗi phiên.
-- **Memory (MEMORY.md)**: ghi chú Claude tự lưu lại giữa các phiên; phần đầu file được nạp khi bắt đầu phiên.
-- **Skill**: gói hướng dẫn cho một loại việc. Ban đầu chỉ có mô tả ngắn được nạp; nội dung đầy đủ chỉ nạp khi dùng.
-- **Hook**: đoạn lệnh do bạn cài, tự chạy tại các thời điểm cố định (trước khi dùng công cụ, khi kết thúc lượt...). Có thể chặn hành động hoặc bổ sung thông tin.
-- **MCP (Model Context Protocol)**: chuẩn kết nối giúp AI dùng công cụ và dữ liệu từ hệ thống khác.
-- **Subagent**: một AI phụ làm việc trong bàn làm việc riêng, xong thì chỉ gửi bản tóm tắt về.
-- **Tool, tool call**: công cụ AI được dùng (đọc file, chạy lệnh, tìm kiếm...) và mỗi lần AI yêu cầu dùng một công cụ.
-- **Permission mode (chế độ quyền)**: mức độ AI được tự làm mà không cần hỏi bạn.
-- **Plan mode**: chế độ AI chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.
-- **Session, transcript**: một phiên làm việc, và bản ghi đầy đủ của phiên đó trên máy bạn.
-- **Checkpoint**: bản lưu trạng thái file trước khi AI sửa, để có thể quay lui.
-- **Prompt cache**: cơ chế tái sử dụng phần thông tin lặp lại giữa các lần gửi, giúp giảm chi phí.
-- **System reminder**: ghi chú do Claude Code tự chèn vào hội thoại, ví dụ báo file vừa thay đổi.
-- **Prompt injection**: kiểu tấn công giấu chỉ dẫn độc hại trong file, trang web hay dữ liệu để AI làm theo.
-- **Eval**: bài đo chất lượng đầu ra của AI một cách có hệ thống.
-- **RAG**: kỹ thuật tìm tài liệu liên quan rồi đưa cho AI đọc trước khi trả lời.
-- **Observability**: khả năng nhìn vào bên trong hệ thống đang chạy qua log, metric và trace.
-- **Idempotency**: tính chất "làm lại nhiều lần vẫn cho cùng kết quả", giúp hệ thống an toàn khi phải thử lại.
-- **CI/CD**: quy trình tự động kiểm tra và phát hành phần mềm.
-- **Feature flag, canary, rollback**: bật tắt tính năng không cần phát hành lại; phát hành cho một nhóm nhỏ trước; quay về bản cũ khi có lỗi.
+| Thuật ngữ | Nghĩa | 
+|---|---|
+| **Agent (tác tử AI)** | chương trình AI tự lên kế hoạch và tự làm nhiều bước để hoàn thành một việc, thay vì chỉ trả lời một câu. | 
+| **Agentic loop (vòng lặp tác tử)** | chu trình "suy nghĩ, hành động, xem kết quả, suy nghĩ tiếp" lặp đến khi xong việc. | 
+| **Harness** | phần mềm bao quanh mô hình AI, cung cấp công cụ và quản lý những gì AI được nhìn thấy. Claude Code là một harness. | 
+| **Model (mô hình AI)** | "bộ não" chạy trên máy chủ, đọc thông tin được gửi lên và quyết định bước tiếp theo. | 
+| **Prompt** | yêu cầu hoặc chỉ dẫn bạn gửi cho AI. | 
+| **Context, context window** | toàn bộ thông tin AI nhìn thấy trong một lần suy nghĩ, và giới hạn dung lượng của nó. Ví như diện tích bàn làm việc. | 
+| **Token** | đơn vị đo lượng chữ mà AI xử lý; chi phí tính theo token. | 
+| **Compaction** | việc tự động dọn bàn làm việc khi gần đầy, bằng cách xóa kết quả cũ và tóm tắt hội thoại. | 
+| **CLAUDE.md** | file "sổ tay dự án" viết bằng chữ thường, được nạp vào đầu mỗi phiên. | 
+| **Memory (MEMORY.md)** | ghi chú Claude tự lưu lại giữa các phiên; phần đầu file được nạp khi bắt đầu phiên. | 
+| **Skill** | gói hướng dẫn cho một loại việc. Ban đầu chỉ có mô tả ngắn được nạp; nội dung đầy đủ chỉ nạp khi dùng. | 
+| **Hook** | đoạn lệnh do bạn cài, tự chạy tại các thời điểm cố định (trước khi dùng công cụ, khi kết thúc lượt...). Có thể chặn hành động hoặc bổ sung thông tin. | 
+| **MCP (Model Context Protocol)** | chuẩn kết nối giúp AI dùng công cụ và dữ liệu từ hệ thống khác. | 
+| **Subagent** | một AI phụ làm việc trong bàn làm việc riêng, xong thì chỉ gửi bản tóm tắt về. | 
+| **Tool, tool call** | công cụ AI được dùng (đọc file, chạy lệnh, tìm kiếm...) và mỗi lần AI yêu cầu dùng một công cụ. | 
+| **Permission mode (chế độ quyền)** | mức độ AI được tự làm mà không cần hỏi bạn. | 
+| **Plan mode** | chế độ AI chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn. | 
+| **Session, transcript** | một phiên làm việc, và bản ghi đầy đủ của phiên đó trên máy bạn. | 
+| **Checkpoint** | bản lưu trạng thái file trước khi AI sửa, để có thể quay lui. | 
+| **Prompt cache** | cơ chế tái sử dụng phần thông tin lặp lại giữa các lần gửi, giúp giảm chi phí. | 
+| **System reminder** | ghi chú do Claude Code tự chèn vào hội thoại, ví dụ báo file vừa thay đổi. | 
+| **Prompt injection** | kiểu tấn công giấu chỉ dẫn độc hại trong file, trang web hay dữ liệu để AI làm theo. | 
+| **Eval** | bài đo chất lượng đầu ra của AI một cách có hệ thống. | 
+| **RAG** | kỹ thuật tìm tài liệu liên quan rồi đưa cho AI đọc trước khi trả lời. | 
+| **Observability** | khả năng nhìn vào bên trong hệ thống đang chạy qua log, metric và trace. | 
+| **Idempotency** | tính chất "làm lại nhiều lần vẫn cho cùng kết quả", giúp hệ thống an toàn khi phải thử lại. | 
+| **CI/CD** | quy trình tự động kiểm tra và phát hành phần mềm. | 
+| **Feature flag, canary, rollback** | bật tắt tính năng không cần phát hành lại; phát hành cho một nhóm nhỏ trước; quay về bản cũ khi có lỗi. | 
 
-## Chi tiết: luồng khởi động
+---
+
+*Chi tiết*
+
+## 04. Chi tiết: luồng khởi động
 
 Đây là những gì xảy ra khi bạn gõ lệnh `claude` trong terminal.
 
@@ -376,7 +1344,7 @@ Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến t
 | Context ban đầu | CLAUDE.md, memory, trạng thái git, mô tả ngắn của skill, kết quả SessionStart |
 | Máy chủ (cloud) | Chưa nhận gì |
 
-## Chi tiết: luồng xử lý một yêu cầu
+## 05. Chi tiết: luồng xử lý một yêu cầu
 
 Ví dụ: bạn gõ "review PR này theo checklist của team", và team có sẵn skill `team-review`.
 
@@ -416,7 +1384,7 @@ Phần ổn định thường đặt ở đầu để tận dụng prompt cache.
 2. **Lịch sử được ghi** vào file JSONL trên máy, theo kiểu bất đồng bộ.
 3. **Nếu bàn làm việc gần đầy:** PreCompact chạy, Claude Code dọn bàn, rồi PostCompact chạy. Hướng dẫn trong CLAUDE.md được nạp lại.
 
-## Chi tiết: dữ liệu nằm ở đâu
+## 06. Chi tiết: dữ liệu nằm ở đâu
 
 ```
 ĐĨA (trên máy, lâu dài)
@@ -443,9 +1411,11 @@ TỪ XA
 | Transcript, checkpoint | Claude Code | Khi mở lại phiên, quay lui, rẽ nhánh |
 | Lịch sử hội thoại | Claude Code | Gửi lại toàn bộ lên mô hình ở mỗi lần gọi |
 
-> **Điểm then chốt:** máy chủ mô hình không nhớ gì giữa các lần gửi. "Trí nhớ" của phiên là lịch sử hội thoại, được gửi lại đầy đủ mỗi lần. Ranh giới bảo mật thực sự vì thế là context: thứ gì vào context là đã rời khỏi máy; thứ gì ghi vào transcript thì nằm trên đĩa ở dạng văn bản thường.
+> **Điểm then chốt**
+>
+> Máy chủ mô hình không nhớ gì giữa các lần gửi. "Trí nhớ" của phiên là lịch sử hội thoại, được gửi lại đầy đủ mỗi lần. Ranh giới bảo mật thực sự vì thế là context: thứ gì vào context là đã rời khỏi máy; thứ gì ghi vào transcript thì nằm trên đĩa ở dạng văn bản thường.
 
-## Chi tiết: các tầng của context
+## 07. Chi tiết: các tầng của context
 
 | Tầng | Gồm | Sau khi dọn bàn |
 | --- | --- | --- |
@@ -463,7 +1433,7 @@ TỪ XA
 - Việc phải đọc nhiều file thì giao cho subagent (C5), giữ bàn chính gọn.
 - Chi phí mỗi lần gửi tăng theo kích thước lịch sử, nên lượt thứ 30 của một phiên tốn hơn lượt thứ 3 nhiều lần, kể cả khi có prompt cache.
 
-## Chi tiết: hook và nên can thiệp ở đâu
+## 08. Chi tiết: hook và nên can thiệp ở đâu
 
 | Hook | Chạy khi | Chặn được không |
 | --- | --- | --- |
@@ -488,7 +1458,7 @@ TỪ XA
 | Tự định dạng code sau khi sửa file | PostToolUse cho Edit và Write |
 | Bắt buộc test phải qua | Stop |
 
-## Chi tiết: chế độ quyền và các bẫy thường gặp
+## 09. Chi tiết: chế độ quyền và các bẫy thường gặp
 
 **Chế độ quyền** (chuyển bằng Shift+Tab):
 
@@ -506,7 +1476,7 @@ TỪ XA
 - Checkpoint không quay lui được hành động bên ngoài như ghi database, gọi API hay deploy. Với những việc này, quyền hạn là lớp bảo vệ duy nhất.
 - Đầu ra của hook bị giới hạn 10.000 ký tự. Dài hơn thì được lưu ra file, và chỉ đường dẫn cùng 2.000 ký tự đầu vào context.
 
-## Chi tiết: tự kiểm chứng trên máy của bạn
+## 10. Chi tiết: tự kiểm chứng trên máy của bạn
 
 1. Gõ `/context` để xem thứ gì đang chiếm bàn làm việc.
 2. Mở file JSONL trong `~/.claude/projects/` để thấy chuỗi thật: yêu cầu, yêu cầu dùng công cụ, kết quả.
@@ -520,7 +1490,7 @@ TỪ XA
 - Sau `/compact`, chỉ dẫn nào còn được tuân thủ, chỉ dẫn nào bị quên?
 - Nghỉ 2 giờ rồi mở lại phiên: chi phí lần gửi đầu tiên thay đổi thế nào?
 
-## Chi tiết: cách tìm hiểu một hệ thống như thế này
+## 11. Chi tiết: cách tìm hiểu một hệ thống như thế này
 
 Đi từ ngoài vào trong, từ tĩnh sang động. Mỗi góc nhìn trả lời một loại câu hỏi và có dạng tài liệu đi kèm.
 
@@ -542,335 +1512,192 @@ TỪ XA
 3. Dựng lại sơ đồ và biểu đồ từ log thật.
 4. Dự đoán trước, chạy, so sánh, rồi sửa mô hình hiểu biết.
 
-## Nguồn tham khảo
+---
+
+*Tham khảo*
+
+## 12. Nguồn tham khảo
 
 - [How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works): tài liệu chính thức về vòng lặp, công cụ, phiên làm việc và context.
 - [Hooks reference](https://code.claude.com/docs/en/hooks): danh sách hook, thời điểm chạy, mã thoát, dữ liệu vào ra.
 - [Best practices for Claude Code](https://code.claude.com/docs/en/best-practices): cách dùng hiệu quả, quản lý context.
 - [Effective context engineering for AI agents](https://anthropic.com/engineering/effective-context-engineering-for-ai-agents): nguyên lý quản lý context cho AI agent của Anthropic.
+
+---
+
+*Tổng hợp từ một buổi trao đổi kỹ thuật, tháng 10/2026. Thông tin về Claude Code có thể thay đổi theo phiên bản; hãy đối chiếu với tài liệu chính thức trong mục Nguồn tham khảo.*
 </script>
-
 <script>
-(function(){
-'use strict';
+/*
+ * Architecture
+ *  1. Atoms      — the only data state: small observable values (theme, tab, menu, section, filter, toast).
+ *  2. Components — shared UI bound to atoms; they only render, never decide.
+ *  3. Workflows  — business actions that combine atom updates and side effects.
+ *  4. Events     — one combined dispatcher: clicks (data-action), keys, scroll, media and hash
+ *                  are normalised into workflow calls.
+ */
+(() => {
+  "use strict";
 
-/* ========================= 1. STATE: shared atoms ========================= */
-function atom(initial){
-  let value = initial; const subs = new Set();
-  return {
-    get: () => value,
-    set: (next) => {
-      const v = typeof next === 'function' ? next(value) : next;
-      if (Object.is(v, value)) return;
-      value = v; subs.forEach(fn => fn(value));
-    },
-    sub: (fn) => { subs.add(fn); fn(value); return () => subs.delete(fn); }
-  };
-}
-const desktopMQ = window.matchMedia('(min-width: 1024px)');
-const store = {
-  doc:      atom(null),                  // { md, html, toc }
-  view:     atom('html'),                // 'html' | 'md'
-  menuOpen: atom(desktopMQ.matches),     // sidebar / drawer
-  active:   atom(null),                  // id of current heading
-  toast:    atom('')                     // transient message
-};
-
-/* ========================= 2. PURE: markdown -> html ========================= */
-const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const slugify = s => s.toLowerCase().replace(/đ/g,'d').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-  .replace(/[`*_\[\]()]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-const stripMd = s => s.replace(/`([^`]+)`/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1');
-
-function inline(src){
-  return src.split(/(`[^`]+`)/g).map(part => {
-    if (/^`[^`]+`$/.test(part)) return '<code>' + esc(part.slice(1,-1)) + '</code>';
-    let s = esc(part);
-    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m,t,u) => '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + t + '</a>');
-    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s.,;:)]|$)/g, '$1<em>$2</em>');
-    return s;
-  }).join('');
-}
-
-const FIGURE_TEXT = {
-  loop: '> **Hình:** Bạn giao việc cho Claude Code ("đôi tay", chạy trên máy bạn: đọc file, chạy lệnh, sửa code). Claude Code gửi những gì đã thấy lên mô hình AI ("bộ não", trên cloud) và nhận lại bước tiếp theo. Vòng này lặp đến khi xong việc.'
-};
-const FIGURES = {
-  loop: '<figure class="hero-fig">' +
-  '<svg class="fig-wide" viewBox="0 28 720 202" role="img" aria-label="Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo">' +
-  '<defs><marker id="hd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-head"/></marker></defs>' +
-  '<rect x="16" y="64" width="120" height="64" rx="10" class="f-box"/>' +
-  '<text x="76" y="92" text-anchor="middle" class="f-name">Bạn</text>' +
-  '<text x="76" y="112" text-anchor="middle" class="f-sub">giao việc, duyệt</text>' +
-  '<rect x="194" y="48" width="214" height="96" rx="10" class="f-main"/>' +
-  '<text x="301" y="80" text-anchor="middle" class="f-name">Claude Code</text>' +
-  '<text x="301" y="100" text-anchor="middle" class="f-sub">"đôi tay", chạy trên máy bạn</text>' +
-  '<text x="301" y="122" text-anchor="middle" class="f-sub">đọc file, chạy lệnh, sửa code</text>' +
-  '<rect x="556" y="48" width="150" height="96" rx="10" class="f-cloud"/>' +
-  '<text x="631" y="80" text-anchor="middle" class="f-name">Mô hình AI</text>' +
-  '<text x="631" y="100" text-anchor="middle" class="f-sub">"bộ não", trên cloud</text>' +
-  '<text x="631" y="122" text-anchor="middle" class="f-sub">quyết định bước tiếp</text>' +
-  '<path d="M136 96H190" class="f-line" marker-end="url(#hd)"/>' +
-  '<path d="M408 82H552" class="f-line" marker-end="url(#hd)"/>' +
-  '<path d="M556 112H412" class="f-line" marker-end="url(#hd)"/>' +
-  '<text x="482" y="72" text-anchor="middle" class="f-lab">gửi điều đã thấy</text>' +
-  '<text x="482" y="132" text-anchor="middle" class="f-lab">trả bước tiếp theo</text>' +
-  '<path d="M267 144 C267 196, 335 196, 335 148" class="f-line" marker-end="url(#hd)"/>' +
-  '<text x="301" y="214" text-anchor="middle" class="f-lab">lặp lại đến khi xong việc</text>' +
-  '</svg>' +
-  '<svg class="fig-narrow" viewBox="0 0 360 392" role="img" aria-label="Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo">' +
-  '<defs><marker id="hd2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-head"/></marker></defs>' +
-  '<rect x="79" y="10" width="140" height="56" rx="10" class="f-box"/>' +
-  '<text x="149" y="34" text-anchor="middle" class="f-name">Bạn</text>' +
-  '<text x="149" y="54" text-anchor="middle" class="f-sub">giao việc, duyệt</text>' +
-  '<path d="M149 66V102" class="f-line" marker-end="url(#hd2)"/>' +
-  '<rect x="24" y="106" width="250" height="92" rx="10" class="f-main"/>' +
-  '<text x="149" y="134" text-anchor="middle" class="f-name">Claude Code</text>' +
-  '<text x="149" y="156" text-anchor="middle" class="f-sub">"đôi tay", chạy trên máy bạn</text>' +
-  '<text x="149" y="178" text-anchor="middle" class="f-sub">đọc file, chạy lệnh, sửa code</text>' +
-  '<path d="M274 128 C318 128, 318 176, 278 176" class="f-line" marker-end="url(#hd2)"/>' +
-  '<text x="300" y="216" text-anchor="middle" class="f-lab">lặp đến khi xong</text>' +
-  '<path d="M119 198V286" class="f-line" marker-end="url(#hd2)"/>' +
-  '<path d="M179 290V202" class="f-line" marker-end="url(#hd2)"/>' +
-  '<text x="109" y="248" text-anchor="end" class="f-lab">gửi điều đã thấy</text>' +
-  '<text x="189" y="248" class="f-lab">trả bước tiếp theo</text>' +
-  '<rect x="39" y="290" width="220" height="92" rx="10" class="f-cloud"/>' +
-  '<text x="149" y="318" text-anchor="middle" class="f-name">Mô hình AI</text>' +
-  '<text x="149" y="340" text-anchor="middle" class="f-sub">"bộ não", trên cloud</text>' +
-  '<text x="149" y="362" text-anchor="middle" class="f-sub">quyết định bước tiếp</text>' +
-  '</svg><figcaption>Việc làm diễn ra trên máy bạn; mọi thứ AI nhìn thấy được gửi lên cloud để suy nghĩ.</figcaption></figure>'
-};
-
-function parseMarkdown(md){
-  const lines = md.replace(/\r/g,'').split('\n');
-  const out = [], toc = [], used = new Set();
-  const blank = l => /^\s*$/.test(l);
-  const blockStart = /^(#{1,4}\s|```|>|\||[-*]\s|\d+\.\s|<!--|---+$)/;
-  let i = 0;
-  while (i < lines.length){
-    const l = lines[i]; let m;
-    if (blank(l)) { i++; continue; }
-    if ((m = l.match(/^<!--\s*figure:(\w+)\s*-->$/))) { out.push(FIGURES[m[1]] || ''); i++; continue; }
-    if (l.startsWith('```')) {
-      const buf = []; i++;
-      while (i < lines.length && !lines[i].startsWith('```')) { buf.push(lines[i]); i++; }
-      i++; out.push('<pre class="code" tabindex="0"><code>' + esc(buf.join('\n')) + '</code></pre>'); continue;
-    }
-    if ((m = l.match(/^(#{1,4})\s+(.*)$/))) {
-      const lvl = m[1].length, text = m[2];
-      const base = slugify(stripMd(text)) || 'muc'; let id = base, n = 2;
-      while (used.has(id)) id = base + '-' + (n++);
-      used.add(id);
-      if (lvl === 2 || lvl === 3) toc.push({ id, text: stripMd(text), lvl });
-      out.push('<h' + lvl + ' id="' + id + '">' + inline(text) + '</h' + lvl + '>');
-      if (lvl === 1) { i++; /* first paragraph after h1 becomes lead */
-        while (i < lines.length && blank(lines[i])) i++;
-        const buf = []; while (i < lines.length && !blank(lines[i]) && !blockStart.test(lines[i])) { buf.push(lines[i]); i++; }
-        if (buf.length) out.push('<p class="lead">' + inline(buf.join(' ')) + '</p>');
-        continue; }
-      i++; continue;
-    }
-    if (/^---+$/.test(l)) { out.push('<hr>'); i++; continue; }
-    if (l.startsWith('>')) {
-      const buf = []; while (i < lines.length && lines[i].startsWith('>')) { buf.push(lines[i].replace(/^>\s?/,'')); i++; }
-      out.push('<aside class="note"><p>' + inline(buf.join(' ')) + '</p></aside>'); continue;
-    }
-    if (l.startsWith('|')) {
-      const rows = []; while (i < lines.length && lines[i].startsWith('|')) { rows.push(lines[i]); i++; }
-      const cells = r => r.trim().replace(/^\||\|$/g,'').split('|').map(c => c.trim());
-      const head = cells(rows[0]), body = rows.slice(2).map(cells);
-      out.push('<div class="table-wrap" tabindex="0"><table><thead><tr>' +
-        head.map(h => '<th scope="col">' + inline(h) + '</th>').join('') + '</tr></thead><tbody>' +
-        body.map(r => '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>').join('') +
-        '</tbody></table></div>');
-      continue;
-    }
-    const listKind = /^[-*]\s+/.test(l) ? 'ul' : (/^\d+\.\s+/.test(l) ? 'ol' : null);
-    if (listKind) {
-      const re = listKind === 'ul' ? /^[-*]\s+/ : /^\d+\.\s+/;
-      const items = [];
-      while (i < lines.length && re.test(lines[i])) {
-        let t = lines[i].replace(re,''); i++;
-        while (i < lines.length && /^\s{2,}\S/.test(lines[i])) { t += ' ' + lines[i].trim(); i++; }
-        items.push(t);
-      }
-      out.push('<' + listKind + '>' + items.map(t => '<li>' + inline(t) + '</li>').join('') + '</' + listKind + '>');
-      continue;
-    }
-    const buf = [];
-    while (i < lines.length && !blank(lines[i]) && (buf.length === 0 || !blockStart.test(lines[i]))) { buf.push(lines[i]); i++; }
-    out.push('<p>' + inline(buf.join(' ')) + '</p>');
-  }
-  return { html: out.join('\n'), toc };
-}
-
-/* ========================= 3. BUSINESS COMPONENTS (workflow + events) ========================= */
-const $ = s => document.querySelector(s);
-const isMobile = () => !desktopMQ.matches;
-
-/* Content loader: source script -> doc atom */
-const ContentLoader = {
-  mount(){
-    const source = $('#content').textContent.replace(/^\s*\n/,'').replace(/\s+$/,'') + '\n';
-    const { html, toc } = parseMarkdown(source);
-    /* Markdown export: figures become their text equivalent */
-    const md = source.replace(/^<!--\s*figure:(\w+)\s*-->$/gm, (m, k) => FIGURE_TEXT[k] || '');
-    store.doc.set({ md, html, toc });
-  }
-};
-
-/* Document view: renders HTML once doc is ready */
-const DocumentView = {
-  mount(){
-    store.doc.sub(doc => { if (doc) $('#doc').innerHTML = doc.html; });
-  }
-};
-
-/* Menu: toggle button, scrim, Esc, breakpoint change */
-const Menu = {
-  mount(){
-    const btn = $('#menuBtn');
-    store.menuOpen.sub(open => {
-      document.body.classList.toggle('menu-open', open);
-      btn.setAttribute('aria-expanded', String(open));
-    });
-    btn.addEventListener('click', () => store.menuOpen.set(v => !v));
-    $('#scrim').addEventListener('click', () => store.menuOpen.set(false));
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && isMobile() && store.menuOpen.get()) { store.menuOpen.set(false); btn.focus(); }
-    });
-    desktopMQ.addEventListener('change', e => store.menuOpen.set(e.matches));
-  }
-};
-
-/* Table of contents: render, navigate (switching to HTML view if needed), highlight active */
-const Toc = {
-  mount(){
-    const list = $('#toc');
-    store.doc.sub(doc => {
-      if (!doc) return;
-      list.innerHTML = doc.toc.map(t =>
-        '<li><a href="#' + t.id + '" class="lvl' + t.lvl + '" data-id="' + t.id + '">' + esc(t.text) + '</a></li>').join('');
-    });
-    list.addEventListener('click', e => {
-      const a = e.target.closest('a[data-id]'); if (!a) return;
-      e.preventDefault();
-      const id = a.dataset.id;
-      store.view.set('html');
-      if (isMobile()) store.menuOpen.set(false);
-      requestAnimationFrame(() => {
-        const el = document.getElementById(id);
-        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); }
-        store.active.set(id);
-      });
-    });
-    store.active.sub(id => {
-      list.querySelectorAll('a').forEach(a => {
-        const on = a.dataset.id === id;
-        a.classList.toggle('active', on);
-        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
-      });
-    });
-  }
-};
-
-/* Scroll spy: headings in view -> active atom */
-const ScrollSpy = {
-  mount(){
-    let observer = null;
-    store.doc.sub(doc => {
-      if (!doc || !('IntersectionObserver' in window)) return;
-      if (observer) observer.disconnect();
-      observer = new IntersectionObserver(entries => {
-        entries.forEach(en => { if (en.isIntersecting) store.active.set(en.target.id); });
-      }, { rootMargin: '-72px 0px -70% 0px' });
-      document.querySelectorAll('#doc h2[id], #doc h3[id]').forEach(h => observer.observe(h));
-    });
-  }
-};
-
-/* Tabs: HTML / Markdown view switch with keyboard support */
-const Tabs = {
-  mount(){
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    store.view.sub(view => {
-      tabs.forEach(t => {
-        const on = t.dataset.view === view;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-      });
-      $('#panel-html').hidden = view !== 'html';
-      $('#panel-md').hidden = view !== 'md';
-    });
-    tabs.forEach((t, idx) => {
-      t.addEventListener('click', () => { store.view.set(t.dataset.view); window.scrollTo({ top: 0 }); });
-      t.addEventListener('keydown', e => {
-        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-        const next = tabs[(idx + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
-        next.focus(); store.view.set(next.dataset.view);
-      });
-    });
-  }
-};
-
-/* Markdown panel: show source, copy and download workflows */
-const MarkdownPanel = {
-  mount(){
-    store.doc.sub(doc => { if (doc) $('#mdSource').textContent = doc.md; });
-    $('#copyMd').addEventListener('click', () => this.copy(store.doc.get().md));
-    $('#downloadMd').addEventListener('click', () => this.download(store.doc.get().md));
-  },
-  copy(text){
-    const done = () => store.toast.set('Đã sao chép toàn bộ Markdown');
-    const fallback = () => {
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done(); } catch (e) { store.toast.set('Không sao chép được. Hãy chọn nội dung và nhấn Ctrl+C.'); }
-      document.body.removeChild(ta);
+  // ---------- 1. Atoms ----------
+  const atom = (initial) => {
+    let value = initial;
+    const subs = new Set();
+    return {
+      get: () => value,
+      set: (next) => { if (next === value) return; value = next; subs.forEach((f) => f(value)); },
+      sub: (f) => { subs.add(f); f(value); return () => subs.delete(f); },
     };
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
-    else fallback();
-  },
-  download(text){
-    try {
-      const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'engineer-va-claude-code.md';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      store.toast.set('Đã tải file engineer-va-claude-code.md');
-    } catch (e) { store.toast.set('Không tải được file. Hãy dùng nút Sao chép Markdown.'); }
-  }
-};
+  };
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
+  };
+  const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const mqNarrow = window.matchMedia("(max-width: 900px)");
 
-/* Toast: show transient message */
-const Toast = {
-  mount(){
-    const el = $('#toast'); let timer = null;
-    store.toast.sub(msg => {
-      if (!msg) { el.classList.remove('show'); return; }
-      el.textContent = msg; el.classList.add('show');
-      clearTimeout(timer); timer = setTimeout(() => store.toast.set(''), 2400);
+  const state = {
+    theme: atom(store.get("engineer-va-claude-code-theme") || (mqDark.matches ? "dark" : "light")),
+    tab: atom(location.hash === "#markdown" ? "md" : "html"),
+    menuOpen: atom(!mqNarrow.matches),
+    section: atom("start"),
+    filter: atom("all"),
+    toast: atom(""),
+    checklist: atom(new Set((() => { try { return JSON.parse(store.get("engineer-va-claude-code-checklist") || "[]"); } catch { return []; } })())),
+  };
+
+  // ---------- 2. Components ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const mdText = $("#md-source").textContent.replace(/^\n/, "");
+
+  const ThemeSwitch = (theme) => { document.documentElement.dataset.theme = theme; };
+  const TabBar = (tab) => {
+    $$(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.action === `tab:${tab}`)));
+    $("#panel-html").hidden = tab !== "html";
+    $("#panel-md").hidden = tab !== "md";
+  };
+  const Menu = (open) => {
+    document.body.dataset.menu = open ? "open" : "closed";
+    $('[data-action="menu:toggle"]').setAttribute("aria-expanded", String(open));
+  };
+  const Toc = (id) => $$(".toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${id}`)));
+  const FindingFilter = (f) => {
+    $$(".fbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.action === `filter:${f}`)));
+    $$("#findings .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split(" ").includes(f); });
+  };
+  let toastTimer;
+  const Toast = (msg) => {
+    const el = $("#toast");
+    if (!msg) return el.classList.remove("on");
+    el.textContent = msg; el.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => state.toast.set(""), 1800);
+  };
+  const Checklist = (done) => {
+    const steps = $$(".ck");
+    if (!steps.length) return;
+    steps.forEach((el) => {
+      const on = done.has(el.dataset.step);
+      el.classList.toggle("done", on);
+      el.querySelector("input").checked = on;
     });
-  }
-};
+    $("#ck-bar").style.width = `${(done.size / steps.length) * 100}%`;
+    $("#ck-count").textContent = "Đã xong {done}/{total}".replace("{done}", done.size).replace("{total}", steps.length);
+  };
+  const MarkdownView = () => {
+    const pre = $("#md-view");
+    const frag = document.createDocumentFragment();
+    let fence = "";
+    mdText.split("\n").forEach((line) => {
+      const span = document.createElement("span");
+      span.className = "ln";
+      const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      if (mark && (!fence || (mark[1][0] === fence[0] && mark[1].length >= fence.length && !line.trim().slice(mark[1].length)))) {
+        fence = fence ? "" : mark[1]; span.classList.add("fence");
+      }
+      else if (!fence && /^#{1,6} /.test(line)) span.classList.add("h");
+      else if (!fence && line.startsWith("|")) span.classList.add("tr");
+      span.textContent = line || " ";
+      frag.appendChild(span);
+    });
+    pre.replaceChildren(frag);
+    $("#md-meta").textContent = `${mdText.split("\n").length} dòng · ${(new Blob([mdText]).size / 1024).toFixed(1)} KB`;
+  };
 
-/* Deep link: open at #id on load */
-const DeepLink = {
-  mount(){
-    const id = decodeURIComponent(location.hash.slice(1));
-    if (!id) return;
-    requestAnimationFrame(() => { const el = document.getElementById(id); if (el) el.scrollIntoView(); });
-  }
-};
+  state.theme.sub(ThemeSwitch);
+  state.tab.sub(TabBar);
+  state.menuOpen.sub(Menu);
+  state.section.sub(Toc);
+  state.filter.sub(FindingFilter);
+  state.toast.sub(Toast);
+  state.checklist.sub(Checklist);
+  MarkdownView();
 
-/* ========================= 4. BOOT ========================= */
-[DocumentView, Menu, Toc, Tabs, MarkdownPanel, Toast, ScrollSpy].forEach(c => c.mount());
-ContentLoader.mount();
-DeepLink.mount();
+  // ---------- 3. Workflows ----------
+  const copy = async (text, done) => {
+    try { await navigator.clipboard.writeText(text); state.toast.set(done); }
+    catch { state.toast.set("Trình duyệt không cho chép ở đây"); }
+  };
+  const workflows = {
+    "theme:toggle": () => {
+      const next = state.theme.get() === "dark" ? "light" : "dark";
+      state.theme.set(next); store.set("engineer-va-claude-code-theme", next);
+    },
+    "menu:toggle": () => state.menuOpen.set(!state.menuOpen.get()),
+    "menu:close": () => state.menuOpen.set(false),
+    "tab:html": () => { state.tab.set("html"); history.replaceState(null, "", " "); },
+    "tab:md": () => { state.tab.set("md"); history.replaceState(null, "", "#markdown"); window.scrollTo(0, 0); },
+    nav: (el, ev) => {
+      ev.preventDefault();
+      state.tab.set("html");
+      if (mqNarrow.matches) state.menuOpen.set(false);
+      const target = $(el.hash);
+      if (target && target.hidden) state.filter.set("all");
+      if (target) { target.scrollIntoView({ behavior: "smooth" }); history.replaceState(null, "", el.hash); }
+      state.section.set(el.hash.slice(1));
+    },
+    filter: (el) => state.filter.set(el.dataset.action.split(":")[1]),
+    check: (el) => {
+      const next = new Set(state.checklist.get());
+      const step = el.dataset.action.split(":")[1];
+      if (el.checked) next.add(step); else next.delete(step);
+      state.checklist.set(next);
+      store.set("engineer-va-claude-code-checklist", JSON.stringify([...next]));
+    },
+    "copy:md": () => copy(mdText, "Đã chép Markdown"),
+    "copy:code": (el) => copy(el.closest(".codebox").querySelector("code").textContent, "Đã chép code"),
+    "download:md": () => {
+      const url = URL.createObjectURL(new Blob([mdText], { type: "text/markdown;charset=utf-8" }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: "engineer-va-claude-code.md" });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      state.toast.set("Đã tải Markdown");
+    },
+  };
+  const run = (action, el, ev) => {
+    const key = action.startsWith("filter:") ? "filter" : action.startsWith("check:") ? "check" : action;
+    (workflows[key] || (() => {}))(el, ev);
+  };
+
+  // ---------- 4. Events (combined) ----------
+  document.addEventListener("click", (ev) => {
+    const el = ev.target.closest("[data-action]");
+    if (el) run(el.dataset.action, el, ev);
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && mqNarrow.matches) run("menu:close");
+  });
+  mqDark.addEventListener("change", (e) => { if (!store.get("engineer-va-claude-code-theme")) state.theme.set(e.matches ? "dark" : "light"); });
+  mqNarrow.addEventListener("change", (e) => state.menuOpen.set(!e.matches));
+  window.addEventListener("hashchange", () => { if (location.hash === "#markdown") state.tab.set("md"); });
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.filter((e) => e.isIntersecting).forEach((e) => state.section.set(e.target.id));
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    $$("section.sec").forEach((s) => io.observe(s));
+  }
+  const initial = location.hash && location.hash !== "#markdown" ? $(location.hash) : null;
+  if (initial) requestAnimationFrame(() => initial.scrollIntoView());
 })();
 </script>
 </body>

@@ -1,0 +1,357 @@
+{
+ "meta": {
+  "title": "Engineer trong giai đoạn AI và cách Claude Code hoạt động",
+  "brand": "Engineer & Claude Code",
+  "date": "2026-10-11",
+  "desc": "Engineer nên tập trung vào gì lúc này, và tổng quan cách Claude Code hoạt động: dữ liệu, ngữ cảnh, luồng xử lý, hook.",
+  "lang": "vi",
+  "md_filename": "engineer-va-claude-code.md",
+  "storage_key": "engineer-va-claude-code",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Engineer & Claude Code · tổng quan cho cả team",
+  "title": "Engineer trong giai đoạn AI: *nên tập trung vào đâu, và Claude Code hoạt động ra sao*",
+  "lede": "Tài liệu này trả lời hai câu hỏi: engineer nên đầu tư học gì lúc này, và một công cụ lập trình bằng AI như Claude Code thực sự làm việc thế nào. Nội dung được viết để cả người không làm kỹ thuật cũng đọc được.",
+  "stats": [
+   {
+    "n": "5",
+    "l": "hướng ưu tiên để đầu tư kỹ năng"
+   },
+   {
+    "n": "6",
+    "l": "cách điều chỉnh hành vi của Claude Code"
+   },
+   {
+    "n": "8",
+    "l": "nhóm hook và nơi nên can thiệp"
+   },
+   {
+    "n": "28",
+    "l": "thuật ngữ giải thích bằng lời thường"
+   }
+  ]
+ },
+ "sections": [
+  {
+   "id": "tai-lieu-nay-de-lam-gi",
+   "no": "01",
+   "title": "Tài liệu này để làm gì",
+   "blocks": [
+    {
+     "type": "figure",
+     "file": "loop.svg",
+     "caption": "Việc làm diễn ra trên máy bạn; mọi thứ AI nhìn thấy được gửi lên cloud để suy nghĩ."
+    },
+    {
+     "type": "md",
+     "text": "**Mục đích:** giúp mọi người có chung một bức tranh về hai điều. Thứ nhất, hướng phát triển kỹ năng khi AI đang thay đổi nghề làm phần mềm. Thứ hai, cách một \"AI agent\" lập trình vận hành, để dùng nó an toàn và hiệu quả.\n\n**Lợi ích cho từng người đọc:**\n\n| Người đọc | Nhận được gì |\n| --- | --- |\n| Engineer | Biết nên ưu tiên học gì; hiểu Claude Code đủ sâu để dự đoán, gỡ lỗi và tùy chỉnh nó |\n| Tech lead, quản lý | Hiểu rủi ro dữ liệu, chi phí, và cách đặt quy tắc chung cho cả team |\n| Người không làm kỹ thuật | Hiểu AI agent làm gì trên máy tính, dữ liệu đi đâu, và vì sao cần quy tắc |\n\n**Cách đọc:** Phần 1 và Phần 2 là tổng quan, đọc khoảng 10 phút. Tiếp theo là bảng thuật ngữ. Phần chi tiết ở cuối dành cho người muốn đi sâu."
+    }
+   ]
+  },
+  {
+   "id": "phan-1-engineer-nen-tap-trung-vao-gi-luc-nay",
+   "no": "P1",
+   "title": "Engineer nên tập trung vào gì lúc này",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### Thay đổi lớn nhất\n\nAI đã viết được phần lớn code thông thường. Vì vậy, giá trị của engineer đang dịch chuyển: từ \"tự tay viết từng dòng\" sang \"thiết kế hệ thống, giao việc cho AI, kiểm soát và chịu trách nhiệm về kết quả\".\n\nNgười làm tốt giai đoạn này là người biết AI giỏi ở đâu, yếu ở đâu, và biết dựng \"lan can an toàn\" quanh nó.\n\n### Cách chọn thứ đáng học\n\nMột kỹ năng đáng đầu tư nếu đạt ít nhất 2 trong 3 điều sau:\n\n- **Dùng được ngay** trong công việc hiện tại.\n- **Thị trường đang cần**, thể hiện trong mô tả tuyển dụng ở vị trí bạn nhắm tới.\n- **Sống lâu**, ít nhất 5 năm. Nghĩa là học khái niệm nền tảng, không chỉ học thuộc một công cụ.\n\n### Năm hướng ưu tiên\n\n| Hướng | Nói đơn giản | Vì sao quan trọng |\n| --- | --- | --- |\n| Làm việc cùng AI | Giao việc cho AI viết code, kiểm tra kết quả, và xây sản phẩm có AI bên trong | Đây là thay đổi lớn nhất của nghề; ai chưa biết sẽ tụt lại |\n| Nền tảng hệ thống | Hiểu cách phần mềm lớn chịu tải, lưu dữ liệu và xử lý lỗi | AI viết code nhanh, nhưng chưa thay được phán đoán khi thiết kế và khi xử lý sự cố |\n| Cloud và hạ tầng | Đưa phần mềm lên máy chủ, tự động hóa việc phát hành, quay lui an toàn khi lỗi | Sản phẩm nào cũng phải chạy ổn định ở đâu đó |\n| Ngôn ngữ lập trình, chọn theo hướng | Python và TypeScript cho backend và AI; Go hoặc Rust cho hạ tầng; TypeScript cho full-stack | Hiểu sâu 2–3 ngôn ngữ có giá trị hơn biết sơ 5–6 ngôn ngữ |\n| Kỹ năng không phải code | Viết tài liệu thiết kế rõ ràng, đánh giá rủi ro, review code (kể cả code do AI viết) | Quyết định khả năng lên vị trí senior và lead |\n\n### Cụ thể trong từng hướng\n\n**Làm việc cùng AI:**\n\n- Dùng công cụ lập trình bằng AI (như Claude Code) hằng ngày, và học cách kiểm soát, review code do AI viết.\n- Hiểu các khái niệm: gọi công cụ (tool use), MCP, RAG, dữ liệu trả về có cấu trúc.\n- Vận hành: đo chất lượng (eval), theo dõi chi phí và độ trễ, phòng tấn công prompt injection.\n\n**Nền tảng hệ thống:**\n\n- Thiết kế hệ thống: cache, hàng đợi, xử lý lặp lại an toàn (idempotency), chịu tải khi quá đông (backpressure).\n- Cơ sở dữ liệu, đặc biệt PostgreSQL: index, đọc query plan, cơ chế khóa.\n- Quan sát hệ thống (observability): log, metric, trace, OpenTelemetry.\n\n**Cloud và hạ tầng:**\n\n- Thành thạo một nhà cung cấp cloud ở mức thiết kế được, không chỉ triển khai được.\n- Docker là bắt buộc. Kubernetes học đủ hiểu, trừ khi bạn đi theo hướng hạ tầng.\n- Hạ tầng dưới dạng code (Terraform hoặc OpenTofu), CI/CD, và các cách phát hành an toàn: feature flag, canary, rollback.\n\n### Thứ tự gợi ý khi thời gian có hạn\n\n1. Làm việc cùng AI.\n2. Lấp các lỗ hổng trong nền tảng hệ thống.\n3. Cloud và hạ tầng, theo nhu cầu công việc thực tế."
+    },
+    {
+     "type": "callout",
+     "kind": "note",
+     "title": "Lưu ý",
+     "text": "Công cụ AI thay đổi theo tháng. Hãy học khái niệm (đo chất lượng, quản lý ngữ cảnh, các kiểu lỗi thường gặp) thay vì học thuộc một framework cụ thể. Thứ tự ưu tiên cũng khác nhau tùy vị trí hiện tại, định hướng nghề và thị trường mục tiêu của mỗi người."
+    }
+   ]
+  },
+  {
+   "id": "phan-2-claude-code-hoat-dong-nhu-the-nao",
+   "no": "P2",
+   "title": "Claude Code hoạt động như thế nào",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### Hình dung đơn giản\n\nHãy hình dung Claude Code như một kỹ sư làm việc trên máy tính của bạn, nhưng được tách làm hai nửa:\n\n- **Bộ não** là mô hình AI (model), đặt trên máy chủ của Anthropic. Nó chỉ suy nghĩ và quyết định bước tiếp theo.\n- **Đôi tay** là phần mềm Claude Code chạy trên máy bạn, thường gọi là harness. Nó đọc file, chạy lệnh, sửa code, và hỏi bạn khi cần cấp quyền.\n\nMỗi khi cần suy nghĩ, đôi tay gửi lên bộ não mọi thứ liên quan: yêu cầu của bạn, các file đã đọc, kết quả lệnh vừa chạy. Bộ não trả lời \"hãy làm việc này\". Đôi tay làm, rồi gửi kết quả lên. Vòng này lặp lại đến khi việc xong.\n\n### Vòng lặp làm việc\n\nMỗi yêu cầu đi qua ba nhịp, đan xen nhau:\n\n1. **Thu thập thông tin:** đọc file, tìm kiếm trong code, chạy lệnh để hiểu tình hình.\n2. **Hành động:** sửa file, chạy lệnh, gọi công cụ bên ngoài.\n3. **Kiểm tra:** chạy test, đọc lỗi, sửa tiếp cho đến khi đạt.\n\nBạn có thể can thiệp bất cứ lúc nào: nhấn Esc để dừng, hoặc gõ thêm chỉ dẫn. Claude sẽ đọc chỉ dẫn mới ngay khi xong bước hiện tại.\n\n### Điều quan trọng nhất về dữ liệu\n\nViệc *làm* diễn ra trên máy bạn, nhưng mọi thứ AI *nhìn thấy* đều được gửi lên máy chủ. Nếu Claude đọc một file chứa mật khẩu, nội dung file đó đã nằm trong yêu cầu gửi đi."
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Hệ quả thực tế",
+     "text": "Đừng để AI đọc file chứa bí mật, ví dụ `.env`. Hãy cấu hình quy tắc chặn đọc những file này ngay từ đầu."
+    },
+    {
+     "type": "md",
+     "text": "Lịch sử mỗi phiên làm việc được lưu thành file văn bản thường trên máy bạn. Nhờ đó có thể mở lại phiên cũ, quay lui, hoặc rẽ nhánh.\n\n### Trí nhớ làm việc có giới hạn\n\nAI có một \"bàn làm việc\" với diện tích cố định, gọi là context window. Mọi thứ nó cần để suy nghĩ phải nằm trên bàn: hướng dẫn, file đã đọc, cuộc trò chuyện. Bàn càng đầy thì mỗi lượt càng tốn chi phí, và AI càng dễ bỏ sót chi tiết.\n\nKhi bàn gần đầy, Claude Code tự dọn: xóa bớt kết quả cũ, rồi tóm tắt cuộc trò chuyện. Việc này gọi là compaction. Những chỉ dẫn chỉ nói trong chat có thể bị mất khi đó."
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Hệ quả thực tế",
+     "text": "Quy tắc nào quan trọng thì ghi vào file `CLAUDE.md` (sổ tay của dự án). File này được nạp lại sau mỗi lần dọn bàn."
+    },
+    {
+     "type": "md",
+     "text": "### Sáu cách điều chỉnh hành vi của Claude Code\n\n| Công cụ | Ví von | Dùng khi |\n| --- | --- | --- |\n| CLAUDE.md | Sổ tay dự án, AI đọc mỗi đầu phiên | Quy tắc luôn phải theo: cách build, chuẩn code, điều cấm |\n| Skill | Quy trình mẫu, chỉ lấy ra khi cần | Việc lặp lại có các bước cố định, ví dụ review theo checklist |\n| Hook | Quy tắc tự động \"trước hoặc sau khi làm X thì làm Y\" | Bắt buộc chạy test, chặn lệnh nguy hiểm, tự định dạng code |\n| MCP | Ổ cắm nối với công cụ bên ngoài | Đọc ticket, tài liệu, dữ liệu từ hệ thống khác |\n| Subagent | Trợ lý phụ làm việc riêng rồi báo cáo tóm tắt | Việc cần đọc nhiều, để giữ bàn làm việc chính gọn gàng |\n| Permissions | Quyền hạn được cấp | Quy định AI được tự làm gì, phải hỏi gì, bị cấm gì |\n\n### Hiểu những điều này để làm gì\n\n- **Dự đoán được:** biết AI sẽ làm gì trước khi chạy.\n- **Gỡ lỗi nhanh:** khi AI làm điều lạ, biết tìm nguyên nhân ở đâu: sổ tay, hook hay skill.\n- **Tùy chỉnh đúng chỗ:** chọn đúng một trong sáu công cụ ở trên.\n- **Kiểm soát chi phí và bảo mật:** biết dữ liệu nào rời khỏi máy, và vì sao bàn làm việc đầy thì tốn tiền."
+    }
+   ]
+  },
+  {
+   "id": "bai-viet-nghien-cuu-chi-tiet",
+   "no": "02",
+   "title": "Bài viết nghiên cứu chi tiết",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Ba bài viết dưới đây là kết quả của đợt nghiên cứu kiến trúc Claude Code, được thực hiện theo đặc tả xây dựng trong buổi trao đổi này.\n\n- [Bên trong Claude Code](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-inside-26-10-11.html)\n- [Hướng dẫn áp dụng Claude Code cho team](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-team-guide-26-10-11.html)\n- [Báo cáo nghiên cứu](https://like2learn.ainyou.life/read.html?p=topics/ai/claude-research-report-26-10-11.html)"
+    }
+   ]
+  },
+  {
+   "id": "bang-thuat-ngu",
+   "no": "03",
+   "title": "Bảng thuật ngữ",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Thuật ngữ",
+      "Nghĩa"
+     ],
+     "rows": [
+      [
+       "**Agent (tác tử AI)**",
+       "chương trình AI tự lên kế hoạch và tự làm nhiều bước để hoàn thành một việc, thay vì chỉ trả lời một câu."
+      ],
+      [
+       "**Agentic loop (vòng lặp tác tử)**",
+       "chu trình \"suy nghĩ, hành động, xem kết quả, suy nghĩ tiếp\" lặp đến khi xong việc."
+      ],
+      [
+       "**Harness**",
+       "phần mềm bao quanh mô hình AI, cung cấp công cụ và quản lý những gì AI được nhìn thấy. Claude Code là một harness."
+      ],
+      [
+       "**Model (mô hình AI)**",
+       "\"bộ não\" chạy trên máy chủ, đọc thông tin được gửi lên và quyết định bước tiếp theo."
+      ],
+      [
+       "**Prompt**",
+       "yêu cầu hoặc chỉ dẫn bạn gửi cho AI."
+      ],
+      [
+       "**Context, context window**",
+       "toàn bộ thông tin AI nhìn thấy trong một lần suy nghĩ, và giới hạn dung lượng của nó. Ví như diện tích bàn làm việc."
+      ],
+      [
+       "**Token**",
+       "đơn vị đo lượng chữ mà AI xử lý; chi phí tính theo token."
+      ],
+      [
+       "**Compaction**",
+       "việc tự động dọn bàn làm việc khi gần đầy, bằng cách xóa kết quả cũ và tóm tắt hội thoại."
+      ],
+      [
+       "**CLAUDE.md**",
+       "file \"sổ tay dự án\" viết bằng chữ thường, được nạp vào đầu mỗi phiên."
+      ],
+      [
+       "**Memory (MEMORY.md)**",
+       "ghi chú Claude tự lưu lại giữa các phiên; phần đầu file được nạp khi bắt đầu phiên."
+      ],
+      [
+       "**Skill**",
+       "gói hướng dẫn cho một loại việc. Ban đầu chỉ có mô tả ngắn được nạp; nội dung đầy đủ chỉ nạp khi dùng."
+      ],
+      [
+       "**Hook**",
+       "đoạn lệnh do bạn cài, tự chạy tại các thời điểm cố định (trước khi dùng công cụ, khi kết thúc lượt...). Có thể chặn hành động hoặc bổ sung thông tin."
+      ],
+      [
+       "**MCP (Model Context Protocol)**",
+       "chuẩn kết nối giúp AI dùng công cụ và dữ liệu từ hệ thống khác."
+      ],
+      [
+       "**Subagent**",
+       "một AI phụ làm việc trong bàn làm việc riêng, xong thì chỉ gửi bản tóm tắt về."
+      ],
+      [
+       "**Tool, tool call**",
+       "công cụ AI được dùng (đọc file, chạy lệnh, tìm kiếm...) và mỗi lần AI yêu cầu dùng một công cụ."
+      ],
+      [
+       "**Permission mode (chế độ quyền)**",
+       "mức độ AI được tự làm mà không cần hỏi bạn."
+      ],
+      [
+       "**Plan mode**",
+       "chế độ AI chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn."
+      ],
+      [
+       "**Session, transcript**",
+       "một phiên làm việc, và bản ghi đầy đủ của phiên đó trên máy bạn."
+      ],
+      [
+       "**Checkpoint**",
+       "bản lưu trạng thái file trước khi AI sửa, để có thể quay lui."
+      ],
+      [
+       "**Prompt cache**",
+       "cơ chế tái sử dụng phần thông tin lặp lại giữa các lần gửi, giúp giảm chi phí."
+      ],
+      [
+       "**System reminder**",
+       "ghi chú do Claude Code tự chèn vào hội thoại, ví dụ báo file vừa thay đổi."
+      ],
+      [
+       "**Prompt injection**",
+       "kiểu tấn công giấu chỉ dẫn độc hại trong file, trang web hay dữ liệu để AI làm theo."
+      ],
+      [
+       "**Eval**",
+       "bài đo chất lượng đầu ra của AI một cách có hệ thống."
+      ],
+      [
+       "**RAG**",
+       "kỹ thuật tìm tài liệu liên quan rồi đưa cho AI đọc trước khi trả lời."
+      ],
+      [
+       "**Observability**",
+       "khả năng nhìn vào bên trong hệ thống đang chạy qua log, metric và trace."
+      ],
+      [
+       "**Idempotency**",
+       "tính chất \"làm lại nhiều lần vẫn cho cùng kết quả\", giúp hệ thống an toàn khi phải thử lại."
+      ],
+      [
+       "**CI/CD**",
+       "quy trình tự động kiểm tra và phát hành phần mềm."
+      ],
+      [
+       "**Feature flag, canary, rollback**",
+       "bật tắt tính năng không cần phát hành lại; phát hành cho một nhóm nhỏ trước; quay về bản cũ khi có lỗi."
+      ]
+     ],
+     "key": false
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-luong-khoi-dong",
+   "no": "04",
+   "title": "Chi tiết: luồng khởi động",
+   "toc_label": "Luồng khởi động",
+   "toc_group": "Chi tiết",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Đây là những gì xảy ra khi bạn gõ lệnh `claude` trong terminal.\n\n1. **Nạp cấu hình.** Claude Code gộp settings từ nhiều tầng: quản trị tổ chức (managed), người dùng (`~/.claude/settings.json`), dự án (`.claude/settings.json`), cá nhân trong dự án (`.claude/settings.local.json`) và plugin. Hook từ các tầng được cộng dồn, không ghi đè nhau. Hook của tầng quản trị không thể bị tắt từ các tầng khác.\n2. **Kiểm tra tin cậy thư mục.** Với thư mục lạ, Claude Code hỏi bạn có tin cậy không (workspace trust). Một số hook của dự án chỉ chạy sau khi bạn chấp nhận.\n3. **Lập danh mục skill, plugin, cấu hình MCP.** Mới chỉ lập danh mục, chưa nạp nội dung.\n4. **Chạy hook SessionStart** (nếu có). Hook chạy nền; câu trả lời đầu tiên phải chờ nó xong. Những gì hook in ra được đưa vào context. MCP chưa sẵn sàng ở bước này, nên hook muốn gọi MCP sẽ bị bỏ qua.\n5. **Nạp hướng dẫn.** `CLAUDE.md`, các rule trong `.claude/rules/`, và 200 dòng hoặc 25KB đầu của `MEMORY.md`, tùy cái nào đến trước. Hook InstructionsLoaded báo lại việc này, chỉ để quan sát.\n6. **Kết nối MCP.** Chỉ tên công cụ được đưa vào context. Mô tả chi tiết của công cụ chỉ nạp khi nó được dùng lần đầu.\n7. **Chờ yêu cầu của bạn.** Đến lúc này chưa có gì được gửi lên máy chủ.\n\n**Kết quả sau khởi động:**\n\n| Ở đâu | Có gì |\n| --- | --- |\n| Bộ nhớ trên máy | Settings đã gộp, danh sách hook, danh mục skill, kết nối MCP |\n| Context ban đầu | CLAUDE.md, memory, trạng thái git, mô tả ngắn của skill, kết quả SessionStart |\n| Máy chủ (cloud) | Chưa nhận gì |"
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-luong-xu-ly-mot-yeu-cau",
+   "no": "05",
+   "title": "Chi tiết: luồng xử lý một yêu cầu",
+   "toc_label": "Luồng xử lý một yêu cầu",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Ví dụ: bạn gõ \"review PR này theo checklist của team\", và team có sẵn skill `team-review`.\n\n### Giai đoạn 1: trên máy, trước khi gửi đi\n\n1. **Nếu bạn gõ `/team-review` trực tiếp:** hook UserPromptExpansion chạy, có thể chặn hoặc thêm thông tin; nội dung skill được chèn vào yêu cầu.\n2. **Nếu yêu cầu có `@tên-file`:** nội dung file được chèn thẳng vào yêu cầu, không đi qua hook PreToolUse.\n3. **Hook UserPromptSubmit chạy** (mặc định tối đa 30 giây): có thể chặn yêu cầu, thêm thông tin hoặc đặt tên phiên, nhưng không sửa được nội dung bạn gõ.\n4. **Đóng gói yêu cầu cuối cùng** và gửi lên mô hình.\n\nCấu trúc yêu cầu được gửi lên:\n\n```\nsystem   : hướng dẫn của Claude Code\ntools    : công cụ có sẵn + tên công cụ MCP + công cụ Skill\nmessages :\n  [đầu phiên] CLAUDE.md, memory, git, mô tả skill, kết quả SessionStart\n  [lịch sử]   yêu cầu, trả lời, yêu cầu dùng công cụ, kết quả công cụ...\n  [lượt này]  yêu cầu của bạn + nội dung @file\n              + ghi chú hệ thống + thông tin do hook thêm\n```\n\nPhần ổn định thường đặt ở đầu để tận dụng prompt cache. Thứ tự chính xác và nội dung hướng dẫn nội bộ không được công bố.\n\n### Giai đoạn 2: vòng lặp làm việc\n\n1. **Mô hình trả lời**, bằng chữ, hoặc bằng yêu cầu dùng công cụ (ví dụ Skill, Bash, Edit).\n2. **Hook PreToolUse:** cho phép, từ chối, hỏi bạn, hoặc sửa đầu vào của công cụ.\n3. **Kiểm tra quyền** theo chế độ và quy tắc. Nếu cần hỏi, hook PermissionRequest chạy rồi Claude Code hỏi bạn.\n4. **Thực thi trên máy bạn.** Với Skill: nội dung `SKILL.md` được nạp vào context, và hook khai báo trong skill được đăng ký.\n5. **Hook PostToolUse** (hoặc PostToolUseFailure khi lỗi): có thể thêm thông tin hoặc thay kết quả. Khi xong một loạt công cụ chạy song song, hook PostToolBatch chạy.\n6. **Kết quả được nối vào lịch sử** và gửi lên mô hình lần nữa. Vòng lặp tiếp tục.\n\n### Giai đoạn 3: kết thúc lượt\n\n1. **Mô hình không gọi công cụ nữa** thì hook Stop chạy. Hook có thể buộc Claude làm tiếp, ví dụ khi test chưa qua. Sau 8 lần bị chặn liên tiếp, lượt tự kết thúc để tránh lặp vô hạn.\n2. **Lịch sử được ghi** vào file JSONL trên máy, theo kiểu bất đồng bộ.\n3. **Nếu bàn làm việc gần đầy:** PreCompact chạy, Claude Code dọn bàn, rồi PostCompact chạy. Hướng dẫn trong CLAUDE.md được nạp lại."
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-du-lieu-nam-o-dau",
+   "no": "06",
+   "title": "Chi tiết: dữ liệu nằm ở đâu",
+   "toc_label": "Dữ liệu nằm ở đâu",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "```\nĐĨA (trên máy, lâu dài)\n  Cấu hình      settings.json (quản trị / người dùng / dự án / cá nhân)\n  Hướng dẫn     CLAUDE.md, .claude/rules/*.md\n  Ghi nhớ       MEMORY.md\n  Khả năng      skills/, plugins/, cấu hình MCP, agents/\n  Phiên làm việc  transcript JSONL, checkpoint\n\nBỘ NHỚ (trên máy, trong một phiên)\n  Lịch sử hội thoại đang mở, danh sách hook, chế độ quyền\n\nTỪ XA\n  Máy chủ mô hình  không giữ hội thoại giữa các lần gửi\n  Máy chủ MCP      có dữ liệu riêng của chúng\n```\n\n| Dữ liệu | Ai ghi | Khi nào được dùng |\n| --- | --- | --- |\n| Cấu hình | Bạn, quản trị viên, plugin | Lúc khởi động và khi file thay đổi |\n| CLAUDE.md, rules | Bạn | Đầu phiên, khi vào thư mục con, sau khi dọn bàn |\n| MEMORY.md | Claude tự ghi | Đầu phiên, giới hạn 200 dòng hoặc 25KB |\n| Skill | Bạn, plugin | Đầu phiên chỉ có mô tả; nội dung nạp khi dùng |\n| Transcript, checkpoint | Claude Code | Khi mở lại phiên, quay lui, rẽ nhánh |\n| Lịch sử hội thoại | Claude Code | Gửi lại toàn bộ lên mô hình ở mỗi lần gọi |"
+    },
+    {
+     "type": "callout",
+     "kind": "key",
+     "title": "Điểm then chốt",
+     "text": "Máy chủ mô hình không nhớ gì giữa các lần gửi. \"Trí nhớ\" của phiên là lịch sử hội thoại, được gửi lại đầy đủ mỗi lần. Ranh giới bảo mật thực sự vì thế là context: thứ gì vào context là đã rời khỏi máy; thứ gì ghi vào transcript thì nằm trên đĩa ở dạng văn bản thường."
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-cac-tang-cua-context",
+   "no": "07",
+   "title": "Chi tiết: các tầng của context",
+   "toc_label": "Các tầng của context",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Tầng | Gồm | Sau khi dọn bàn |\n| --- | --- | --- |\n| C0. Phần cố định | Hướng dẫn hệ thống, định nghĩa công cụ | Còn nguyên |\n| C1. Đầu phiên | CLAUDE.md, MEMORY.md, git, mô tả skill, kết quả SessionStart | Được nạp lại |\n| C2. Hội thoại | Yêu cầu, trả lời, kết quả công cụ; tăng dần theo lượt | Kết quả cũ bị xóa trước, sau đó hội thoại bị tóm tắt |\n| C3. Theo lượt | Nội dung @file, ghi chú hệ thống, thông tin hook thêm | Có thể chỉ còn dạng tóm tắt (suy luận) |\n| C4. Theo nhu cầu | Nội dung skill, mô tả công cụ MCP, CLAUDE.md trong thư mục con | Có thể chỉ còn dạng tóm tắt (suy luận) |\n| C5. Riêng biệt | Bàn làm việc của subagent | Không ảnh hưởng phiên chính |\n\n**Hệ quả khi thiết kế cách dùng:**\n\n- Quy tắc bắt buộc thì đặt ở C1 (CLAUDE.md), vì nó sống qua lần dọn bàn.\n- Quy trình dài, ít dùng thì đặt ở C4 (skill), chỉ tốn chỗ khi cần.\n- Việc phải đọc nhiều file thì giao cho subagent (C5), giữ bàn chính gọn.\n- Chi phí mỗi lần gửi tăng theo kích thước lịch sử, nên lượt thứ 30 của một phiên tốn hơn lượt thứ 3 nhiều lần, kể cả khi có prompt cache."
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-hook-va-nen-can-thiep-o-dau",
+   "no": "08",
+   "title": "Chi tiết: hook và nên can thiệp ở đâu",
+   "toc_label": "Hook và nên can thiệp ở đâu",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Hook | Chạy khi | Chặn được không |\n| --- | --- | --- |\n| SessionStart | Bắt đầu, mở lại, xóa, hoặc sau khi dọn bàn | Không; dùng để thêm thông tin |\n| InstructionsLoaded | Nạp CLAUDE.md hoặc rules | Không; chỉ để quan sát |\n| UserPromptExpansion | Bạn gõ trực tiếp `/tên-skill` | Có |\n| UserPromptSubmit | Gửi một yêu cầu | Có |\n| PreToolUse | Trước mỗi lần dùng công cụ | Có |\n| PostToolUse | Sau khi công cụ chạy xong | Không chặn; có thể thêm thông tin hoặc thay kết quả |\n| Stop | Khi Claude định kết thúc lượt | Có; buộc làm tiếp |\n| PreCompact, PostCompact | Trước và sau khi dọn bàn | PreCompact chặn được |\n\n**Nhu cầu nào thì can thiệp ở đâu:**\n\n| Nhu cầu | Điểm can thiệp |\n| --- | --- |\n| Quy tắc cố định cho mọi phiên | CLAUDE.md |\n| Thông tin động lúc khởi động (nhánh git, ticket đang làm) | SessionStart |\n| Thông tin động theo từng yêu cầu | UserPromptSubmit |\n| Chặn hoặc ghi log việc dùng skill | UserPromptExpansion và PreToolUse cho Skill |\n| Chặn lệnh nguy hiểm | Quy tắc deny trong permissions trước, PreToolUse bổ sung |\n| Tự định dạng code sau khi sửa file | PostToolUse cho Edit và Write |\n| Bắt buộc test phải qua | Stop |"
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-che-do-quyen-va-cac-bay-thuong-gap",
+   "no": "09",
+   "title": "Chi tiết: chế độ quyền và các bẫy thường gặp",
+   "toc_label": "Chế độ quyền và các bẫy thường gặp",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**Chế độ quyền** (chuyển bằng Shift+Tab):\n\n- **Auto:** một bộ phân loại xem xét phần lớn hành động ở chế độ nền và chặn những hành động rủi ro, thay vì hỏi bạn.\n- **Manual:** hỏi trước khi sửa file hoặc chạy lệnh.\n- **Accept edits:** tự sửa file, vẫn hỏi với các lệnh khác.\n- **Plan:** chỉ tìm hiểu và đề xuất kế hoạch, không sửa file nguồn.\n\n**Các bẫy thường gặp:**\n\n- Hook PreToolUse im lặng (không in gì, thoát mã 0) không có nghĩa là cho phép; hành động vẫn đi qua bước kiểm tra quyền như bình thường.\n- Muốn hook chặn thật thì phải thoát mã 2 hoặc trả JSON từ chối. Thoát mã 1 hoặc hết thời gian chờ đều không chặn.\n- File đưa vào bằng `@tên-file` không đi qua PreToolUse. Muốn chặn phải dùng quy tắc deny cho Read trong permissions.\n- Hook khai báo trong skill sống đến hết phiên, cả ở các lượt sau, trừ khi đặt `once: true`.\n- Checkpoint không quay lui được hành động bên ngoài như ghi database, gọi API hay deploy. Với những việc này, quyền hạn là lớp bảo vệ duy nhất.\n- Đầu ra của hook bị giới hạn 10.000 ký tự. Dài hơn thì được lưu ra file, và chỉ đường dẫn cùng 2.000 ký tự đầu vào context."
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-tu-kiem-chung-tren-may-cua-ban",
+   "no": "10",
+   "title": "Chi tiết: tự kiểm chứng trên máy của bạn",
+   "toc_label": "Tự kiểm chứng trên máy của bạn",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "1. Gõ `/context` để xem thứ gì đang chiếm bàn làm việc.\n2. Mở file JSONL trong `~/.claude/projects/` để thấy chuỗi thật: yêu cầu, yêu cầu dùng công cụ, kết quả.\n3. Gõ `/hooks` để xem mỗi hook đến từ tầng cấu hình nào.\n4. Cài một hook ghi log cho mọi sự kiện, rồi chạy một yêu cầu có dùng skill. Thứ tự trong log chính là các luồng đã mô tả ở trên.\n\n**Bốn câu hỏi thử hiểu biết** (đoán trước, rồi chạy để so):\n\n- Dùng một skill có hook, rồi sang lượt sau làm việc khác: hook đó còn chạy không?\n- Đưa một file vào bằng `@tên-file` trong khi PreToolUse đang chặn Read: file có lọt vào không?\n- Sau `/compact`, chỉ dẫn nào còn được tuân thủ, chỉ dẫn nào bị quên?\n- Nghỉ 2 giờ rồi mở lại phiên: chi phí lần gửi đầu tiên thay đổi thế nào?"
+    }
+   ]
+  },
+  {
+   "id": "chi-tiet-cach-tim-hieu-mot-he-thong-nhu-the-nay",
+   "no": "11",
+   "title": "Chi tiết: cách tìm hiểu một hệ thống như thế này",
+   "toc_label": "Cách tìm hiểu một hệ thống như thế này",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Đi từ ngoài vào trong, từ tĩnh sang động. Mỗi góc nhìn trả lời một loại câu hỏi và có dạng tài liệu đi kèm.\n\n| Góc nhìn | Trả lời câu hỏi | Dạng tài liệu |\n| --- | --- | --- |\n| Ranh giới | Hệ thống nói chuyện với ai, dữ liệu vượt ranh giới nào | Sơ đồ ngữ cảnh, sơ đồ ranh giới tin cậy |\n| Cấu trúc | Gồm những khối nào, khối nào làm gì | Sơ đồ thành phần, bảng trách nhiệm |\n| Hành vi | Các khối tương tác theo thứ tự nào, có những trạng thái nào | Sơ đồ tuần tự, sơ đồ trạng thái, lưu đồ |\n| Dữ liệu | Dữ liệu nằm đâu, chảy đi đâu, sống bao lâu | Bảng kho dữ liệu, sơ đồ luồng dữ liệu |\n| Context | AI thấy gì, khi nào, tốn bao nhiêu | Sơ đồ tầng, biểu đồ token theo lượt |\n| Điểm can thiệp | Móc vào đâu, cấu hình nào thắng | Bảng hook, ma trận lựa chọn |\n| Chất lượng | Bảo mật, độ trễ, chi phí, kiểu hỏng | Bảng mối đe dọa, biểu đồ độ trễ, bảng lỗi |\n| Quyết định | Vì sao thiết kế như vậy, đánh đổi gì | Ghi chú quyết định, bảng đánh đổi |\n\n**Phương pháp bốn bước:**\n\n1. Đọc tài liệu chính thức, viết bản nháp; mọi điều chưa kiểm chứng đều là giả thuyết.\n2. Gắn công cụ đo: hook ghi log và đọc transcript.\n3. Dựng lại sơ đồ và biểu đồ từ log thật.\n4. Dự đoán trước, chạy, so sánh, rồi sửa mô hình hiểu biết."
+    }
+   ]
+  },
+  {
+   "id": "nguon-tham-khao",
+   "no": "12",
+   "title": "Nguồn tham khảo",
+   "toc_group": "Tham khảo",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "- [How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works): tài liệu chính thức về vòng lặp, công cụ, phiên làm việc và context.\n- [Hooks reference](https://code.claude.com/docs/en/hooks): danh sách hook, thời điểm chạy, mã thoát, dữ liệu vào ra.\n- [Best practices for Claude Code](https://code.claude.com/docs/en/best-practices): cách dùng hiệu quả, quản lý context.\n- [Effective context engineering for AI agents](https://anthropic.com/engineering/effective-context-engineering-for-ai-agents): nguyên lý quản lý context cho AI agent của Anthropic."
+    }
+   ]
+  }
+ ],
+ "footer": "Tổng hợp từ một buổi trao đổi kỹ thuật, tháng 10/2026. Thông tin về Claude Code có thể thay đổi theo phiên bản; hãy đối chiếu với tài liệu chính thức trong mục Nguồn tham khảo."
+}

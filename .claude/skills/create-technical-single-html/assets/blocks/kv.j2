@@ -1,0 +1,30 @@
+{% macro html(b, inner) %}
+<div class="kv">{% if b.title is defined %}<div class="kt">{{ b.title }}</div>{% endif %}
+{% for r in b.rows %}
+  <div class="r{{ ' sum' if loop.index0 in b.get('sum', []) }}"><span>{{ r[0]|inl }}</span><span>{{ r[1]|inl }}</span></div>
+{% endfor %}
+</div>
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+{% if b.title is defined %}
+**{{ b.title }}**
+
+{% endif %}
+| | |
+|---|---|
+{% for r in b.rows %}
+| {{ r[0]|cell }} | {{ r[1]|cell }} |
+{% endfor %}
+{% endif %}
+{% if b.note is defined %}
+
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

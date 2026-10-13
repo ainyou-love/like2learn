@@ -1,0 +1,19 @@
+{% macro html(b, inner) %}
+<figure class="fig{{ ' fit' if b.get('fit') }}"{% if b.id is defined %} id="{{ b.id }}"{% endif %}><div class="scroll">
+{{ (b.svg if b.svg is defined else b.file)|safe }}
+</div>
+  <figcaption>{{ b.caption|inl }}</figcaption>
+{% if b.ascii is defined %}
+  <details><summary>__UI:ascii_version__</summary><pre>{{ b.ascii }}</pre></details>
+{% endif %}
+</figure>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% endif %}
+
+*{{ b.caption }}*
+{% endautoescape %}{% endmacro %}

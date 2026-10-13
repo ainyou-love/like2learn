@@ -1,0 +1,33 @@
+{% from "_lib.j2" import pill %}
+{% macro html(b, inner) %}
+<div class="grid g{{ b.get('cols', 2) }}">
+{% for c in b['items'] %}
+  <div class="card"{% if c.id is defined %} id="{{ c.id }}"{% endif %}>{% if c.pill is defined %}{{ pill(c.pill) }}{% endif %}{% if c.title is defined %}<h3>{{ c.title|inl }}</h3>{% endif %}{% if c.text is defined %}{{ c.text|md }}{% endif %}{% if c.meta is defined %}<div class="meta-line">{{ c.meta|inl }}</div>{% endif %}</div>
+{% endfor %}
+</div>
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.ascii is defined %}
+{{ b.ascii|fence }}text
+{{ b.ascii }}
+{{ b.ascii|fence }}
+{% else %}
+{% for c in b['items'] %}
+- {% if c.pill is defined %}`{{ c.pill.text }}` {% endif %}{% if c.title is defined %}**{{ c.title }}**{% endif +%}
+{% if c.text is defined %}
+{% for line in c.text.split('\n') %}
+  {{ line }}
+{% endfor %}
+{% endif %}
+{% if c.meta is defined %}
+  *{{ c.meta }}*
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if b.note is defined %}
+
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

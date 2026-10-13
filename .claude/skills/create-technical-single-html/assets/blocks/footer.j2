@@ -1,0 +1,8 @@
+{% macro html(b, inner) %}
+<footer>{{ b.text|inl }}</footer>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+---
+
+*{{ b.text }}*
+{% endautoescape %}{% endmacro %}

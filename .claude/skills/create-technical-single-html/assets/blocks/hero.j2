@@ -1,0 +1,41 @@
+{% from "_lib.j2" import pill %}
+{% macro html(b, inner) %}
+<header class="hero">
+{% if b.kicker is defined %}  <div class="kicker">{{ b.kicker }}</div>
+{% endif %}
+  <h1>{{ b.title|inl }}</h1>
+{% if b.lede is defined %}  <p class="lede">{{ b.lede|inl }}</p>
+{% endif %}
+{% if b.signal is not defined or b.signal %}  <svg class="signal-line" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 H260 L280 40 L295 14 L312 62 L330 8 L348 52 L360 40 H560 L575 40 L588 22 L602 56 L616 40 H1000" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+{% endif %}
+{% if b.chips is defined %}  <div class="meta">
+{% for c in b.get('chips', []) %}    <span class="chip">{% if c.label is defined %}<b>{{ c.label }}</b> {% endif %}{% if c.pill is defined %}{{ pill(c.pill) }}{% elif c.href is defined %}<a href="{{ c.href }}" target="_blank" rel="noopener">{{ c.value }} ↗</a>{% else %}{{ c.value|inl }}{% endif %}</span>
+{% endfor %}  </div>
+{% endif %}
+{% if b.stats is defined %}  <div class="stats">
+{% for s in b.stats %}    <div class="stat"><div class="n">{{ s.n }}</div><div class="l">{{ s.l|inl }}</div></div>
+{% endfor %}  </div>
+{% endif %}
+</header>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+# {{ b.title }}
+
+{% if b.kicker is defined %}
+*{{ b.kicker }}*
+
+{% endif %}
+{% if b.lede is defined %}
+> {{ b.lede }}
+
+{% endif %}
+{% for c in b.get('chips', []) %}
+- {% if c.label is defined %}**{{ c.label }}:** {% endif %}{% if c.pill is defined %}{{ c.pill.text }}{% elif c.href is defined %}[{{ c.value }}]({{ c.href }}){% else %}{{ c.value }}{% endif +%}
+{% endfor %}
+{% if b.stats is defined %}
+
+| {% for s in b.stats %}{{ s.n|cell }} | {% endfor +%}
+|{% for s in b.stats %}---|{% endfor +%}
+| {% for s in b.stats %}{{ s.l|cell }} | {% endfor +%}
+{% endif %}
+{% endautoescape %}{% endmacro %}

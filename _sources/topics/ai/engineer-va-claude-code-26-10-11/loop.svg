@@ -1,0 +1,21 @@
+<svg viewBox="0 28 720 202" role="img" aria-labelledby="eng-loop-t"><title id="eng-loop-t">Bạn giao việc cho Claude Code trên máy; Claude Code gửi những gì đã thấy lên mô hình AI trên cloud và nhận lại bước tiếp theo</title>
+  <defs><marker id="eng-hd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-3)"/></marker></defs>
+  <rect class="n-box" x="16" y="64" width="120" height="64" rx="10"/>
+  <text class="t t-b" x="76" y="92" text-anchor="middle">Bạn</text>
+  <text class="t-s" x="76" y="112" text-anchor="middle">giao việc, duyệt</text>
+  <rect class="n-new" x="194" y="48" width="214" height="96" rx="10"/>
+  <text class="t t-b" x="301" y="80" text-anchor="middle">Claude Code</text>
+  <text class="t-s" x="301" y="100" text-anchor="middle">"đôi tay", chạy trên máy bạn</text>
+  <text class="t-s" x="301" y="122" text-anchor="middle">đọc file, chạy lệnh, sửa code</text>
+  <rect class="n-info" x="556" y="48" width="150" height="96" rx="10"/>
+  <text class="t t-b" x="631" y="80" text-anchor="middle">Mô hình AI</text>
+  <text class="t-s" x="631" y="100" text-anchor="middle">"bộ não", trên cloud</text>
+  <text class="t-s" x="631" y="122" text-anchor="middle">quyết định bước tiếp</text>
+  <path class="w" d="M136 96H190" marker-end="url(#eng-hd)"/>
+  <path class="w" d="M408 82H552" marker-end="url(#eng-hd)"/>
+  <path class="w" d="M556 112H412" marker-end="url(#eng-hd)"/>
+  <text class="t-m" x="482" y="72" text-anchor="middle">gửi điều đã thấy</text>
+  <text class="t-m" x="482" y="132" text-anchor="middle">trả bước tiếp theo</text>
+  <path class="w-acc" d="M267 144 C267 196, 335 196, 335 148" marker-end="url(#eng-hd)"/>
+  <text class="t-s t-acc" x="301" y="214" text-anchor="middle">lặp lại đến khi xong việc</text>
+</svg>

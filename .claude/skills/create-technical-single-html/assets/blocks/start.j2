@@ -1,0 +1,43 @@
+{% from "_lib.j2" import link %}
+{% macro html(b, inner) %}
+<div class="start">
+{% if b.kicker is defined %}  <div class="kicker">{{ b.kicker }}</div>
+{% endif %}
+  <h2 style="margin:.3rem 0 .2rem">{{ b.title|inl }}</h2>
+{% if b.intro is defined %}  <p class="sec-intro" style="margin:.2rem 0">{{ b.intro|inl }}</p>
+{% endif %}
+{% if b.route is defined %}  <div class="route">{{ b.get('route_label', '') }}{% for l in b.route %} <i>→</i>{{ link(l) }}{% endfor %}</div>
+{% endif %}
+{% if b.columns is defined %}
+  <div class="grid g{{ [b.columns|length, 3]|min }}">
+{% for col in b.columns %}
+    <div class="card">{% for g in col %}<h3{% if not loop.first %} style="margin-top:14px"{% endif %}>{{ g.title }}</h3>{% if g['items'] is defined %}<ol>{% for it in g['items'] %}<li>{{ it.text|inl }}{% if it.refs is defined %} <span class="refs">{% for l in it.refs %}{{ link(l) }}{% endfor %}</span>{% endif %}</li>{% endfor %}</ol>{% endif %}{% if g.text is defined %}<p style="font-size:.86rem;color:var(--ink-2);margin:0">{{ g.text|inl }}</p>{% endif %}{% endfor %}</div>
+{% endfor %}
+  </div>
+{% endif %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.intro is defined %}
+{{ b.intro }}
+
+{% endif %}
+{% if b.route is defined %}
+{{ b.get('route_label', '→') }} {% for l in b.route %}{{ l[0] }}{{ ' → ' if not loop.last }}{% endfor +%}
+
+{% endif %}
+{% for col in b.get('columns', []) %}
+{% for g in col %}
+**{{ g.title }}**
+
+{% for it in g.get('items', []) %}
+{{ loop.index }}. {{ it.text }}{% if it.refs is defined %} ({% for l in it.refs %}{{ l[0] }}{{ ', ' if not loop.last }}{% endfor %}){% endif +%}
+{% endfor %}
+{% if g.text is defined %}
+
+{{ g.text }}
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

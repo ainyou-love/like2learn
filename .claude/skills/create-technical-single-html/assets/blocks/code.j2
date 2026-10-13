@@ -1,0 +1,13 @@
+{% macro html(b, inner) %}
+{{ codebox(b.text if b.text is defined else b.file, b.get('title', b.get('lang', 'text'))) }}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% set code = b.text if b.text is defined else b.file %}
+{% if b.title is defined %}
+**{{ b.title }}**
+
+{% endif %}
+{{ code|fence }}{{ b.get('lang', '') }}
+{{ code }}
+{{ code|fence }}
+{% endautoescape %}{% endmacro %}

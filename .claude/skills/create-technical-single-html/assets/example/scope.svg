@@ -1,0 +1,9 @@
+<svg viewBox="0 0 980 130" role="img" aria-labelledby="d1t"><title id="d1t">A carrier event is recorded once, then delivered with retries until sent</title>
+  <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+  <text class="t-h" x="14" y="22">one event → one alert</text>
+  <rect class="n-box" x="20" y="50" width="170" height="44" rx="8"/><text class="t" x="105" y="77" text-anchor="middle">Carrier webhook</text>
+  <rect class="n-new" x="260" y="50" width="200" height="44" rx="8"/><text class="t" x="360" y="70" text-anchor="middle">alert_events</text><text class="t-m" x="360" y="86" text-anchor="middle">unique source key</text>
+  <rect class="n-new" x="530" y="50" width="200" height="44" rx="8"/><text class="t" x="630" y="70" text-anchor="middle">alert_deliveries</text><text class="t-m" x="630" y="86" text-anchor="middle">retry until SENT</text>
+  <rect class="n-ok" x="800" y="50" width="160" height="44" rx="8"/><text class="t" x="880" y="77" text-anchor="middle">Customer push</text>
+  <path class="w" d="M190 72H258M460 72H528M730 72H798" marker-end="url(#ar1)"/>
+</svg>

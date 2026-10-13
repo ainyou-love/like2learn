@@ -1,0 +1,13 @@
+{% from "_lib.j2" import pill %}
+{% from "_fcard.j2" import card, card_md %}
+{% macro html(b, inner) %}
+{% if b.legend is defined %}<div class="legend">{% for l in b.legend %}<span>{{ pill(l.pill) }} {{ l.text|inl }}</span>{% endfor %}</div>
+{% endif %}
+{% for c in b['items'] %}{{ card(c) }}{% endfor %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for c in b['items'] %}
+{{ card_md(c) }}
+
+{% endfor %}
+{% endautoescape %}{% endmacro %}

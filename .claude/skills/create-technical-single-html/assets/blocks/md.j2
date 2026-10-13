@@ -1,0 +1,6 @@
+{% macro html(b, inner) %}
+{{ b.text|md }}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{{ b.text }}
+{% endautoescape %}{% endmacro %}

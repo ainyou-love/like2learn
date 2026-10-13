@@ -1,0 +1,319 @@
+{
+ "meta": {
+  "title": "video-marker — video demo lắp ra, không quay ra",
+  "brand": "video-marker",
+  "date": "2026-09-18",
+  "desc": "Một skill Claude Code biến ảnh chụp màn hình và câu thuyết minh thành video demo — và là ví dụ mẫu về cách một skill được chia thành SKILL.md, references, scripts và templates.",
+  "lang": "vi",
+  "md_filename": "video-maker-lam-demo-video-khong-hao-nhu-ban-nghi.md",
+  "storage_key": "video-maker-lam-demo-video-khong-hao-nhu-ban-nghi",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Claude Code · skill study",
+  "title": "video-marker — video demo lắp ra, không quay ra",
+  "lede": "Bạn làm xong một việc và cần cho người khác xem. Viết ra thì không ai đọc; quay màn hình thì phải rảnh, phải nói trơn, và hỏng một câu là quay lại từ đầu.\\\n`video-marker` đi từ một nhận xét đơn giản: video demo gần như không bao giờ là phim. Nó là một chuỗi ảnh tĩnh, mỗi ảnh có một câu nói đè lên. Mà thứ không chuyển động thì không cần quay — nó lắp được.\\\nTrang này vừa nói về skill đó, vừa dùng nó làm ví dụ mẫu để bạn tự dựng một skill cho mình."
+ },
+ "sections": [
+  {
+   "id": "s1",
+   "no": "01",
+   "title": "Mục đích",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Có một loại công việc mà phần khó nhất không phải là làm, mà là **cho người khác thấy mình đã làm**. Bạn vừa kiểm tra xong một luồng đăng ký. Bạn vừa tìm ra chỗ sai trong một màn hình danh sách. Bạn vừa hoàn thành phần việc của tuần. Kết quả nằm trong đầu bạn và trong một thư mục ảnh chụp màn hình — còn người cần biết thì ở chỗ khác, và họ sẽ không đọc hết mười lăm dòng bạn viết trong chat.\n\nThứ họ chịu xem là một đoạn video ngắn. Và đây là chỗ mọi người thua.\n\nQuay màn hình bắt bạn phải rảnh đúng lúc, phải có chỗ yên tĩnh, phải nói trôi chảy trong bốn phút liền. Câu thứ ba bạn nói vấp, thế là quay lại từ đầu. Bạn làm được bản ưng ý, gửi đi, rồi hai tuần sau một bước trong luồng thay đổi — bây giờ đoạn video đang nói sai, và để sửa một câu bạn phải quay lại cả bốn phút. Người giỏi tìm ra lỗi thường cũng chính là người ngại nhất chuyện ngồi nói trước micro. Còn người xem thì mở video trong lúc họp, tắt tiếng, và không hiểu gì cả vì không có chữ.\n\nNhìn kỹ một đoạn demo như vậy sẽ thấy nó rất nghèo về chuyển động. Trong phần lớn thời lượng, hình không nhúc nhích: một ảnh chụp đứng yên trong khi có người nói một câu về nó. Hết câu thì sang ảnh khác.\n\nNếu đúng là như vậy thì **không có gì để quay cả**. Có thể mô tả cả đoạn video bằng một danh sách rất ngắn: ảnh nào, nói câu gì trên ảnh đó. Từ danh sách ấy, máy đọc câu thành tiếng, ghép tiếng với ảnh, nối các đoạn lại — ra đúng cái video bạn định quay, mà không ai phải nói trước micro.\n\nĐổi lại được ba thứ mà bản quay tay không có. **Sửa rẻ**: đổi một câu rồi dựng lại, những khung còn lại y hệt lần trước. **Lặp lại được**: cùng một danh sách luôn cho ra cùng một video, không phụ thuộc hôm nay bạn có khàn tiếng hay không. **Xem được khi tắt tiếng**: câu nói được in luôn lên hình, nên người xem trong phòng họp vẫn theo được.\n\nĐó là toàn bộ lý do skill này tồn tại. Nó không làm video đẹp hơn. Nó biến việc làm video từ một buổi biểu diễn thành một thứ dựng lại được bất cứ lúc nào."
+    }
+   ],
+   "toc_group": "PHẦN 1 — Nó gánh hộ bạn chuyện gì"
+  },
+  {
+   "id": "s2",
+   "no": "02",
+   "title": "Use case & output",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Tình huống cụ thể: bạn vừa kiểm tra tay một màn hình đăng ký trên web. Trong lúc làm, bạn chụp lại chín ảnh — form trống, form đã điền, thông báo lỗi khi email sai định dạng, màn hình thành công, v.v. Bạn đặt tên file theo thứ tự đã chụp. Trong đầu bạn đã có sẵn câu cần nói cho từng ảnh, vì bạn vừa mới làm xong.\n\nBạn viết ra **một file JSON nhỏ**: mỗi khung hình một mục, ghi lấy ảnh nào, nói câu gì, và nếu muốn thì thêm một dòng tiêu đề cùng một nhãn `pass` / `fail`. Cái file ghi mỗi khung nói gì và kèm ảnh nào ấy — từ đây gọi là **manifest**. Bạn gọi skill và chỉ vào file đó.\n\nCái bạn cầm khi nó chạy xong là **một file `.mp4` duy nhất**, nằm đúng chỗ bạn đã ghi trong manifest, mở được bằng mọi trình phát và gửi qua chat được ngay. Bên trong:\n\n- Mỗi khung hình là ảnh chụp của bạn, **đứng yên đúng bằng thời gian đọc hết câu của nó** — câu dài thì khung ở lâu hơn, không phải căn tay.\n- Câu nói được **in luôn xuống mép dưới ảnh**, tự xuống dòng, chữ vàng viền đen để đọc được trên mọi nền. Tắt tiếng vẫn theo được.\n- Dòng tiêu đề, nếu bạn có ghi, nằm ở mép trên.\n- Khung nào bạn gắn `pass` thì có **viền xanh**, `fail` thì **viền đỏ**, và tiêu đề đổi sang màu đó. Không gắn gì thì không có viền.\n- Terminal in ra đường dẫn file, dung lượng, và bao nhiêu khung thành công trên tổng số.\n\nVà đây là những gì bạn **không** nhận được, nói trước cho khỏi thất vọng: không có chuyển cảnh, không có hiệu ứng, không có con trỏ chuột chạy, không nhạc nền, không cắt ghép. Mỗi khung là một ảnh tĩnh. Nếu thứ bạn cần trình bày chỉ giải thích được bằng chuyển động — một thao tác kéo thả, một hiệu ứng cuộn — thì đây không phải công cụ cho việc đó."
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "no": "03",
+   "title": "Cấu trúc thư mục",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Một skill là một thư mục. Thư mục của `video-marker` trông như thế này:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "video-marker/\n├─ SKILL.md\n├─ references/\n│  ├─ manifest-format.md\n│  ├─ ffmpeg-patterns.md\n│  └─ dependencies.md\n├─ scripts/\n│  └─ video-marker.sh\n└─ templates/\n   └─ manifest.json"
+    },
+    {
+     "type": "md",
+     "text": "Việc của từng phần, mỗi phần một câu:\n\n| Thành phần | Nó giữ việc gì |\n|---|---|\n| `SKILL.md` — phần đầu (frontmatter) | Tên skill và một dòng mô tả: skill này dùng khi nào |\n| `SKILL.md` — phần thân | Vai trò, bốn bước phải làm, chỗ phải dừng hỏi người dùng, và danh sách những gì skill không làm |\n| `references/manifest-format.md` | Đặc tả manifest: từng trường, bắt buộc hay không, giá trị mặc định, `pass`/`fail` đổi hình ra sao |\n| `references/ffmpeg-patterns.md` | Chi tiết mã hoá video và danh sách giọng đọc — tra khi muốn đổi cách dựng |\n| `references/dependencies.md` | Cần cài những gì, đường dẫn font, bảng lỗi → nguyên nhân → cách sửa |\n| `scripts/video-marker.sh` | Toàn bộ dây chuyền dựng video, chạy bằng một lệnh |\n| `templates/manifest.json` | Một manifest ba khung đã điền sẵn, để copy về sửa |\n\n### Vì sao lại chia như vậy\n\nCách chia này không tuỳ hứng. Nó theo **giá phải trả để đọc**, và đây là điều đáng học nhất từ skill này."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Luôn nằm sẵn",
+       "*mọi phiên làm việc đều gánh*"
+      ],
+      [
+       "`frontmatter`",
+       "Tên skill và một dòng mô tả tình huống — mặt kích hoạt, quyết định skill có được chọn hay không"
+      ],
+      [
+       "Đọc khi kích hoạt",
+       "*mỗi lần dùng skill đều gánh*"
+      ],
+      [
+       "`SKILL.md (phần thân)`",
+       "Quy trình theo thứ tự, chỗ phải dừng hỏi, và danh sách những gì skill không làm"
+      ],
+      [
+       "Đọc khi quy trình chỉ tới",
+       "*chỉ gánh khi thật sự cần*"
+      ],
+      [
+       "`manifest-format.md`",
+       "Đặc tả manifest: từng trường, bắt buộc hay không, mặc định, `pass`/`fail` đổi hình ra sao"
+      ],
+      [
+       "`ffmpeg-patterns.md`",
+       "Chi tiết mã hoá video và danh sách giọng đọc — tra khi muốn đổi cách dựng"
+      ],
+      [
+       "`dependencies.md`",
+       "Cần cài gì, font nằm đâu, bảng lỗi → nguyên nhân → cách sửa"
+      ],
+      [
+       "Không đọc — chạy hoặc copy",
+       "*gần như không gánh gì*"
+      ],
+      [
+       "`scripts/video-marker.sh`",
+       "Cả dây chuyền dựng video, gọi bằng đúng một dòng lệnh"
+      ],
+      [
+       "`templates/manifest.json`",
+       "Một manifest ba khung đã điền sẵn, để copy về sửa"
+      ]
+     ],
+     "sum": [
+      0,
+      2,
+      4,
+      8
+     ],
+     "note": "Bốn tầng, xếp theo **giá phải trả để đọc**. Càng lên trên càng bị gánh thường xuyên, nên càng phải ngắn. Đây là lý do chiều sâu bị đẩy xuống `references/` thay vì viết thẳng vào `SKILL.md`.",
+     "ascii": "LUÔN NẰM SẴN         frontmatter (tên + mô tả)\n                     -> mọi phiên làm việc đều gánh\n\nĐỌC KHI KÍCH HOẠT    SKILL.md phần thân\n                     -> mỗi lần dùng skill đều gánh\n\nĐỌC KHI CẦN          references/manifest-format.md\n                     references/ffmpeg-patterns.md\n                     references/dependencies.md\n                     -> chỉ gánh khi quy trình chỉ tới\n\nKHÔNG ĐỌC            scripts/video-marker.sh   (chạy)\n                     templates/manifest.json   (copy)\n                     -> gần như không gánh gì"
+    },
+    {
+     "type": "md",
+     "text": "**Frontmatter** là phần duy nhất lúc nào cũng nằm trong tầm mắt của agent, kể cả những phiên làm việc chẳng liên quan gì đến video. Nó là **mặt kích hoạt**: chính nó quyết định skill có được chọn hay không. Vì vậy nó được viết như một lời mô tả tình huống — \"sinh video demo từ các cặp (câu chữ, ảnh chụp)\" — chứ không phải một bản tóm tắt tính năng. Ở cuối phần thân còn một chỗ giữ sẵn để nhận nguyên văn câu bạn gõ khi gọi skill, nên skill hoạt động được cả khi bạn chỉ vào file manifest lẫn khi bạn chỉ mô tả bằng lời.\n\n**Phần thân `SKILL.md`** được đọc mỗi lần skill chạy. Mọi dòng trong đó đều tính tiền trên từng lần chạy, nên nó chỉ chứa *quy trình và phán đoán*: làm theo thứ tự nào, chỗ nào phải dừng lại hỏi, cái gì nằm ngoài phạm vi. Không có chi tiết kỹ thuật nào ở đây.\n\n**`references/`** chỉ được đọc khi quy trình chỉ tới. Chiều sâu nằm đây chính vì nó *không phải trả tiền mỗi lần*. Ví dụ rõ nhất là chi tiết mã hoá video: nó dài, nó chính xác, và trong hai mươi lần chạy thì có lẽ một lần cần tới — lúc ai đó muốn đổi chất lượng hay đổi cách xếp chữ. Đặt nó vào `SKILL.md` là bắt mười chín lần chạy kia trả tiền cho một lần. Cơ chế này có tên: **progressive disclosure** — chỉ mở ra phần đang cần.\n\n**`scripts/`** là phần việc được giao hẳn cho mã nguồn. Đây là quyết định đáng giá nhất trong cả skill, nên nói kỹ: dây chuyền dựng video là một chuỗi lệnh cố định, **không có chỗ nào cần phán đoán**. Viết nó ra thành luật bằng lời thì mỗi lần chạy agent lại phải dựng lại chuỗi lệnh đó từ đầu, và những khác biệt nhỏ sẽ len vào — một lần quên mất tham số định dạng điểm ảnh, thế là video ra màu xanh lá và không ai hiểu tại sao. Viết thành script thì nó chạy giống hệt nhau mọi lần, thử riêng được từng khúc, và gọi nó tốn đúng một dòng thay vì một trang chữ. Luật rút ra: **việc nào chỉ có một đáp án đúng thì giao cho mã; việc nào cần cân nhắc thì giữ lại bằng lời.**\n\n**`templates/`** là *vật liệu để copy*, không phải lời giải thích. Chỗ này hay bị lẫn với `references/`, nên so trực tiếp: `references/manifest-format.md` **giải thích** manifest — từng trường tên gì, bắt buộc không, mặc định là gì, `pass` làm hình đổi ra sao. `templates/manifest.json` **là** một manifest, đã điền ba khung, chạy được ngay. Bạn *đọc* cái thứ nhất, và *copy* cái thứ hai. Tách ra thì agent đưa cho bạn một file khởi đầu mà không cần đọc hết bản đặc tả, và tra được bản đặc tả mà không phải lội qua ví dụ.\n\nĐa số skill chỉ có mỗi `SKILL.md`. Skill này có đủ cả bốn phần, và đó là lý do nó đáng dùng làm mẫu: bạn nhìn thấy trọn vẹn sự phân công thay vì phải tưởng tượng ra."
+    }
+   ],
+   "toc_group": "PHẦN 2 — Skill này được xếp ra sao"
+  },
+  {
+   "id": "s4",
+   "no": "04",
+   "title": "Luồng chạy",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Có hai nửa rất khác nhau. Nửa đầu do agent làm, dựa trên lời viết trong `SKILL.md`, và ở đó có phán đoán. Nửa sau do script làm, và ở đó không có phán đoán nào cả.\n\n**Nửa của agent.**\n\n1. **Nhìn lại đã làm tới đâu.** Trước khi bắt đầu, agent xem lại cuộc hội thoại: manifest đã có rồi thì nhảy thẳng tới bước dựng; script đã chạy rồi thì chỉ báo cáo kết quả. Bước này có mặt để một lần chạy dở dang không bắt bạn làm lại từ đầu.\n2. **Chuẩn bị manifest.** Ba đường vào: bạn đưa sẵn đường dẫn file JSON, hoặc bạn mô tả bằng lời và agent viết file đó ra, hoặc bạn chỉ vào một thư mục ảnh kèm một file text và agent ghép lại thành manifest.\n3. **Dừng lại hỏi.** Agent phải đưa nội dung manifest cho bạn xem và chờ bạn xác nhận. Đây là một cái chốt cứng, không phải lời khuyên — sẽ nói thêm ở mục Guard.\n4. **Kiểm tra môi trường** rồi mới gọi script.\n\n**Nửa của script.** Một lệnh duy nhất, nhận đường dẫn manifest, rồi in ra bốn bước được đánh số."
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Kiểm tra công cụ",
+       "text": "**vào** danh sách bốn lệnh phải có trên máy · **ra** OK — hoặc tên **tất cả** cái đang thiếu, kèm lệnh cài"
+      },
+      {
+       "title": "Kiểm tra manifest",
+       "text": "**vào** file manifest · **ra** OK kèm số khung — hoặc từ chối chạy và chỉ ra chỗ sai"
+      },
+      {
+       "title": "Dựng từng khung · ↺ lặp mỗi khung",
+       "text": "**a** câu chữ → một file tiếng nói (`say`) · **b** ảnh + chữ → ảnh đã vẽ tiêu đề, phụ đề, viền (`magick`) · **c** ảnh đã vẽ + tiếng nói → một clip dài bằng đoạn tiếng (`ffmpeg`)"
+      },
+      {
+       "title": "Nối clip",
+       "text": "**vào** các clip theo đúng thứ tự trong manifest · **ra** file `.mp4` cuối cùng (`ffmpeg`) · **rồi** xoá thư mục tạm, in đường dẫn và dung lượng"
+      }
+     ],
+     "note": "Bốn bước script in ra, theo đúng thứ tự xảy ra. Chỉ bước 3 lặp lại — mỗi khung hình ba động tác, mỗi động tác giao cho một công cụ bên ngoài.",
+     "ascii": "[1/4] Kiểm tra công cụ\n      vào:  danh sách 4 lệnh cần có\n      ra:   OK, hoặc danh sách thiếu + lệnh cài\n\n[2/4] Kiểm tra manifest\n      vào:  file manifest\n      ra:   OK + số khung, hoặc từ chối chạy và chỉ chỗ sai\n\n[3/4] Dựng từng khung  (lặp cho mỗi khung)\n      a. câu chữ        -> file tiếng nói        (say)\n      b. ảnh + chữ      -> ảnh đã vẽ chữ/viền    (magick)\n      c. ảnh vẽ + tiếng -> một clip              (ffmpeg)\n\n[4/4] Nối clip\n      vào:  các clip theo thứ tự\n      ra:   file .mp4 cuối cùng                  (ffmpeg)\n      rồi:  xoá thư mục tạm, in đường dẫn + dung lượng"
+    },
+    {
+     "type": "md",
+     "text": "Bước 3 là chỗ duy nhất lặp lại. Với mỗi khung, ba động tác xảy ra đúng theo thứ tự đó, và mỗi động tác giao cho một công cụ bên ngoài. Điểm đáng chú ý: **độ dài của clip do chính đoạn tiếng nói quyết định** — ảnh được giữ nguyên cho tới khi câu đọc xong, nên không ai phải căn thời gian bằng tay.\n\nCuối cùng agent nhận lại những dòng script in ra, báo cho bạn đường dẫn với dung lượng, và gợi ý lệnh để mở file lên xem.\n\n### Bốn công cụ bên ngoài mà skill nhờ tới\n\nSkill không tự làm bốn việc này. Nó gọi bốn chương trình đã có sẵn trên máy, và đây là toàn bộ những gì cần biết về chúng trong phạm vi trang này:\n\n| Công cụ | Đưa vào | Nhận lại |\n|---|---|---|\n| `say` (lệnh sẵn có của macOS) | một câu chữ và tên một giọng đọc | một file âm thanh đọc câu đó |\n| `magick` (ImageMagick) | một ảnh, dòng chữ, màu viền | ảnh đó đã có chữ và viền vẽ lên |\n| `ffmpeg` | một ảnh tĩnh và một file âm thanh | một clip dài đúng bằng đoạn âm thanh |\n| `jq` | file JSON và tên trường cần lấy | giá trị của trường đó |\n\n`ffmpeg` được gọi lần thứ hai ở bước cuối: đưa vào danh sách clip theo thứ tự, nhận lại một file duy nhất.\n\nCòn **ảnh chụp màn hình thì đến từ đâu?** Từ chỗ khác — skill này nói thẳng là nó không chụp. Ảnh có thể do bạn bấm phím chụp màn hình, hoặc do một công cụ điều khiển trình duyệt như `agent-browser` chụp lại trong lúc nó tự thao tác trên trang web: đưa vào một địa chỉ và các thao tác cần làm, nhận lại các file `.png`. Với `video-marker`, ảnh đến bằng đường nào cũng như nhau — nó chỉ cần đường dẫn tới file."
+    }
+   ],
+   "toc_group": "PHẦN 3 — Nó chạy thế nào"
+  },
+  {
+   "id": "s5",
+   "no": "05",
+   "title": "Dữ liệu & trạng thái",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**Thứ bạn viết ra** là manifest. Đây là toàn bộ các trường của nó:\n\n| Trường | Bắt buộc | Mặc định | Nghĩa là gì |\n|---|---|---|---|\n| `output` | Không | `output.mp4` | Ghi video ra đâu |\n| `voice` | Không | `Samantha` | Giọng đọc nào |\n| `slides` | **Có** | — | Danh sách khung hình, theo đúng thứ tự sẽ phát |\n| `slides[].text` | **Có** | — | Câu sẽ được đọc lên — *và* in xuống mép dưới làm phụ đề |\n| `slides[].image` | **Có** | — | Đường dẫn tới ảnh của khung này |\n| `slides[].title` | Không | — | Dòng tiêu đề vẽ ở mép trên |\n| `slides[].status` | Không | — | `pass` hoặc `fail` — thêm viền màu và đổi màu tiêu đề |\n\nĐể ý trường `text`: nó làm hai việc cùng lúc. Một trường, nên lời đọc và phụ đề **không thể lệch nhau**. Đây là một lựa chọn thiết kế, không phải sự tiện tay — sẽ nói lại ở mục Đặc trưng.\n\n**Thứ sinh ra giữa chừng** nằm hết trong một thư mục tạm, được tạo mới cho mỗi lần chạy trong khu vực file tạm của hệ thống. Bên trong nó, mỗi khung để lại hai file mang số thứ tự của khung: một file âm thanh và một clip. Ảnh đã vẽ chữ được ghi cạnh clip và **xoá ngay khi clip có rồi** — nó chỉ sống vài giây. Bước nối clip cũng cần một file danh sách nhỏ, và cũng tự xoá sau khi dùng xong.\n\n**Ai dọn:** chính script, ở cuối đường chạy bình thường và ở cả hai nhánh lỗi mà nó tự bắt. Xong một lần chạy, thứ duy nhất còn lại là file `.mp4` bạn đã yêu cầu.\n\n**Giữa hai lần chạy thì không có gì được nhớ.** Không cache, không file trạng thái, không biến môi trường nào. Chạy lại cùng một manifest sẽ cho ra cùng một video. Đây chính là thứ làm cho \"sửa một câu rồi dựng lại\" trở nên rẻ."
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "no": "06",
+   "title": "Đầu–cuối",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Theo trọn một lần chạy. Ba khung hình, kiểm tra màn hình đăng ký.\n\nBạn đã có ba ảnh trong thư mục `shots/`. Bạn viết file `demo.json`:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "{\n  \"output\": \"demo/signup.mp4\",\n  \"voice\": \"Samantha\",\n  \"slides\": [\n    {\n      \"title\": \"1. Empty form\",\n      \"text\": \"The sign up page loads with every field empty.\",\n      \"image\": \"shots/01_empty.png\",\n      \"status\": \"pass\"\n    },\n    {\n      \"title\": \"2. Invalid email\",\n      \"text\": \"Typing an address without an at sign shows an inline error under the field.\",\n      \"image\": \"shots/02_invalid.png\",\n      \"status\": \"pass\"\n    },\n    {\n      \"title\": \"3. Duplicate email — BUG\",\n      \"text\": \"Submitting an address that already exists returns a server error instead of a friendly message.\",\n      \"image\": \"shots/03_duplicate.png\",\n      \"status\": \"fail\"\n    }\n  ]\n}"
+    },
+    {
+     "type": "md",
+     "text": "*(Lời đọc viết bằng tiếng Anh vì giọng đọc là giọng hệ thống — xem mục Đặc trưng.)*\n\nBạn gọi skill và chỉ vào file đó. Agent đọc manifest, đọc lại ba câu cho bạn duyệt, bạn gật, rồi nó chạy script. Terminal in ra:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "=== Video Marker Pipeline ===\n\n[1/4] Checking dependencies...\nOK: All dependencies available (ffmpeg, say, jq, magick)\n[2/4] Validating manifest...\nOK: Manifest valid — 3 slide(s)\n[3/4] Generating clips...\n  Slide 1/3: [pass] The sign up page loads with every field ...\n  Slide 2/3: [pass] Typing an address without an at sign show...\n  Slide 3/3: [fail] Submitting an address that already exists...\n[4/4] Concatenating 3 clip(s)...\nOK: Final video — demo/signup.mp4\n\n=== Done ===\nOutput: demo/signup.mp4\nSize:   2 MB\nSlides: 3/3 successful\n\nPlay with: open demo/signup.mp4"
+    },
+    {
+     "type": "md",
+     "text": "Mở `demo/signup.mp4` ra thì thấy: khung một là ảnh form trống, **viền xanh**, tiêu đề xanh ở trên, câu tiếng Anh in vàng ở dưới, và một giọng nữ đọc đúng câu đó — khung đứng yên cho tới khi đọc xong. Khung hai tương tự. Khung ba **viền đỏ**, tiêu đề đỏ, và vì câu dài hơn nên nó ở lâu hơn, phụ đề tự xuống dòng thành hai dòng.\n\nSang tuần thông báo lỗi được sửa. Bạn đổi đúng một câu trong `demo.json`, đổi `fail` thành `pass`, chạy lại. Hai khung đầu ra giống hệt lần trước. Bạn không phải mở micro lần nào."
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "no": "07",
+   "title": "Hook",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Skill này **không gắn vào hook nào**. Không có sự kiện nào của Claude Code tự động kích hoạt nó; nó chỉ chạy khi có người gọi tên nó, hoặc khi một skill khác trong cùng dự án đi tới bước \"giờ cần một video demo\" và chuyển việc sang.\n\nThứ duy nhất nó để lại trong phần cài đặt của dự án là danh sách lệnh được cho phép chạy sẵn — để lần chạy không bị ngắt giữa chừng bởi một câu hỏi xin phép. Đó là quyền, không phải hook."
+    }
+   ],
+   "toc_group": "PHẦN 4 — Cái gì giữ cho nó không sai, và nó khác thường ở đâu"
+  },
+  {
+   "id": "s8",
+   "no": "08",
+   "title": "Guard",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Một dây chuyền dựng video có đặc điểm khó chịu: nó **tốn thời gian trước khi lộ ra là sai**. Bạn phát hiện tên file gõ nhầm ở khung thứ bảy sau khi đã ngồi chờ sáu khung. Gần như mọi chốt chặn trong skill này tồn tại để kéo cái sai lên sớm nhất có thể."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Dừng ngay ở lệnh lỗi",
+       "Video thiếu khung mà vẫn in ra dòng báo thành công"
+      ],
+      [
+       "Kiểm đủ bốn công cụ trước",
+       "Chết giữa dây chuyền bằng một lỗi không ai đọc nổi"
+      ],
+      [
+       "Soát manifest trước khi dựng",
+       "Bắt đầu dựng rồi mới chết ở giữa vì manifest sai"
+      ],
+      [
+       "Ảnh phải có thật trên đĩa",
+       "Chờ hết sáu khung mới biết khung bảy gõ sai tên file"
+      ],
+      [
+       "Chốt hỏi người trước khi dựng",
+       "Dựng xong mới phát hiện lời thuyết minh không phải cái mình muốn"
+      ],
+      [
+       "Ép kích thước ảnh về số chẵn",
+       "Một ảnh hoàn toàn bình thường làm đổ cả lần chạy"
+      ],
+      [
+       "Clip phải có và khác rỗng",
+       "Một file 0 byte lọt tiếp sang bước nối"
+      ],
+      [
+       "Vẽ chữ hỏng thì bỏ chữ",
+       "Mất cả khung hình chỉ vì mất một dòng tiêu đề"
+      ],
+      [
+       "Không clip nào thì dừng hẳn",
+       "Sinh ra một file mở lên chẳng có gì, mà vẫn báo xong"
+      ]
+     ],
+     "note": "Mỗi chốt chặn kèm chuyện xảy ra khi thiếu nó. Điểm chung: tất cả đều kéo cái sai lộ ra **sớm hơn**, vì dây chuyền này tốn thời gian trước khi kịp báo là hỏng.",
+     "ascii": "CHỐT                         THIẾU NÓ THÌ SAO\n------------------------------------------------------------\nDừng ngay ở lệnh lỗi         video thiếu khung mà vẫn báo xong\nKiểm tra đủ 4 công cụ        chết giữa chừng bằng lỗi khó đọc\nSoát manifest trước khi dựng chạy nửa đường mới biết manifest sai\nẢnh phải có thật trên đĩa    chờ hết sáu khung mới biết sai tên\nChốt hỏi người trước khi dựng dựng xong mới biết lời sai\nÉp kích thước chẵn           ảnh hợp lệ nhưng không mã hoá nổi\nClip phải có và khác rỗng    file 0 byte đi tiếp vào bước nối\nVẽ chữ hỏng thì bỏ chữ       mất cả khung chỉ vì mất cái tiêu đề\nKhông clip nào thì dừng      ra một file rỗng, tưởng là thành công"
+    },
+    {
+     "type": "md",
+     "text": "Nói rõ từng cái:\n\n**Dừng ngay ở lệnh lỗi.** Dòng đầu của script bật chế độ dừng lập tức khi có lệnh nào thất bại, và coi việc dùng một biến chưa gán là lỗi chứ không phải chuỗi rỗng. Không có nó, một bước đọc chữ thất bại sẽ để lại file âm thanh trống, bước sau vẫn chạy tiếp, và bạn nhận một video thiếu khung kèm dòng chữ báo thành công. Biến chưa gán mà bị coi là chuỗi rỗng còn tệ hơn: nó lặng lẽ biến thành một đường dẫn sai.\n\n**Kiểm tra đủ bốn công cụ, ngay từ đầu.** Script kiểm cả bốn cùng lúc rồi in ra tên *tất cả* những cái thiếu kèm luôn lệnh cài. Không có chốt này, thiếu công cụ chỉ lộ ra khi chạy tới chỗ cần nó — ở giữa dây chuyền, dưới dạng một thông báo lỗi mà người không rành sẽ không hiểu.\n\n**Soát manifest trước khi động tới khung nào.** Nó kiểm năm thứ: JSON có hợp lệ không, có ít nhất một khung không, mỗi khung có câu chữ không, có ảnh không, và **file ảnh có thật trên đĩa không**. Sai bất cứ điều nào thì script từ chối chạy và nói ra chỗ sai, thay vì bắt đầu dựng rồi chết ở giữa. Chỗ đáng giá nhất là dòng kiểm file ảnh: sai tên file là lỗi phổ biến nhất khi viết manifest bằng tay, và nếu không kiểm trước thì nó chỉ lộ ra khi dây chuyền chạy tới đúng khung đó.\n\n**Chốt hỏi người trước khi dựng.** Trong quy trình có một chỗ ghi rõ là phải đưa manifest cho người dùng xem và chờ xác nhận. Chốt này không nằm trong script mà nằm trong lời — vì đây là chỗ duy nhất cần một con người đọc và gật. Thiếu nó thì thời gian dựng bị tiêu cho một kịch bản mà chỉ tới lúc xem lại bạn mới nhận ra là không phải cái mình muốn.\n\n**Ép kích thước chẵn.** Ảnh chụp màn hình có chiều rộng hoặc cao lẻ là chuyện thường, và định dạng video được dùng ở đây không nhận kích thước lẻ. Script tự làm tròn xuống số chẵn trước khi mã hoá. Không có nó thì một ảnh hoàn toàn bình thường làm cả lần chạy đổ, bằng một lỗi chẳng liên quan gì tới ảnh.\n\n**Clip phải tồn tại và khác rỗng.** Công cụ mã hoá có thể thoát ra êm đẹp mà chẳng ghi được gì. Script kiểm cả hai điều kiện sau mỗi khung, nên một file rỗng bị chặn ngay chỗ nó sinh ra thay vì đi tiếp vào bước nối.\n\n**Vẽ chữ hỏng thì bỏ chữ, đừng bỏ khung.** Nếu bước vẽ tiêu đề và phụ đề thất bại — thường là vì font — script vẫn dựng clip từ ảnh gốc. Đây là một lựa chọn có chủ ý: **mất một dòng chữ nhẹ hơn mất cả một khung hình**.\n\n**Không clip nào thì dừng hẳn.** Nếu tất cả các khung đều hỏng, script dọn thư mục tạm rồi báo lỗi, thay vì đưa danh sách rỗng sang bước nối và sinh ra một file mà mở lên không có gì."
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "no": "09",
+   "title": "Đặc trưng",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Những quyết định đáng mang đi chỗ khác — và cái giá của từng cái.\n\n**Lắp thay vì quay.** Đây là quyết định gốc, mọi thứ còn lại là hệ quả. *Đánh đổi:* không có gì chuyển động được — không con trỏ, không cuộn trang, không chuyển cảnh. *Được lại:* dựng lại không tốn gì, và hai lần dựng cho ra hai file giống nhau.\n\n**Một trường gánh cả lời đọc lẫn phụ đề.** *Đánh đổi:* bạn không thể viết phụ đề khác với lời nói — chẳng hạn không rút gọn phụ đề cho dễ đọc được. *Được lại:* hai thứ đó vĩnh viễn không lệch nhau, mà lệch phụ đề là lỗi rất hay gặp và rất khó thấy.\n\n**Chữ được vẽ vào ảnh trước, rồi mới mã hoá.** Cách hiển nhiên hơn là để bộ mã hoá video tự vẽ chữ lên khung hình. Skill này không làm vậy: nó dùng một công cụ xử lý ảnh vẽ chữ lên trước. *Đánh đổi:* thêm một chương trình phải cài. *Được lại:* tự xuống dòng và viền chữ làm dễ hơn hẳn, và bộ mã hoá video không cần bản cài có sẵn thư viện font — một nguồn lỗi kinh điển bị loại bỏ hoàn toàn.\n\n**Nối clip bằng cách chép, không mã hoá lại.** *Đánh đổi:* mọi clip phải cùng định dạng và cùng kích thước, nghĩa là ảnh của bạn nên chụp cùng một cỡ. *Được lại:* bước cuối gần như tức thì và không mất chất lượng.\n\n**Từng mảnh chạy riêng được.** Script cho phép gọi thẳng một hàm bên trong nó thay vì chạy cả dây chuyền. *Đánh đổi:* cách gọi hơi lạ so với một script thông thường. *Được lại:* bạn thử được riêng bước vẽ chữ trên đúng một ảnh, xem kết quả, chỉnh, mà không phải dựng cả video.\n\n**Giới hạn được nói thẳng, ngay trong skill.** Và đây là chỗ cần đọc kỹ trước khi bạn định dùng:\n\n- **Chỉ chạy trên macOS.** Giọng đọc lấy từ một lệnh sẵn có của hệ điều hành này, không có trên Linux hay Windows. Không có lớp thay thế, không gọi dịch vụ đọc trên mạng. Trên máy khác, skill không chạy được — không phải chạy kém, mà là không chạy.\n- **Không có tiếng Việt.** Giọng đọc mặc định là giọng tiếng Anh của hệ thống, và cả bộ tài liệu đi kèm chỉ liệt kê các giọng tiếng Anh. Lời thuyết minh phải viết bằng tiếng Anh. Bạn vẫn dùng được nếu chấp nhận thuyết minh tiếng Anh; còn nếu bắt buộc phải có tiếng Việt thì đây không phải công cụ của bạn.\n- **Nó không chụp ảnh hộ bạn.** Ảnh là đầu vào, phải có trước.\n- **Không hậu kỳ.** Ngoài tiêu đề, phụ đề và viền màu thì không còn gì khác.\n\nDanh sách này dài đúng năm dòng trong skill, và nó dập tắt trước mọi cuộc tranh luận về việc \"sao không thêm hiệu ứng\". Đó là lý do nên viết nó ra."
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "no": "10",
+   "title": "Tự dựng skill của bạn",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bạn vừa xem một skill được thiết kế. Những quyết định mà tác giả của nó phải chọn cũng chính là những quyết định đang chờ bạn.\n\n**Quyết định 1 — Viết dòng mô tả như một tình huống, không phải một bản tóm tắt.** Dòng mô tả trong frontmatter là phần duy nhất lúc nào cũng nằm trong tầm mắt, và nó là thứ quyết định skill có được gọi hay không. Mô tả của skill này nói rõ *đầu vào có hình dạng gì* và *ra cái gì*. Cách viết đó làm nó bật lên đúng lúc có ai đó cầm một đống ảnh chụp, và im lặng khi người ta đang nói chuyện dựng phim. Một dòng kiểu \"công cụ xử lý video\" thì vừa bật sai lúc vừa không bật đúng lúc.\n\n**Quyết định 2 — Mỗi mẩu kiến thức đặt vào đâu.** Bạn sẽ gặp câu hỏi này liên tục, và nó luôn là câu hỏi về *giá phải trả để đọc*:"
+    },
+    {
+     "type": "figure",
+     "svg": "<svg viewBox=\"0 0 980 286\" role=\"img\" aria-labelledby=\"fig-where-t\"><title id=\"fig-where-t\">Một mẩu kiến thức mới — đặt vào đâu?</title>\n<defs><marker id=\"fig-where-ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 10 5 0 10z\" fill=\"var(--ink-3)\"/></marker></defs>\n<rect class=\"n-box\" x=\"20\" y=\"89\" width=\"230\" height=\"56\" rx=\"10\"/>\n<text class=\"t t-b\" x=\"135\" y=\"114\" text-anchor=\"middle\">Một mẩu kiến thức mới — đặt</text><text class=\"t t-b\" x=\"135\" y=\"131\" text-anchor=\"middle\">vào đâu?</text>\n<path class=\"w\" d=\"M250 117 C 280 117, 260 41, 288 41\" marker-end=\"url(#fig-where-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"20\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"46\">frontmatter</text>\n<text class=\"t-s\" x=\"508\" y=\"45.0\">Chỉ khi nó giúp quyết định có dùng skill này hay không</text>\n<path class=\"w\" d=\"M250 117 C 280 117, 260 93, 288 93\" marker-end=\"url(#fig-where-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"72\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"98\">SKILL.md (thân)</text>\n<text class=\"t-s\" x=\"508\" y=\"97.0\">Chỉ khi lần chạy nào cũng cần tới</text>\n<path class=\"w\" d=\"M250 117 C 280 117, 260 145, 288 145\" marker-end=\"url(#fig-where-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"124\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"150\">references/</text>\n<text class=\"t-s\" x=\"508\" y=\"149.0\">Khi thỉnh thoảng mới cần — nhưng cần thì phải chính xác</text>\n<path class=\"w\" d=\"M250 117 C 280 117, 260 197, 288 197\" marker-end=\"url(#fig-where-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"176\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"202\">scripts/ · templates/</text>\n<text class=\"t-s\" x=\"508\" y=\"201.0\">Khi nó là việc để chạy, hoặc vật liệu để copy</text>\n<path class=\"w-dash\" d=\"M250 117 C 280 117, 260 252, 288 252\" marker-end=\"url(#fig-where-ah)\"/>\n<rect class=\"n-bad\" x=\"290\" y=\"234\" width=\"680\" height=\"36\" rx=\"8\" stroke-dasharray=\"5 4\"/>\n<text class=\"t t-b t-bad\" x=\"302\" y=\"257\">Không rơi vào ô nào → đó là kiến thức của dự án, không phải của skill</text>\n</svg>",
+     "caption": "Câu hỏi bạn sẽ gặp lại liên tục khi dựng skill của mình. Nó luôn là câu hỏi về **giá phải trả để đọc**, không phải về chủ đề.",
+     "ascii": "Một mẩu kiến thức mới — đặt vào đâu?\n\nfrontmatter        <- chỉ khi nó giúp quyết định CÓ DÙNG skill này không\nSKILL.md phần thân <- chỉ khi lần chạy NÀO cũng cần tới\nreferences/        <- khi thỉnh thoảng mới cần, nhưng cần thì cần chính xác\nscripts/ templates/<- khi nó là việc để chạy hoặc vật liệu để copy\n\nKhông rơi vào ô nào -> nó là kiến thức của dự án, không phải của skill"
+    },
+    {
+     "type": "md",
+     "text": "**Quyết định 3 — Khi nào viết script thay vì viết thêm luật.** Phép thử một câu: *hai lần chạy cẩn thận có thể làm việc này theo hai cách khác nhau không?* Nếu **không** — chỉ có một đáp án đúng — thì đó là việc của mã nguồn. Nếu **có** — cần cân nhắc, cần nhìn ngữ cảnh — thì giữ lại bằng lời. Dây chuyền dựng video rơi hẳn vào vế đầu. Việc quyết định câu nào đi với ảnh nào rơi hẳn vào vế sau, và đúng là nó được để lại bằng lời.\n\n**Quyết định 4 — Đặt chốt hỏi ở chỗ quay lại thì đắt.** Không phải bước nào cũng cần hỏi. Hỏi ở đúng chỗ mà làm sai sẽ tốn của người dùng nhiều thời gian nhất — ở đây là ngay trước khi dựng.\n\n**Quyết định 5 — Viết ra những gì skill không làm.** Danh sách giới hạn tốn năm dòng và tiết kiệm cho bạn mọi lần phải giải thích lại. Nó cũng giúp agent biết lúc nào nên từ chối thay vì cố làm bừa.\n\n**Quyết định 6 — Cho người ta một file để copy, đừng chỉ cho bản đặc tả.** Một ví dụ chạy được đưa người mới tới kết quả đầu tiên nhanh hơn bất kỳ bảng mô tả trường nào.\n\n**Quyết định 7 — Làm cho từng mảnh chạy riêng được.** Thứ thử riêng được sẽ được sửa; thứ chỉ chạy được trọn gói sẽ bị đoán mò.\n\n### Bắt đầu thế nào\n\nTạo một thư mục mang tên skill, đặt trong `.claude/skills/` của dự án. Trong đó viết đúng một file `SKILL.md`: phần đầu ghi tên và một dòng mô tả tình huống, phần thân ghi quy trình bạn thực sự làm, theo thứ tự, bằng lời thường. Chỉ thế thôi — chưa cần thư mục nào khác.\n\nRồi dùng nó vài lần thật. Hai chuyện sẽ xảy ra, và mỗi chuyện chỉ cho bạn một thư mục cần tạo:\n\n- Bạn thấy mình lặp lại đúng một chuỗi lệnh, không sai một chữ → chuyển nó vào `scripts/`.\n- Bạn thấy mình đang mang theo một mớ chi tiết mà mười lần chạy chỉ dùng một → chuyển nó vào `references/` và để lại trong `SKILL.md` một dòng chỉ đường.\n\nVà khi có ai đó hỏi \"cho tôi xin cái ví dụ\" lần thứ hai → đó là lúc `templates/` ra đời.\n\nBốn phần của skill không phải thứ để thiết kế trước. Chúng là thứ **mọc ra** từ chỗ đau, và lý do `video-marker` đáng đọc là vì nó mọc đủ cả bốn."
+    }
+   ],
+   "toc_group": "PHẦN 5 — Đến lượt bạn"
+  },
+  {
+   "id": "s11",
+   "no": "11",
+   "title": "Glossary",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "| Từ | Nghĩa |\n|---|---|\n| `agent-browser` | Một công cụ riêng, điều khiển trình duyệt tự thao tác trên trang web: đưa vào địa chỉ và các thao tác, nhận lại ảnh chụp màn hình. Một trong những nguồn ảnh đầu vào cho `video-marker`. |\n| AIFF | Định dạng file âm thanh mà lệnh đọc chữ của macOS xuất ra. Chỉ tồn tại trong lúc chạy, không còn lại sau đó. |\n| `ffmpeg` | Chương trình xử lý video dòng lệnh. Ở đây được nhờ hai việc: ghép một ảnh với một đoạn tiếng thành clip, và nối các clip thành một file. |\n| frontmatter | Phần đầu file `SKILL.md`, gồm tên skill và dòng mô tả. Là phần duy nhất luôn nằm trong tầm mắt của agent, nên nó quyết định skill có được chọn hay không. |\n| guard | Một chốt chặn đặt sẵn để cái sai lộ ra sớm, thay vì lộ ra sau khi đã tốn thời gian. |\n| H.264 | Định dạng nén video được dùng cho file kết quả. Chọn nó vì gần như mọi trình phát đều mở được. |\n| hook | Cơ chế của Claude Code cho phép một việc tự chạy khi có sự kiện nào đó xảy ra. `video-marker` không dùng cái nào. |\n| ImageMagick / `magick` | Chương trình xử lý ảnh dòng lệnh. Ở đây được nhờ vẽ tiêu đề, phụ đề và viền màu lên ảnh chụp trước khi mã hoá. |\n| `jq` | Chương trình đọc JSON trên dòng lệnh: đưa vào file JSON và tên trường, nhận lại giá trị. Script dùng nó để lấy từng trường trong manifest. |\n| khung hình (slide) | Một mục trong manifest: một ảnh cộng một câu nói đè lên. Trong video, nó thành một đoạn đứng yên. |\n| manifest | File JSON mô tả toàn bộ video: ghi ra đâu, giọng nào, và danh sách khung hình theo thứ tự. Đây là thứ duy nhất bạn thực sự viết ra. |\n| progressive disclosure | Cách sắp xếp sao cho chỉ phần đang cần mới được đọc. Trong một skill, nó là lý do chiều sâu nằm ở `references/` chứ không nằm trong `SKILL.md`. |\n| `say` | Lệnh đọc chữ thành tiếng có sẵn trên macOS: đưa vào một câu và tên giọng, nhận lại một file âm thanh. Đây là lý do skill chỉ chạy trên macOS. |\n| `SKILL.md` | File mô tả một skill: phần đầu là frontmatter, phần thân là quy trình. Đây là file duy nhất bắt buộc phải có. |\n| skill | Một thư mục chứa hướng dẫn (và có thể cả script, tài liệu, mẫu) dạy agent cách làm một loại việc cụ thể. |\n| status (`pass` / `fail`) | Nhãn tuỳ chọn của một khung hình. `pass` cho viền xanh, `fail` cho viền đỏ, và tiêu đề đổi theo màu đó. |\n| TTS | Text-to-speech — đọc chữ thành tiếng. Ở đây do lệnh sẵn có của macOS đảm nhiệm, không gọi dịch vụ trên mạng. |"
+    }
+   ],
+   "toc_group": "PHẦN 6 — Tra cứu"
+  }
+ ],
+ "footer": "Trang này mô tả `video-marker` như một ví dụ về cách một skill được thiết kế. Phần đáng mang đi không phải là dây chuyền dựng video, mà là cách công việc được chia ra: cái gì phải nằm sẵn, cái gì đọc khi chạy, cái gì đọc khi cần, cái gì giao hẳn cho mã.\\\nTên các chương trình bên ngoài xuất hiện ở đây chỉ với đúng một việc: nói rõ skill đưa gì vào và nhận gì ra. Cách dùng chúng là chuyện của tài liệu khác.\\\nBấm **Markdown** ở thanh trên để lấy toàn bộ trang này dưới dạng văn bản thuần."
+}

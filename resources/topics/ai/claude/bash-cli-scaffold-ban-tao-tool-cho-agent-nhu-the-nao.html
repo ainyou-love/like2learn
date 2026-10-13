@@ -2,308 +2,1227 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI</title>
 <meta name="description" content="Hai skill Claude Code dựng và nuôi lớn công cụ dòng lệnh bằng bash: cấu trúc thư mục, luồng chạy, và công thức để tự dựng skill của bạn.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
-<style>/* Palette. Two families with clearly different jobs: a serif carries the
-   argument, a monospace carries anything the machine would print --
-   filenames, flags, JSON. On a page about shell tools that pairing is the
-   subject, not decoration.
-
-   Three role colours, and they mean exactly one thing each:
-     --front  paid for on every turn / runs directly
-     --ref    read only on demand / only ever sourced
-     --tpl    material you copy and commit
-   Anything absent by design or generated per machine is drawn faint and
-   dashed instead of coloured, so nothing depends on colour alone. */
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
 :root{
-  --ground:#F2F3F1; --surface:#FFFFFF; --panel:#E8EAE6; --line:#D1D6CE; --line-soft:#E1E4DE;
-  --ink:#15181A; --muted:#565B58; --faint:#848A86;
-  --trace:#1F5E4E; --trace-soft:#DEEAE5;
-  --front:#96560F; --ref:#2A5C79; --tpl:#1F5E4E;
-  --est:#1F5E4E;  --hyp:#96560F;  --unv:#565B58;  --asm:#6B4A83;
-  --alarm:#8E3024; --alarm-soft:#F6E4E1;
-  --serif:"Source Serif 4","Iowan Old Style",Georgia,serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --bg:#f5f2ea; --bg-2:#ede8dc; --surface:#fffdf8; --surface-2:#f8f4ea; --line:#d9d1bf; --line-2:#e7e0d0;
+  --ink:#1c1f24; --ink-2:#4a4f57; --ink-3:#7a7f87;
+  --accent:#0d6e66; --accent-ink:#ffffff; --accent-soft:#d6ece8;
+  --ok:#1f7a3a; --ok-soft:#dcefe0; --warn:#a85a07; --warn-soft:#f6e6cf; --bad:#b0281c; --bad-soft:#f7dcd8; --info:#2c5d8f; --info-soft:#dbe6f1;
+  --code-bg:#f1ece0; --shadow:0 1px 0 rgba(28,31,36,.04),0 8px 24px -16px rgba(28,31,36,.25);
+  --grain:.035;
+  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --side:272px; --head:60px;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --ground:#101311; --surface:#181C19; --panel:#1F2420; --line:#2E3430; --line-soft:#242A26;
-  --ink:#E6E9E4; --muted:#9BA29C; --faint:#7B827C;
-  --trace:#6FBFA2; --trace-soft:#142622;
-  --front:#DFA45E; --ref:#79B4D4; --tpl:#6FBFA2;
-  --est:#6FBFA2;  --hyp:#DFA45E;  --unv:#9BA29C;  --asm:#BC9AD4;
-  --alarm:#E28C80; --alarm-soft:#2A1A17;
-}}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+    --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+    --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+    --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+    --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
+  }
+}
 :root[data-theme="dark"]{
-  --ground:#101311; --surface:#181C19; --panel:#1F2420; --line:#2E3430; --line-soft:#242A26;
-  --ink:#E6E9E4; --muted:#9BA29C; --faint:#7B827C;
-  --trace:#6FBFA2; --trace-soft:#142622;
-  --front:#DFA45E; --ref:#79B4D4; --tpl:#6FBFA2;
-  --est:#6FBFA2;  --hyp:#DFA45E;  --unv:#9BA29C;  --asm:#BC9AD4;
-  --alarm:#E28C80; --alarm-soft:#2A1A17;
+  --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
+  --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
+  --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
+  --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
+  --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
 }
+
+/* ---------- base ---------- */
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
-  font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
-[hidden]{display:none !important}
-:focus-visible{outline:2px solid var(--trace);outline-offset:3px;border-radius:2px}
-@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto}}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--head) + 16px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--f-body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:var(--accent);text-underline-offset:3px}
+code,pre,kbd{font-family:var(--f-mono)}
+code{font-size:.86em;background:var(--code-bg);border:1px solid var(--line-2);padding:.05em .35em;border-radius:5px;overflow-wrap:anywhere}
+pre code{background:none;border:0;padding:0;font-size:inherit;border-radius:0;overflow-wrap:normal}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;line-height:1.15;margin:0}
+h2{font-size:clamp(1.45rem,1.1rem + 1.4vw,2rem)}
+h1 code,h2 code{font-size:.62em;vertical-align:.18em;font-weight:500}
+h3{font-size:1.12rem;font-family:var(--f-body);font-weight:600;letter-spacing:0;margin:1.6rem 0 .6rem}
+p{margin:.6rem 0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-/* ── top bar ─────────────────────────────────────────────── */
-.bar{position:sticky;top:0;z-index:40;background:var(--ground);
-  border-bottom:1px solid var(--line);
-  padding:9px 18px;padding-top:calc(9px + env(safe-area-inset-top,0px));
-  display:flex;gap:10px;align-items:center}
-.bar .sp{flex:1}
-button{font-family:var(--mono);font-size:12px;letter-spacing:.03em;cursor:pointer;
-  border:1px solid var(--line);background:var(--surface);color:var(--muted);
-  border-radius:3px;padding:7px 12px;transition:color .12s,border-color .12s}
-button:hover{color:var(--ink);border-color:var(--trace)}
-button[aria-pressed="true"]{color:var(--ground);background:var(--trace);border-color:var(--trace)}
-#navbtn{display:inline-flex}
-@media (min-width:1180px){#navbtn{display:none}}
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:30;height:var(--head);display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3);white-space:nowrap}
+.icon-btn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;flex:none}
+.icon-btn:hover{border-color:var(--accent)}
+.icon-btn svg{width:20px;height:20px}
+.tabs{display:flex;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--surface);flex:none}
+.tab{border:0;background:none;padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:500;font-size:.88rem;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab svg{width:15px;height:15px}
+.theme-sun,.theme-moon{display:none}
+:root[data-theme="dark"] .theme-sun,:root[data-theme="light"] .theme-moon{display:block}
 
-/* ── drawer ──────────────────────────────────────────────── */
-#nav{position:fixed;z-index:50;top:0;left:0;width:290px;height:100dvh;overflow-y:auto;
-  background:var(--surface);border-right:1px solid var(--line);
-  padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));
-  transform:translateX(-100%);transition:transform .2s}
-#nav.open{transform:none}
-#scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.42)}
-@media (min-width:1180px){
-  #nav{transform:none;border-right:1px solid var(--line-soft);background:transparent}
-  #scrim{display:none}
-  body{padding-left:290px}
-  .bar{padding-left:26px}
+/* ---------- layout ---------- */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--side) minmax(0,1fr);transition:grid-template-columns .25s ease}
+body[data-menu="closed"] .shell{grid-template-columns:0 minmax(0,1fr)}
+.side{position:sticky;top:var(--head);height:calc(100dvh - var(--head));overflow:auto;border-right:1px solid var(--line);background:var(--bg-2);padding:20px 14px 40px}
+body[data-menu="closed"] .side{visibility:hidden;padding:0;border:0}
+.side h4{font:600 .7rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:6px 8px 10px}
+.toc{list-style:none;margin:0;padding:0;counter-reset:none}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;line-height:1.3}
+.toc a span{font:500 .72rem var(--f-mono);color:var(--ink-3);min-width:1.6em}
+.toc a:hover{background:var(--surface)}
+.toc a[aria-current="true"]{background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.toc a[aria-current="true"] span{color:var(--accent)}
+.side .ext{margin:18px 8px 0;padding:12px;border:1px dashed var(--line);border-radius:10px;font-size:.82rem;color:var(--ink-2)}
+.scrim{display:none}
+main{min-width:0;padding:0 16px 80px}
+.wrap{max-width:1060px;margin:0 auto}
+.panel[hidden]{display:none}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)!important}
+  .side{position:fixed;left:0;top:var(--head);bottom:0;height:auto;width:min(86vw,320px);z-index:40;transform:translateX(-102%);transition:transform .25s ease;visibility:visible!important;padding:20px 14px 40px!important;border-right:1px solid var(--line)!important;box-shadow:var(--shadow)}
+  body[data-menu="open"] .side{transform:none}
+  body[data-menu="open"] .scrim{display:block;position:fixed;inset:var(--head) 0 0 0;background:rgba(0,0,0,.35);z-index:35}
+  .brand small{display:none}
+  .tab .lbl{display:none}
+  .tab{padding:7px 10px}
 }
-#nav .navhead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--faint);margin:0 0 12px;padding-left:11px}
-#toc a{display:block;text-decoration:none;color:var(--muted);font-size:13.5px;line-height:1.42;
-  padding:6px 0 6px 11px;border-left:2px solid var(--line-soft)}
-#toc a:hover{color:var(--ink);border-left-color:var(--trace)}
-#toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--faint)}
-#toc a.on{color:var(--ink);border-left-color:var(--trace);font-weight:600}
-#toc a.part{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--ink);margin-top:16px;border-left-color:var(--trace)}
-#toc a.part:first-child{margin-top:0}
 
-/* ── page ────────────────────────────────────────────────── */
-.wrap{max-width:820px;margin:0 auto;padding:0 20px 90px}
-.hero{padding:52px 0 26px;border-bottom:1px solid var(--line)}
-.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;
-  color:var(--trace);margin:0 0 16px}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.1;
-  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance}
-.lede p{font-size:clamp(17px,2.2vw,19.5px);color:var(--muted);margin:0 0 13px;max-width:64ch}
-h2,h3,h4{scroll-margin-top:78px}
-h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,4vw,31px);line-height:1.2;
-  letter-spacing:-.012em;margin:54px 0 18px;text-wrap:balance}
-h2 .eyebrow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--trace);font-weight:400;margin-bottom:11px;letter-spacing:.16em}
-h3{font-family:var(--serif);font-weight:600;font-size:20.5px;margin:38px 0 12px}
-h4{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
-p{margin:0 0 17px;max-width:66ch}
-ul,ol{margin:0 0 18px;padding-left:22px;max-width:66ch}
-li{margin-bottom:8px}
-li::marker{color:var(--trace)}
-strong{font-weight:600}
-blockquote{margin:0 0 20px;padding:2px 0 2px 18px;border-left:2px solid var(--trace);
-  color:var(--muted);max-width:64ch}
-blockquote p:last-child{margin-bottom:0}
-hr{border:0;border-top:1px solid var(--line);margin:46px 0}
-code{font-family:var(--mono);font-size:.845em;background:var(--panel);
-  border-radius:2px;padding:1.5px 5px;color:var(--ink);overflow-wrap:break-word}
-.pre{overflow-x:auto;margin:0 0 22px;background:var(--panel);border-radius:3px;
-  border-left:2px solid var(--line)}
-.pre pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
-.pre code{background:none;padding:0;border-radius:0;font-size:inherit}
-.tw{overflow-x:auto;margin:0 0 24px;border:1px solid var(--line);border-radius:3px;
-  background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:15px;min-width:400px}
-th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--faint);text-align:left;font-weight:500;padding:10px 13px;
-  border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
-td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.55}
+/* ---------- hero ---------- */
+.hero{position:relative;padding:44px 0 28px;border-bottom:1px solid var(--line);overflow:hidden}
+.kicker{font:500 .74rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(2.1rem,1.4rem + 3.4vw,3.6rem);margin:.35rem 0 .6rem;max-width:16ch}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:1.06rem;color:var(--ink-2);max-width:62ch}
+.signal-line{display:block;width:100%;height:70px;margin:18px 0 6px;color:var(--accent)}
+.signal-line path{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.4s ease-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.8rem;color:var(--ink-2)}
+.chip b{color:var(--ink);font-weight:600}
+.chip a{color:var(--accent);font-weight:600;text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);animation:rise .5s ease forwards}
+.stat:nth-child(2){animation-delay:.08s}.stat:nth-child(3){animation-delay:.16s}.stat:nth-child(4){animation-delay:.24s}
+@keyframes rise{to{opacity:1;transform:none}}
+.stat .n{font:700 1.9rem/1 var(--f-display);letter-spacing:-.02em}
+.stat .n .from{color:var(--ink-3);font-weight:500}
+.stat .n .arr{color:var(--accent);font-size:1.3rem;margin:0 6px;vertical-align:4px}
+.stat .l{font-size:.82rem;color:var(--ink-2);margin-top:6px}
+@media (max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- sections ---------- */
+section.sec{padding:44px 0 8px;border-bottom:1px solid var(--line-2)}
+.sec-head{display:flex;gap:14px;align-items:baseline;margin-bottom:10px}
+.sec-no{font:500 .8rem var(--f-mono);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:2px 7px;flex:none;transform:translateY(-4px)}
+.sec-intro{color:var(--ink-2);max-width:70ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:820px){.g2,.g3{grid-template-columns:minmax(0,1fr)}}
+.pill{display:inline-block;font:600 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-info{background:var(--info-soft);color:var(--info)}.p-acc{background:var(--accent-soft);color:var(--accent)}.p-mute{background:var(--bg-2);color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0;color:var(--ink)}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line-2)}
+th{font:600 .72rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);position:sticky;top:0}
 tr:last-child td{border-bottom:0}
+td.k{font-weight:600;white-space:nowrap}
+.hl{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.tw.wide table{min-width:720px}
 
-/* ── figures ─────────────────────────────────────────────── */
-figure{margin:0 0 28px}
-.fig{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:20px 18px}
-figcaption{font-size:13.5px;color:var(--muted);margin-top:11px;max-width:64ch;line-height:1.6}
-.fmono{font-family:var(--mono)}
+/* diagrams */
+.fig{margin:16px 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.fig .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto;min-width:680px}
+.fig.fit svg{min-width:0}
+.fig figcaption{font-size:.8rem;color:var(--ink-3);padding:8px 4px 0}
+svg .n-box{fill:var(--surface-2);stroke:var(--line)}
+svg .n-new{fill:var(--accent-soft);stroke:var(--accent)}
+svg .n-ok{fill:var(--ok-soft);stroke:var(--ok)}
+svg .n-bad{fill:var(--bad-soft);stroke:var(--bad)}
+svg .n-warn{fill:var(--warn-soft);stroke:var(--warn)}
+svg .n-info{fill:var(--info-soft);stroke:var(--info)}
+svg .band{fill:var(--bg-2);stroke:none}
+svg .t{fill:var(--ink);font:500 13px var(--f-body)}
+svg .t-s{fill:var(--ink-2);font:400 11.5px var(--f-body)}
+svg .t-m{fill:var(--ink-2);font:400 11px var(--f-mono)}
+svg .t-h{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+svg .t-acc{fill:var(--accent)}
+svg .w{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .w-acc{stroke:var(--accent);stroke-width:1.8;fill:none}
+svg .w-dash{stroke:var(--ink-3);stroke-width:1.2;fill:none;stroke-dasharray:4 4}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg .w-ok{stroke:var(--ok);stroke-width:1.8;fill:none}svg .w-warn{stroke:var(--warn);stroke-width:1.8;fill:none}svg .w-bad{stroke:var(--bad);stroke-width:1.8;fill:none}
+svg .t-ok{fill:var(--ok)}svg .t-warn{fill:var(--warn)}svg .t-bad{fill:var(--bad)}svg .t-b{font-weight:700}
 
+/* moment cards */
+.mcard{position:relative;padding:14px 16px 14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.mcard::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c,var(--line))}
+.mcard h5{margin:0 0 6px;font:600 .92rem var(--f-mono);display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 8px;align-items:center}
+.mcard p{margin:.25rem 0;font-size:.86rem;color:var(--ink-2)}
+.mcard .src{font-size:.78rem;color:var(--ink-3)}
 
-/* Colour carries one distinction and only one: WHEN a thing is read, or
-   WHO may run it. Amber = paid for on every turn / runs directly.
-   Slate = read on demand / only ever sourced. Pine = material, committed.
-   Dashed + faint = absent on purpose, or generated per machine. */
+/* findings */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.fbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.82rem;cursor:pointer}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.finding{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.finding[hidden]{display:none}
+.finding .what{font-weight:500}
+.finding .why{font-size:.86rem;color:var(--ink-2);margin-top:3px}
+@media (max-width:520px){.finding{grid-template-columns:minmax(0,1fr)}}
 
-/* trees */
-.trees{display:grid;gap:18px}
-.tr-box{border:1px solid var(--line);border-radius:3px;overflow:hidden}
-.tr-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;
-  padding:10px 13px;background:var(--panel);border-bottom:1px solid var(--line)}
-.tr-head b{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
-.tr-head span{font-size:12px;color:var(--faint)}
-.tr-rows{display:grid}
-.tr-row{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:6px 14px;
-  align-items:baseline;padding:7px 13px 7px 11px;border-bottom:1px solid var(--line-soft);
-  border-left:2px solid transparent}
-.tr-row:last-child{border-bottom:0}
-.tr-row code{background:none;padding:0;font-size:12.5px;color:var(--ink);white-space:nowrap}
-.tr-row span{font-size:13px;color:var(--muted);line-height:1.5}
-.tr-row.d1 code{padding-left:16px;color:var(--muted)}
-.tr-row.k-front,.tr-row.k-run{border-left-color:var(--front)}
-.tr-row.k-front code,.tr-row.k-run code{color:var(--front)}
-.tr-row.k-ref,.tr-row.k-lib{border-left-color:var(--ref)}
-.tr-row.k-ref.d0 code,.tr-row.k-lib.d0 code{color:var(--ref)}
-.tr-row.k-tpl,.tr-row.k-keep{border-left-color:var(--tpl)}
-.tr-row.k-tpl.d0 code,.tr-row.k-keep.d0 code{color:var(--tpl)}
-.tr-row.k-gone,.tr-row.k-gen{border-left:2px dashed var(--line);background:var(--panel)}
-.tr-row.k-gone code,.tr-row.k-gen code{color:var(--faint)}
-.tr-row.k-gone span,.tr-row.k-gen span{color:var(--faint)}
-@media (max-width:560px){
-  .tr-row{grid-template-columns:1fr}
-  .tr-row code{white-space:normal;overflow-wrap:break-word}
-}
+/* state map */
+.store{font:600 .66rem/1 var(--f-mono);padding:3px 6px;border-radius:5px;margin-right:4px;display:inline-block;margin-bottom:3px}
+.s-pg{background:var(--info-soft);color:var(--info)}.s-rd{background:var(--bad-soft);color:var(--bad)}.s-pb{background:var(--warn-soft);color:var(--warn)}.s-none{background:var(--bg-2);color:var(--ink-3)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.8rem;color:var(--ink-2);margin:6px 0}
 
-/* flow */
-.flow{display:grid;gap:2px}
-.fl-step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;
-  padding:11px 0;border-bottom:1px solid var(--line-soft)}
-.fl-step:last-child{border-bottom:0}
-.fl-step>b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ground);
-  background:var(--trace);width:22px;height:22px;border-radius:3px;
-  display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
-.fl-body{display:grid;gap:3px}
-.fl-body strong{font-size:14.5px;font-weight:600}
-.fl-body span{font-size:13.5px;color:var(--muted);line-height:1.55}
-.fl-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);
-  font-size:12.5px;color:var(--muted)}
+/* lists & questions */
+ol.fr{counter-reset:fr;list-style:none;padding:0;margin:12px 0}
+ol.fr li{counter-increment:fr;position:relative;padding:10px 12px 10px 48px;border-bottom:1px dashed var(--line)}
+ol.fr li::before{content:counter(fr,decimal-leading-zero);position:absolute;left:10px;top:10px;font:600 .8rem var(--f-mono);color:var(--accent)}
+.qs{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:820px){.qs{grid-template-columns:minmax(0,1fr)}}
+.q{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+.q b{display:block;margin-bottom:3px}
+.q .n{font:600 .72rem var(--f-mono);color:var(--accent)}
 
-/* swap */
-.sw-head{display:none}
-@media (min-width:640px){
-  .sw-head{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;
-    font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
-    color:var(--faint);padding:0 0 8px;border-bottom:1px solid var(--line-soft);margin-bottom:4px}
-  .sw-head span:last-child{grid-column:3}
-}
-.swap{display:grid;gap:2px}
-.sw-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;
-  align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line-soft)}
-.sw-row:last-child{border-bottom:0}
-.sw-row code{background:none;padding:0;font-size:12.5px;overflow-wrap:break-word}
-.sw-row .sw-a{color:var(--muted)}
-.sw-row .sw-b{color:var(--tpl);font-weight:500}
-.sw-row i{font-style:normal;color:var(--faint);font-size:14px}
-.sw-row span{grid-column:1/-1;font-size:12.5px;color:var(--faint);line-height:1.5}
-@media (max-width:639px){
-  .sw-row{grid-template-columns:auto minmax(0,1fr)}
-  .sw-row .sw-a{grid-column:1/-1}
-}
+/* code */
+.codebox{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--code-bg);margin:12px 0}
+.codebox pre{margin:0;padding:16px;overflow:auto;font-size:.8rem;line-height:1.55;max-height:560px;tab-size:4}
+.codebox .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--line);font:500 .74rem var(--f-mono);color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn svg{width:14px;height:14px}
 
-/* levels */
-.lvl{margin-bottom:17px}
-.lvl:last-child{margin-bottom:0}
-.lvl-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--trace);margin-bottom:7px}
-.lvl-h span{color:var(--faint);letter-spacing:0;text-transform:none;font-size:11.5px}
-.lvl:first-child .lvl-h{color:var(--front)}
-.lvl:last-child .lvl-h{color:var(--tpl)}
-.tool{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:12px;
-  padding:9px 0;border-top:1px solid var(--line-soft);font-size:13.5px}
-.tool:first-of-type{border-top:0}
-.tool b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink)}
-.tool span{color:var(--muted)}
-@media (max-width:560px){.tool{grid-template-columns:1fr;gap:3px}}
-
-/* routes */
-.routes{display:grid;gap:10px;grid-template-columns:1fr}
-@media (min-width:620px){.routes{grid-template-columns:1fr 1fr}}
-.rt{padding:12px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
-.rt b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px;color:var(--trace)}
-.rt span{font-size:13.5px;color:var(--muted)}
-.routes-top,.routes-bot{font-family:var(--mono);font-size:11.5px;text-align:center;
-  padding:9px 12px;border-radius:3px;line-height:1.5}
-.routes-top{background:var(--trace-soft);color:var(--trace);margin-bottom:12px}
-.routes-bot{background:var(--alarm-soft);color:var(--alarm);margin-top:12px}
-
-/* gates */
-.gates{display:grid;gap:7px}
-.gt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:baseline;
-  padding:10px 12px;border-radius:3px;background:var(--panel);font-size:14px}
-.gt b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--tpl)}
-.gt span{color:var(--muted);font-size:13px}
-.gt b code{background:none;padding:0;color:inherit;font-size:1em}
-@media (max-width:560px){.gt{grid-template-columns:1fr;gap:5px}}
+/* markdown tab */
+.md-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:28px 0 12px}
+.md-head h2{font-size:1.5rem}
+.md-head .acts{display:flex;gap:8px;flex-wrap:wrap}
+.md{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.md pre{margin:0;padding:14px 0;overflow:auto;font:400 .8rem/1.6 var(--f-mono);counter-reset:ln}
+.md .ln{display:block;padding:0 16px 0 58px;position:relative;white-space:pre}
+.md .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:44px;text-align:right;color:var(--ink-3);opacity:.6}
+.md .h{color:var(--accent);font-weight:500}
+.md .tr{color:var(--ink-2)}
+.md .fence{color:var(--warn)}
+.md .li{color:var(--ink)}
 
 
-/* ── markdown view ───────────────────────────────────────── */
-#md{padding-top:26px}
-.md-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;
-  padding:13px 15px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
-.md-note p{margin:0;font-size:13.5px;color:var(--muted);flex:1 1 220px;max-width:none}
-#mdbox{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
-#mdbox pre{margin:0;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
-  white-space:pre}
-#mdbox code{background:none;padding:0;border-radius:0;font-size:inherit;color:inherit}
-footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line)}
-footer p{font-size:13.5px;color:var(--faint);max-width:64ch;margin:0 0 9px}
+/* start here */
+.start{margin:28px 0 4px;border:1px solid var(--accent);border-radius:16px;background:linear-gradient(180deg,var(--accent-soft),transparent 70%);padding:18px 18px 8px}
+.start .route{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 .78rem var(--f-mono);color:var(--ink-2);margin:6px 0 14px}
+.start .route a{color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 9px}
+.start .route i{color:var(--accent);font-style:normal}
+.start ol{margin:0;padding-left:1.2rem}
+.start li{margin:.35rem 0}
+.start li b{font-weight:600}
+.start .refs a{font:500 .72rem var(--f-mono);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;color:var(--accent);background:var(--surface)}
+.start h3{margin:.2rem 0 .5rem;font-size:.95rem}
+/* findings */
+.fcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);scroll-margin-top:calc(var(--head) + 16px)}
+.fcard[hidden]{display:none}
+.fcard header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.fcard .fid{font:600 .8rem var(--f-mono);color:var(--accent)}
+.fcard h4{margin:0;font:600 1rem var(--f-body);flex:1 1 260px}
+.fcard dl{display:grid;grid-template-columns:78px minmax(0,1fr);gap:6px 12px;margin:0;font-size:.9rem}
+.fcard dt{font:600 .68rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.fcard dd{margin:0;color:var(--ink-2)}
+.fcard dd.ex{background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;color:var(--ink)}
+.fcard dd.val{color:var(--ink)}
+.fcard dd ul{margin:.2rem 0;padding-left:1.1rem}
+.fcard>svg{display:block;width:100%;max-width:620px;height:auto;margin-top:8px}
+@media (max-width:560px){.fcard dl{grid-template-columns:minmax(0,1fr)}.fcard dt{line-height:1.2;margin-top:4px}}
+/* questions */
+.qgroup{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px}
+.qgroup h4{margin:0 0 2px;font:600 1rem var(--f-body);display:flex;gap:8px;align-items:center}
+.qgroup .sub{font-size:.82rem;color:var(--ink-3);margin-bottom:8px}
+.qitem{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px dashed var(--line-2)}
+.qitem .qid{font:600 .74rem var(--f-mono);color:var(--accent);padding-top:2px}
+.qitem b{font-weight:500;display:block}
+.qitem span.ex{font-size:.82rem;color:var(--ink-3)}
+/* schema options */
+.opt{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;position:relative}
+.opt.chosen{border:2px solid var(--accent)}
+.opt .tag{position:absolute;top:-10px;right:12px}
+.opt h4{margin:0;font:600 1rem var(--f-body)}
+.opt .why{font-size:.82rem;color:var(--ink-3);margin:2px 0 10px}
+.tbl{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.tbl .tn{font:600 .78rem var(--f-mono);padding:6px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.tbl .tn small{font-weight:400;color:var(--ink-3)}
+.tbl .cols{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px}
+.col{font:400 .7rem var(--f-mono);padding:2px 6px;border-radius:5px;background:var(--bg-2);color:var(--ink-2)}
+.col.key{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.col.bad{background:var(--bad-soft);color:var(--bad)}
+.col.warn{background:var(--warn-soft);color:var(--warn)}
+.opt .note{font-size:.8rem;color:var(--ink-2);margin:6px 0 0}
+.mx td.c{text-align:center;white-space:nowrap;width:15%}
+.mx th:not(:first-child){text-align:center}
+.mx.objs{table-layout:fixed}
+.mx.objs .pill{white-space:normal;line-height:1.3}
+.mx.objs th{text-align:left}
+.mx.objs td{white-space:normal}
+.mx.objs th:nth-child(1){width:20%}.mx.objs th:nth-child(2){width:28%}.mx.objs th:nth-child(3){width:12%}.mx.objs th:nth-child(4){width:40%}
+.mx td.c.sel{background:color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+.mx tr.grp td{background:var(--surface-2);font:600 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.cy,.cp,.cn{display:inline-block;min-width:26px;font:700 .8rem var(--f-mono);border-radius:6px;padding:2px 6px}
+.cy{background:var(--ok-soft);color:var(--ok)}.cp{background:var(--warn-soft);color:var(--warn)}.cn{background:var(--bad-soft);color:var(--bad)}
+
+
+.opt dl.intent{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;margin:0 0 10px;font-size:.84rem}
+.opt dl.intent dt{font:600 .66rem/1.9 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.opt dl.intent dd{margin:0;color:var(--ink-2)}
+
+/* review checklist */
+.checklist{margin:28px 0 4px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:18px;box-shadow:var(--shadow)}
+.checklist .bar{height:8px;border-radius:99px;background:var(--bg-2);overflow:hidden;margin:10px 0 4px}
+.checklist .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s ease}
+.checklist .count{font:500 .76rem var(--f-mono);color:var(--ink-3)}
+.ck{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:12px 0;border-top:1px dashed var(--line-2)}
+.ck input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+.ck b{font-weight:600}
+.ck .where{font:500 .74rem var(--f-mono);margin-left:6px}
+.ck .where a{color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:3px;background:var(--surface-2)}
+.ck ul{grid-column:2;margin:2px 0 0;padding-left:1.1rem;font-size:.88rem;color:var(--ink-2)}
+.ck.done b{color:var(--ink-3);text-decoration:line-through}
+/* state machines */
+.sm{margin:12px 0}
+.sm h4{margin:0 0 6px;font:600 .95rem var(--f-body)}
+.sm .fig{margin-top:6px}
+.sm svg .bad{fill:var(--bad);font:400 11.5px var(--f-body)}
+.sm svg .lane{fill:var(--ink-3);font:600 10.5px var(--f-mono);letter-spacing:.06em}
+/* toc groups */
+.toc li.grp{font:600 .66rem/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:16px 10px 4px}
+.toc li.grp:first-child{padding-top:4px}
+/* prose (markdown blocks) */
+.prose>p,.prose>ul,.prose>ol,.prose>blockquote,.prose>h3,.prose>h4{max-width:76ch}
+.prose h3{margin:1.6rem 0 .5rem}
+.prose h4{font:600 1rem var(--f-body);margin:1.2rem 0 .4rem}
+.prose ul,.prose ol{padding-left:1.3rem;margin:.6rem 0}
+.prose li{margin:.3rem 0}
+.prose li>p{margin:.2rem 0}
+.prose hr{border:0;border-top:1px dashed var(--line);margin:1.6rem 0}
+.prose blockquote,blockquote.quote{margin:16px 0;padding:6px 0 6px 16px;border-left:3px solid var(--accent);font:500 1.08rem/1.5 var(--f-display);color:var(--ink)}
+.prose blockquote p{margin:.3rem 0}
+.callout p{margin:.3rem 0}
+.callout .ct{display:block;font:600 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.callout.warn .ct{color:var(--warn)}
+.callout.key{border-color:var(--ink);background:var(--surface-2)}
+.callout.key .ct{color:var(--ink)}
+.card h3{margin:0 0 .4rem;font-size:1rem}
+.card .pill{margin-bottom:6px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card ul{padding-left:1.1rem;margin:.4rem 0}
+.card .meta-line{font-size:.8rem;color:var(--ink-3);margin-top:8px}
+/* steps */
+ol.steps{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+ol.steps li{position:relative;padding:12px 14px 12px 46px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:.9rem}
+ol.steps li .sn{position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:600 .74rem var(--f-mono)}
+ol.steps li b{display:block;margin-bottom:2px}
+ol.steps li span.d{color:var(--ink-2)}
+.steps-loop{font:500 .8rem var(--f-mono);color:var(--accent);margin:-4px 0 14px}
+/* key-value sheet */
+.kv{border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:560px;margin:14px 0;box-shadow:var(--shadow)}
+.kv .kt{font:600 .72rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px 14px}
+.kv .r{display:flex;justify-content:space-between;gap:14px;padding:7px 14px;border-top:1px dashed var(--line-2);font-size:.88rem}
+.kv .r>span:first-child{flex:0 1 auto;max-width:50%;font-size:.84rem;color:var(--ink-2)}
+.kv code{overflow-wrap:normal;white-space:nowrap}
+.kv .r>span:last-child{text-align:right;font-weight:500}
+.kv .r.sum{border-top:1px solid var(--line);font-weight:600}
+/* tag grid */
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tg{--c:var(--line);display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-left:3px solid var(--c);border-radius:10px;background:var(--surface);font-size:.86rem;min-width:0;max-width:100%}
+.tg code{align-self:flex-start}
+.tg.k-ok{--c:var(--ok)}.tg.k-warn{--c:var(--warn)}.tg.k-bad{--c:var(--bad)}.tg.k-info{--c:var(--info)}.tg.k-acc{--c:var(--accent)}.tg.k-mute{--c:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.blk-note{font-size:.8rem;color:var(--ink-3);margin:-4px 0 16px}
+/* ascii fallback under a diagram */
+.fig details{margin:8px 4px 0;font-size:.8rem;color:var(--ink-3)}
+.fig details summary{cursor:pointer}
+.fig details pre{margin:8px 0 0;padding:12px;background:var(--code-bg);border-radius:10px;overflow:auto;font:400 .76rem/1.5 var(--f-mono);color:var(--ink-2)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:.85rem;transition:.2s;z-index:60;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{padding:32px 0;color:var(--ink-3);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stat{opacity:1;transform:none}.signal-line path{stroke-dashoffset:0}}
+@media print{.top,.side,.scrim{display:none}.shell{display:block}.panel[hidden]{display:none}}
 </style>
 </head>
-<body>
-
-<header class="bar">
-  <button id="navbtn" type="button" aria-expanded="false" aria-controls="nav"></button>
-  <span class="sp"></span>
-  <button id="viewbtn" type="button" aria-pressed="false"></button>
+<body data-menu="open">
+<header class="top">
+  <button class="icon-btn" data-action="menu:toggle" aria-label="Mở / đóng mục lục" aria-controls="side" aria-expanded="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+  </button>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="7" fill="var(--accent)"/><path d="M5 14h4l2-5 3 9 2-6 1 2h4" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <b>Bạn tạo tool cho agent như thế nào</b><small>2026-09-18</small>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Chế độ xem">
+    <button class="tab" role="tab" id="tab-html" aria-controls="panel-html" data-action="tab:html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><span class="lbl">Tài liệu</span>
+    </button>
+    <button class="tab" role="tab" id="tab-md" aria-controls="panel-md" data-action="tab:md">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15V9l3 3 3-3v6M16 9v6m0 0-2-2m2 2 2-2"/></svg><span class="lbl">Markdown</span>
+    </button>
+  </div>
+  <button class="icon-btn" data-action="theme:toggle" aria-label="Đổi giao diện sáng / tối">
+    <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
 </header>
 
-<aside id="nav" aria-label="Mục lục">
-  <p class="navhead" id="navhead"></p>
-  <nav id="toc"></nav>
-</aside>
-<div id="scrim" hidden></div>
+<div class="shell">
+  <nav class="side" id="side" aria-label="Các mục">
+    <h4>Mục lục</h4>
+    <ul class="toc">
+      <li class="grp">PHẦN 1 — Vấn đề và thành phẩm</li>
+      <li><a href="#s1" data-action="nav"><span>01</span>Mục đích</a></li>
+      <li><a href="#s2" data-action="nav"><span>02</span>Tình huống dùng và thành phẩm</a></li>
+      <li class="grp">PHẦN 2 — Bên trong hai skill</li>
+      <li><a href="#s3" data-action="nav"><span>03</span>Cấu trúc thư mục</a></li>
+      <li><a href="#s4" data-action="nav"><span>04</span>Luồng chạy</a></li>
+      <li><a href="#s5" data-action="nav"><span>05</span>Dữ liệu và trạng thái</a></li>
+      <li class="grp">PHẦN 3 — Một lần chạy đầy đủ</li>
+      <li><a href="#s6" data-action="nav"><span>06</span>Đầu tới cuối</a></li>
+      <li><a href="#s7" data-action="nav"><span>07</span>Hook</a></li>
+      <li><a href="#s8" data-action="nav"><span>08</span>Cái gì chặn bạn làm sai</a></li>
+      <li class="grp">PHẦN 4 — Học lại thiết kế</li>
+      <li><a href="#s9" data-action="nav"><span>09</span>Những quyết định đáng lấy</a></li>
+      <li><a href="#s10" data-action="nav"><span>10</span>Tự dựng skill của bạn</a></li>
+      <li><a href="#s11" data-action="nav"><span>11</span>Bảng thuật ngữ</a></li>
+    </ul>
+    
+  </nav>
+  <div class="scrim" data-action="menu:close"></div>
 
-<div class="wrap">
-  <header class="hero">
-    <p class="kick" id="kick"></p>
-    <h1 id="title"></h1>
-    <div class="lede" id="lede"></div>
-  </header>
+  <main>
+  <!-- ======================= HTML REPORT ======================= -->
+  <div class="panel" id="panel-html" role="tabpanel" aria-labelledby="tab-html">
+  <div class="wrap">
+<header class="hero">
+  <div class="kicker">Đọc một skill . khuôn mẫu công cụ dòng lệnh bằng bash</div>
+  <h1>Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI</h1>
+  <p class="lede">Phần 1 — Viết một tool shell nhiều file thì đau ở đâu, và cặp skill này trả lại cho bạn cái gì.<br />
+Phần 2 — Bên trong một skill có gì: thư mục, luồng chạy, dữ liệu. Đây là phần để bạn vẽ lại được từ trí nhớ.<br />
+Phần 3 — Một lần chạy đi hết từ câu hỏi đầu tiên tới file trên đĩa, cộng với những cái chặn bạn làm sai.<br />
+Phần 4 — Những quyết định thiết kế đáng lấy, và công thức để bạn tự dựng skill đầu tiên.</p>
+  <svg class="signal-line" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 H260 L280 40 L295 14 L312 62 L330 8 L348 52 L360 40 H560 L575 40 L588 22 L602 56 L616 40 H1000" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+</header>
 
-  <main id="docview">
-    <div id="doc"></div>
-    <footer id="foot"></footer>
-  </main>
-
-  <section id="md" hidden>
-    <div class="md-note">
-      <p id="mdnote"></p>
-      <button id="copybtn" type="button"></button>
-    </div>
-    <div id="mdbox"><pre><code id="mdtext"></code></pre></div>
-  </section>
+<section class="sec" id="s1" data-toc-group="PHẦN 1 — Vấn đề và thành phẩm">
+  <div class="sec-head"><span class="sec-no">01</span><h2>Mục đích</h2></div>
+<div class="prose"><p>Bạn viết một script shell để tự động hoá một việc nhỏ. Nó chạy được, bạn giữ lại. Tháng sau nó cần thêm một lệnh nữa, bạn thêm vào. Tháng sau nữa nó cần một đoạn tiện ích mà script khác cũng cần, bạn copy sang. Đến lúc này nó không còn là một script, nó là một <strong>dự án</strong> — và không ai từng ngồi xuống quyết định dự án đó nên có hình dạng gì.</p>
+<p>Hậu quả thì luôn giống nhau, và luôn đến muộn:</p>
+<ul>
+<li>Tool chạy ngon trên máy bạn, hỏng trên máy đồng nghiệp — vì lệnh <code>date</code> trên macOS không nhận cờ mà bản GNU nhận.</li>
+<li>Ai đó cho tool chạy tự động lúc 3 giờ sáng. Hệ thống chọn một phiên bản shell cũ hơn phiên bản bạn test, và một cú pháp bạn dùng hàng ngày báo lỗi cú pháp.</li>
+<li>Dòng &quot;kiểm tra xem công cụ X đã cài chưa&quot; nằm rải rác ở đầu năm file khác nhau, mỗi chỗ một kiểu, và không chỗ nào nói cho người dùng biết phải làm gì tiếp.</li>
+<li>Bạn thêm một lệnh con mới nhưng quên cập nhật màn hình trợ giúp. Sáu tháng sau chính bạn đọc <code>--help</code> và tưởng tool không làm được việc đó.</li>
+<li>Một file cấu hình bị ghi dở giữa chừng vì máy tắt đúng lúc đó. Lần chạy sau tool đọc phải file hỏng.</li>
+</ul>
+<p>Không cái nào trong số đó là bài toán khó. Chúng chỉ là <strong>những quyết định nhỏ bị quyết lại từ đầu mỗi lần</strong> — và mỗi lần lại ra một đáp án hơi khác.</p>
+<p>Người đau nhất không phải người viết tool đầu tiên. Là người <strong>sửa</strong> nó: đồng nghiệp tiếp quản, hoặc chính bạn sáu tháng sau, hoặc — và đây là chỗ câu chuyện đổi màu — một <strong>AI agent</strong> được giao việc &quot;thêm lệnh con vào tool này&quot;. Agent không nhớ gì về những lựa chọn cũ. Nó đọc file, đoán ra một kiểu, rồi viết theo kiểu đó. Lần sau nó đoán ra kiểu khác. Sau năm lần sửa, dự án có năm phong cách.</p>
+<p>Cặp skill trong tài liệu này là câu trả lời viết-ra-giấy cho đúng một câu hỏi: <strong>một tool shell nhiều file thì nên có hình dạng nào?</strong> Quyết một lần, ghi lại, rồi thôi không quyết nữa. Từ đó mọi tool trong bộ sưu tập của bạn trông giống nhau, nên đọc hiểu một cái là hiểu tất cả — và agent sửa cái nào cũng ra cùng một phong cách.</p>
+<p>Một trong hai skill nói thẳng ra ý định đó: nếu người dùng đang bắt đầu bất kỳ dự án shell nhiều file nào — kể cả khi họ không hề dùng chữ &quot;khuôn mẫu&quot; — thì cứ áp dụng, <strong>để họ khỏi phải phát minh lại bố cục</strong>.</p>
 </div>
 
-<script type="text/plain" id="src"># Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI
+</section>
 
-> Phần 1 — Viết một tool shell nhiều file thì đau ở đâu, và cặp skill này trả lại cho bạn cái gì.
-> Phần 2 — Bên trong một skill có gì: thư mục, luồng chạy, dữ liệu. Đây là phần để bạn vẽ lại được từ trí nhớ.
-> Phần 3 — Một lần chạy đi hết từ câu hỏi đầu tiên tới file trên đĩa, cộng với những cái chặn bạn làm sai.
-> Phần 4 — Những quyết định thiết kế đáng lấy, và công thức để bạn tự dựng skill đầu tiên.
+<section class="sec" id="s2">
+  <div class="sec-head"><span class="sec-no">02</span><h2>Tình huống dùng và thành phẩm</h2></div>
+<div class="prose"><p>Đây là <strong>hai</strong> skill chứ không phải một, và chúng chia nhau theo vòng đời của dự án:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Dùng khi</th>
+<th>Điểm xuất phát</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bash-cli-scaffold</code></td>
+<td><strong>Tạo mới</strong> một tool shell từ con số không</td>
+<td>Thư mục rỗng</td>
+</tr>
+<tr>
+<td><code>bash-cli-pattern</code></td>
+<td><strong>Nuôi lớn</strong> tool đã có: thêm lệnh con, thêm module, sửa trợ giúp</td>
+<td>Dự án đang chạy</td>
+</tr>
+</tbody>
+</table></div>
+<p>Hai skill trỏ sang nhau: mô tả của mỗi cái đều có một dòng &quot;đừng dùng cái này cho việc kia — hãy dùng skill còn lại&quot;. Đó là ranh giới duy nhất bạn cần nhớ.</p>
+<h3>Nửa thứ nhất — tạo mới</h3>
+<p>Bạn nói với agent: <em>&quot;tạo cho tôi một bash CLI tên <code>pg-migrate</code> để chạy migration Postgres&quot;</em>.</p>
+<p>Skill <code>bash-cli-scaffold</code> kích hoạt và hỏi bạn bảy thứ <strong>trong một lượt</strong> — không hỏi nhỏ giọt từng câu: tên dự án, tiền tố hàm, tiền tố biến môi trường, danh sách lệnh con, nơi đặt thư mục, công cụ ngoài mà tool sẽ cần, và kiểu changelog.</p>
+<p>Xong, bạn cầm trong tay <strong>một thư mục hoàn chỉnh</strong>, và ngay lập tức chạy được ba lệnh:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>pg-migrate.sh --help      # màn hình trợ giúp hiện ra đầy đủ
+pg-migrate.sh init        # quét máy bạn, ghi ra settings.json
+pg-migrate.sh doctor      # so settings.json đã lưu với môi trường hiện tại</code></pre></div>
+
+<div class="prose"><p>Lệnh <code>apply</code> mà bạn đặt hàng thì <strong>cố tình chưa làm gì</strong>: nó thoát ra với thông báo &quot;chưa cài đặt&quot;. Đó không phải thiếu sót — bộ khung dựng sẵn khung xương, phần thịt là việc của bạn.</p>
+<h3>Nửa thứ hai — nuôi lớn</h3>
+<p>Hai tuần sau bạn nói: <em>&quot;thêm lệnh con <code>rollback</code>&quot;</em>. Lần này <code>bash-cli-pattern</code> kích hoạt, và nó không tạo file nào. Nó <strong>đọc</strong> dự án đang có: tìm bộ điều phối, đọc một hàm lệnh con anh em, rồi viết hàm mới <strong>khớp với hàm cũ</strong> — cùng kiểu đọc cờ, cùng kiểu báo lỗi, cùng thứ tự. Sau đó nó nối dây ở ba chỗ: nhánh trong bộ điều phối, nhánh trong trợ giúp con, và danh sách lệnh trong trợ giúp tổng.</p>
+<p>Thành phẩm ở đây không phải file mới mà là <strong>một bản sửa không lệch phong cách</strong>, cộng thêm một bước kiểm tra: chạy lại <code>--help</code> để xác nhận màn hình trợ giúp vẫn đúng.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s3" data-toc-group="PHẦN 2 — Bên trong hai skill">
+  <div class="sec-head"><span class="sec-no">03</span><h2>Cấu trúc thư mục</h2></div>
+<div class="prose"><p>Ở mục này có <strong>hai cây thư mục khác nhau</strong>, và lẫn lộn chúng là cách nhanh nhất để hiểu sai:</p>
+<ul>
+<li><strong>Cây A</strong> — thư mục của bản thân skill. Đây là thứ agent đọc.</li>
+<li><strong>Cây B</strong> — thư mục mà skill <em>sinh ra</em>. Đây là thứ bạn nhận được.</li>
+</ul>
+<h3>Cây A — bản thân hai skill</h3>
+</div>
+
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 0 980 618" role="img" aria-labelledby="fig-skilltree-t"><title id="fig-skilltree-t">Cây thứ nhất: bản thân hai skill — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.</title>
+<defs><marker id="fig-skilltree-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<text class="t-m t-b t-acc" x="20" y="28">bash-cli-scaffold/</text>
+<text class="t-s" x="163" y="28">tạo mới · có vật liệu để chép</text>
+<rect class="n-new" x="24" y="40" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="56">SKILL.md</text>
+<text class="t-s" x="330" y="56">frontmatter + thuật toán sinh file</text>
+<rect class="n-info" x="24" y="66" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="82">references/</text>
+<text class="t-s" x="330" y="82">đọc khi quy trình bảo đọc</text>
+<rect class="n-info" x="46" y="92" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="108">output-tree.md</text>
+<text class="t-s" x="330" y="108">danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ</text>
+<rect class="n-info" x="46" y="118" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="134">placeholders.md</text>
+<text class="t-s" x="330" y="134">bảng marker và luật thay thế</text>
+<rect class="n-ok" x="24" y="144" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="160">templates/</text>
+<text class="t-s" x="330" y="160">bash chạy được, chưa điền tên</text>
+<rect class="n-ok" x="46" y="170" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="186">__NAME__.sh</text>
+<text class="t-s" x="330" y="186">điểm vào, khuôn 6 phần</text>
+<rect class="n-ok" x="46" y="196" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="212">lib/</text>
+<text class="t-s" x="330" y="212">_bootstrap · common · settings · tools</text>
+<rect class="n-ok" x="46" y="222" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="238">config/</text>
+<text class="t-s" x="330" y="238">tools.json.example · bootstrap.json</text>
+<rect class="n-ok" x="46" y="248" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="264">tests/</text>
+<text class="t-s" x="330" y="264">helper nạp lib + một file test khói</text>
+<rect class="n-ok" x="46" y="274" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="290">file gốc dự án</text>
+<text class="t-s" x="330" y="290">VERSION · CHANGELOG · .gitignore · .shellcheckrc · .editorconfig</text>
+<text class="t-m t-b t-acc" x="20" y="330">bash-cli-pattern/</text>
+<text class="t-s" x="156" y="330">nuôi lớn · chỉ có phán đoán</text>
+<rect class="n-new" x="24" y="342" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="358">SKILL.md</text>
+<text class="t-s" x="330" y="358">frontmatter + 10 bất biến + bảng định tuyến</text>
+<rect class="n-info" x="24" y="368" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="384">references/</text>
+<text class="t-s" x="330" y="384">mỗi file một vùng sửa chữa</text>
+<rect class="n-info" x="46" y="394" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="410">entry-point.md</text>
+<text class="t-s" x="330" y="410">khuôn 6 phần của file điểm vào</text>
+<rect class="n-info" x="46" y="420" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="436">lib-module.md</text>
+<text class="t-s" x="330" y="436">luật cho file thư viện được nạp</text>
+<rect class="n-info" x="46" y="446" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="462">helpers.md</text>
+<text class="t-s" x="330" y="462">log, báo lỗi, ghi nguyên tử, nhận diện HĐH</text>
+<rect class="n-info" x="46" y="472" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="488">help-system.md</text>
+<text class="t-s" x="330" y="488">trợ giúp là hệ thống con, không phải một cờ</text>
+<rect class="n-info" x="46" y="498" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="514">init-doctor.md</text>
+<text class="t-s" x="330" y="514">bộ ba init / doctor / assert</text>
+<rect class="n-info" x="46" y="524" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="540">tooling.md</text>
+<text class="t-s" x="330" y="540">shellcheck, editorconfig, VERSION, test</text>
+<rect class="n-box" x="24" y="550" width="946" height="22" rx="6" stroke-dasharray="4 3"/>
+<text class="t-m t-b" x="36" y="566">(không có templates/)</text>
+<text class="t-s" x="330" y="566">đầu ra là phán đoán, không có gì để chép</text>
+<rect class="n-box" x="24" y="576" width="946" height="22" rx="6" stroke-dasharray="4 3"/>
+<text class="t-m t-b" x="36" y="592">(không có scripts/)</text>
+<text class="t-s" x="330" y="592">công việc không phải thuật toán</text>
+</svg>
+</div>
+  <figcaption>Cây thứ nhất: <strong>bản thân hai skill</strong> — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.</figcaption>
+  <details><summary>Xem bản chữ thuần</summary><pre>bash-cli-scaffold/
+├── SKILL.md                     frontmatter + thuật toán sinh file
+├── references/
+│   ├── output-tree.md           danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ
+│   └── placeholders.md          bảng marker và luật thay thế
+└── templates/                   bash chạy được, chưa điền tên
+    ├── __NAME__.sh              điểm vào
+    ├── VERSION  CHANGELOG.md  .gitignore
+    ├── .shellcheckrc  .editorconfig
+    ├── lib/                     _bootstrap.sh  common.sh
+    │                            settings.sh   tools.sh
+    ├── config/                  tools.json.example  bootstrap.json
+    └── tests/                   helpers/load.bash  unit/common.bats
+
+bash-cli-pattern/
+├── SKILL.md                     frontmatter + 10 bất biến + bảng định tuyến
+└── references/
+    ├── entry-point.md           khuôn 6 phần của file điểm vào
+    ├── lib-module.md            luật cho file thư viện được nạp
+    ├── helpers.md               log, báo lỗi, ghi nguyên tử, nhận diện HĐH
+    ├── help-system.md           trợ giúp là một hệ thống con, không phải một cờ
+    ├── init-doctor.md           bộ ba init / doctor / assert
+    └── tooling.md               shellcheck, editorconfig, VERSION, test</pre></details>
+</figure>
+
+<div class="prose"><p>Nhiệm vụ từng chỗ, mỗi chỗ một câu:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Nhiệm vụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>frontmatter</strong> (<code>name</code>, <code>description</code>)</td>
+<td>Khối dữ liệu ở ngay đầu <code>SKILL.md</code>; là phần duy nhất nằm trong đầu óc agent <strong>mọi lúc</strong>, nên nó quyết định skill có được chọn hay không.</td>
+</tr>
+<tr>
+<td><strong>thân <code>SKILL.md</code></strong></td>
+<td>Được đọc <strong>mỗi lần skill kích hoạt</strong>: quy trình và phán đoán, không chứa chi tiết.</td>
+</tr>
+<tr>
+<td><code>references/</code></td>
+<td>Chỉ đọc khi quy trình bảo đọc — nơi chứa chiều sâu.</td>
+</tr>
+<tr>
+<td><code>templates/</code></td>
+<td>Vật liệu để <strong>chép</strong>, không phải để mô tả: bash thật, chỉ còn thiếu tên.</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Ba tầng bóc dần</h3>
+<p>Sự phân chia trên không tuỳ hứng. Nó theo một nguyên tắc có tên — <strong>progressive disclosure</strong>, tạm gọi là <strong>bóc dần</strong>: cái gì càng hay phải trả giá thì càng phải ngắn.</p>
+</div>
+
+<div class="kv">  <div class="r sum"><span>LUÔN NẰM TRONG CONTEXT</span><span><em>trả tiền ở mọi lượt, kể cả lượt không liên quan</em></span></div>
+  <div class="r"><span><code>frontmatter</code></span><span><code>name</code> và <code>description</code> — quyết định skill có được chọn hay không</span></div>
+  <div class="r sum"><span>ĐỌC KHI SKILL KÍCH HOẠT</span><span><em>trả tiền mỗi lần skill được chọn</em></span></div>
+  <div class="r"><span><code>thân SKILL.md</code></span><span>quy trình, bảng định tuyến, luật cấm — <strong>không</strong> chứa chi tiết</span></div>
+  <div class="r sum"><span>ĐỌC KHI QUY TRÌNH BẢO ĐỌC</span><span><em>trả tiền khi và chỉ khi cần</em></span></div>
+  <div class="r"><span><code>references/</code></span><span>chiều sâu; không bao giờ được đọc hết cùng một lúc</span></div>
+  <div class="r"><span><code>templates/</code></span><span>vật liệu để chép ra; hầu như không cần đọc hiểu</span></div>
+</div>
+<p class="blk-note">Bóc dần: cái gì càng hay phải trả giá thì càng phải ngắn.</p>
+
+<div class="prose"><p>Đọc cây A theo lăng kính đó thì hai skill lộ ra hai tính cách khác nhau:</p>
+<ul>
+<li><code>bash-cli-scaffold</code> <strong>có <code>templates/</code></strong> vì đầu ra của nó là <em>vật liệu</em>. Mô tả một file bash bằng văn xuôi rồi bắt agent viết lại là vừa tốn vừa dễ sai; đưa thẳng file bash chạy được thì không sai được.</li>
+<li><code>bash-cli-pattern</code> <strong>không có <code>templates/</code></strong> vì đầu ra của nó là <em>phán đoán</em>. Không có file nào để chép — chỉ có &quot;khi bạn đang sửa X thì mở file Y ra đọc&quot;.</li>
+<li><strong>Cả hai đều không có <code>scripts/</code>.</strong> Đây là một quyết định, không phải một thiếu sót: công việc nặng nhất của bộ khung là thay chuỗi ký tự trong từng file mẫu, mà đó không phải thuật toán. Một skill có <code>scripts/</code> là skill giao việc cho code vì code rẻ hơn và chắc tay hơn lời dặn; ở đây chẳng có gì để giao.</li>
+<li>Cả hai đều <strong>không có test</strong>. Cái chặn sai duy nhất là một bước kiểm tra chạy tay ở cuối, sẽ nói ở mục 8.</li>
+</ul>
+<h3>Cây B — dự án mà bộ khung sinh ra</h3>
+</div>
+
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 0 980 394" role="img" aria-labelledby="fig-projecttree-t"><title id="fig-projecttree-t">Cây thứ hai: dự án được sinh ra — thứ bạn nhận được. Đừng lẫn với cây trên.</title>
+<defs><marker id="fig-projecttree-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<text class="t-m t-b t-acc" x="20" y="28">pg-migrate/</text>
+<text class="t-s" x="113" y="28">chạy được ngay, chưa cần viết thêm dòng nào</text>
+<rect class="n-new" x="24" y="40" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="56">pg-migrate.sh</text>
+<text class="t-s" x="330" y="56">ĐIỂM VÀO — chạy trực tiếp, bật chế độ nghiêm ngặt</text>
+<rect class="n-info" x="24" y="66" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="82">lib/</text>
+<text class="t-s" x="330" y="82">CHỈ ĐƯỢC NẠP — không chạy trực tiếp</text>
+<rect class="n-info" x="46" y="92" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="108">_bootstrap.sh</text>
+<text class="t-s" x="330" y="108">chọn đúng trình thông dịch rồi chạy lại chính mình</text>
+<rect class="n-info" x="46" y="118" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="134">common.sh</text>
+<text class="t-s" x="330" y="134">log / die / ghi nguyên tử / nhận diện HĐH</text>
+<rect class="n-info" x="46" y="144" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="160">settings.sh</text>
+<text class="t-s" x="330" y="160">quét môi trường, so lệch, sửa lệch</text>
+<rect class="n-info" x="46" y="170" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="186">tools.sh</text>
+<text class="t-s" x="330" y="186">tìm đường dẫn, phiên bản, biến thể của công cụ ngoài</text>
+<rect class="n-ok" x="24" y="196" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="212">config/</text>
+<text class="t-s" x="330" y="212">khai báo — CÓ commit</text>
+<rect class="n-ok" x="46" y="222" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="238">tools.json.example</text>
+<text class="t-s" x="330" y="238">"tool này cần jq và psql"</text>
+<rect class="n-ok" x="46" y="248" width="924" height="22" rx="6"/>
+<text class="t-m" x="58" y="264">bootstrap.json</text>
+<text class="t-s" x="330" y="264">cấu hình tĩnh, không phụ thuộc máy</text>
+<rect class="n-ok" x="24" y="274" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="290">tests/</text>
+<text class="t-s" x="330" y="290">helpers/load.bash · unit/common.bats · fixtures/ (rỗng)</text>
+<rect class="n-ok" x="24" y="300" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="316">docs/</text>
+<text class="t-s" x="330" y="316">để trống, chờ bạn viết</text>
+<rect class="n-ok" x="24" y="326" width="946" height="22" rx="6"/>
+<text class="t-m t-b" x="36" y="342">file gốc dự án</text>
+<text class="t-s" x="330" y="342">VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig</text>
+<rect class="n-box" x="24" y="352" width="946" height="22" rx="6" stroke-dasharray="4 3"/>
+<text class="t-m t-b" x="36" y="368">settings.json</text>
+<text class="t-s" x="330" y="368">KHÔNG có sẵn — do lệnh init sinh ra, KHÔNG commit</text>
+</svg>
+</div>
+  <figcaption>Cây thứ hai: <strong>dự án được sinh ra</strong> — thứ bạn nhận được. Đừng lẫn với cây trên.</figcaption>
+  <details><summary>Xem bản chữ thuần</summary><pre>pg-migrate/
+├── pg-migrate.sh          ĐIỂM VÀO — chạy trực tiếp, có strict mode
+├── VERSION                một dòng: 0.1.0
+├── CHANGELOG.md           định dạng Keep a Changelog
+├── .gitignore             bỏ qua settings.json, *.bak, tmp/
+├── .shellcheckrc          tắt đúng một cảnh báo, có ghi lý do
+├── .editorconfig          .sh và .bats thụt 4, còn lại thụt 2, xuống dòng LF
+├── lib/                   CHỈ ĐƯỢC NẠP — không chạy trực tiếp
+│   ├── _bootstrap.sh      chọn đúng trình thông dịch, rồi chạy lại chính mình
+│   ├── common.sh          log / die / ghi nguyên tử / nhận diện HĐH
+│   ├── settings.sh        quét môi trường, so lệch, sửa lệch
+│   └── tools.sh           tìm đường dẫn, phiên bản, biến thể của công cụ ngoài
+├── config/
+│   ├── tools.json.example danh sách công cụ cần — CÓ commit
+│   └── bootstrap.json     cấu hình tĩnh, không phụ thuộc máy
+├── tests/
+│   ├── helpers/load.bash  nạp một thư viện vào phiên test
+│   ├── unit/common.bats   7 test khói cho common.sh
+│   └── fixtures/          để trống
+└── docs/                  để trống
+
+settings.json  ← KHÔNG có sẵn. Do lệnh `init` sinh ra. KHÔNG commit.</pre></details>
+</figure>
+
+<div class="prose"><p>Ranh giới quan trọng nhất trong cây B là <strong><code>bin/</code> và <code>lib/</code></strong>, hay ở đây là &quot;file chạy được&quot; đối lập với &quot;file chỉ được nạp&quot;. Phụ thuộc chỉ đi một chiều: file chạy được nạp thư viện, thư viện không bao giờ gọi ngược lên. Nhờ vậy một thư viện dùng lại được cho nhiều điểm vào mà không kéo theo thứ gì.</p>
+<p>Bộ khung mặc định <strong>không tạo <code>bin/</code></strong> — chỉ tạo một file điểm vào duy nhất ở gốc. Thư mục <code>bin/</code> chứa các CLI nhỏ tách riêng là tuỳ chọn, chỉ dựng khi bạn hỏi.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s4">
+  <div class="sec-head"><span class="sec-no">04</span><h2>Luồng chạy</h2></div>
+<div class="prose"><h3>Bộ khung: một đường thẳng, chạy đúng một lần</h3>
+</div>
+
+<ol class="steps">
+  <li><span class="sn">1</span><b>Nhận diện</b><span class="d">người dùng đang bắt đầu một dự án bash nhiều file — kể cả khi họ không nói chữ nào về bố cục</span></li>
+  <li><span class="sn">2</span><b>Hỏi gộp</b><span class="d">bảy câu hỏi trong <strong>một</strong> lượt: tên, tiền tố hàm, tiền tố biến, lệnh con, nơi đặt, công cụ ngoài, kiểu changelog</span></li>
+  <li><span class="sn">3</span><b>Đọc danh sách</b><span class="d">mở file tham chiếu liệt kê đúng những file phải có</span></li>
+  <li><span class="sn">4</span><b>Sinh từng file</b><span class="d">đọc template → thay marker → ghi ra đích</span></li>
+  <li><span class="sn">5</span><b>Cấp quyền chạy</b><span class="d">chmod +x cho file .sh ở gốc</span></li>
+  <li><span class="sn">6</span><b>Kiểm tra</b><span class="d">chạy <code>--help</code>; <strong>không hiện ra thì dừng</strong>, không được báo xong</span></li>
+  <li><span class="sn">7</span><b>Bàn giao</b><span class="d">đường dẫn + ba lệnh chạy đầu + chỗ viết lệnh con thật + tên skill dùng cho lần sửa sau</span></li>
+</ol>
+<p class="blk-note">Không có bước nào ghi <code>settings.json</code>. Đó là việc của người dùng, không phải tác dụng phụ. Bộ khung chạy <strong>một lần</strong> rồi rút. Bước 6 là bước duy nhất có quyền phủ quyết.</p>
+
+<div class="prose"><p>Bước 6 là bước duy nhất có quyền phủ quyết. Skill nói thẳng: nếu <code>--help</code> không hiện ra thì bộ khung hỏng — dừng lại và sửa, không được tuyên bố đã xong.</p>
+<h3>Khuôn mẫu: không có luồng, chỉ có bảng định tuyến</h3>
+<p><code>bash-cli-pattern</code> không chạy theo một đường. Nó tự kích hoạt khi <strong>nhận ra hình dạng dự án</strong> — thư mục nào vừa có <code>bin/</code> vừa có <code>lib/*.sh</code>, file nào tự xác định vị trí của mình rồi nạp thư viện từ đó — kể cả khi bạn không hề nhắc tới nó. Sau đó nó đọc <strong>đúng một</strong> file tham chiếu, chọn theo thứ bạn đang chạm vào:</p>
+</div>
+
+<figure class="fig"><div class="scroll">
+<svg viewBox="0 0 980 390" role="img" aria-labelledby="fig-routes-t"><title id="fig-routes-t">Bạn đang sửa một bash CLI nhiều file (có cả bin/ lẫn lib/*.sh)</title>
+<defs><marker id="fig-routes-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+<rect class="n-box" x="20" y="132" width="230" height="73" rx="10"/>
+<text class="t t-b" x="135" y="157" text-anchor="middle">Bạn đang sửa một bash CLI</text><text class="t t-b" x="135" y="174" text-anchor="middle">nhiều file (có cả bin/ lẫn</text><text class="t t-b" x="135" y="191" text-anchor="middle">lib/*.sh)</text>
+<path class="w" d="M250 168 C 280 168, 260 41, 288 41" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="20" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="46">thêm lệnh con</text>
+<text class="t-s" x="508" y="45.0">mở entry-point.md — khuôn 6 phần, cách đọc cờ, cách nối vào bộ điều phối</text>
+<path class="w" d="M250 168 C 280 168, 260 93, 288 93" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="72" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="98">thêm module thư viện</text>
+<text class="t-s" x="508" y="97.0">mở lib-module.md — không shebang, không set -e, có chốt chống nạp trùng</text>
+<path class="w" d="M250 168 C 280 168, 260 145, 288 145" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="124" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="150">sửa log hoặc báo lỗi</text>
+<text class="t-s" x="508" y="149.0">mở helpers.md — mức log, mã thoát, ghi nguyên tử, móc test HĐH</text>
+<path class="w" d="M250 168 C 280 168, 260 197, 288 197" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="176" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="202">sửa màn hình trợ giúp</text>
+<text class="t-s" x="508" y="201.0">mở help-system.md — trợ giúp là hệ thống con, thiếu một nhánh là lỗi</text>
+<path class="w" d="M250 168 C 280 168, 260 249, 288 249" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="228" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="254">sửa init / doctor</text>
+<text class="t-s" x="508" y="253.0">mở init-doctor.md — bộ ba chẩn đoán và hình dạng file cấu hình</text>
+<path class="w" d="M250 168 C 280 168, 260 301, 288 301" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-new" x="290" y="280" width="200" height="42" rx="8"/>
+<text class="t t-b" x="302" y="306">sửa file gốc dự án</text>
+<text class="t-s" x="508" y="305.0">mở tooling.md — shellcheck, editorconfig, VERSION, bố cục test</text>
+<path class="w-dash" d="M250 168 C 280 168, 260 356, 288 356" marker-end="url(#fig-routes-ah)"/>
+<rect class="n-bad" x="290" y="338" width="680" height="36" rx="8" stroke-dasharray="5 4"/>
+<text class="t t-b t-bad" x="302" y="361">TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này</text>
+</svg>
+</div>
+  <figcaption>Skill bảo trì không có luồng. Nó nhận ra hình dạng dự án rồi mở <strong>đúng một</strong> file tham chiếu.</figcaption>
+  <details><summary>Xem bản chữ thuần</summary><pre>BẠN ĐANG SỬA MỘT BASH CLI NHIỀU FILE
+                 │
+    ┌────────────┼────────────┬───────────┬──────────┬──────────┐
+    ▼            ▼            ▼           ▼          ▼          ▼
+thêm lệnh    thêm module   sửa log     sửa màn     sửa init   sửa file
+  con         thư viện     báo lỗi    trợ giúp    / doctor   cấu hình
+    │            │            │           │          │          │
+entry-point  lib-module   helpers   help-system  init-doctor  tooling
+    .md          .md         .md        .md          .md        .md
+
+TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này</pre></details>
+</figure>
+
+<div class="prose"><p>Mỗi ngả đường ứng với một quy trình được viết sẵn. Ví dụ ngả &quot;thêm lệnh con&quot; có sáu bước, và hai bước cuối được đánh dấu <strong>đừng bỏ qua</strong>: thêm nhánh trợ giúp con, và cập nhật danh sách lệnh trong trợ giúp tổng. Lý do được nói rõ luôn — màn hình trợ giúp là một hệ thống con thật sự, thiếu một dòng trong đó là <strong>lỗi</strong>, không phải sơ suất nhỏ.</p>
+<p>Cuối mỗi lần sửa, bước kiểm tra giống nhau: chạy <code>--help</code>, chạy <code>doctor</code> nếu cấu hình có thể đã đổi, chạy công cụ soi lỗi tĩnh nếu máy có, chạy test nếu vùng vừa sửa có test.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s5">
+  <div class="sec-head"><span class="sec-no">05</span><h2>Dữ liệu và trạng thái</h2></div>
+<div class="prose"><p><strong>Bản thân hai skill không nhớ gì cả.</strong> Không thư mục tạm, không bộ nhớ đệm, không file trạng thái, không gì sống sót giữa hai lần chạy. Chúng đọc file tham chiếu của chính mình, đọc file dự án của bạn, rồi ghi file dự án của bạn. Hết.</p>
+<p>Phần trạng thái đáng học nằm ở <strong>dự án được sinh ra</strong>, và đó mới là thứ hai skill thật sự bàn giao. Nó dựa trên một ranh giới duy nhất:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Khai báo — <strong>có</strong> commit</th>
+<th>Phân giải — <strong>không</strong> commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File</td>
+<td><code>config/tools.json.example</code></td>
+<td><code>settings.json</code></td>
+</tr>
+<tr>
+<td>Nội dung</td>
+<td>&quot;tool này cần <code>jq</code> và <code>psql</code>&quot;</td>
+<td>&quot;<code>jq</code> nằm ở <code>/opt/homebrew/bin/jq</code>, bản 1.7.1, biến thể apple&quot;</td>
+</tr>
+<tr>
+<td>Ai tạo</td>
+<td>bộ khung, lúc dựng dự án</td>
+<td>lệnh <code>init</code>, trên từng máy</td>
+</tr>
+</tbody>
+</table></div>
+<p>Đây là lý do <strong>bộ khung từ chối tạo <code>settings.json</code></strong>. Nếu nó tạo, thư mục vừa sinh ra đã dính đường dẫn của một máy cụ thể, và dự án hết tái lập được. Việc quét máy là một hành động có chủ ý của người dùng, không phải tác dụng phụ.</p>
+<p>Ba lệnh xoay quanh ranh giới đó — bộ ba chẩn đoán:</p>
+<ul>
+<li><strong><code>init</code></strong> — chạy một lần. Quét môi trường sống, ghi ra <code>settings.json</code>. Từ chối ghi đè trừ khi có <code>--force</code>.</li>
+<li><strong><code>doctor</code></strong> — chạy khi cần. So <code>settings.json</code> đã lưu với môi trường hiện tại, in ra từng mục. Chỉ sửa khi bạn thêm <code>--fix</code>, và khi sửa thì chép bản cũ ra <code>.bak</code> trước.</li>
+<li><strong><code>assert</code></strong> — chốt chặn lúc chạy. Lệnh nào làm việc thật thì gọi nó trước; nếu có lệch thì thoát ngay với thông báo đã cài sẵn câu <em>&quot;chạy <code>doctor --fix</code>&quot;</em>.</li>
+</ul>
+<p>Bộ ba này thay thế cho thứ mà mọi script shell đều có: những dòng <code>command -v jq || exit 1</code> rải rác khắp nơi, mỗi dòng một kiểu, không dòng nào chỉ cho người dùng lối ra.</p>
+<p>Ngoài file, dự án sinh ra còn đọc vài <strong>biến môi trường</strong>, tất cả mang tiền tố bạn đã chọn:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Biến</th>
+<th>Dùng để</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;PKG&gt;_PKG_DIR</code></td>
+<td>gốc dự án, file điểm vào tự tính ra rồi export</td>
+</tr>
+<tr>
+<td><code>&lt;PKG&gt;_LOG_LEVEL</code></td>
+<td>lọc mức log: <code>error</code> / <code>warn</code> / <code>info</code> / <code>debug</code>, mặc định <code>info</code></td>
+</tr>
+<tr>
+<td><code>&lt;PKG&gt;_COMPONENT</code></td>
+<td>tên ngắn hiện trong dòng log để biết log từ đâu ra</td>
+</tr>
+<tr>
+<td><code>&lt;PKG&gt;_OS_OVERRIDE</code></td>
+<td><strong>móc dành cho test</strong> — ép nhận diện HĐH mà không cần máy khác</td>
+</tr>
+<tr>
+<td><code>&lt;PKG&gt;_BASH_BOOTSTRAPPED</code></td>
+<td>chặn vòng lặp khi file khởi động chạy lại chính mình</td>
+</tr>
+<tr>
+<td><code>NO_COLOR</code></td>
+<td>quy ước chung: đặt bất cứ giá trị nào thì log hết màu</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Giao diện bên ngoài</h3>
+<p>Cả hai skill đều có chạm tới vài công cụ ngoài. Ở đây chỉ cần biết <strong>đưa gì vào, nhận gì ra</strong>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Công cụ</th>
+<th>Skill đưa</th>
+<th>Nhận lại</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jq</code></td>
+<td>một tài liệu JSON và một biểu thức truy vấn</td>
+<td>JSON hoặc chuỗi đã lọc; bộ ba chẩn đoán dựng mọi file JSON qua đây thay vì nối chuỗi</td>
+</tr>
+<tr>
+<td><code>shellcheck</code></td>
+<td>đường dẫn các file <code>.sh</code> vừa viết</td>
+<td>danh sách cảnh báo tĩnh; bước kiểm tra tuỳ chọn, thiếu thì bỏ qua</td>
+</tr>
+<tr>
+<td><code>bats</code></td>
+<td>thư mục <code>tests/</code></td>
+<td>kết quả pass/fail; bộ khung chỉ sinh test khói, test thật là việc của bạn</td>
+</tr>
+<tr>
+<td><code>git</code></td>
+<td>không đưa gì</td>
+<td>không nhận gì; skill không chạy git, chỉ sinh <code>.gitignore</code> để bạn tự commit</td>
+</tr>
+<tr>
+<td><code>date</code>, <code>uname</code></td>
+<td>không đưa gì</td>
+<td>dấu thời gian và tên HĐH ghi vào <code>settings.json</code> lúc quét</td>
+</tr>
+</tbody>
+</table></div>
+<p>Nội tạng của mấy công cụ đó không phải chuyện của trang này.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s6" data-toc-group="PHẦN 3 — Một lần chạy đầy đủ">
+  <div class="sec-head"><span class="sec-no">06</span><h2>Đầu tới cuối</h2></div>
+<div class="prose"><h3>Đầu vào</h3>
+<p>Bạn muốn một tool chạy migration Postgres. Bảy câu trả lời:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Câu hỏi</th>
+<th>Bạn trả lời</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tên dự án</td>
+<td><code>pg-migrate</code></td>
+</tr>
+<tr>
+<td>Tiền tố hàm</td>
+<td><code>pgm</code></td>
+</tr>
+<tr>
+<td>Tiền tố biến môi trường</td>
+<td><code>PGM</code></td>
+</tr>
+<tr>
+<td>Lệnh con</td>
+<td><code>init</code>, <code>doctor</code>, <code>apply</code>, <code>rollback</code></td>
+</tr>
+<tr>
+<td>Nơi đặt</td>
+<td><code>scripts/bash/pg-migrate/</code></td>
+</tr>
+<tr>
+<td>Công cụ ngoài cần</td>
+<td><code>psql</code>, <code>jq</code></td>
+</tr>
+<tr>
+<td>Kiểu changelog</td>
+<td>Keep a Changelog</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Giữa chừng: marker biến thành tên</h3>
+<p>Đây là chỗ dễ hiểu sai nhất, nên đáng nhìn kỹ. File mẫu chứa những chuỗi đánh dấu; thay chuỗi là xong file.</p>
+</div>
+
+<div class="tw"><table><thead><tr><th>trong template</th><th>sau khi thay</th><th></th></tr></thead><tbody><tr><td><code>__NAME__</code></td><td><code>pg-migrate</code></td><td>tên dự án, dùng cho tên file và tiêu đề trợ giúp</td></tr><tr><td><code>__PKG___PKG_DIR</code></td><td><code>PGM_PKG_DIR</code></td><td>marker là <code>__PKG__</code>, gạch dưới cuối là của tên biến</td></tr><tr><td><code>___ns___log</code></td><td><code>_pgm_log</code></td><td>marker là <code>__ns__</code>; hai gạch dưới bọc ngoài đánh dấu &quot;hàm riêng tư&quot;</td></tr><tr><td><code>___PKG___COMMON_SOURCED</code></td><td><code>_PGM_COMMON_SOURCED</code></td><td>tên chốt chống nạp trùng của thư viện common</td></tr></tbody></table></div><p class="blk-note">Không thay: <code>${BASH_SOURCE[0]}</code>, <code>$HOME</code> và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker. Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker <strong>lồng trong</strong> quy ước gạch dưới của bash.</p>
+
+<div class="prose"><p>Hai dòng dưới trông rối vì chúng <strong>lồng nhau</strong>. Marker chỉ là <code>__ns__</code> và <code>__PKG__</code>; những gạch dưới thừa hai bên là quy ước bash cho &quot;hàm riêng tư, đừng gọi từ ngoài&quot;. <code>___ns___log</code> chính là <code>_</code> + <code>__ns__</code> + <code>_log</code>, nên sau khi thay ra <code>_pgm_log</code>. Bạn không cần nhớ chuyện này — chỉ cần biết rằng skill có hẳn một file tham chiếu dành riêng cho nó, vì nó đã từng làm người ta nhầm.</p>
+<p>Dòng đầu tiên của file điểm vào, trước và sau, cho thấy toàn bộ trò chơi:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code># template
+__PKG___PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &amp;&amp; pwd)"
+
+# kết quả
+PGM_PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &amp;&amp; pwd)"</code></pre></div>
+
+<div class="prose"><p>Phần <code>${BASH_SOURCE[0]}</code> <strong>không bị thay</strong> — đó là cú pháp bash lúc chạy, không phải marker. Luật này được ghi riêng: đừng thay biến bash, đừng thay ruột của khối văn bản trích dẫn cứng, đừng thay hai lần.</p>
+<h3>Đầu ra</h3>
+<p>Cả cây thư mục nằm trên đĩa. Chạy được ngay:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>$ scripts/bash/pg-migrate/pg-migrate.sh --help
+pg-migrate — apply postgres migrations idempotently
+
+USAGE
+  pg-migrate.sh &lt;subcommand&gt; [options]
+  pg-migrate.sh help [&lt;subcommand&gt;]
+
+SUBCOMMANDS
+  init      scan env and write settings.json (one-time)
+  doctor    compare settings.json vs live env; --fix to repair
+  apply     ← lệnh con của bạn; thân hàm còn rỗng
+  rollback  ← lệnh con của bạn; thân hàm còn rỗng
+  version   print tool version
+  help      show this help</code></pre></div>
+
+<div class="prose"><p>Chạy <code>init</code> một lần, <code>settings.json</code> xuất hiện — và đây là toàn bộ hình dạng của nó:</p>
+</div>
+
+<div class="codebox"><div class="bar"><span>text</span><button class="btn" data-action="copy:code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button></div><pre><code>{
+  "version": 1,
+  "scanned-at": "2026-09-18T11:04:22Z",
+  "scanned-on": { "os": "darwin", "arch": "arm64" },
+  "tools": {
+    "psql": {
+      "name": "psql", "found": true,
+      "path": "/opt/homebrew/bin/psql",
+      "version": "17.2", "variant": "unknown"
+    },
+    "jq": {
+      "name": "jq", "found": true,
+      "path": "/usr/bin/jq",
+      "version": "1.7.1", "variant": "apple"
+    }
+  }
+}</code></pre></div>
+
+<div class="prose"><p>Trường <code>variant</code> là thứ đáng chú ý: nó ghi lại <strong>biến thể</strong> của công cụ — <code>gnu</code>, <code>bsd</code>, <code>apple</code>, hay <code>unknown</code> — được đoán từ dòng đầu của <code>--version</code>. Đó chính là câu trả lời cho nỗi đau &quot;chạy ngon trên máy tôi, hỏng trên máy anh&quot; ở mục 1: sự khác biệt được <strong>ghi lại thành dữ liệu</strong> thay vì được phát hiện lúc lỗi.</p>
+<h3>Hai tuần sau: viết <code>rollback</code> cho thật</h3>
+<p>Giờ sang skill còn lại. Sáu bước, theo đúng thứ tự:</p>
+<ol>
+<li>Đọc bộ điều phối ở cuối file điểm vào, tìm khối phân nhánh theo đối số đầu tiên.</li>
+<li>Đọc một hoặc hai hàm lệnh con anh em — để bắt chước, không để sáng tạo.</li>
+<li>Viết <code>cmd_rollback</code> <strong>phía trên</strong> bộ điều phối, với vòng đọc cờ riêng của nó.</li>
+<li>Thêm một nhánh vào bộ điều phối.</li>
+<li>Thêm một nhánh vào trợ giúp con.</li>
+<li>Cập nhật danh sách lệnh trong trợ giúp tổng.</li>
+</ol>
+<p>Bước 3 có một luật nhỏ mà hai skill đều nhắc: mỗi cờ phải nhận <strong>cả hai cách gõ</strong>, <code>--settings đường/dẫn</code> và <code>--settings=đường/dẫn</code>. Người dùng có hai thói quen; tool không nên bắt họ đổi.</p>
+<p>Và mỗi lệnh con <strong>tự đọc cờ của riêng mình</strong>, dù trông như lặp lại. Đó là cố ý: gom hết vào một chỗ xử lý chung là cách để cờ của lệnh này rò rỉ sang lệnh khác — một lỗi cực kỳ khó thấy.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s7">
+  <div class="sec-head"><span class="sec-no">07</span><h2>Hook</h2></div>
+<div class="prose"><p>Không có. Hai skill này không gắn vào hook nào, không có mục nào trong file cấu hình, không có lệnh gạch chéo nào gọi chúng.</p>
+<p>Điều đó đáng nói ra chứ không phải đáng giấu: với phần lớn skill, <strong><code>description</code> chính là toàn bộ dây nối</strong>. Agent đọc mô tả, thấy tình huống khớp, rồi tự chọn. Không có gì khác bật nó lên.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s8">
+  <div class="sec-head"><span class="sec-no">08</span><h2>Cái gì chặn bạn làm sai</h2></div>
+<div class="prose"><p>Có hai lớp chặn, và chúng ở hai nơi khác nhau.</p>
+<h3>Lớp thứ nhất — chặn trong bản thân skill</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Cái chặn</th>
+<th>Vắng nó thì sao</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code> phải hiện ra, nếu không thì dừng</td>
+<td>Một marker sót lại hoặc một lỗi cú pháp trôi đi im lặng; bạn chỉ phát hiện lúc cần dùng thật</td>
+</tr>
+<tr>
+<td>Quét lại xem còn marker nào chưa thay</td>
+<td><code>__PKG___PKG_DIR</code> sống sót vào file đã giao, và <strong>mọi</strong> dòng nạp thư viện đều hỏng</td>
+</tr>
+<tr>
+<td>Không tự chạy <code>init</code> hộ người dùng</td>
+<td>Một file dính đường dẫn của một máy cụ thể nằm sẵn trong repo mới toanh</td>
+</tr>
+<tr>
+<td>Không sửa lấy lòng phiên bản cũ</td>
+<td>Repo đang phát triển đẻ ra lớp đệm tương thích cho thứ chưa ai dùng</td>
+</tr>
+<tr>
+<td>Không chạy lệnh có tác dụng phụ khi chưa được phép</td>
+<td>Agent &quot;kiểm tra thử&quot; một lệnh migration trên cơ sở dữ liệu thật</td>
+</tr>
+<tr>
+<td>Không lặng lẽ đổi câu thông báo lỗi</td>
+<td>Chốt chặn lúc chạy có nhét sẵn câu <em>&quot;chạy <code>doctor --fix</code>&quot;</em> vào lỗi; đổi chữ là đứt dây chỉ đường</td>
+</tr>
+<tr>
+<td>Mỗi skill có một dòng &quot;việc kia thì dùng skill kia&quot;</td>
+<td>Bộ khung ghi đè lên một dự án đang sống, hoặc skill bảo trì tự phát minh lại bố cục</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Lớp thứ hai — chặn trong dự án được sinh ra</h3>
+</div>
+
+<div class="kv">  <div class="r"><span><code>set -euo pipefail</code> chỉ ở file chạy được</span><span>một thư viện bật <code>-e</code> sẽ lây sang shell đang nạp nó, làm hỏng cả những thứ chẳng liên quan</span></div>
+  <div class="r"><span>chốt chống nạp trùng ở mỗi thư viện</span><span>nhiều thư viện cùng nạp <code>common.sh</code> thì hàm bị định nghĩa lại nhiều lần</span></div>
+  <div class="r"><span><code>init</code> từ chối ghi đè nếu không có <code>--force</code></span><span>một lần gõ nhầm xoá mất ảnh chụp môi trường đã dùng được nhiều tháng</span></div>
+  <div class="r"><span><code>doctor</code> mặc định chỉ so, không sửa</span><span>lệnh chẩn đoán tự ý đổi cấu hình là lệnh không ai dám chạy; có <code>--fix</code> thì chép <code>.bak</code> trước</span></div>
+  <div class="r"><span>chốt chống chạy lại vô hạn</span><span>file khởi động tự gọi lại chính mình dưới trình thông dịch khác, mãi mãi</span></div>
+  <div class="r"><span>cổng phiên bản shell, kèm cách khắc phục</span><span>thay vì lỗi cú pháp giữa chừng, tool thoát sạch với câu &quot;cài bản mới bằng lệnh này&quot;</span></div>
+  <div class="r"><span>ghi file kiểu nguyên tử</span><span>máy tắt giữa chừng để lại file cấu hình viết dở, lần chạy sau đọc phải file hỏng</span></div>
+</div>
+<p class="blk-note">Những cái chặn nằm trong <strong>dự án được sinh ra</strong>. Mỗi dòng: luật, rồi chuyện xảy ra khi vắng nó.</p>
+
+<div class="prose"><p>Cái cuối đáng dừng lại một chút. <strong>Ghi nguyên tử</strong> nghĩa là: không ghi thẳng vào file đích, mà ghi ra một file tạm mang số hiệu tiến trình rồi đổi tên đè lên. Việc đổi tên hoặc xong hẳn hoặc chưa xảy ra, nên người đọc không bao giờ bắt gặp file ở trạng thái nửa vời. Số hiệu tiến trình trong tên file tạm là để hai tiến trình ghi cùng lúc không giẫm lên nhau.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s9" data-toc-group="PHẦN 4 — Học lại thiết kế">
+  <div class="sec-head"><span class="sec-no">09</span><h2>Những quyết định đáng lấy</h2></div>
+<div class="prose"><h3>Chia theo vòng đời, không chia theo chủ đề</h3>
+<p>Hai skill, một để tạo, một để bảo trì — thay vì một skill to nói cả hai. Đánh đổi: cùng một quy ước bị mô tả ở hai nơi (khuôn file điểm vào vừa nằm trong file mẫu vừa nằm trong file tham chiếu), và đó đúng là chỗ hai bản sẽ lệch nhau theo thời gian.</p>
+<h3>Template là file thật, không phải lời mô tả</h3>
+<p>Bộ khung <strong>chép</strong> bash chạy được thay vì mô tả bash nên trông thế nào. Đánh đổi: file mẫu không tự chạy và không tự test được, vì chúng còn đầy marker. Không có gì canh chúng ngoài lần chạy <code>--help</code> sau khi đã thay xong.</p>
+<h3>Bảng định tuyến thay cho quy trình</h3>
+<p>Thân <code>bash-cli-pattern</code> gần như chỉ gồm &quot;nếu bạn đang làm X thì mở Y&quot;. Đánh đổi: không có đường thẳng để đi theo, nên skill vô dụng nếu agent chọn sai file để mở.</p>
+<h3>Bất biến đánh số, mỗi dòng kèm một cột &quot;vì sao&quot;</h3>
+<p>Mười điều, mỗi điều có hậu quả đi kèm. Một luật kèm lý do thì nhớ được; một luật trần trụi thì bị bỏ qua ngay lần đầu thấy bất tiện.</p>
+<h3>Cho phép lệch, và nói rõ lệch bao nhiêu thì hỏng</h3>
+<p>Câu đáng lấy nguyên văn: <em>lệch một điều thì chấp nhận được; lệch nhiều điều nghĩa là file này không còn thuộc khuôn mẫu nữa</em>. Rất hiếm tài liệu quy ước nào dám ghi ngưỡng. Đánh đổi: ngưỡng mờ, nên vẫn cần người đọc có phán đoán.</p>
+<h3>Mô tả được viết như danh sách tình huống</h3>
+<p>Cả hai <code>description</code> đều dài, nhồi những câu người dùng sẽ gõ thật — &quot;thêm lệnh con&quot;, &quot;dựng khung CLI&quot;, &quot;sửa lệnh doctor&quot; — chứ không tóm tắt skill làm gì. <code>bash-cli-pattern</code> còn đi xa hơn: nó nhận diện <strong>hình dạng thư mục</strong> để tự kích hoạt mà không cần được gọi tên. Đánh đổi: mô tả là phần duy nhất luôn nằm trong context, nên nó là đoạn văn đắt nhất trong cả skill — trả tiền ở mọi lượt của mọi cuộc hội thoại, kể cả những lượt chẳng liên quan gì tới bash.</p>
+<h3>Phần ruột thật ra chỉ là một ý</h3>
+<p>Bỏ hết bố cục thư mục sang một bên, thứ hai skill thật sự bán là bộ ba <code>init</code> / <code>doctor</code> / <code>assert</code>: <strong>chụp lại môi trường một lần, rồi so lệch cho rẻ</strong>, thay vì kiểm tra vặt rải rác khắp mã nguồn. Bố cục thư mục chỉ là cái nhà cho ý đó ở.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>Tự dựng skill của bạn</h2></div>
+<div class="prose"><p>Bạn vừa xem một skill được thiết kế. Giờ là những quyết định đến lượt bạn phải quyết.</p>
+<h3>1 · Lĩnh vực của bạn có hai nửa vòng đời không?</h3>
+<p>Nếu có một việc &quot;làm một lần lúc đầu&quot; và một việc &quot;đụng vào mãi mãi&quot;, hãy tách hai skill. Nếu không, đừng tách cho giống người ta. Khi tách thì <strong>nối chúng lại bằng một dòng trong mỗi mô tả</strong>: <em>đừng dùng cái này cho việc kia — dùng skill kia</em>. Thiếu dòng đó, hai skill sẽ tranh nhau và cái sai thắng một nửa số lần.</p>
+<h3>2 · Cái gì ở lại <code>SKILL.md</code>, cái gì xuống <code>references/</code></h3>
+<p>Luật mà cặp skill này minh hoạ: <strong><code>SKILL.md</code> giữ quyết định đọc gì tiếp theo; <code>references/</code> giữ thứ chỉ cần khi bạn đã ở đó.</strong> Thân <code>bash-cli-pattern</code> gần như chỉ là bảng định tuyến, còn chiều sâu nằm trong các file tham chiếu — mỗi lần chỉ mở một.</p>
+<p>Phép thử: câu này có cần đọc ở <strong>mọi</strong> lần chạy không? Không thì nó thuộc <code>references/</code>.</p>
+<h3>3 · Vật liệu hay phán đoán?</h3>
+<p>Nếu đầu ra là một file mà agent sẽ chép — hãy đưa hẳn file đó vào <code>templates/</code>. Nếu đầu ra là một lựa chọn phải cân nhắc — hãy viết văn xuôi. Đừng mô tả một file bằng lời khi bạn có thể đưa luôn file.</p>
+<p>Và chỉ thêm <code>scripts/</code> khi công việc <strong>thật sự là thuật toán</strong>. Một loạt phép thay chuỗi thì không phải.</p>
+<h3>4 · Viết <code>description</code> như một danh sách tình huống</h3>
+<p>Không phải &quot;skill này giúp bạn dựng CLI&quot;. Mà là những câu người dùng sẽ gõ thật, càng cụ thể càng tốt, cộng thêm dòng ranh giới, cộng thêm — nếu bạn muốn nó tự bật — một dấu hiệu <strong>nhận diện được bằng mắt</strong>: một tên file, một cặp thư mục, một đuôi mở rộng.</p>
+<p>Nhớ rằng đây là đoạn đắt nhất bạn viết. Dài thì bắt trúng nhiều tình huống hơn, nhưng bạn trả tiền cho nó ở mọi lượt.</p>
+<h3>5 · Mỗi luật phải mang theo lý do</h3>
+<p>&quot;Đừng quên thêm nhánh trợ giúp&quot; thì quên ngay. &quot;Thiếu nhánh trợ giúp thì người dùng nhìn thấy, và đó là <strong>lỗi</strong> chứ không phải sơ suất&quot; thì không quên được. Khi viết một luật, hãy tìm lại chuyện đã hỏng khiến luật đó ra đời — nếu không tìm ra, có lẽ luật đó không cần tồn tại.</p>
+<h3>6 · Đặt một cái chặn rẻ ở cuối</h3>
+<p>Chọn thứ rẻ nhất mà <strong>quan sát được</strong> để chứng minh việc đã thành: ở đây là màn hình trợ giúp. Rồi biến nó thành điều kiện dừng, viết bằng câu mệnh lệnh: <em>nếu nó không hiện ra thì dừng, đừng báo xong</em>.</p>
+<h3>7 · Nói rõ đâu là chịu lực, đâu là gợi ý</h3>
+<p>Không phải luật nào cũng ngang nhau. Nếu bạn không phân hạng, người đọc sẽ tự phân — và họ phân sai.</p>
+<h3>Bước đầu tiên, làm ngay bây giờ</h3>
+<p>Tạo <code>~/.claude/skills/&lt;tên-của-bạn&gt;/SKILL.md</code>. Trong đó đúng ba thứ:</p>
+<ul>
+<li>frontmatter: <code>name</code>, và một <code>description</code> liệt kê tình huống;</li>
+<li>một đoạn tiêu đề <strong>&quot;Vì sao skill này tồn tại&quot;</strong> — kể lại việc thủ công mà nó xoá bỏ;</li>
+<li>một bảng định tuyến, kể cả khi bảng mới có một dòng.</li>
+</ul>
+<p>Chưa tạo <code>references/</code> vội. Chỉ tạo nó khi một mục phình ra tới mức bạn không muốn đọc lại ở mọi lần chạy. Thư mục rỗng là tiếng ồn.</p>
+</div>
+
+</section>
+
+<section class="sec" id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>Bảng thuật ngữ</h2></div>
+<div class="prose"><p><strong>assert (chốt chặn lúc chạy)</strong> — hàm được gọi trước khi làm việc thật, thoát ngay nếu cấu hình đã lưu lệch với môi trường hiện tại.</p>
+<p><strong>bats</strong> — bộ chạy test dành cho bash; mỗi test là một khối <code>@test</code>.</p>
+<p><strong>bin/ và lib/</strong> — quy ước tách file: <code>bin/</code> chứa file chạy trực tiếp, <code>lib/</code> chứa file chỉ được nạp vào file khác.</p>
+<p><strong>bóc dần (progressive disclosure)</strong> — cách sắp xếp sao cho phần luôn phải đọc thì ngắn, phần dài thì chỉ đọc khi cần.</p>
+<p><strong>bộ điều phối (dispatcher)</strong> — khối phân nhánh ở cuối file điểm vào, nhìn đối số đầu tiên rồi gọi hàm lệnh con tương ứng.</p>
+<p><strong>chốt chống nạp trùng (source guard)</strong> — hai dòng đầu file thư viện, thoát ngay nếu file đã được nạp trước đó.</p>
+<p><strong>description</strong> — dòng mô tả trong frontmatter; là bề mặt kích hoạt, quyết định skill có được chọn hay không.</p>
+<p><strong>doctor</strong> — lệnh con so sánh cấu hình đã lưu với môi trường hiện tại và in ra khác biệt.</p>
+<p><strong>điểm vào (entry point)</strong> — file được chạy trực tiếp, là nơi duy nhất bật chế độ nghiêm ngặt và nạp thư viện.</p>
+<p><strong>frontmatter</strong> — khối dữ liệu ở đầu <code>SKILL.md</code>, chứa <code>name</code> và <code>description</code>.</p>
+<p><strong>ghi nguyên tử (atomic write)</strong> — ghi ra file tạm rồi đổi tên đè lên đích, để người đọc không bao giờ thấy file viết dở.</p>
+<p><strong>hook</strong> — cơ chế cho phép chạy một lệnh tự động khi có sự kiện xảy ra; cặp skill này không dùng.</p>
+<p><strong>init</strong> — lệnh con chạy một lần, quét môi trường và ghi ra file cấu hình cho máy hiện tại.</p>
+<p><strong>jq</strong> — công cụ dòng lệnh để đọc và dựng JSON.</p>
+<p><strong>lệch (drift)</strong> — trạng thái cấu hình đã lưu không còn khớp với môi trường thật.</p>
+<p><strong>marker (placeholder)</strong> — chuỗi đánh dấu trong file mẫu, sẽ được thay bằng tên thật lúc sinh file.</p>
+<p><strong>namespace (tiền tố)</strong> — vài ký tự đứng đầu mọi tên hàm trong dự án, để hàm không đụng tên với thứ khác trong shell.</p>
+<p><strong>settings.json</strong> — ảnh chụp môi trường của một máy cụ thể; sinh bởi <code>init</code>, không commit.</p>
+<p><strong>shebang</strong> — dòng đầu file script, nói cho hệ điều hành biết chạy file bằng chương trình nào.</p>
+<p><strong>shellcheck</strong> — công cụ soi lỗi tĩnh cho script shell.</p>
+<p><strong>chế độ nghiêm ngặt (strict mode)</strong> — <code>set -euo pipefail</code>: dừng khi lỗi, dừng khi dùng biến chưa đặt, dừng khi một khâu trong đường ống hỏng.</p>
+<p><strong>stdout và stderr</strong> — hai luồng ra: dữ liệu có cấu trúc đi ra stdout để nối ống, log và lỗi đi ra stderr.</p>
+<p><strong>lệnh con (subcommand)</strong> — từ đầu tiên sau tên tool, ví dụ <code>init</code> trong <code>pg-migrate.sh init</code>.</p>
+<p><strong>nạp (source)</strong> — đọc một file bash vào <strong>chính</strong> shell đang chạy, khác với chạy file đó ra một tiến trình riêng.</p>
+<p><strong>chạy lại chính mình (re-exec)</strong> — thay thế tiến trình đang chạy bằng cùng script đó dưới một trình thông dịch khác.</p>
+<p><strong>biến thể (variant)</strong> — nhãn <code>gnu</code> / <code>bsd</code> / <code>apple</code> / <code>unknown</code> ghi lại phiên bản nào của một công cụ đang được dùng.</p>
+</div>
+
+</section>
+
+<footer>Trang này mô tả hai skill như chúng đang là: một cặp quy ước viết tay cho công cụ shell, không phải một framework. Chúng không chạy gì thay bạn — chúng chỉ nói cho agent biết phải viết cái gì.<br />
+Tên <code>pg-migrate</code>, <code>pgm</code>, <code>PGM</code> và danh sách công cụ trong ví dụ là bịa ra để đi hết một vòng cho dễ theo dõi. Bảy câu hỏi đầu vào, hai cây thư mục, luật thay marker và bộ ba <code>init</code> / <code>doctor</code> / <code>assert</code> thì thuộc về hai skill.</footer>
+  </div>
+  </div>
+
+  <!-- ======================= MARKDOWN ======================= -->
+  <div class="panel" id="panel-md" role="tabpanel" aria-labelledby="tab-md" hidden>
+    <div class="wrap">
+      <div class="md-head">
+        <div><div class="kicker">Nguồn</div><h2>bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao.md</h2><small id="md-meta" style="color:var(--ink-3)"></small></div>
+        <div class="acts">
+          <button class="btn" data-action="copy:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Chép</button>
+          <button class="btn primary" data-action="download:md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 19h16"/></svg>Tải .md</button>
+        </div>
+      </div>
+      <div class="md"><pre id="md-view"></pre></div>
+    </div>
+  </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="text/plain" id="md-source">
+# Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI
+
+*Đọc một skill . khuôn mẫu công cụ dòng lệnh bằng bash*
+
+> Phần 1 — Viết một tool shell nhiều file thì đau ở đâu, và cặp skill này trả lại cho bạn cái gì.\
+Phần 2 — Bên trong một skill có gì: thư mục, luồng chạy, dữ liệu. Đây là phần để bạn vẽ lại được từ trí nhớ.\
+Phần 3 — Một lần chạy đi hết từ câu hỏi đầu tiên tới file trên đĩa, cộng với những cái chặn bạn làm sai.\
+Phần 4 — Những quyết định thiết kế đáng lấy, và công thức để bạn tự dựng skill đầu tiên.
 
 ---
 
-# PHẦN 1 — Vấn đề và thành phẩm
+*PHẦN 1 — Vấn đề và thành phẩm*
 
-## 1. Mục đích
+## 01. Mục đích
 
 Bạn viết một script shell để tự động hoá một việc nhỏ. Nó chạy được, bạn giữ lại. Tháng sau nó cần thêm một lệnh nữa, bạn thêm vào. Tháng sau nữa nó cần một đoạn tiện ích mà script khác cũng cần, bạn copy sang. Đến lúc này nó không còn là một script, nó là một **dự án** — và không ai từng ngồi xuống quyết định dự án đó nên có hình dạng gì.
 
@@ -323,7 +1242,7 @@ Cặp skill trong tài liệu này là câu trả lời viết-ra-giấy cho đ�
 
 Một trong hai skill nói thẳng ra ý định đó: nếu người dùng đang bắt đầu bất kỳ dự án shell nhiều file nào — kể cả khi họ không hề dùng chữ "khuôn mẫu" — thì cứ áp dụng, **để họ khỏi phải phát minh lại bố cục**.
 
-## 2. Tình huống dùng và thành phẩm
+## 02. Tình huống dùng và thành phẩm
 
 Đây là **hai** skill chứ không phải một, và chúng chia nhau theo vòng đời của dự án:
 
@@ -342,9 +1261,11 @@ Skill `bash-cli-scaffold` kích hoạt và hỏi bạn bảy thứ **trong một
 
 Xong, bạn cầm trong tay **một thư mục hoàn chỉnh**, và ngay lập tức chạy được ba lệnh:
 
-    pg-migrate.sh --help      # màn hình trợ giúp hiện ra đầy đủ
-    pg-migrate.sh init        # quét máy bạn, ghi ra settings.json
-    pg-migrate.sh doctor      # so settings.json đã lưu với môi trường hiện tại
+```text
+pg-migrate.sh --help      # màn hình trợ giúp hiện ra đầy đủ
+pg-migrate.sh init        # quét máy bạn, ghi ra settings.json
+pg-migrate.sh doctor      # so settings.json đã lưu với môi trường hiện tại
+```
 
 Lệnh `apply` mà bạn đặt hàng thì **cố tình chưa làm gì**: nó thoát ra với thông báo "chưa cài đặt". Đó không phải thiếu sót — bộ khung dựng sẵn khung xương, phần thịt là việc của bạn.
 
@@ -356,9 +1277,9 @@ Thành phẩm ở đây không phải file mới mà là **một bản sửa kh�
 
 ---
 
-# PHẦN 2 — Bên trong hai skill
+*PHẦN 2 — Bên trong hai skill*
 
-## 3. Cấu trúc thư mục
+## 03. Cấu trúc thư mục
 
 Ở mục này có **hai cây thư mục khác nhau**, và lẫn lộn chúng là cách nhanh nhất để hiểu sai:
 
@@ -367,31 +1288,33 @@ Thành phẩm ở đây không phải file mới mà là **một bản sửa kh�
 
 ### Cây A — bản thân hai skill
 
-@fig:skillTree
-    bash-cli-scaffold/
-    ├── SKILL.md                     frontmatter + thuật toán sinh file
-    ├── references/
-    │   ├── output-tree.md           danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ
-    │   └── placeholders.md          bảng marker và luật thay thế
-    └── templates/                   bash chạy được, chưa điền tên
-        ├── __NAME__.sh              điểm vào
-        ├── VERSION  CHANGELOG.md  .gitignore
-        ├── .shellcheckrc  .editorconfig
-        ├── lib/                     _bootstrap.sh  common.sh
-        │                            settings.sh   tools.sh
-        ├── config/                  tools.json.example  bootstrap.json
-        └── tests/                   helpers/load.bash  unit/common.bats
+```text
+bash-cli-scaffold/
+├── SKILL.md                     frontmatter + thuật toán sinh file
+├── references/
+│   ├── output-tree.md           danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ
+│   └── placeholders.md          bảng marker và luật thay thế
+└── templates/                   bash chạy được, chưa điền tên
+    ├── __NAME__.sh              điểm vào
+    ├── VERSION  CHANGELOG.md  .gitignore
+    ├── .shellcheckrc  .editorconfig
+    ├── lib/                     _bootstrap.sh  common.sh
+    │                            settings.sh   tools.sh
+    ├── config/                  tools.json.example  bootstrap.json
+    └── tests/                   helpers/load.bash  unit/common.bats
 
-    bash-cli-pattern/
-    ├── SKILL.md                     frontmatter + 10 bất biến + bảng định tuyến
-    └── references/
-        ├── entry-point.md           khuôn 6 phần của file điểm vào
-        ├── lib-module.md            luật cho file thư viện được nạp
-        ├── helpers.md               log, báo lỗi, ghi nguyên tử, nhận diện HĐH
-        ├── help-system.md           trợ giúp là một hệ thống con, không phải một cờ
-        ├── init-doctor.md           bộ ba init / doctor / assert
-        └── tooling.md               shellcheck, editorconfig, VERSION, test
-@endfig
+bash-cli-pattern/
+├── SKILL.md                     frontmatter + 10 bất biến + bảng định tuyến
+└── references/
+    ├── entry-point.md           khuôn 6 phần của file điểm vào
+    ├── lib-module.md            luật cho file thư viện được nạp
+    ├── helpers.md               log, báo lỗi, ghi nguyên tử, nhận diện HĐH
+    ├── help-system.md           trợ giúp là một hệ thống con, không phải một cờ
+    ├── init-doctor.md           bộ ba init / doctor / assert
+    └── tooling.md               shellcheck, editorconfig, VERSION, test
+```
+
+*Cây thứ nhất: **bản thân hai skill** — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.*
 
 Nhiệm vụ từng chỗ, mỗi chỗ một câu:
 
@@ -406,17 +1329,19 @@ Nhiệm vụ từng chỗ, mỗi chỗ một câu:
 
 Sự phân chia trên không tuỳ hứng. Nó theo một nguyên tắc có tên — **progressive disclosure**, tạm gọi là **bóc dần**: cái gì càng hay phải trả giá thì càng phải ngắn.
 
-@fig:levels
-    LUÔN NẰM TRONG CONTEXT
-      frontmatter        quyết định skill có được chọn hay không
+```text
+LUÔN NẰM TRONG CONTEXT
+  frontmatter        quyết định skill có được chọn hay không
 
-    ĐỌC KHI SKILL KÍCH HOẠT
-      SKILL.md (thân)    quy trình, bảng định tuyến, luật cấm — không chứa chi tiết
+ĐỌC KHI SKILL KÍCH HOẠT
+  SKILL.md (thân)    quy trình, bảng định tuyến, luật cấm — không chứa chi tiết
 
-    ĐỌC KHI QUY TRÌNH BẢO ĐỌC
-      references/*.md    chiều sâu, không bao giờ đọc hết cùng một lúc
-      templates/*        vật liệu chép ra, hầu như không cần đọc hiểu
-@endfig
+ĐỌC KHI QUY TRÌNH BẢO ĐỌC
+  references/*.md    chiều sâu, không bao giờ đọc hết cùng một lúc
+  templates/*        vật liệu chép ra, hầu như không cần đọc hiểu
+```
+
+*Bóc dần: cái gì càng hay phải trả giá thì càng phải ngắn.*
 
 Đọc cây A theo lăng kính đó thì hai skill lộ ra hai tính cách khác nhau:
 
@@ -427,48 +1352,52 @@ Sự phân chia trên không tuỳ hứng. Nó theo một nguyên tắc có tên
 
 ### Cây B — dự án mà bộ khung sinh ra
 
-@fig:projectTree
-    pg-migrate/
-    ├── pg-migrate.sh          ĐIỂM VÀO — chạy trực tiếp, có strict mode
-    ├── VERSION                một dòng: 0.1.0
-    ├── CHANGELOG.md           định dạng Keep a Changelog
-    ├── .gitignore             bỏ qua settings.json, *.bak, tmp/
-    ├── .shellcheckrc          tắt đúng một cảnh báo, có ghi lý do
-    ├── .editorconfig          .sh và .bats thụt 4, còn lại thụt 2, xuống dòng LF
-    ├── lib/                   CHỈ ĐƯỢC NẠP — không chạy trực tiếp
-    │   ├── _bootstrap.sh      chọn đúng trình thông dịch, rồi chạy lại chính mình
-    │   ├── common.sh          log / die / ghi nguyên tử / nhận diện HĐH
-    │   ├── settings.sh        quét môi trường, so lệch, sửa lệch
-    │   └── tools.sh           tìm đường dẫn, phiên bản, biến thể của công cụ ngoài
-    ├── config/
-    │   ├── tools.json.example danh sách công cụ cần — CÓ commit
-    │   └── bootstrap.json     cấu hình tĩnh, không phụ thuộc máy
-    ├── tests/
-    │   ├── helpers/load.bash  nạp một thư viện vào phiên test
-    │   ├── unit/common.bats   7 test khói cho common.sh
-    │   └── fixtures/          để trống
-    └── docs/                  để trống
+```text
+pg-migrate/
+├── pg-migrate.sh          ĐIỂM VÀO — chạy trực tiếp, có strict mode
+├── VERSION                một dòng: 0.1.0
+├── CHANGELOG.md           định dạng Keep a Changelog
+├── .gitignore             bỏ qua settings.json, *.bak, tmp/
+├── .shellcheckrc          tắt đúng một cảnh báo, có ghi lý do
+├── .editorconfig          .sh và .bats thụt 4, còn lại thụt 2, xuống dòng LF
+├── lib/                   CHỈ ĐƯỢC NẠP — không chạy trực tiếp
+│   ├── _bootstrap.sh      chọn đúng trình thông dịch, rồi chạy lại chính mình
+│   ├── common.sh          log / die / ghi nguyên tử / nhận diện HĐH
+│   ├── settings.sh        quét môi trường, so lệch, sửa lệch
+│   └── tools.sh           tìm đường dẫn, phiên bản, biến thể của công cụ ngoài
+├── config/
+│   ├── tools.json.example danh sách công cụ cần — CÓ commit
+│   └── bootstrap.json     cấu hình tĩnh, không phụ thuộc máy
+├── tests/
+│   ├── helpers/load.bash  nạp một thư viện vào phiên test
+│   ├── unit/common.bats   7 test khói cho common.sh
+│   └── fixtures/          để trống
+└── docs/                  để trống
 
-    settings.json  ← KHÔNG có sẵn. Do lệnh `init` sinh ra. KHÔNG commit.
-@endfig
+settings.json  ← KHÔNG có sẵn. Do lệnh `init` sinh ra. KHÔNG commit.
+```
+
+*Cây thứ hai: **dự án được sinh ra** — thứ bạn nhận được. Đừng lẫn với cây trên.*
 
 Ranh giới quan trọng nhất trong cây B là **`bin/` và `lib/`**, hay ở đây là "file chạy được" đối lập với "file chỉ được nạp". Phụ thuộc chỉ đi một chiều: file chạy được nạp thư viện, thư viện không bao giờ gọi ngược lên. Nhờ vậy một thư viện dùng lại được cho nhiều điểm vào mà không kéo theo thứ gì.
 
 Bộ khung mặc định **không tạo `bin/`** — chỉ tạo một file điểm vào duy nhất ở gốc. Thư mục `bin/` chứa các CLI nhỏ tách riêng là tuỳ chọn, chỉ dựng khi bạn hỏi.
 
-## 4. Luồng chạy
+## 04. Luồng chạy
 
 ### Bộ khung: một đường thẳng, chạy đúng một lần
 
-@fig:scaffoldFlow
-    1  Nhận diện       người dùng muốn dựng một dự án bash nhiều file
-    2  Hỏi gộp         7 câu hỏi trong MỘT lượt, không hỏi nhỏ giọt
-    3  Đọc danh sách   references/output-tree.md — file nào phải có
-    4  Với từng file   đọc template → thay marker → ghi ra đích
-    5  Cấp quyền chạy  chmod +x cho file .sh ở gốc và mọi thứ trong bin/
-    6  Kiểm tra        chạy --help; nếu không hiện ra thì DỪNG, đừng báo xong
-    7  Bàn giao        đường dẫn + 3 lệnh chạy đầu tiên + chỗ viết lệnh con thật
-@endfig
+```text
+1  Nhận diện       người dùng muốn dựng một dự án bash nhiều file
+2  Hỏi gộp         7 câu hỏi trong MỘT lượt, không hỏi nhỏ giọt
+3  Đọc danh sách   references/output-tree.md — file nào phải có
+4  Với từng file   đọc template → thay marker → ghi ra đích
+5  Cấp quyền chạy  chmod +x cho file .sh ở gốc và mọi thứ trong bin/
+6  Kiểm tra        chạy --help; nếu không hiện ra thì DỪNG, đừng báo xong
+7  Bàn giao        đường dẫn + 3 lệnh chạy đầu tiên + chỗ viết lệnh con thật
+```
+
+*Không có bước nào ghi `settings.json`. Đó là việc của người dùng, không phải tác dụng phụ. Bộ khung chạy **một lần** rồi rút. Bước 6 là bước duy nhất có quyền phủ quyết.*
 
 Bước 6 là bước duy nhất có quyền phủ quyết. Skill nói thẳng: nếu `--help` không hiện ra thì bộ khung hỏng — dừng lại và sửa, không được tuyên bố đã xong.
 
@@ -476,25 +1405,27 @@ Bước 6 là bước duy nhất có quyền phủ quyết. Skill nói thẳng: 
 
 `bash-cli-pattern` không chạy theo một đường. Nó tự kích hoạt khi **nhận ra hình dạng dự án** — thư mục nào vừa có `bin/` vừa có `lib/*.sh`, file nào tự xác định vị trí của mình rồi nạp thư viện từ đó — kể cả khi bạn không hề nhắc tới nó. Sau đó nó đọc **đúng một** file tham chiếu, chọn theo thứ bạn đang chạm vào:
 
-@fig:routes
-    BẠN ĐANG SỬA MỘT BASH CLI NHIỀU FILE
-                     │
-        ┌────────────┼────────────┬───────────┬──────────┬──────────┐
-        ▼            ▼            ▼           ▼          ▼          ▼
-    thêm lệnh    thêm module   sửa log     sửa màn     sửa init   sửa file
-      con         thư viện     báo lỗi    trợ giúp    / doctor   cấu hình
-        │            │            │           │          │          │
-    entry-point  lib-module   helpers   help-system  init-doctor  tooling
-        .md          .md         .md        .md          .md        .md
+```text
+BẠN ĐANG SỬA MỘT BASH CLI NHIỀU FILE
+                 │
+    ┌────────────┼────────────┬───────────┬──────────┬──────────┐
+    ▼            ▼            ▼           ▼          ▼          ▼
+thêm lệnh    thêm module   sửa log     sửa màn     sửa init   sửa file
+  con         thư viện     báo lỗi    trợ giúp    / doctor   cấu hình
+    │            │            │           │          │          │
+entry-point  lib-module   helpers   help-system  init-doctor  tooling
+    .md          .md         .md        .md          .md        .md
 
-    TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này
-@endfig
+TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này
+```
+
+*Skill bảo trì không có luồng. Nó nhận ra hình dạng dự án rồi mở **đúng một** file tham chiếu.*
 
 Mỗi ngả đường ứng với một quy trình được viết sẵn. Ví dụ ngả "thêm lệnh con" có sáu bước, và hai bước cuối được đánh dấu **đừng bỏ qua**: thêm nhánh trợ giúp con, và cập nhật danh sách lệnh trong trợ giúp tổng. Lý do được nói rõ luôn — màn hình trợ giúp là một hệ thống con thật sự, thiếu một dòng trong đó là **lỗi**, không phải sơ suất nhỏ.
 
 Cuối mỗi lần sửa, bước kiểm tra giống nhau: chạy `--help`, chạy `doctor` nếu cấu hình có thể đã đổi, chạy công cụ soi lỗi tĩnh nếu máy có, chạy test nếu vùng vừa sửa có test.
 
-## 5. Dữ liệu và trạng thái
+## 05. Dữ liệu và trạng thái
 
 **Bản thân hai skill không nhớ gì cả.** Không thư mục tạm, không bộ nhớ đệm, không file trạng thái, không gì sống sót giữa hai lần chạy. Chúng đọc file tham chiếu của chính mình, đọc file dự án của bạn, rồi ghi file dự án của bạn. Hết.
 
@@ -543,9 +1474,9 @@ Nội tạng của mấy công cụ đó không phải chuyện của trang này
 
 ---
 
-# PHẦN 3 — Một lần chạy đầy đủ
+*PHẦN 3 — Một lần chạy đầy đủ*
 
-## 6. Đầu tới cuối
+## 06. Đầu tới cuối
 
 ### Đầu vào
 
@@ -565,23 +1496,27 @@ Bạn muốn một tool chạy migration Postgres. Bảy câu trả lời:
 
 Đây là chỗ dễ hiểu sai nhất, nên đáng nhìn kỹ. File mẫu chứa những chuỗi đánh dấu; thay chuỗi là xong file.
 
-@fig:swap
-    TRONG TEMPLATE                            SAU KHI THAY
-    __NAME__                          →       pg-migrate
-    __PKG___PKG_DIR                   →       PGM_PKG_DIR
-    ___ns___log                       →       _pgm_log
-    ___PKG___COMMON_SOURCED           →       _PGM_COMMON_SOURCED
-@endfig
+```text
+TRONG TEMPLATE                            SAU KHI THAY
+__NAME__                          →       pg-migrate
+__PKG___PKG_DIR                   →       PGM_PKG_DIR
+___ns___log                       →       _pgm_log
+___PKG___COMMON_SOURCED           →       _PGM_COMMON_SOURCED
+```
+
+*Không thay: `${BASH_SOURCE[0]}`, `$HOME` và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker. Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker **lồng trong** quy ước gạch dưới của bash.*
 
 Hai dòng dưới trông rối vì chúng **lồng nhau**. Marker chỉ là `__ns__` và `__PKG__`; những gạch dưới thừa hai bên là quy ước bash cho "hàm riêng tư, đừng gọi từ ngoài". `___ns___log` chính là `_` + `__ns__` + `_log`, nên sau khi thay ra `_pgm_log`. Bạn không cần nhớ chuyện này — chỉ cần biết rằng skill có hẳn một file tham chiếu dành riêng cho nó, vì nó đã từng làm người ta nhầm.
 
 Dòng đầu tiên của file điểm vào, trước và sau, cho thấy toàn bộ trò chơi:
 
-    # template
-    __PKG___PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+```text
+# template
+__PKG___PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # kết quả
-    PGM_PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# kết quả
+PGM_PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+```
 
 Phần `${BASH_SOURCE[0]}` **không bị thay** — đó là cú pháp bash lúc chạy, không phải marker. Luật này được ghi riêng: đừng thay biến bash, đừng thay ruột của khối văn bản trích dẫn cứng, đừng thay hai lần.
 
@@ -589,40 +1524,44 @@ Phần `${BASH_SOURCE[0]}` **không bị thay** — đó là cú pháp bash lúc
 
 Cả cây thư mục nằm trên đĩa. Chạy được ngay:
 
-    $ scripts/bash/pg-migrate/pg-migrate.sh --help
-    pg-migrate — apply postgres migrations idempotently
+```text
+$ scripts/bash/pg-migrate/pg-migrate.sh --help
+pg-migrate — apply postgres migrations idempotently
 
-    USAGE
-      pg-migrate.sh <subcommand> [options]
-      pg-migrate.sh help [<subcommand>]
+USAGE
+  pg-migrate.sh <subcommand> [options]
+  pg-migrate.sh help [<subcommand>]
 
-    SUBCOMMANDS
-      init      scan env and write settings.json (one-time)
-      doctor    compare settings.json vs live env; --fix to repair
-      apply     ← lệnh con của bạn; thân hàm còn rỗng
-      rollback  ← lệnh con của bạn; thân hàm còn rỗng
-      version   print tool version
-      help      show this help
+SUBCOMMANDS
+  init      scan env and write settings.json (one-time)
+  doctor    compare settings.json vs live env; --fix to repair
+  apply     ← lệnh con của bạn; thân hàm còn rỗng
+  rollback  ← lệnh con của bạn; thân hàm còn rỗng
+  version   print tool version
+  help      show this help
+```
 
 Chạy `init` một lần, `settings.json` xuất hiện — và đây là toàn bộ hình dạng của nó:
 
-    {
-      "version": 1,
-      "scanned-at": "2026-09-18T11:04:22Z",
-      "scanned-on": { "os": "darwin", "arch": "arm64" },
-      "tools": {
-        "psql": {
-          "name": "psql", "found": true,
-          "path": "/opt/homebrew/bin/psql",
-          "version": "17.2", "variant": "unknown"
-        },
-        "jq": {
-          "name": "jq", "found": true,
-          "path": "/usr/bin/jq",
-          "version": "1.7.1", "variant": "apple"
-        }
-      }
+```text
+{
+  "version": 1,
+  "scanned-at": "2026-09-18T11:04:22Z",
+  "scanned-on": { "os": "darwin", "arch": "arm64" },
+  "tools": {
+    "psql": {
+      "name": "psql", "found": true,
+      "path": "/opt/homebrew/bin/psql",
+      "version": "17.2", "variant": "unknown"
+    },
+    "jq": {
+      "name": "jq", "found": true,
+      "path": "/usr/bin/jq",
+      "version": "1.7.1", "variant": "apple"
     }
+  }
+}
+```
 
 Trường `variant` là thứ đáng chú ý: nó ghi lại **biến thể** của công cụ — `gnu`, `bsd`, `apple`, hay `unknown` — được đoán từ dòng đầu của `--version`. Đó chính là câu trả lời cho nỗi đau "chạy ngon trên máy tôi, hỏng trên máy anh" ở mục 1: sự khác biệt được **ghi lại thành dữ liệu** thay vì được phát hiện lúc lỗi.
 
@@ -641,13 +1580,13 @@ Bước 3 có một luật nhỏ mà hai skill đều nhắc: mỗi cờ phải 
 
 Và mỗi lệnh con **tự đọc cờ của riêng mình**, dù trông như lặp lại. Đó là cố ý: gom hết vào một chỗ xử lý chung là cách để cờ của lệnh này rò rỉ sang lệnh khác — một lỗi cực kỳ khó thấy.
 
-## 7. Hook
+## 07. Hook
 
 Không có. Hai skill này không gắn vào hook nào, không có mục nào trong file cấu hình, không có lệnh gạch chéo nào gọi chúng.
 
 Điều đó đáng nói ra chứ không phải đáng giấu: với phần lớn skill, **`description` chính là toàn bộ dây nối**. Agent đọc mô tả, thấy tình huống khớp, rồi tự chọn. Không có gì khác bật nó lên.
 
-## 8. Cái gì chặn bạn làm sai
+## 08. Cái gì chặn bạn làm sai
 
 Có hai lớp chặn, và chúng ở hai nơi khác nhau.
 
@@ -665,38 +1604,40 @@ Có hai lớp chặn, và chúng ở hai nơi khác nhau.
 
 ### Lớp thứ hai — chặn trong dự án được sinh ra
 
-@fig:gates
-    set -euo pipefail chỉ ở file chạy được   một thư viện bật -e sẽ lây sang
-                                             shell đang nạp nó, làm hỏng cả
-                                             những thứ chẳng liên quan
+```text
+set -euo pipefail chỉ ở file chạy được   một thư viện bật -e sẽ lây sang
+                                         shell đang nạp nó, làm hỏng cả
+                                         những thứ chẳng liên quan
 
-    chốt chống nạp trùng ở mỗi thư viện      nhiều thư viện cùng nạp common.sh
-                                             thì hàm bị định nghĩa lại nhiều lần
+chốt chống nạp trùng ở mỗi thư viện      nhiều thư viện cùng nạp common.sh
+                                         thì hàm bị định nghĩa lại nhiều lần
 
-    init từ chối ghi đè nếu không --force     một lần gõ nhầm xoá mất snapshot
-                                             đã dùng được nhiều tháng
+init từ chối ghi đè nếu không --force     một lần gõ nhầm xoá mất snapshot
+                                         đã dùng được nhiều tháng
 
-    doctor mặc định chỉ so, không sửa        lệnh chẩn đoán tự ý đổi cấu hình
-                                             là lệnh không ai dám chạy
+doctor mặc định chỉ so, không sửa        lệnh chẩn đoán tự ý đổi cấu hình
+                                         là lệnh không ai dám chạy
 
-    chốt chống chạy lại vô hạn               file khởi động tự gọi lại chính
-                                             mình dưới trình thông dịch khác
+chốt chống chạy lại vô hạn               file khởi động tự gọi lại chính
+                                         mình dưới trình thông dịch khác
 
-    cổng phiên bản shell, kèm cách khắc      thoát sạch với câu "cài bản mới
-                                             bằng lệnh này" thay vì lỗi cú pháp
-                                             giữa chừng
+cổng phiên bản shell, kèm cách khắc      thoát sạch với câu "cài bản mới
+                                         bằng lệnh này" thay vì lỗi cú pháp
+                                         giữa chừng
 
-    ghi file kiểu nguyên tử                  máy tắt giữa chừng không để lại
-                                             file cấu hình viết dở
-@endfig
+ghi file kiểu nguyên tử                  máy tắt giữa chừng không để lại
+                                         file cấu hình viết dở
+```
+
+*Những cái chặn nằm trong **dự án được sinh ra**. Mỗi dòng: luật, rồi chuyện xảy ra khi vắng nó.*
 
 Cái cuối đáng dừng lại một chút. **Ghi nguyên tử** nghĩa là: không ghi thẳng vào file đích, mà ghi ra một file tạm mang số hiệu tiến trình rồi đổi tên đè lên. Việc đổi tên hoặc xong hẳn hoặc chưa xảy ra, nên người đọc không bao giờ bắt gặp file ở trạng thái nửa vời. Số hiệu tiến trình trong tên file tạm là để hai tiến trình ghi cùng lúc không giẫm lên nhau.
 
 ---
 
-# PHẦN 4 — Học lại thiết kế
+*PHẦN 4 — Học lại thiết kế*
 
-## 9. Những quyết định đáng lấy
+## 09. Những quyết định đáng lấy
 
 ### Chia theo vòng đời, không chia theo chủ đề
 
@@ -829,667 +1770,182 @@ Chưa tạo `references/` vội. Chỉ tạo nó khi một mục phình ra tới
 **biến thể (variant)** — nhãn `gnu` / `bsd` / `apple` / `unknown` ghi lại phiên bản nào của một công cụ đang được dùng.
 
 ---
-Trang này mô tả hai skill như chúng đang là: một cặp quy ước viết tay cho công cụ shell, không phải một framework. Chúng không chạy gì thay bạn — chúng chỉ nói cho agent biết phải viết cái gì.
 
-Tên `pg-migrate`, `pgm`, `PGM` và danh sách công cụ trong ví dụ là bịa ra để đi hết một vòng cho dễ theo dõi. Bảy câu hỏi đầu vào, hai cây thư mục, luật thay marker và bộ ba `init` / `doctor` / `assert` thì thuộc về hai skill.
+*Trang này mô tả hai skill như chúng đang là: một cặp quy ước viết tay cho công cụ shell, không phải một framework. Chúng không chạy gì thay bạn — chúng chỉ nói cho agent biết phải viết cái gì.\
+Tên `pg-migrate`, `pgm`, `PGM` và danh sách công cụ trong ví dụ là bịa ra để đi hết một vòng cho dễ theo dõi. Bảy câu hỏi đầu vào, hai cây thư mục, luật thay marker và bộ ba `init` / `doctor` / `assert` thì thuộc về hai skill.*
 </script>
-<script>/* ===================================================================
-   LAYER 1 . DATA
-   No DOM, no logic. STATE, I18N (chrome only), SRC, FIG.
-   =================================================================== */
+<script>
+/*
+ * Architecture
+ *  1. Atoms      — the only data state: small observable values (theme, tab, menu, section, filter, toast).
+ *  2. Components — shared UI bound to atoms; they only render, never decide.
+ *  3. Workflows  — business actions that combine atom updates and side effects.
+ *  4. Events     — one combined dispatcher: clicks (data-action), keys, scroll, media and hash
+ *                  are normalised into workflow calls.
+ */
+(() => {
+  "use strict";
 
-var STATE = { view: 'doc', nav: false };
-
-var SRC = document.getElementById('src').textContent;
-
-var I18N = {
-  kick: 'Đọc một skill . khuôn mẫu công cụ dòng lệnh bằng bash',
-  doc: 'Tài liệu',
-  md: 'Markdown',
-  copy: 'Copy markdown',
-  done: 'Đã copy',
-  contents: 'Mục lục',
-  navHead: 'Trong bài',
-  mdNote: 'Markdown thuần, sơ đồ giữ nguyên bản ASCII — dán thẳng vào repo, wiki hay chat.'
-};
-
-/* Figure payloads. `type` picks the renderer; everything else is its data. */
-var FIG = {
-
-  /* ---- section 3 : the skills' own folders ---------------------- */
-  skillTree: {
-    type: 'tree',
-    cap: 'Cây thứ nhất: **bản thân hai skill** — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.',
-    trees: [
-      {
-        root: 'bash-cli-scaffold/',
-        sub: 'tạo mới · có vật liệu để chép',
-        rows: [
-          [0, 'SKILL.md', 'front', 'frontmatter + thuật toán sinh file'],
-          [0, 'references/', 'ref', 'đọc khi quy trình bảo đọc'],
-          [1, 'output-tree.md', 'ref', 'danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ'],
-          [1, 'placeholders.md', 'ref', 'bảng marker và luật thay thế'],
-          [0, 'templates/', 'tpl', 'bash chạy được, chưa điền tên'],
-          [1, '__NAME__.sh', 'tpl', 'điểm vào, khuôn 6 phần'],
-          [1, 'lib/', 'tpl', '_bootstrap · common · settings · tools'],
-          [1, 'config/', 'tpl', 'tools.json.example · bootstrap.json'],
-          [1, 'tests/', 'tpl', 'helper nạp lib + một file test khói'],
-          [1, 'file gốc dự án', 'tpl', 'VERSION · CHANGELOG · .gitignore · .shellcheckrc · .editorconfig']
-        ]
-      },
-      {
-        root: 'bash-cli-pattern/',
-        sub: 'nuôi lớn · chỉ có phán đoán',
-        rows: [
-          [0, 'SKILL.md', 'front', 'frontmatter + 10 bất biến + bảng định tuyến'],
-          [0, 'references/', 'ref', 'mỗi file một vùng sửa chữa'],
-          [1, 'entry-point.md', 'ref', 'khuôn 6 phần của file điểm vào'],
-          [1, 'lib-module.md', 'ref', 'luật cho file thư viện được nạp'],
-          [1, 'helpers.md', 'ref', 'log, báo lỗi, ghi nguyên tử, nhận diện HĐH'],
-          [1, 'help-system.md', 'ref', 'trợ giúp là hệ thống con, không phải một cờ'],
-          [1, 'init-doctor.md', 'ref', 'bộ ba init / doctor / assert'],
-          [1, 'tooling.md', 'ref', 'shellcheck, editorconfig, VERSION, test'],
-          [0, '(không có templates/)', 'gone', 'đầu ra là phán đoán, không có gì để chép'],
-          [0, '(không có scripts/)', 'gone', 'công việc không phải thuật toán']
-        ]
-      }
-    ]
-  },
-
-  levels: {
-    type: 'levels',
-    cap: 'Bóc dần: cái gì càng hay phải trả giá thì càng phải ngắn.',
-    levels: [
-      {
-        name: 'LUÔN NẰM TRONG CONTEXT',
-        note: 'trả tiền ở mọi lượt, kể cả lượt không liên quan',
-        tools: [['frontmatter', '`name` và `description` — quyết định skill có được chọn hay không']]
-      },
-      {
-        name: 'ĐỌC KHI SKILL KÍCH HOẠT',
-        note: 'trả tiền mỗi lần skill được chọn',
-        tools: [['thân SKILL.md', 'quy trình, bảng định tuyến, luật cấm — **không** chứa chi tiết']]
-      },
-      {
-        name: 'ĐỌC KHI QUY TRÌNH BẢO ĐỌC',
-        note: 'trả tiền khi và chỉ khi cần',
-        tools: [
-          ['references/', 'chiều sâu; không bao giờ được đọc hết cùng một lúc'],
-          ['templates/', 'vật liệu để chép ra; hầu như không cần đọc hiểu']
-        ]
-      }
-    ]
-  },
-
-  /* ---- section 3 : the project the scaffold produces ------------ */
-  projectTree: {
-    type: 'tree',
-    cap: 'Cây thứ hai: **dự án được sinh ra** — thứ bạn nhận được. Đừng lẫn với cây trên.',
-    trees: [
-      {
-        root: 'pg-migrate/',
-        sub: 'chạy được ngay, chưa cần viết thêm dòng nào',
-        rows: [
-          [0, 'pg-migrate.sh', 'run', 'ĐIỂM VÀO — chạy trực tiếp, bật chế độ nghiêm ngặt'],
-          [0, 'lib/', 'lib', 'CHỈ ĐƯỢC NẠP — không chạy trực tiếp'],
-          [1, '_bootstrap.sh', 'lib', 'chọn đúng trình thông dịch rồi chạy lại chính mình'],
-          [1, 'common.sh', 'lib', 'log / die / ghi nguyên tử / nhận diện HĐH'],
-          [1, 'settings.sh', 'lib', 'quét môi trường, so lệch, sửa lệch'],
-          [1, 'tools.sh', 'lib', 'tìm đường dẫn, phiên bản, biến thể của công cụ ngoài'],
-          [0, 'config/', 'keep', 'khai báo — CÓ commit'],
-          [1, 'tools.json.example', 'keep', '"tool này cần jq và psql"'],
-          [1, 'bootstrap.json', 'keep', 'cấu hình tĩnh, không phụ thuộc máy'],
-          [0, 'tests/', 'keep', 'helpers/load.bash · unit/common.bats · fixtures/ (rỗng)'],
-          [0, 'docs/', 'keep', 'để trống, chờ bạn viết'],
-          [0, 'file gốc dự án', 'keep', 'VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig'],
-          [0, 'settings.json', 'gen', 'KHÔNG có sẵn — do lệnh init sinh ra, KHÔNG commit']
-        ]
-      }
-    ]
-  },
-
-  /* ---- section 4 : the two very different flows ----------------- */
-  scaffoldFlow: {
-    type: 'flow',
-    cap: 'Bộ khung chạy **một lần** rồi rút. Bước 6 là bước duy nhất có quyền phủ quyết.',
-    steps: [
-      ['Nhận diện', 'người dùng đang bắt đầu một dự án bash nhiều file — kể cả khi họ không nói chữ nào về bố cục'],
-      ['Hỏi gộp', 'bảy câu hỏi trong **một** lượt: tên, tiền tố hàm, tiền tố biến, lệnh con, nơi đặt, công cụ ngoài, kiểu changelog'],
-      ['Đọc danh sách', 'mở file tham chiếu liệt kê đúng những file phải có'],
-      ['Sinh từng file', 'đọc template → thay marker → ghi ra đích'],
-      ['Cấp quyền chạy', 'chmod +x cho file .sh ở gốc'],
-      ['Kiểm tra', 'chạy `--help`; **không hiện ra thì dừng**, không được báo xong'],
-      ['Bàn giao', 'đường dẫn + ba lệnh chạy đầu + chỗ viết lệnh con thật + tên skill dùng cho lần sửa sau']
-    ],
-    note: 'Không có bước nào ghi `settings.json`. Đó là việc của người dùng, không phải tác dụng phụ.'
-  },
-
-  routes: {
-    type: 'routes',
-    cap: 'Skill bảo trì không có luồng. Nó nhận ra hình dạng dự án rồi mở **đúng một** file tham chiếu.',
-    top: 'Bạn đang sửa một bash CLI nhiều file (có cả bin/ lẫn lib/*.sh)',
-    routes: [
-      ['thêm lệnh con', 'mở `entry-point.md` — khuôn 6 phần, cách đọc cờ, cách nối vào bộ điều phối'],
-      ['thêm module thư viện', 'mở `lib-module.md` — không shebang, không `set -e`, có chốt chống nạp trùng'],
-      ['sửa log hoặc báo lỗi', 'mở `helpers.md` — mức log, mã thoát, ghi nguyên tử, móc test HĐH'],
-      ['sửa màn hình trợ giúp', 'mở `help-system.md` — trợ giúp là hệ thống con, thiếu một nhánh là lỗi'],
-      ['sửa init / doctor', 'mở `init-doctor.md` — bộ ba chẩn đoán và hình dạng file cấu hình'],
-      ['sửa file gốc dự án', 'mở `tooling.md` — shellcheck, editorconfig, VERSION, bố cục test']
-    ],
-    bottom: 'TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này'
-  },
-
-  /* ---- section 6 : marker in, name out -------------------------- */
-  swap: {
-    type: 'swap',
-    cap: 'Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker **lồng trong** quy ước gạch dưới của bash.',
-    rows: [
-      ['__NAME__', 'pg-migrate', 'tên dự án, dùng cho tên file và tiêu đề trợ giúp'],
-      ['__PKG___PKG_DIR', 'PGM_PKG_DIR', 'marker là `__PKG__`, gạch dưới cuối là của tên biến'],
-      ['___ns___log', '_pgm_log', 'marker là `__ns__`; hai gạch dưới bọc ngoài đánh dấu "hàm riêng tư"'],
-      ['___PKG___COMMON_SOURCED', '_PGM_COMMON_SOURCED', 'tên chốt chống nạp trùng của thư viện common']
-    ],
-    note: 'Không thay: `${BASH_SOURCE[0]}`, `$HOME` và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker.'
-  },
-
-  /* ---- section 8 : guards inside the generated project ---------- */
-  gates: {
-    type: 'gates',
-    cap: 'Những cái chặn nằm trong **dự án được sinh ra**. Mỗi dòng: luật, rồi chuyện xảy ra khi vắng nó.',
-    rows: [
-      ['`set -euo pipefail` chỉ ở file chạy được',
-       'một thư viện bật `-e` sẽ lây sang shell đang nạp nó, làm hỏng cả những thứ chẳng liên quan'],
-      ['chốt chống nạp trùng ở mỗi thư viện',
-       'nhiều thư viện cùng nạp `common.sh` thì hàm bị định nghĩa lại nhiều lần'],
-      ['`init` từ chối ghi đè nếu không có `--force`',
-       'một lần gõ nhầm xoá mất ảnh chụp môi trường đã dùng được nhiều tháng'],
-      ['`doctor` mặc định chỉ so, không sửa',
-       'lệnh chẩn đoán tự ý đổi cấu hình là lệnh không ai dám chạy; có `--fix` thì chép `.bak` trước'],
-      ['chốt chống chạy lại vô hạn',
-       'file khởi động tự gọi lại chính mình dưới trình thông dịch khác, mãi mãi'],
-      ['cổng phiên bản shell, kèm cách khắc phục',
-       'thay vì lỗi cú pháp giữa chừng, tool thoát sạch với câu "cài bản mới bằng lệnh này"'],
-      ['ghi file kiểu nguyên tử',
-       'máy tắt giữa chừng để lại file cấu hình viết dở, lần chạy sau đọc phải file hỏng']
-    ]
-  }
-};
-
-
-/* ===================================================================
-   LAYER 2 . COMPONENTS
-   Pure: data in, DOM out. Must not read STATE.
-   =================================================================== */
-
-function esc(s){ return String(s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function el(tag, attrs, kids){
-  var n = document.createElement(tag);
-  if(attrs) for(var k in attrs){
-    if(k === 'html') n.innerHTML = attrs[k];
-    else if(k === 'text') n.textContent = attrs[k];
-    else n.setAttribute(k, attrs[k]);
-  }
-  (kids || []).forEach(function(c){ if(c) n.appendChild(c); });
-  return n;
-}
-
-/* Code spans are pulled out before escaping and put back after, so that
-   markup inside them is never interpreted. The sentinel is ordinary text,
-   not a control character, so the source stays copy-paste safe. */
-function inline(s){
-  var keep = [];
-  s = String(s).replace(/`([^`]+)`/g, function(_, c){
-    keep.push(c); return 'K0DE' + (keep.length - 1) + 'K0DE';
-  });
-  s = esc(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[^*\w])\*([^*]+)\*(?![*\w])/g, '$1<em>$2</em>');
-  return s.replace(/K0DE(\d+)K0DE/g, function(_, i){
-    return '<code>' + esc(keep[+i]) + '</code>';
-  });
-}
-
-var BLOCK = {
-  h: function(b){
-    var tag = b.level === 1 ? 'h2' : b.level === 2 ? 'h3' : 'h4';
-    var m = /^(PHAN|PHẦN|PART)\s+(\d+)\s*—\s*(.*)$/.exec(b.text);
-    if(tag === 'h2' && m){
-      return el('h2', null, [
-        el('span', { class: 'eyebrow', text: m[1] + ' ' + m[2] }),
-        el('span', { html: inline(m[3]) })
-      ]);
-    }
-    return el(tag, { html: inline(b.text) });
-  },
-  p:  function(b){ return el('p', { html: inline(b.text) }); },
-  ul: function(b){ return el('ul', null, b.items.map(function(t){
-        return el('li', { html: inline(t) }); })); },
-  ol: function(b){ return el('ol', null, b.items.map(function(t){
-        return el('li', { html: inline(t) }); })); },
-  quote: function(b){ return el('blockquote', null, b.items.map(function(t){
-        return el('p', { html: inline(t) }); })); },
-  code: function(b){
-    return el('div', { class: 'pre' }, [ el('pre', { text: b.text }) ]);
-  },
-  hr: function(){ return el('hr'); },
-  table: function(b){
-    var head = el('tr', null, b.head.map(function(c){
-      return el('th', { html: inline(c) }); }));
-    var body = b.rows.map(function(r){
-      return el('tr', null, r.map(function(c){ return el('td', { html: inline(c) }); }));
-    });
-    return el('div', { class: 'tw' }, [
-      el('table', null, [ el('thead', null, [head]), el('tbody', null, body) ])
-    ]);
-  },
-  fig: function(b){
-    var f = FIG[b.id];
-    if(!f) return el('p', { text: '[missing figure: ' + b.id + ']' });
-    var render = FIGURE[f.type];
-    if(!render) return el('p', { text: '[no renderer: ' + f.type + ']' });
-    return el('figure', null, [
-      el('div', { class: 'fig' }, [ render(f) ]),
-      f.cap ? el('figcaption', { html: inline(f.cap) }) : null
-    ]);
-  }
-};
-
-/* -- markdown ------------------------------------------------------- */
-
-var MD = {
-  parse: function(src){
-    var lines = src.split('\n'), out = [], i = 0;
-    function blank(s){ return !s.trim(); }
-    function cells(s){
-      return s.trim().replace(/^\|/, '').replace(/\|$/, '')
-              .split('|').map(function(c){ return c.trim(); });
-    }
-
-    while(i < lines.length){
-      var ln = lines[i];
-      if(blank(ln)){ i++; continue; }
-
-      /* figure directive: keep the id, skip the ASCII fallback body */
-      var fm = /^@fig:(\S+)\s*$/.exec(ln);
-      if(fm){
-        var id = fm[1]; i++;
-        while(i < lines.length && !/^@endfig\s*$/.test(lines[i])) i++;
-        i++;
-        out.push({ t: 'fig', id: id });
-        continue;
-      }
-
-      var hm = /^(#{1,4})\s+(.*)$/.exec(ln);
-      if(hm){ out.push({ t: 'h', level: hm[1].length, text: hm[2].trim() }); i++; continue; }
-
-      if(/^---\s*$/.test(ln)){ out.push({ t: 'hr' }); i++; continue; }
-
-      if(/^\|/.test(ln) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])){
-        var head = cells(ln); i += 2;
-        var rows = [];
-        while(i < lines.length && /^\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
-        out.push({ t: 'table', head: head, rows: rows });
-        continue;
-      }
-
-      if(/^>\s?/.test(ln)){
-        var q = [];
-        while(i < lines.length && /^>\s?/.test(lines[i])){
-          q.push(lines[i].replace(/^>\s?/, '')); i++;
-        }
-        out.push({ t: 'quote', items: q });
-        continue;
-      }
-
-      var lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(ln);
-      if(lm){
-        var ordered = /\d/.test(lm[2]), items = [];
-        while(i < lines.length){
-          var m2 = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
-          if(m2){ items.push(m2[3]); i++; }
-          else if(/^\s{2,}\S/.test(lines[i]) && items.length){
-            items[items.length - 1] += ' ' + lines[i].trim(); i++;
-          } else break;
-        }
-        out.push({ t: ordered ? 'ol' : 'ul', items: items });
-        continue;
-      }
-
-      /* Four-space indented code. Blank lines inside one block are kept,
-         then trimmed off the end, so a diagram split by blank lines stays
-         a single block instead of becoming several. */
-      if(/^ {4}\S/.test(ln)){
-        var buf = [];
-        while(i < lines.length){
-          if(/^ {4}/.test(lines[i])){ buf.push(lines[i].slice(4)); i++; }
-          else if(blank(lines[i]) && /^ {4}/.test(lines[i + 1] || '')){ buf.push(''); i++; }
-          else break;
-        }
-        while(buf.length && !buf[buf.length - 1].trim()) buf.pop();
-        out.push({ t: 'code', text: buf.join('\n') });
-        continue;
-      }
-
-      var para = [ln.trim()]; i++;
-      while(i < lines.length && !blank(lines[i]) &&
-            !/^(#{1,4}\s|@fig:|@endfig|---\s*$|\||>\s?|\s*([-*]|\d+\.)\s|\s{4}\S)/.test(lines[i])){
-        para.push(lines[i].trim()); i++;
-      }
-      out.push({ t: 'p', text: para.join(' ') });
-    }
-    return out;
-  },
-
-  render: function(blocks){
-    var frag = document.createDocumentFragment();
-    blocks.forEach(function(b){
-      var fn = BLOCK[b.t];
-      if(fn) frag.appendChild(fn(b));
-    });
-    return frag;
-  }
-};
-
-
-/* -- figure renderers ----------------------------------------------
-   Pure: data in, DOM out. Never reads STATE, so each one can be tested
-   by calling it with a literal object. Three of the six are new here --
-   `tree`, `flow` and `swap` -- because a folder listing, an ordered
-   procedure and a before/after pair have no honest shape in the catalog.
-   ------------------------------------------------------------------ */
-
-var FIGURE = {
-
-  /* A folder listing. One or more roots; each row is
-     [indentDepth, name, kind, note]. `kind` colours the rail, so the
-     reader sees the division of labour before reading a single word. */
-  tree: function(f){
-    return el('div', { class: 'trees' }, f.trees.map(function(T){
-      return el('div', { class: 'tr-box' }, [
-        el('div', { class: 'tr-head' }, [
-          el('b', { text: T.root }),
-          T.sub ? el('span', { text: T.sub }) : null
-        ]),
-        el('div', { class: 'tr-rows' }, T.rows.map(function(r){
-          return el('div', { class: 'tr-row d' + r[0] + ' k-' + r[2] }, [
-            el('code', { text: r[1] }),
-            el('span', { html: inline(r[3]) })
-          ]);
-        }))
-      ]);
-    }));
-  },
-
-  /* An ordered procedure. Numbered because the content really is a
-     sequence -- the numbers are the information, not decoration. */
-  flow: function(f){
-    var kids = f.steps.map(function(s, i){
-      return el('div', { class: 'fl-step' }, [
-        el('b', { text: String(i + 1) }),
-        el('div', { class: 'fl-body' }, [
-          el('strong', { html: inline(s[0]) }),
-          el('span', { html: inline(s[1]) })
-        ])
-      ]);
-    });
-    return el('div', null, [
-      el('div', { class: 'flow' }, kids),
-      f.note ? el('div', { class: 'fl-note', html: inline(f.note) }) : null
-    ]);
-  },
-
-  /* Before and after, with the reason on the right. Two monospace
-     columns because the whole point is comparing two literal strings. */
-  swap: function(f){
-    var kids = f.rows.map(function(r){
-      return el('div', { class: 'sw-row' }, [
-        el('code', { class: 'sw-a', text: r[0] }),
-        el('i', { text: '→' }),
-        el('code', { class: 'sw-b', text: r[1] }),
-        el('span', { html: inline(r[2]) })
-      ]);
-    });
-    return el('div', null, [
-      el('div', { class: 'sw-head' }, [
-        el('span', { text: 'trong template' }),
-        el('span', { text: 'sau khi thay' })
-      ]),
-      el('div', { class: 'swap' }, kids),
-      f.note ? el('div', { class: 'fl-note', html: inline(f.note) }) : null
-    ]);
-  },
-
-  levels: function(f){
-    return el('div', null, f.levels.map(function(L){
-      return el('div', { class: 'lvl' }, [
-        el('div', { class: 'lvl-h' }, [
-          el('span', { text: L.name + '  ' }),
-          el('span', { text: L.note })
-        ])
-      ].concat(L.tools.map(function(t){
-        return el('div', { class: 'tool' }, [
-          el('b', { text: t[0] }), el('span', { html: inline(t[1]) })
-        ]);
-      })));
-    }));
-  },
-
-  routes: function(f){
-    return el('div', null, [
-      el('div', { class: 'routes-top', text: f.top }),
-      el('div', { class: 'routes' }, f.routes.map(function(r){
-        return el('div', { class: 'rt' }, [
-          el('b', { text: r[0] }), el('span', { html: inline(r[1]) })
-        ]);
-      })),
-      el('div', { class: 'routes-bot', text: f.bottom })
-    ]);
-  },
-
-  gates: function(f){
-    return el('div', { class: 'gates' }, f.rows.map(function(r){
-      return el('div', { class: 'gt' }, [
-        el('b', { html: inline(r[0]) }), el('span', { html: inline(r[1]) })
-      ]);
-    }));
-  }
-};
-
-
-/* ===================================================================
-   LAYER 3 . LOGIC
-   Binds DATA to COMPONENTS. The only layer that touches STATE.
-   Pipeline:  SRC -> sections(front | body | footer) -> MD.parse
-                  -> MD.render -> DOM -> table of contents
-   Both views read the SAME text, so they cannot drift apart.
-   =================================================================== */
-
-/* front matter (title + lede) | body | footer, split on the outer rules */
-function sections(){
-  var t = SRC.replace(/^﻿/, '');
-  var first = t.indexOf('\n---\n');
-  var last = t.lastIndexOf('\n---\n');
-  var head = t.slice(0, first).split('\n');
-  return {
-    title: (head.filter(function(l){ return l.indexOf('# ') === 0; })[0] || '# ').slice(2),
-    lede: head
-           .filter(function(l){ return l.indexOf('> ') === 0; })
-           .map(function(l){ return l.slice(2); }),
-    body: t.slice(first + 5, last),
-    footer: t.slice(last + 5).split('\n\n')
-             .map(function(p){ return p.trim(); })
-             .filter(Boolean)
+  // ---------- 1. Atoms ----------
+  const atom = (initial) => {
+    let value = initial;
+    const subs = new Set();
+    return {
+      get: () => value,
+      set: (next) => { if (next === value) return; value = next; subs.forEach((f) => f(value)); },
+      sub: (f) => { subs.add(f); f(value); return () => subs.delete(f); },
+    };
   };
-}
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
+  };
+  const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const mqNarrow = window.matchMedia("(max-width: 900px)");
 
-/* the copy-out markdown drops layout directives; prose and ASCII stay */
-function forCopy(){
-  return SRC.split('\n')
-    .filter(function(l){ return !/^@(fig:|endfig|box:|endbox)/.test(l); })
-    .join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
-}
+  const state = {
+    theme: atom(store.get("bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao-theme") || (mqDark.matches ? "dark" : "light")),
+    tab: atom(location.hash === "#markdown" ? "md" : "html"),
+    menuOpen: atom(!mqNarrow.matches),
+    section: atom("start"),
+    filter: atom("all"),
+    toast: atom(""),
+    checklist: atom(new Set((() => { try { return JSON.parse(store.get("bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao-checklist") || "[]"); } catch { return []; } })())),
+  };
 
-function slug(s, i){
-  var base = String(s).toLowerCase()
-    .replace(/[^a-z0-9À-ỹ]+/g, '-')
-    .replace(/^-+|-+$/g, '').slice(0, 44);
-  return (base || 'muc') + '-' + i;
-}
+  // ---------- 2. Components ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const mdText = $("#md-source").textContent.replace(/^\n/, "");
 
-/* ---- rendering -------------------------------------------------- */
-
-function buildToc(root){
-  var toc = document.getElementById('toc');
-  toc.textContent = '';
-  var heads = root.querySelectorAll('h2, h3');
-  var n = 0;
-  Array.prototype.forEach.call(heads, function(h){
-    n++;
-    if(!h.id) h.id = slug(h.textContent, n);
-    var isPart = h.tagName === 'H2';
-    var label = h.textContent;
-    if(isPart){
-      var eb = h.querySelector('.eyebrow');
-      if(eb) label = eb.textContent + ' — ' + label.slice(eb.textContent.length);
-    }
-    var a = el('a', {
-      href: '#' + h.id,
-      class: isPart ? 'part' : 'lv3',
-      text: label
+  const ThemeSwitch = (theme) => { document.documentElement.dataset.theme = theme; };
+  const TabBar = (tab) => {
+    $$(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.action === `tab:${tab}`)));
+    $("#panel-html").hidden = tab !== "html";
+    $("#panel-md").hidden = tab !== "md";
+  };
+  const Menu = (open) => {
+    document.body.dataset.menu = open ? "open" : "closed";
+    $('[data-action="menu:toggle"]').setAttribute("aria-expanded", String(open));
+  };
+  const Toc = (id) => $$(".toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${id}`)));
+  const FindingFilter = (f) => {
+    $$(".fbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.action === `filter:${f}`)));
+    $$("#findings .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split(" ").includes(f); });
+  };
+  let toastTimer;
+  const Toast = (msg) => {
+    const el = $("#toast");
+    if (!msg) return el.classList.remove("on");
+    el.textContent = msg; el.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => state.toast.set(""), 1800);
+  };
+  const Checklist = (done) => {
+    const steps = $$(".ck");
+    if (!steps.length) return;
+    steps.forEach((el) => {
+      const on = done.has(el.dataset.step);
+      el.classList.toggle("done", on);
+      el.querySelector("input").checked = on;
     });
-    a.addEventListener('click', function(){ if(!wide()) setNav(false); });
-    toc.appendChild(a);
+    $("#ck-bar").style.width = `${(done.size / steps.length) * 100}%`;
+    $("#ck-count").textContent = "Đã xong {done}/{total}".replace("{done}", done.size).replace("{total}", steps.length);
+  };
+  const MarkdownView = () => {
+    const pre = $("#md-view");
+    const frag = document.createDocumentFragment();
+    let fence = "";
+    mdText.split("\n").forEach((line) => {
+      const span = document.createElement("span");
+      span.className = "ln";
+      const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      if (mark && (!fence || (mark[1][0] === fence[0] && mark[1].length >= fence.length && !line.trim().slice(mark[1].length)))) {
+        fence = fence ? "" : mark[1]; span.classList.add("fence");
+      }
+      else if (!fence && /^#{1,6} /.test(line)) span.classList.add("h");
+      else if (!fence && line.startsWith("|")) span.classList.add("tr");
+      span.textContent = line || " ";
+      frag.appendChild(span);
+    });
+    pre.replaceChildren(frag);
+    $("#md-meta").textContent = `${mdText.split("\n").length} dòng · ${(new Blob([mdText]).size / 1024).toFixed(1)} KB`;
+  };
+
+  state.theme.sub(ThemeSwitch);
+  state.tab.sub(TabBar);
+  state.menuOpen.sub(Menu);
+  state.section.sub(Toc);
+  state.filter.sub(FindingFilter);
+  state.toast.sub(Toast);
+  state.checklist.sub(Checklist);
+  MarkdownView();
+
+  // ---------- 3. Workflows ----------
+  const copy = async (text, done) => {
+    try { await navigator.clipboard.writeText(text); state.toast.set(done); }
+    catch { state.toast.set("Trình duyệt không cho chép ở đây"); }
+  };
+  const workflows = {
+    "theme:toggle": () => {
+      const next = state.theme.get() === "dark" ? "light" : "dark";
+      state.theme.set(next); store.set("bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao-theme", next);
+    },
+    "menu:toggle": () => state.menuOpen.set(!state.menuOpen.get()),
+    "menu:close": () => state.menuOpen.set(false),
+    "tab:html": () => { state.tab.set("html"); history.replaceState(null, "", " "); },
+    "tab:md": () => { state.tab.set("md"); history.replaceState(null, "", "#markdown"); window.scrollTo(0, 0); },
+    nav: (el, ev) => {
+      ev.preventDefault();
+      state.tab.set("html");
+      if (mqNarrow.matches) state.menuOpen.set(false);
+      const target = $(el.hash);
+      if (target && target.hidden) state.filter.set("all");
+      if (target) { target.scrollIntoView({ behavior: "smooth" }); history.replaceState(null, "", el.hash); }
+      state.section.set(el.hash.slice(1));
+    },
+    filter: (el) => state.filter.set(el.dataset.action.split(":")[1]),
+    check: (el) => {
+      const next = new Set(state.checklist.get());
+      const step = el.dataset.action.split(":")[1];
+      if (el.checked) next.add(step); else next.delete(step);
+      state.checklist.set(next);
+      store.set("bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao-checklist", JSON.stringify([...next]));
+    },
+    "copy:md": () => copy(mdText, "Đã chép Markdown"),
+    "copy:code": (el) => copy(el.closest(".codebox").querySelector("code").textContent, "Đã chép code"),
+    "download:md": () => {
+      const url = URL.createObjectURL(new Blob([mdText], { type: "text/markdown;charset=utf-8" }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: "bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao.md" });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      state.toast.set("Đã tải Markdown");
+    },
+  };
+  const run = (action, el, ev) => {
+    const key = action.startsWith("filter:") ? "filter" : action.startsWith("check:") ? "check" : action;
+    (workflows[key] || (() => {}))(el, ev);
+  };
+
+  // ---------- 4. Events (combined) ----------
+  document.addEventListener("click", (ev) => {
+    const el = ev.target.closest("[data-action]");
+    if (el) run(el.dataset.action, el, ev);
   });
-}
-
-function render(){
-  var s = sections();
-
-  var h1 = document.getElementById('title');
-  h1.textContent = s.title;
-  document.title = s.title;
-
-  var lede = document.getElementById('lede');
-  lede.textContent = '';
-  s.lede.forEach(function(p){ lede.appendChild(el('p', { html: inline(p) })); });
-
-  var doc = document.getElementById('doc');
-  doc.textContent = '';
-  doc.appendChild(MD.render(MD.parse(s.body)));
-
-  var foot = document.getElementById('foot');
-  foot.textContent = '';
-  s.footer.forEach(function(p){ foot.appendChild(el('p', { html: inline(p) })); });
-
-  document.getElementById('mdtext').textContent = forCopy();
-
-  buildToc(doc);
-
-  var isDoc = STATE.view === 'doc';
-  document.getElementById('docview').hidden = !isDoc;
-  document.getElementById('md').hidden = isDoc;
-  var vb = document.getElementById('viewbtn');
-  vb.textContent = isDoc ? I18N.md : I18N.doc;
-  vb.setAttribute('aria-pressed', isDoc ? 'false' : 'true');
-
-  /* no anchors to jump to in the markdown view */
-  var nb = document.getElementById('navbtn');
-  nb.hidden = !isDoc;
-  if(!isDoc && STATE.nav) setNav(false);
-
-  spy();
-}
-
-/* ---- controls ---------------------------------------------------- */
-
-function wide(){ return (window.innerWidth || 1280) >= 1180; }
-
-function setView(v){ STATE.view = v; render(); }
-
-function setNav(open){
-  STATE.nav = open;
-  document.getElementById('nav').classList.toggle('open', open);
-  document.getElementById('scrim').hidden = !open || wide();
-  document.getElementById('navbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
-}
-
-function copyMd(){
-  var btn = document.getElementById('copybtn');
-  var text = document.getElementById('mdtext').textContent;
-  function flash(msg){
-    var old = btn.textContent; btn.textContent = msg;
-    setTimeout(function(){ btn.textContent = old; }, 1600);
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && mqNarrow.matches) run("menu:close");
+  });
+  mqDark.addEventListener("change", (e) => { if (!store.get("bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao-theme")) state.theme.set(e.matches ? "dark" : "light"); });
+  mqNarrow.addEventListener("change", (e) => state.menuOpen.set(!e.matches));
+  window.addEventListener("hashchange", () => { if (location.hash === "#markdown") state.tab.set("md"); });
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.filter((e) => e.isIntersecting).forEach((e) => state.section.set(e.target.id));
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    $$("section.sec").forEach((s) => io.observe(s));
   }
-  function fallback(){
-    try{
-      var r = document.createRange();
-      r.selectNodeContents(document.getElementById('mdtext'));
-      var sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(r);
-      var ok = false;
-      try{ ok = document.execCommand('copy'); }catch(e){}
-      flash(ok ? I18N.done : 'Đã bôi đen — Cmd/Ctrl+C');
-    }catch(e){ flash('Bôi đen thủ công'); }
-  }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){ flash(I18N.done); }, fallback);
-  } else fallback();
-}
-
-/* ---- scrollspy ---------------------------------------------------- */
-
-var spyTimer = null;
-function spy(){
-  if(spyTimer) return;
-  spyTimer = setTimeout(function(){
-    spyTimer = null;
-    var links = document.querySelectorAll('#toc a');
-    var best = null, bestTop = -1e9;
-    Array.prototype.forEach.call(links, function(a){
-      var t = document.getElementById(a.getAttribute('href').slice(1));
-      if(!t) return;
-      var top = t.getBoundingClientRect().top - 90;
-      if(top <= 0 && top > bestTop){ bestTop = top; best = a; }
-    });
-    Array.prototype.forEach.call(links, function(a){
-      a.classList.toggle('on', a === best);
-    });
-  }, 90);
-}
-
-/* ---- wiring ------------------------------------------------------- */
-
-function boot(){
-  document.getElementById('kick').textContent = I18N.kick;
-  document.getElementById('navhead').textContent = I18N.navHead;
-  document.getElementById('copybtn').textContent = I18N.copy;
-  document.getElementById('mdnote').textContent = I18N.mdNote;
-  document.getElementById('navbtn').textContent = I18N.contents;
-
-  document.getElementById('viewbtn').addEventListener('click', function(){
-    setView(STATE.view === 'doc' ? 'md' : 'doc');
-  });
-  document.getElementById('navbtn').addEventListener('click', function(){
-    setNav(!STATE.nav);
-  });
-  document.getElementById('scrim').addEventListener('click', function(){ setNav(false); });
-  document.getElementById('copybtn').addEventListener('click', copyMd);
-
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && STATE.nav) setNav(false);
-  });
-  window.addEventListener('scroll', spy, { passive: true });
-  window.addEventListener('resize', function(){
-    setNav(wide() ? false : STATE.nav);
-  });
-
-  render();
-  setNav(false);
-}
-
-boot();
+  const initial = location.hash && location.hash !== "#markdown" ? $(location.hash) : null;
+  if (initial) requestAnimationFrame(() => initial.scrollIntoView());
+})();
 </script>
 </body>
 </html>

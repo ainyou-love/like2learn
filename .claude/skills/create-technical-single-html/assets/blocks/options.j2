@@ -1,0 +1,37 @@
+{% from "_lib.j2" import pill %}
+{% macro html(b, inner) %}
+<div class="grid g{{ b.get('cols', 2) }}">
+{% for o in b['items'] %}
+  <div class="opt{{ ' chosen' if o.get('chosen') }}">{% if o.tag is defined %}{{ pill(o.tag, 'tag') }}{% endif %}<h4>{{ o.title|inl }}</h4>{% if o.why is defined %}<div class="why">{{ o.why|inl }}</div>{% endif %}
+{% if o.intent is defined %}    <dl class="intent">{% for f in o.intent %}<dt>{{ f[0] }}</dt><dd>{{ f[1]|inl }}</dd>{% endfor %}</dl>
+{% endif %}
+{% for t in o.get('tables', []) %}
+    <div class="tbl"><div class="tn">{{ t.name }}{% if t.note is defined %}<small>{{ t.note }}</small>{% endif %}</div><div class="cols">{% for c in t.cols %}<span class="col{{ ' ' ~ c[1] if c is not string }}">{{ c if c is string else c[0] }}</span>{% endfor %}</div></div>
+{% endfor %}
+{% if o.note is defined %}    <p class="note">{{ o.note|inl }}</p>
+{% endif %}
+  </div>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for o in b['items'] %}
+### {{ o.title }}{% if o.get('chosen') %} ✓{% if o.tag is defined %} ({{ o.tag.text }}){% endif %}{% endif +%}
+
+{% if o.why is defined %}
+{{ o.why }}
+
+{% endif %}
+{% for f in o.get('intent', []) %}
+- **{{ f[0] }}:** {{ f[1] }}
+{% endfor %}
+{% for t in o.get('tables', []) %}
+- `{{ t.name }}`{% if t.note is defined %} ({{ t.note }}){% endif %}: {% for c in t.cols %}{{ c if c is string else c[0] }}{{ ', ' if not loop.last }}{% endfor +%}
+{% endfor %}
+{% if o.note is defined %}
+
+{{ o.note }}
+{% endif %}
+
+{% endfor %}
+{% endautoescape %}{% endmacro %}

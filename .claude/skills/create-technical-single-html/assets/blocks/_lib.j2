@@ -1,0 +1,4 @@
+{# Shared helpers. pill: {"kind": ok|warn|bad|info|acc|mute, "text": "..."}; links: [["label", "#id or url"], ...] #}
+{% macro pill(p, extra="") %}<span class="pill p-{{ p.kind }}{{ ' ' ~ extra if extra }}">{{ p.text }}</span>{% endmacro %}
+{% macro link(l) %}{% if l[1].startswith('#') %}<a href="{{ l[1] }}" data-action="nav">{{ l[0] }}</a>{% else %}<a href="{{ l[1] }}" target="_blank" rel="noopener">{{ l[0] }}</a>{% endif %}{% endmacro %}
+{% macro md_link(l) %}{% autoescape false %}[{{ l[0] }}]({{ l[1] }}){% endautoescape %}{% endmacro %}

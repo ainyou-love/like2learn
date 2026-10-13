@@ -1,0 +1,23 @@
+{% from "_lib.j2" import pill %}
+{% macro card(c) %}
+  <article class="fcard" id="{{ c.id|lower }}" data-tags="{{ c.get('tags', [])|join(' ') }}">
+    <header><span class="fid">{{ c.id }}</span>{% if c.pill is defined %}{{ pill(c.pill) }}{% endif %}<h4>{{ c.title|inl }}</h4></header>
+    <dl>{% for f in c.fields %}<dt>{{ f[0] }}</dt><dd{% if f|length > 2 %} class="{{ f[2] }}"{% endif %}>{{ f[1]|md }}</dd>{% endfor %}</dl>
+{% if c.svg is defined %}    {{ c.svg|safe }}
+{% endif %}
+  </article>
+{% endmacro %}
+{% macro card_md(c) %}{% autoescape false %}
+### {{ c.id }}{% if c.pill is defined %} · {{ c.pill.text }}{% endif %} · {{ c.title }}
+
+{% for f in c.fields %}
+{% if '\n' in f[1] %}
+- **{{ f[0] }}:**
+
+{{ f[1]|indent(2, true) }}
+
+{% else %}
+- **{{ f[0] }}:** {{ f[1] }}
+{% endif %}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

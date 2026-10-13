@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "title": "Order alerts review",
+    "brand": "Order alerts · Design review",
+    "date": "2026-10-13",
+    "desc": "A short worked example of the review page format.",
+    "lang": "en",
+    "md_filename": "order-alerts-review.md",
+    "storage_key": "order-alerts-review",
+    "sidebar_note": "<div class=\"ext\">Reviewing the original design:<br><a href=\"https://example.com/order-alerts-design\" target=\"_blank\" rel=\"noopener\">Order alerts design ↗</a></div>",
+    "ban": ["OLTP", "OLAP"],
+    "strict_paths": true
+  },
+  "hero": {
+    "kicker": "Design review · for the design owner",
+    "title": "Order alerts, *one event, one alert*",
+    "lede": "A short worked example of the report format: scope, two findings with examples, honest decision status, a data-design comparison and one open question.",
+    "chips": [
+      {"label": "Original", "value": "Order alerts design", "href": "https://example.com/order-alerts-design"},
+      {"pill": {"kind": "acc", "text": "ready for review"}}
+    ],
+    "stats": [
+      {"n": "2", "l": "findings, both with examples"},
+      {"n": "2", "l": "tables proposed, for review"},
+      {"n": "1", "l": "confirmed decision"},
+      {"n": "1", "l": "open question"}
+    ]
+  },
+  "sections": [
+    {"id": "checklist", "title": "Review checklist", "toc_no": "✓", "head": false, "blocks": [
+      {"type": "checklist", "kicker": "Review checklist", "title": "Three steps to review this design",
+       "intro": "Reply with \"agree\" or a change request per step. Ticks are saved in this browser only.",
+       "steps": [
+         {"title": "Align the scope", "where": [["§1", "#s1"]], "checks": ["One event creates at most one alert."]},
+         {"title": "Review the findings", "where": [["§2", "#s2"]], "checks": ["Accept the fix for F1 and F2, or propose another."]},
+         {"title": "Verify the data design", "where": [["§4", "#s4"], ["App. A", "#sa"]], "checks": ["Accept or challenge option B and its DDL."]}
+       ]}
+    ]},
+    {"id": "s1", "no": "01", "title": "Scope (confirmed)",
+     "intro": "Order alerts tell a customer when an order ships or is delayed. One event creates at most one alert.",
+     "blocks": [
+       {"type": "figure", "file": "scope.svg", "caption": "A repeated webhook hits the unique key; only deliveries change state.",
+        "ascii": "Carrier webhook -> alert_events (unique source key) -> alert_deliveries (retry until SENT) -> Customer push"}
+     ]},
+    {"id": "s2", "no": "02", "title": "Findings", "blocks": [
+      {"type": "findings", "filters": ["P0", "P1"], "filter_label": "Filter by priority", "items": [
+        {"id": "F1", "tags": ["P0"], "pill": {"kind": "bad", "text": "P0"}, "title": "A repeated event sends a second alert", "fields": [
+          ["What", "The carrier webhook can arrive twice and the design has no dedupe key."],
+          ["Example", "The \"shipped\" webhook for order 1042 arrives at 10:00 and again at 10:02; the customer gets two pushes.", "ex"],
+          ["Value", "One event, one alert.", "val"],
+          ["Fix", "`UNIQUE (source, source_ref)` on `alert_events`."]]},
+        {"id": "F2", "tags": ["P1"], "pill": {"kind": "warn", "text": "P1"}, "title": "Push failures are silent", "fields": [
+          ["What", "A failed push is logged and forgotten."],
+          ["Example", "The push provider times out during a burst; the alert is marked sent.", "ex"],
+          ["Value", "Honest delivery numbers.", "val"],
+          ["Fix", "`SEND_FAILED` with retry."]]}
+      ]}
+    ]},
+    {"id": "s3", "no": "03", "title": "Decisions", "blocks": [
+      {"type": "fcards",
+       "legend": [{"pill": {"kind": "ok", "text": "confirmed"}, "text": "confirmed by the business"},
+                  {"pill": {"kind": "acc", "text": "request review"}, "text": "proposal awaiting the owner"}],
+       "items": [
+        {"id": "D1", "pill": {"kind": "ok", "text": "Confirmed"}, "title": "One alert per event", "fields": [
+          ["Why", "The business wants no duplicates."], ["Value", "Customer trust.", "val"], ["Example", "Order 1042 above.", "ex"]]},
+        {"id": "D2", "pill": {"kind": "acc", "text": "Request review"}, "title": "Two tables: events and deliveries", "fields": [
+          ["Why", "An event never changes; a delivery has a lifecycle."], ["Value", "Clean retries.", "val"], ["Example", "A retry touches only `alert_deliveries`.", "ex"]]}
+      ]}
+    ]},
+    {"id": "s4", "no": "04", "title": "Data design (option B recommended)", "blocks": [
+      {"type": "options", "items": [
+        {"title": "A · One table", "why": "One row per alert, edited in place",
+         "intent": [["Goal", "Fewest tables."], ["Weak", "Retries overwrite the event."]],
+         "tables": [{"name": "alerts", "note": "1 row per alert", "cols": [["id", "key"], "order_id", ["status", "warn"], ["no source key", "bad"]]}]},
+        {"title": "B · Events + deliveries", "why": "One table per fact", "chosen": true, "tag": {"kind": "acc", "text": "recommended"},
+         "intent": [["Goal", "Store each fact once."], ["Weak", "One join for reports."]],
+         "tables": [{"name": "alert_events", "note": "immutable", "cols": [["id", "key"], ["source + source_ref UQ", "key"], "occurred_at"]},
+                    {"name": "alert_deliveries", "note": "lifecycle", "cols": [["id", "key"], "status", "attempts"]}]}
+      ]},
+      {"type": "table", "wide": true, "matrix": true, "sel": 2, "key": false,
+       "head": ["Question", "A", "B"],
+       "rows": [["Repeated webhook ignored", "✗", "✓"], ["Retry without touching the event", "~", "✓"]],
+       "legend": ["✓ answers it", "~ with extra work", "✗ cannot"]}
+    ]},
+    {"id": "s5", "no": "05", "title": "Open questions", "blocks": [
+      {"type": "questions", "items": [{"id": "Q1", "q": "Quiet hours for \"delayed\"?", "text": "Should delayed-order alerts wait until morning local time?"}]}
+    ]},
+    {"id": "sa", "no": "A", "title": "DDL draft", "blocks": [
+      {"type": "code", "file": "schema.sql", "title": "schema.sql", "lang": "sql"}
+    ]}
+  ],
+  "footer": "Order alerts design review · example · evidence: none (illustrative content)"
+}

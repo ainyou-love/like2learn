@@ -1,0 +1,26 @@
+{% macro html(b, inner) %}
+<section class="sec" id="{{ b.id }}"{% if b.toc_label is defined %} data-toc-label="{{ b.toc_label }}"{% elif not b.get('head', true) %} data-toc-label="{{ b.title|plain }}"{% endif %}{% if b.toc_no is defined %} data-toc-no="{{ b.toc_no }}"{% elif not b.get('head', true) and b.no is defined %} data-toc-no="{{ b.no }}"{% endif %}{% if b.toc_group is defined %} data-toc-group="{{ b.toc_group }}"{% endif %}>
+{% if b.get('head', true) %}
+  <div class="sec-head">{% if b.no is defined %}<span class="sec-no">{{ b.no }}</span>{% endif %}<h2>{{ b.title|inl }}</h2></div>
+{% endif %}
+{% if b.intro is defined %}
+  <p class="sec-intro">{{ b.intro|inl }}</p>
+{% endif %}
+{{ inner }}
+</section>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% if b.toc_group is defined %}
+---
+
+*{{ b.toc_group }}*
+
+{% endif %}
+## {% if b.no is defined %}{{ b.no }}{{ '.' if b.no[-1].isalnum() }} {% endif %}{{ b.title }}
+
+{% if b.intro is defined %}
+{{ b.intro }}
+
+{% endif %}
+{{ inner }}
+{% endautoescape %}{% endmacro %}

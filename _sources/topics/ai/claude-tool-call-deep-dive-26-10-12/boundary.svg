@@ -1,0 +1,15 @@
+<svg viewBox="0 0 760 340" role="img" aria-labelledby="tc-bd-t"><title id="tc-bd-t">Năm lớp ranh giới: càng xuống dưới càng tất định, càng khó bị đi vòng</title>
+  <defs><marker id="tc-bd-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--accent)"/></marker></defs>
+  <rect class="n-warn" x="20" y="20" width="640" height="48" rx="8"/>
+  <text class="t t-b" x="36" y="49">Skill / prompt</text><text class="t" x="270" y="49">“Làm thế nào”</text><text class="t-s" x="420" y="49">có thể sai, có thể bị bỏ qua</text>
+  <rect class="n-warn" x="20" y="76" width="640" height="48" rx="8"/>
+  <text class="t t-b" x="36" y="105">Model</text><text class="t" x="270" y="105">“Quyết định”</text><text class="t-s" x="420" y="105">không tất định</text>
+  <rect class="n-info" x="20" y="132" width="640" height="48" rx="8"/>
+  <text class="t t-b" x="36" y="161">Harness: hook, permission</text><text class="t" x="270" y="161">“Phòng thủ sớm”</text><text class="t-s" x="420" y="161">có thể bị đi vòng</text>
+  <rect class="n-new" x="20" y="188" width="640" height="48" rx="8"/>
+  <text class="t t-b" x="36" y="217">MCP server / tool</text><text class="t" x="270" y="217">“Cổng chuẩn”</text><text class="t-s" x="420" y="217">auth theo agent, validate input</text>
+  <rect class="n-ok" x="20" y="244" width="640" height="48" rx="8"/>
+  <text class="t t-b" x="36" y="273">Business API</text><text class="t" x="270" y="273">“Nguồn sự thật”</text><text class="t-s" x="420" y="273">rule, quyền, idempotency</text>
+  <path class="w-acc" d="M700 22V292" marker-end="url(#tc-bd-ah)"/>
+  <text class="t-s" x="20" y="324">▲ Linh hoạt, dễ bị đi vòng</text><text class="t-s" x="660" y="324" text-anchor="end">Tất định, bắt buộc ▼</text>
+</svg>

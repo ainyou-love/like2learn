@@ -1,0 +1,28 @@
+<svg viewBox="0 0 760 250" role="img" aria-labelledby="tc-pa-t"><title id="tc-pa-t">Ba đường để skill chạm tới hệ thống, cả ba đều tới Business API</title>
+  <defs><marker id="tc-pa-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker></defs>
+  <circle class="n-info" cx="24" cy="44" r="13"/><text class="t t-b" x="24" y="49" text-anchor="middle">A</text>
+  <rect class="n-box" x="50" y="24" width="110" height="40" rx="8"/><text class="t" x="105" y="49" text-anchor="middle">Skill</text>
+  <path class="w" d="M160 44H183" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="185" y="24" width="110" height="40" rx="8"/><text class="t" x="240" y="49" text-anchor="middle">Claude</text>
+  <path class="w" d="M295 44H318" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="320" y="24" width="170" height="40" rx="8"/><text class="t" x="405" y="49" text-anchor="middle">MCP / custom tool</text>
+  <path class="w" d="M490 44H606" marker-end="url(#tc-pa-ah)"/>
+  <text class="t-s t-ok t-b" x="50" y="82">Rủi ro thấp: hook thấy từng hành động</text>
+  <circle class="n-info" cx="24" cy="122" r="13"/><text class="t t-b" x="24" y="127" text-anchor="middle">B</text>
+  <rect class="n-box" x="50" y="102" width="110" height="40" rx="8"/><text class="t" x="105" y="127" text-anchor="middle">Skill</text>
+  <path class="w" d="M160 122H183" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="185" y="102" width="110" height="40" rx="8"/><text class="t" x="240" y="127" text-anchor="middle">script</text>
+  <path class="w" d="M295 122H318" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="320" y="102" width="170" height="40" rx="8"/><text class="t" x="405" y="127" text-anchor="middle">HTTP trực tiếp</text>
+  <path class="w" d="M490 122H606" marker-end="url(#tc-pa-ah)"/>
+  <text class="t-s t-bad t-b" x="50" y="160">Hook chỉ thấy “Bash”</text>
+  <circle class="n-info" cx="24" cy="200" r="13"/><text class="t t-b" x="24" y="205" text-anchor="middle">C</text>
+  <rect class="n-box" x="50" y="180" width="110" height="40" rx="8"/><text class="t" x="105" y="205" text-anchor="middle">Skill</text>
+  <path class="w" d="M160 200H183" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="185" y="180" width="110" height="40" rx="8"/><text class="t" x="240" y="205" text-anchor="middle">script</text>
+  <path class="w" d="M295 200H318" marker-end="url(#tc-pa-ah)"/>
+  <rect class="n-box" x="320" y="180" width="170" height="40" rx="8"/><text class="t" x="405" y="205" text-anchor="middle">MCP gọi bằng code</text>
+  <path class="w" d="M490 200H606" marker-end="url(#tc-pa-ah)"/>
+  <text class="t-s t-warn t-b" x="50" y="238">Kiểm soát ở MCP server</text>
+  <rect class="n-new" x="610" y="24" width="130" height="196" rx="10"/><text class="t t-b" x="675" y="118" text-anchor="middle">Business API</text><text class="t-s" x="675" y="136" text-anchor="middle">rule bắt buộc</text>
+</svg>

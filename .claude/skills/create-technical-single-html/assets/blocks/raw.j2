@@ -1,0 +1,6 @@
+{% macro html(b, inner) %}
+{{ (b.html if b.html is defined else b.file)|safe }}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{{ b.md }}
+{% endautoescape %}{% endmacro %}

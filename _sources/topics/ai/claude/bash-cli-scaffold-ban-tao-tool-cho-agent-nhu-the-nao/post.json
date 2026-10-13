@@ -1,0 +1,342 @@
+{
+ "meta": {
+  "title": "Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI",
+  "brand": "Bạn tạo tool cho agent như thế nào",
+  "date": "2026-09-18",
+  "desc": "Hai skill Claude Code dựng và nuôi lớn công cụ dòng lệnh bằng bash: cấu trúc thư mục, luồng chạy, và công thức để tự dựng skill của bạn.",
+  "lang": "vi",
+  "md_filename": "bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao.md",
+  "storage_key": "bash-cli-scaffold-ban-tao-tool-cho-agent-nhu-the-nao",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Đọc một skill . khuôn mẫu công cụ dòng lệnh bằng bash",
+  "title": "Bạn tạo tool cho agent như thế nào — đọc một cặp skill bash CLI",
+  "lede": "Phần 1 — Viết một tool shell nhiều file thì đau ở đâu, và cặp skill này trả lại cho bạn cái gì.\\\nPhần 2 — Bên trong một skill có gì: thư mục, luồng chạy, dữ liệu. Đây là phần để bạn vẽ lại được từ trí nhớ.\\\nPhần 3 — Một lần chạy đi hết từ câu hỏi đầu tiên tới file trên đĩa, cộng với những cái chặn bạn làm sai.\\\nPhần 4 — Những quyết định thiết kế đáng lấy, và công thức để bạn tự dựng skill đầu tiên."
+ },
+ "sections": [
+  {
+   "id": "s1",
+   "no": "01",
+   "title": "Mục đích",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bạn viết một script shell để tự động hoá một việc nhỏ. Nó chạy được, bạn giữ lại. Tháng sau nó cần thêm một lệnh nữa, bạn thêm vào. Tháng sau nữa nó cần một đoạn tiện ích mà script khác cũng cần, bạn copy sang. Đến lúc này nó không còn là một script, nó là một **dự án** — và không ai từng ngồi xuống quyết định dự án đó nên có hình dạng gì.\n\nHậu quả thì luôn giống nhau, và luôn đến muộn:\n\n- Tool chạy ngon trên máy bạn, hỏng trên máy đồng nghiệp — vì lệnh `date` trên macOS không nhận cờ mà bản GNU nhận.\n- Ai đó cho tool chạy tự động lúc 3 giờ sáng. Hệ thống chọn một phiên bản shell cũ hơn phiên bản bạn test, và một cú pháp bạn dùng hàng ngày báo lỗi cú pháp.\n- Dòng \"kiểm tra xem công cụ X đã cài chưa\" nằm rải rác ở đầu năm file khác nhau, mỗi chỗ một kiểu, và không chỗ nào nói cho người dùng biết phải làm gì tiếp.\n- Bạn thêm một lệnh con mới nhưng quên cập nhật màn hình trợ giúp. Sáu tháng sau chính bạn đọc `--help` và tưởng tool không làm được việc đó.\n- Một file cấu hình bị ghi dở giữa chừng vì máy tắt đúng lúc đó. Lần chạy sau tool đọc phải file hỏng.\n\nKhông cái nào trong số đó là bài toán khó. Chúng chỉ là **những quyết định nhỏ bị quyết lại từ đầu mỗi lần** — và mỗi lần lại ra một đáp án hơi khác.\n\nNgười đau nhất không phải người viết tool đầu tiên. Là người **sửa** nó: đồng nghiệp tiếp quản, hoặc chính bạn sáu tháng sau, hoặc — và đây là chỗ câu chuyện đổi màu — một **AI agent** được giao việc \"thêm lệnh con vào tool này\". Agent không nhớ gì về những lựa chọn cũ. Nó đọc file, đoán ra một kiểu, rồi viết theo kiểu đó. Lần sau nó đoán ra kiểu khác. Sau năm lần sửa, dự án có năm phong cách.\n\nCặp skill trong tài liệu này là câu trả lời viết-ra-giấy cho đúng một câu hỏi: **một tool shell nhiều file thì nên có hình dạng nào?** Quyết một lần, ghi lại, rồi thôi không quyết nữa. Từ đó mọi tool trong bộ sưu tập của bạn trông giống nhau, nên đọc hiểu một cái là hiểu tất cả — và agent sửa cái nào cũng ra cùng một phong cách.\n\nMột trong hai skill nói thẳng ra ý định đó: nếu người dùng đang bắt đầu bất kỳ dự án shell nhiều file nào — kể cả khi họ không hề dùng chữ \"khuôn mẫu\" — thì cứ áp dụng, **để họ khỏi phải phát minh lại bố cục**."
+    }
+   ],
+   "toc_group": "PHẦN 1 — Vấn đề và thành phẩm"
+  },
+  {
+   "id": "s2",
+   "no": "02",
+   "title": "Tình huống dùng và thành phẩm",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Đây là **hai** skill chứ không phải một, và chúng chia nhau theo vòng đời của dự án:\n\n| Skill | Dùng khi | Điểm xuất phát |\n|---|---|---|\n| `bash-cli-scaffold` | **Tạo mới** một tool shell từ con số không | Thư mục rỗng |\n| `bash-cli-pattern` | **Nuôi lớn** tool đã có: thêm lệnh con, thêm module, sửa trợ giúp | Dự án đang chạy |\n\nHai skill trỏ sang nhau: mô tả của mỗi cái đều có một dòng \"đừng dùng cái này cho việc kia — hãy dùng skill còn lại\". Đó là ranh giới duy nhất bạn cần nhớ.\n\n### Nửa thứ nhất — tạo mới\n\nBạn nói với agent: *\"tạo cho tôi một bash CLI tên `pg-migrate` để chạy migration Postgres\"*.\n\nSkill `bash-cli-scaffold` kích hoạt và hỏi bạn bảy thứ **trong một lượt** — không hỏi nhỏ giọt từng câu: tên dự án, tiền tố hàm, tiền tố biến môi trường, danh sách lệnh con, nơi đặt thư mục, công cụ ngoài mà tool sẽ cần, và kiểu changelog.\n\nXong, bạn cầm trong tay **một thư mục hoàn chỉnh**, và ngay lập tức chạy được ba lệnh:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "pg-migrate.sh --help      # màn hình trợ giúp hiện ra đầy đủ\npg-migrate.sh init        # quét máy bạn, ghi ra settings.json\npg-migrate.sh doctor      # so settings.json đã lưu với môi trường hiện tại"
+    },
+    {
+     "type": "md",
+     "text": "Lệnh `apply` mà bạn đặt hàng thì **cố tình chưa làm gì**: nó thoát ra với thông báo \"chưa cài đặt\". Đó không phải thiếu sót — bộ khung dựng sẵn khung xương, phần thịt là việc của bạn.\n\n### Nửa thứ hai — nuôi lớn\n\nHai tuần sau bạn nói: *\"thêm lệnh con `rollback`\"*. Lần này `bash-cli-pattern` kích hoạt, và nó không tạo file nào. Nó **đọc** dự án đang có: tìm bộ điều phối, đọc một hàm lệnh con anh em, rồi viết hàm mới **khớp với hàm cũ** — cùng kiểu đọc cờ, cùng kiểu báo lỗi, cùng thứ tự. Sau đó nó nối dây ở ba chỗ: nhánh trong bộ điều phối, nhánh trong trợ giúp con, và danh sách lệnh trong trợ giúp tổng.\n\nThành phẩm ở đây không phải file mới mà là **một bản sửa không lệch phong cách**, cộng thêm một bước kiểm tra: chạy lại `--help` để xác nhận màn hình trợ giúp vẫn đúng."
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "no": "03",
+   "title": "Cấu trúc thư mục",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Ở mục này có **hai cây thư mục khác nhau**, và lẫn lộn chúng là cách nhanh nhất để hiểu sai:\n\n- **Cây A** — thư mục của bản thân skill. Đây là thứ agent đọc.\n- **Cây B** — thư mục mà skill *sinh ra*. Đây là thứ bạn nhận được.\n\n### Cây A — bản thân hai skill"
+    },
+    {
+     "type": "figure",
+     "svg": "<svg viewBox=\"0 0 980 618\" role=\"img\" aria-labelledby=\"fig-skilltree-t\"><title id=\"fig-skilltree-t\">Cây thứ nhất: bản thân hai skill — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.</title>\n<defs><marker id=\"fig-skilltree-ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 10 5 0 10z\" fill=\"var(--ink-3)\"/></marker></defs>\n<text class=\"t-m t-b t-acc\" x=\"20\" y=\"28\">bash-cli-scaffold/</text>\n<text class=\"t-s\" x=\"163\" y=\"28\">tạo mới · có vật liệu để chép</text>\n<rect class=\"n-new\" x=\"24\" y=\"40\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"56\">SKILL.md</text>\n<text class=\"t-s\" x=\"330\" y=\"56\">frontmatter + thuật toán sinh file</text>\n<rect class=\"n-info\" x=\"24\" y=\"66\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"82\">references/</text>\n<text class=\"t-s\" x=\"330\" y=\"82\">đọc khi quy trình bảo đọc</text>\n<rect class=\"n-info\" x=\"46\" y=\"92\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"108\">output-tree.md</text>\n<text class=\"t-s\" x=\"330\" y=\"108\">danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ</text>\n<rect class=\"n-info\" x=\"46\" y=\"118\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"134\">placeholders.md</text>\n<text class=\"t-s\" x=\"330\" y=\"134\">bảng marker và luật thay thế</text>\n<rect class=\"n-ok\" x=\"24\" y=\"144\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"160\">templates/</text>\n<text class=\"t-s\" x=\"330\" y=\"160\">bash chạy được, chưa điền tên</text>\n<rect class=\"n-ok\" x=\"46\" y=\"170\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"186\">__NAME__.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"186\">điểm vào, khuôn 6 phần</text>\n<rect class=\"n-ok\" x=\"46\" y=\"196\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"212\">lib/</text>\n<text class=\"t-s\" x=\"330\" y=\"212\">_bootstrap · common · settings · tools</text>\n<rect class=\"n-ok\" x=\"46\" y=\"222\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"238\">config/</text>\n<text class=\"t-s\" x=\"330\" y=\"238\">tools.json.example · bootstrap.json</text>\n<rect class=\"n-ok\" x=\"46\" y=\"248\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"264\">tests/</text>\n<text class=\"t-s\" x=\"330\" y=\"264\">helper nạp lib + một file test khói</text>\n<rect class=\"n-ok\" x=\"46\" y=\"274\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"290\">file gốc dự án</text>\n<text class=\"t-s\" x=\"330\" y=\"290\">VERSION · CHANGELOG · .gitignore · .shellcheckrc · .editorconfig</text>\n<text class=\"t-m t-b t-acc\" x=\"20\" y=\"330\">bash-cli-pattern/</text>\n<text class=\"t-s\" x=\"156\" y=\"330\">nuôi lớn · chỉ có phán đoán</text>\n<rect class=\"n-new\" x=\"24\" y=\"342\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"358\">SKILL.md</text>\n<text class=\"t-s\" x=\"330\" y=\"358\">frontmatter + 10 bất biến + bảng định tuyến</text>\n<rect class=\"n-info\" x=\"24\" y=\"368\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"384\">references/</text>\n<text class=\"t-s\" x=\"330\" y=\"384\">mỗi file một vùng sửa chữa</text>\n<rect class=\"n-info\" x=\"46\" y=\"394\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"410\">entry-point.md</text>\n<text class=\"t-s\" x=\"330\" y=\"410\">khuôn 6 phần của file điểm vào</text>\n<rect class=\"n-info\" x=\"46\" y=\"420\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"436\">lib-module.md</text>\n<text class=\"t-s\" x=\"330\" y=\"436\">luật cho file thư viện được nạp</text>\n<rect class=\"n-info\" x=\"46\" y=\"446\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"462\">helpers.md</text>\n<text class=\"t-s\" x=\"330\" y=\"462\">log, báo lỗi, ghi nguyên tử, nhận diện HĐH</text>\n<rect class=\"n-info\" x=\"46\" y=\"472\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"488\">help-system.md</text>\n<text class=\"t-s\" x=\"330\" y=\"488\">trợ giúp là hệ thống con, không phải một cờ</text>\n<rect class=\"n-info\" x=\"46\" y=\"498\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"514\">init-doctor.md</text>\n<text class=\"t-s\" x=\"330\" y=\"514\">bộ ba init / doctor / assert</text>\n<rect class=\"n-info\" x=\"46\" y=\"524\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"540\">tooling.md</text>\n<text class=\"t-s\" x=\"330\" y=\"540\">shellcheck, editorconfig, VERSION, test</text>\n<rect class=\"n-box\" x=\"24\" y=\"550\" width=\"946\" height=\"22\" rx=\"6\" stroke-dasharray=\"4 3\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"566\">(không có templates/)</text>\n<text class=\"t-s\" x=\"330\" y=\"566\">đầu ra là phán đoán, không có gì để chép</text>\n<rect class=\"n-box\" x=\"24\" y=\"576\" width=\"946\" height=\"22\" rx=\"6\" stroke-dasharray=\"4 3\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"592\">(không có scripts/)</text>\n<text class=\"t-s\" x=\"330\" y=\"592\">công việc không phải thuật toán</text>\n</svg>",
+     "caption": "Cây thứ nhất: **bản thân hai skill** — thứ agent đọc. Màu phân theo vai trò, không phải theo loại file.",
+     "ascii": "bash-cli-scaffold/\n├── SKILL.md                     frontmatter + thuật toán sinh file\n├── references/\n│   ├── output-tree.md           danh sách file sẽ sinh, mỗi file một dòng nhiệm vụ\n│   └── placeholders.md          bảng marker và luật thay thế\n└── templates/                   bash chạy được, chưa điền tên\n    ├── __NAME__.sh              điểm vào\n    ├── VERSION  CHANGELOG.md  .gitignore\n    ├── .shellcheckrc  .editorconfig\n    ├── lib/                     _bootstrap.sh  common.sh\n    │                            settings.sh   tools.sh\n    ├── config/                  tools.json.example  bootstrap.json\n    └── tests/                   helpers/load.bash  unit/common.bats\n\nbash-cli-pattern/\n├── SKILL.md                     frontmatter + 10 bất biến + bảng định tuyến\n└── references/\n    ├── entry-point.md           khuôn 6 phần của file điểm vào\n    ├── lib-module.md            luật cho file thư viện được nạp\n    ├── helpers.md               log, báo lỗi, ghi nguyên tử, nhận diện HĐH\n    ├── help-system.md           trợ giúp là một hệ thống con, không phải một cờ\n    ├── init-doctor.md           bộ ba init / doctor / assert\n    └── tooling.md               shellcheck, editorconfig, VERSION, test"
+    },
+    {
+     "type": "md",
+     "text": "Nhiệm vụ từng chỗ, mỗi chỗ một câu:\n\n| Thành phần | Nhiệm vụ |\n|---|---|\n| **frontmatter** (`name`, `description`) | Khối dữ liệu ở ngay đầu `SKILL.md`; là phần duy nhất nằm trong đầu óc agent **mọi lúc**, nên nó quyết định skill có được chọn hay không. |\n| **thân `SKILL.md`** | Được đọc **mỗi lần skill kích hoạt**: quy trình và phán đoán, không chứa chi tiết. |\n| `references/` | Chỉ đọc khi quy trình bảo đọc — nơi chứa chiều sâu. |\n| `templates/` | Vật liệu để **chép**, không phải để mô tả: bash thật, chỉ còn thiếu tên. |\n\n### Ba tầng bóc dần\n\nSự phân chia trên không tuỳ hứng. Nó theo một nguyên tắc có tên — **progressive disclosure**, tạm gọi là **bóc dần**: cái gì càng hay phải trả giá thì càng phải ngắn."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "LUÔN NẰM TRONG CONTEXT",
+       "*trả tiền ở mọi lượt, kể cả lượt không liên quan*"
+      ],
+      [
+       "`frontmatter`",
+       "`name` và `description` — quyết định skill có được chọn hay không"
+      ],
+      [
+       "ĐỌC KHI SKILL KÍCH HOẠT",
+       "*trả tiền mỗi lần skill được chọn*"
+      ],
+      [
+       "`thân SKILL.md`",
+       "quy trình, bảng định tuyến, luật cấm — **không** chứa chi tiết"
+      ],
+      [
+       "ĐỌC KHI QUY TRÌNH BẢO ĐỌC",
+       "*trả tiền khi và chỉ khi cần*"
+      ],
+      [
+       "`references/`",
+       "chiều sâu; không bao giờ được đọc hết cùng một lúc"
+      ],
+      [
+       "`templates/`",
+       "vật liệu để chép ra; hầu như không cần đọc hiểu"
+      ]
+     ],
+     "sum": [
+      0,
+      2,
+      4
+     ],
+     "note": "Bóc dần: cái gì càng hay phải trả giá thì càng phải ngắn.",
+     "ascii": "LUÔN NẰM TRONG CONTEXT\n  frontmatter        quyết định skill có được chọn hay không\n\nĐỌC KHI SKILL KÍCH HOẠT\n  SKILL.md (thân)    quy trình, bảng định tuyến, luật cấm — không chứa chi tiết\n\nĐỌC KHI QUY TRÌNH BẢO ĐỌC\n  references/*.md    chiều sâu, không bao giờ đọc hết cùng một lúc\n  templates/*        vật liệu chép ra, hầu như không cần đọc hiểu"
+    },
+    {
+     "type": "md",
+     "text": "Đọc cây A theo lăng kính đó thì hai skill lộ ra hai tính cách khác nhau:\n\n- `bash-cli-scaffold` **có `templates/`** vì đầu ra của nó là *vật liệu*. Mô tả một file bash bằng văn xuôi rồi bắt agent viết lại là vừa tốn vừa dễ sai; đưa thẳng file bash chạy được thì không sai được.\n- `bash-cli-pattern` **không có `templates/`** vì đầu ra của nó là *phán đoán*. Không có file nào để chép — chỉ có \"khi bạn đang sửa X thì mở file Y ra đọc\".\n- **Cả hai đều không có `scripts/`.** Đây là một quyết định, không phải một thiếu sót: công việc nặng nhất của bộ khung là thay chuỗi ký tự trong từng file mẫu, mà đó không phải thuật toán. Một skill có `scripts/` là skill giao việc cho code vì code rẻ hơn và chắc tay hơn lời dặn; ở đây chẳng có gì để giao.\n- Cả hai đều **không có test**. Cái chặn sai duy nhất là một bước kiểm tra chạy tay ở cuối, sẽ nói ở mục 8.\n\n### Cây B — dự án mà bộ khung sinh ra"
+    },
+    {
+     "type": "figure",
+     "svg": "<svg viewBox=\"0 0 980 394\" role=\"img\" aria-labelledby=\"fig-projecttree-t\"><title id=\"fig-projecttree-t\">Cây thứ hai: dự án được sinh ra — thứ bạn nhận được. Đừng lẫn với cây trên.</title>\n<defs><marker id=\"fig-projecttree-ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 10 5 0 10z\" fill=\"var(--ink-3)\"/></marker></defs>\n<text class=\"t-m t-b t-acc\" x=\"20\" y=\"28\">pg-migrate/</text>\n<text class=\"t-s\" x=\"113\" y=\"28\">chạy được ngay, chưa cần viết thêm dòng nào</text>\n<rect class=\"n-new\" x=\"24\" y=\"40\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"56\">pg-migrate.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"56\">ĐIỂM VÀO — chạy trực tiếp, bật chế độ nghiêm ngặt</text>\n<rect class=\"n-info\" x=\"24\" y=\"66\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"82\">lib/</text>\n<text class=\"t-s\" x=\"330\" y=\"82\">CHỈ ĐƯỢC NẠP — không chạy trực tiếp</text>\n<rect class=\"n-info\" x=\"46\" y=\"92\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"108\">_bootstrap.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"108\">chọn đúng trình thông dịch rồi chạy lại chính mình</text>\n<rect class=\"n-info\" x=\"46\" y=\"118\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"134\">common.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"134\">log / die / ghi nguyên tử / nhận diện HĐH</text>\n<rect class=\"n-info\" x=\"46\" y=\"144\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"160\">settings.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"160\">quét môi trường, so lệch, sửa lệch</text>\n<rect class=\"n-info\" x=\"46\" y=\"170\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"186\">tools.sh</text>\n<text class=\"t-s\" x=\"330\" y=\"186\">tìm đường dẫn, phiên bản, biến thể của công cụ ngoài</text>\n<rect class=\"n-ok\" x=\"24\" y=\"196\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"212\">config/</text>\n<text class=\"t-s\" x=\"330\" y=\"212\">khai báo — CÓ commit</text>\n<rect class=\"n-ok\" x=\"46\" y=\"222\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"238\">tools.json.example</text>\n<text class=\"t-s\" x=\"330\" y=\"238\">\"tool này cần jq và psql\"</text>\n<rect class=\"n-ok\" x=\"46\" y=\"248\" width=\"924\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m\" x=\"58\" y=\"264\">bootstrap.json</text>\n<text class=\"t-s\" x=\"330\" y=\"264\">cấu hình tĩnh, không phụ thuộc máy</text>\n<rect class=\"n-ok\" x=\"24\" y=\"274\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"290\">tests/</text>\n<text class=\"t-s\" x=\"330\" y=\"290\">helpers/load.bash · unit/common.bats · fixtures/ (rỗng)</text>\n<rect class=\"n-ok\" x=\"24\" y=\"300\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"316\">docs/</text>\n<text class=\"t-s\" x=\"330\" y=\"316\">để trống, chờ bạn viết</text>\n<rect class=\"n-ok\" x=\"24\" y=\"326\" width=\"946\" height=\"22\" rx=\"6\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"342\">file gốc dự án</text>\n<text class=\"t-s\" x=\"330\" y=\"342\">VERSION · CHANGELOG.md · .gitignore · .shellcheckrc · .editorconfig</text>\n<rect class=\"n-box\" x=\"24\" y=\"352\" width=\"946\" height=\"22\" rx=\"6\" stroke-dasharray=\"4 3\"/>\n<text class=\"t-m t-b\" x=\"36\" y=\"368\">settings.json</text>\n<text class=\"t-s\" x=\"330\" y=\"368\">KHÔNG có sẵn — do lệnh init sinh ra, KHÔNG commit</text>\n</svg>",
+     "caption": "Cây thứ hai: **dự án được sinh ra** — thứ bạn nhận được. Đừng lẫn với cây trên.",
+     "ascii": "pg-migrate/\n├── pg-migrate.sh          ĐIỂM VÀO — chạy trực tiếp, có strict mode\n├── VERSION                một dòng: 0.1.0\n├── CHANGELOG.md           định dạng Keep a Changelog\n├── .gitignore             bỏ qua settings.json, *.bak, tmp/\n├── .shellcheckrc          tắt đúng một cảnh báo, có ghi lý do\n├── .editorconfig          .sh và .bats thụt 4, còn lại thụt 2, xuống dòng LF\n├── lib/                   CHỈ ĐƯỢC NẠP — không chạy trực tiếp\n│   ├── _bootstrap.sh      chọn đúng trình thông dịch, rồi chạy lại chính mình\n│   ├── common.sh          log / die / ghi nguyên tử / nhận diện HĐH\n│   ├── settings.sh        quét môi trường, so lệch, sửa lệch\n│   └── tools.sh           tìm đường dẫn, phiên bản, biến thể của công cụ ngoài\n├── config/\n│   ├── tools.json.example danh sách công cụ cần — CÓ commit\n│   └── bootstrap.json     cấu hình tĩnh, không phụ thuộc máy\n├── tests/\n│   ├── helpers/load.bash  nạp một thư viện vào phiên test\n│   ├── unit/common.bats   7 test khói cho common.sh\n│   └── fixtures/          để trống\n└── docs/                  để trống\n\nsettings.json  ← KHÔNG có sẵn. Do lệnh `init` sinh ra. KHÔNG commit."
+    },
+    {
+     "type": "md",
+     "text": "Ranh giới quan trọng nhất trong cây B là **`bin/` và `lib/`**, hay ở đây là \"file chạy được\" đối lập với \"file chỉ được nạp\". Phụ thuộc chỉ đi một chiều: file chạy được nạp thư viện, thư viện không bao giờ gọi ngược lên. Nhờ vậy một thư viện dùng lại được cho nhiều điểm vào mà không kéo theo thứ gì.\n\nBộ khung mặc định **không tạo `bin/`** — chỉ tạo một file điểm vào duy nhất ở gốc. Thư mục `bin/` chứa các CLI nhỏ tách riêng là tuỳ chọn, chỉ dựng khi bạn hỏi."
+    }
+   ],
+   "toc_group": "PHẦN 2 — Bên trong hai skill"
+  },
+  {
+   "id": "s4",
+   "no": "04",
+   "title": "Luồng chạy",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### Bộ khung: một đường thẳng, chạy đúng một lần"
+    },
+    {
+     "type": "steps",
+     "items": [
+      {
+       "title": "Nhận diện",
+       "text": "người dùng đang bắt đầu một dự án bash nhiều file — kể cả khi họ không nói chữ nào về bố cục"
+      },
+      {
+       "title": "Hỏi gộp",
+       "text": "bảy câu hỏi trong **một** lượt: tên, tiền tố hàm, tiền tố biến, lệnh con, nơi đặt, công cụ ngoài, kiểu changelog"
+      },
+      {
+       "title": "Đọc danh sách",
+       "text": "mở file tham chiếu liệt kê đúng những file phải có"
+      },
+      {
+       "title": "Sinh từng file",
+       "text": "đọc template → thay marker → ghi ra đích"
+      },
+      {
+       "title": "Cấp quyền chạy",
+       "text": "chmod +x cho file .sh ở gốc"
+      },
+      {
+       "title": "Kiểm tra",
+       "text": "chạy `--help`; **không hiện ra thì dừng**, không được báo xong"
+      },
+      {
+       "title": "Bàn giao",
+       "text": "đường dẫn + ba lệnh chạy đầu + chỗ viết lệnh con thật + tên skill dùng cho lần sửa sau"
+      }
+     ],
+     "note": "Không có bước nào ghi `settings.json`. Đó là việc của người dùng, không phải tác dụng phụ. Bộ khung chạy **một lần** rồi rút. Bước 6 là bước duy nhất có quyền phủ quyết.",
+     "ascii": "1  Nhận diện       người dùng muốn dựng một dự án bash nhiều file\n2  Hỏi gộp         7 câu hỏi trong MỘT lượt, không hỏi nhỏ giọt\n3  Đọc danh sách   references/output-tree.md — file nào phải có\n4  Với từng file   đọc template → thay marker → ghi ra đích\n5  Cấp quyền chạy  chmod +x cho file .sh ở gốc và mọi thứ trong bin/\n6  Kiểm tra        chạy --help; nếu không hiện ra thì DỪNG, đừng báo xong\n7  Bàn giao        đường dẫn + 3 lệnh chạy đầu tiên + chỗ viết lệnh con thật"
+    },
+    {
+     "type": "md",
+     "text": "Bước 6 là bước duy nhất có quyền phủ quyết. Skill nói thẳng: nếu `--help` không hiện ra thì bộ khung hỏng — dừng lại và sửa, không được tuyên bố đã xong.\n\n### Khuôn mẫu: không có luồng, chỉ có bảng định tuyến\n\n`bash-cli-pattern` không chạy theo một đường. Nó tự kích hoạt khi **nhận ra hình dạng dự án** — thư mục nào vừa có `bin/` vừa có `lib/*.sh`, file nào tự xác định vị trí của mình rồi nạp thư viện từ đó — kể cả khi bạn không hề nhắc tới nó. Sau đó nó đọc **đúng một** file tham chiếu, chọn theo thứ bạn đang chạm vào:"
+    },
+    {
+     "type": "figure",
+     "svg": "<svg viewBox=\"0 0 980 390\" role=\"img\" aria-labelledby=\"fig-routes-t\"><title id=\"fig-routes-t\">Bạn đang sửa một bash CLI nhiều file (có cả bin/ lẫn lib/*.sh)</title>\n<defs><marker id=\"fig-routes-ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 10 5 0 10z\" fill=\"var(--ink-3)\"/></marker></defs>\n<rect class=\"n-box\" x=\"20\" y=\"132\" width=\"230\" height=\"73\" rx=\"10\"/>\n<text class=\"t t-b\" x=\"135\" y=\"157\" text-anchor=\"middle\">Bạn đang sửa một bash CLI</text><text class=\"t t-b\" x=\"135\" y=\"174\" text-anchor=\"middle\">nhiều file (có cả bin/ lẫn</text><text class=\"t t-b\" x=\"135\" y=\"191\" text-anchor=\"middle\">lib/*.sh)</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 41, 288 41\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"20\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"46\">thêm lệnh con</text>\n<text class=\"t-s\" x=\"508\" y=\"45.0\">mở entry-point.md — khuôn 6 phần, cách đọc cờ, cách nối vào bộ điều phối</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 93, 288 93\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"72\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"98\">thêm module thư viện</text>\n<text class=\"t-s\" x=\"508\" y=\"97.0\">mở lib-module.md — không shebang, không set -e, có chốt chống nạp trùng</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 145, 288 145\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"124\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"150\">sửa log hoặc báo lỗi</text>\n<text class=\"t-s\" x=\"508\" y=\"149.0\">mở helpers.md — mức log, mã thoát, ghi nguyên tử, móc test HĐH</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 197, 288 197\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"176\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"202\">sửa màn hình trợ giúp</text>\n<text class=\"t-s\" x=\"508\" y=\"201.0\">mở help-system.md — trợ giúp là hệ thống con, thiếu một nhánh là lỗi</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 249, 288 249\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"228\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"254\">sửa init / doctor</text>\n<text class=\"t-s\" x=\"508\" y=\"253.0\">mở init-doctor.md — bộ ba chẩn đoán và hình dạng file cấu hình</text>\n<path class=\"w\" d=\"M250 168 C 280 168, 260 301, 288 301\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"280\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"306\">sửa file gốc dự án</text>\n<text class=\"t-s\" x=\"508\" y=\"305.0\">mở tooling.md — shellcheck, editorconfig, VERSION, bố cục test</text>\n<path class=\"w-dash\" d=\"M250 168 C 280 168, 260 356, 288 356\" marker-end=\"url(#fig-routes-ah)\"/>\n<rect class=\"n-bad\" x=\"290\" y=\"338\" width=\"680\" height=\"36\" rx=\"8\" stroke-dasharray=\"5 4\"/>\n<text class=\"t t-b t-bad\" x=\"302\" y=\"361\">TỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này</text>\n</svg>",
+     "caption": "Skill bảo trì không có luồng. Nó nhận ra hình dạng dự án rồi mở **đúng một** file tham chiếu.",
+     "ascii": "BẠN ĐANG SỬA MỘT BASH CLI NHIỀU FILE\n                 │\n    ┌────────────┼────────────┬───────────┬──────────┬──────────┐\n    ▼            ▼            ▼           ▼          ▼          ▼\nthêm lệnh    thêm module   sửa log     sửa màn     sửa init   sửa file\n  con         thư viện     báo lỗi    trợ giúp    / doctor   cấu hình\n    │            │            │           │          │          │\nentry-point  lib-module   helpers   help-system  init-doctor  tooling\n    .md          .md         .md        .md          .md        .md\n\nTỪ CHỐI: dự án hoàn toàn mới → dùng bash-cli-scaffold, không phải skill này"
+    },
+    {
+     "type": "md",
+     "text": "Mỗi ngả đường ứng với một quy trình được viết sẵn. Ví dụ ngả \"thêm lệnh con\" có sáu bước, và hai bước cuối được đánh dấu **đừng bỏ qua**: thêm nhánh trợ giúp con, và cập nhật danh sách lệnh trong trợ giúp tổng. Lý do được nói rõ luôn — màn hình trợ giúp là một hệ thống con thật sự, thiếu một dòng trong đó là **lỗi**, không phải sơ suất nhỏ.\n\nCuối mỗi lần sửa, bước kiểm tra giống nhau: chạy `--help`, chạy `doctor` nếu cấu hình có thể đã đổi, chạy công cụ soi lỗi tĩnh nếu máy có, chạy test nếu vùng vừa sửa có test."
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "no": "05",
+   "title": "Dữ liệu và trạng thái",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**Bản thân hai skill không nhớ gì cả.** Không thư mục tạm, không bộ nhớ đệm, không file trạng thái, không gì sống sót giữa hai lần chạy. Chúng đọc file tham chiếu của chính mình, đọc file dự án của bạn, rồi ghi file dự án của bạn. Hết.\n\nPhần trạng thái đáng học nằm ở **dự án được sinh ra**, và đó mới là thứ hai skill thật sự bàn giao. Nó dựa trên một ranh giới duy nhất:\n\n| | Khai báo — **có** commit | Phân giải — **không** commit |\n|---|---|---|\n| File | `config/tools.json.example` | `settings.json` |\n| Nội dung | \"tool này cần `jq` và `psql`\" | \"`jq` nằm ở `/opt/homebrew/bin/jq`, bản 1.7.1, biến thể apple\" |\n| Ai tạo | bộ khung, lúc dựng dự án | lệnh `init`, trên từng máy |\n\nĐây là lý do **bộ khung từ chối tạo `settings.json`**. Nếu nó tạo, thư mục vừa sinh ra đã dính đường dẫn của một máy cụ thể, và dự án hết tái lập được. Việc quét máy là một hành động có chủ ý của người dùng, không phải tác dụng phụ.\n\nBa lệnh xoay quanh ranh giới đó — bộ ba chẩn đoán:\n\n- **`init`** — chạy một lần. Quét môi trường sống, ghi ra `settings.json`. Từ chối ghi đè trừ khi có `--force`.\n- **`doctor`** — chạy khi cần. So `settings.json` đã lưu với môi trường hiện tại, in ra từng mục. Chỉ sửa khi bạn thêm `--fix`, và khi sửa thì chép bản cũ ra `.bak` trước.\n- **`assert`** — chốt chặn lúc chạy. Lệnh nào làm việc thật thì gọi nó trước; nếu có lệch thì thoát ngay với thông báo đã cài sẵn câu *\"chạy `doctor --fix`\"*.\n\nBộ ba này thay thế cho thứ mà mọi script shell đều có: những dòng `command -v jq || exit 1` rải rác khắp nơi, mỗi dòng một kiểu, không dòng nào chỉ cho người dùng lối ra.\n\nNgoài file, dự án sinh ra còn đọc vài **biến môi trường**, tất cả mang tiền tố bạn đã chọn:\n\n| Biến | Dùng để |\n|---|---|\n| `<PKG>_PKG_DIR` | gốc dự án, file điểm vào tự tính ra rồi export |\n| `<PKG>_LOG_LEVEL` | lọc mức log: `error` / `warn` / `info` / `debug`, mặc định `info` |\n| `<PKG>_COMPONENT` | tên ngắn hiện trong dòng log để biết log từ đâu ra |\n| `<PKG>_OS_OVERRIDE` | **móc dành cho test** — ép nhận diện HĐH mà không cần máy khác |\n| `<PKG>_BASH_BOOTSTRAPPED` | chặn vòng lặp khi file khởi động chạy lại chính mình |\n| `NO_COLOR` | quy ước chung: đặt bất cứ giá trị nào thì log hết màu |\n\n### Giao diện bên ngoài\n\nCả hai skill đều có chạm tới vài công cụ ngoài. Ở đây chỉ cần biết **đưa gì vào, nhận gì ra**:\n\n| Công cụ | Skill đưa | Nhận lại |\n|---|---|---|\n| `jq` | một tài liệu JSON và một biểu thức truy vấn | JSON hoặc chuỗi đã lọc; bộ ba chẩn đoán dựng mọi file JSON qua đây thay vì nối chuỗi |\n| `shellcheck` | đường dẫn các file `.sh` vừa viết | danh sách cảnh báo tĩnh; bước kiểm tra tuỳ chọn, thiếu thì bỏ qua |\n| `bats` | thư mục `tests/` | kết quả pass/fail; bộ khung chỉ sinh test khói, test thật là việc của bạn |\n| `git` | không đưa gì | không nhận gì; skill không chạy git, chỉ sinh `.gitignore` để bạn tự commit |\n| `date`, `uname` | không đưa gì | dấu thời gian và tên HĐH ghi vào `settings.json` lúc quét |\n\nNội tạng của mấy công cụ đó không phải chuyện của trang này."
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "no": "06",
+   "title": "Đầu tới cuối",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### Đầu vào\n\nBạn muốn một tool chạy migration Postgres. Bảy câu trả lời:\n\n| Câu hỏi | Bạn trả lời |\n|---|---|\n| Tên dự án | `pg-migrate` |\n| Tiền tố hàm | `pgm` |\n| Tiền tố biến môi trường | `PGM` |\n| Lệnh con | `init`, `doctor`, `apply`, `rollback` |\n| Nơi đặt | `scripts/bash/pg-migrate/` |\n| Công cụ ngoài cần | `psql`, `jq` |\n| Kiểu changelog | Keep a Changelog |\n\n### Giữa chừng: marker biến thành tên\n\nĐây là chỗ dễ hiểu sai nhất, nên đáng nhìn kỹ. File mẫu chứa những chuỗi đánh dấu; thay chuỗi là xong file."
+    },
+    {
+     "type": "raw",
+     "html": "<div class=\"tw\"><table><thead><tr><th>trong template</th><th>sau khi thay</th><th></th></tr></thead><tbody><tr><td><code>__NAME__</code></td><td><code>pg-migrate</code></td><td>tên dự án, dùng cho tên file và tiêu đề trợ giúp</td></tr><tr><td><code>__PKG___PKG_DIR</code></td><td><code>PGM_PKG_DIR</code></td><td>marker là <code>__PKG__</code>, gạch dưới cuối là của tên biến</td></tr><tr><td><code>___ns___log</code></td><td><code>_pgm_log</code></td><td>marker là <code>__ns__</code>; hai gạch dưới bọc ngoài đánh dấu &quot;hàm riêng tư&quot;</td></tr><tr><td><code>___PKG___COMMON_SOURCED</code></td><td><code>_PGM_COMMON_SOURCED</code></td><td>tên chốt chống nạp trùng của thư viện common</td></tr></tbody></table></div><p class=\"blk-note\">Không thay: <code>${BASH_SOURCE[0]}</code>, <code>$HOME</code> và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker. Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker <strong>lồng trong</strong> quy ước gạch dưới của bash.</p>",
+     "md": "```text\nTRONG TEMPLATE                            SAU KHI THAY\n__NAME__                          →       pg-migrate\n__PKG___PKG_DIR                   →       PGM_PKG_DIR\n___ns___log                       →       _pgm_log\n___PKG___COMMON_SOURCED           →       _PGM_COMMON_SOURCED\n```\n\n*Không thay: `${BASH_SOURCE[0]}`, `$HOME` và mọi thứ nằm trong khối văn bản trích dẫn cứng — đó là cú pháp lúc chạy, không phải marker. Sinh file chỉ là thay chuỗi. Hai dòng dưới rối vì marker **lồng trong** quy ước gạch dưới của bash.*"
+    },
+    {
+     "type": "md",
+     "text": "Hai dòng dưới trông rối vì chúng **lồng nhau**. Marker chỉ là `__ns__` và `__PKG__`; những gạch dưới thừa hai bên là quy ước bash cho \"hàm riêng tư, đừng gọi từ ngoài\". `___ns___log` chính là `_` + `__ns__` + `_log`, nên sau khi thay ra `_pgm_log`. Bạn không cần nhớ chuyện này — chỉ cần biết rằng skill có hẳn một file tham chiếu dành riêng cho nó, vì nó đã từng làm người ta nhầm.\n\nDòng đầu tiên của file điểm vào, trước và sau, cho thấy toàn bộ trò chơi:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "# template\n__PKG___PKG_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\n\n# kết quả\nPGM_PKG_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\""
+    },
+    {
+     "type": "md",
+     "text": "Phần `${BASH_SOURCE[0]}` **không bị thay** — đó là cú pháp bash lúc chạy, không phải marker. Luật này được ghi riêng: đừng thay biến bash, đừng thay ruột của khối văn bản trích dẫn cứng, đừng thay hai lần.\n\n### Đầu ra\n\nCả cây thư mục nằm trên đĩa. Chạy được ngay:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "$ scripts/bash/pg-migrate/pg-migrate.sh --help\npg-migrate — apply postgres migrations idempotently\n\nUSAGE\n  pg-migrate.sh <subcommand> [options]\n  pg-migrate.sh help [<subcommand>]\n\nSUBCOMMANDS\n  init      scan env and write settings.json (one-time)\n  doctor    compare settings.json vs live env; --fix to repair\n  apply     ← lệnh con của bạn; thân hàm còn rỗng\n  rollback  ← lệnh con của bạn; thân hàm còn rỗng\n  version   print tool version\n  help      show this help"
+    },
+    {
+     "type": "md",
+     "text": "Chạy `init` một lần, `settings.json` xuất hiện — và đây là toàn bộ hình dạng của nó:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "{\n  \"version\": 1,\n  \"scanned-at\": \"2026-09-18T11:04:22Z\",\n  \"scanned-on\": { \"os\": \"darwin\", \"arch\": \"arm64\" },\n  \"tools\": {\n    \"psql\": {\n      \"name\": \"psql\", \"found\": true,\n      \"path\": \"/opt/homebrew/bin/psql\",\n      \"version\": \"17.2\", \"variant\": \"unknown\"\n    },\n    \"jq\": {\n      \"name\": \"jq\", \"found\": true,\n      \"path\": \"/usr/bin/jq\",\n      \"version\": \"1.7.1\", \"variant\": \"apple\"\n    }\n  }\n}"
+    },
+    {
+     "type": "md",
+     "text": "Trường `variant` là thứ đáng chú ý: nó ghi lại **biến thể** của công cụ — `gnu`, `bsd`, `apple`, hay `unknown` — được đoán từ dòng đầu của `--version`. Đó chính là câu trả lời cho nỗi đau \"chạy ngon trên máy tôi, hỏng trên máy anh\" ở mục 1: sự khác biệt được **ghi lại thành dữ liệu** thay vì được phát hiện lúc lỗi.\n\n### Hai tuần sau: viết `rollback` cho thật\n\nGiờ sang skill còn lại. Sáu bước, theo đúng thứ tự:\n\n1. Đọc bộ điều phối ở cuối file điểm vào, tìm khối phân nhánh theo đối số đầu tiên.\n2. Đọc một hoặc hai hàm lệnh con anh em — để bắt chước, không để sáng tạo.\n3. Viết `cmd_rollback` **phía trên** bộ điều phối, với vòng đọc cờ riêng của nó.\n4. Thêm một nhánh vào bộ điều phối.\n5. Thêm một nhánh vào trợ giúp con.\n6. Cập nhật danh sách lệnh trong trợ giúp tổng.\n\nBước 3 có một luật nhỏ mà hai skill đều nhắc: mỗi cờ phải nhận **cả hai cách gõ**, `--settings đường/dẫn` và `--settings=đường/dẫn`. Người dùng có hai thói quen; tool không nên bắt họ đổi.\n\nVà mỗi lệnh con **tự đọc cờ của riêng mình**, dù trông như lặp lại. Đó là cố ý: gom hết vào một chỗ xử lý chung là cách để cờ của lệnh này rò rỉ sang lệnh khác — một lỗi cực kỳ khó thấy."
+    }
+   ],
+   "toc_group": "PHẦN 3 — Một lần chạy đầy đủ"
+  },
+  {
+   "id": "s7",
+   "no": "07",
+   "title": "Hook",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Không có. Hai skill này không gắn vào hook nào, không có mục nào trong file cấu hình, không có lệnh gạch chéo nào gọi chúng.\n\nĐiều đó đáng nói ra chứ không phải đáng giấu: với phần lớn skill, **`description` chính là toàn bộ dây nối**. Agent đọc mô tả, thấy tình huống khớp, rồi tự chọn. Không có gì khác bật nó lên."
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "no": "08",
+   "title": "Cái gì chặn bạn làm sai",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Có hai lớp chặn, và chúng ở hai nơi khác nhau.\n\n### Lớp thứ nhất — chặn trong bản thân skill\n\n| Cái chặn | Vắng nó thì sao |\n|---|---|\n| `--help` phải hiện ra, nếu không thì dừng | Một marker sót lại hoặc một lỗi cú pháp trôi đi im lặng; bạn chỉ phát hiện lúc cần dùng thật |\n| Quét lại xem còn marker nào chưa thay | `__PKG___PKG_DIR` sống sót vào file đã giao, và **mọi** dòng nạp thư viện đều hỏng |\n| Không tự chạy `init` hộ người dùng | Một file dính đường dẫn của một máy cụ thể nằm sẵn trong repo mới toanh |\n| Không sửa lấy lòng phiên bản cũ | Repo đang phát triển đẻ ra lớp đệm tương thích cho thứ chưa ai dùng |\n| Không chạy lệnh có tác dụng phụ khi chưa được phép | Agent \"kiểm tra thử\" một lệnh migration trên cơ sở dữ liệu thật |\n| Không lặng lẽ đổi câu thông báo lỗi | Chốt chặn lúc chạy có nhét sẵn câu *\"chạy `doctor --fix`\"* vào lỗi; đổi chữ là đứt dây chỉ đường |\n| Mỗi skill có một dòng \"việc kia thì dùng skill kia\" | Bộ khung ghi đè lên một dự án đang sống, hoặc skill bảo trì tự phát minh lại bố cục |\n\n### Lớp thứ hai — chặn trong dự án được sinh ra"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "`set -euo pipefail` chỉ ở file chạy được",
+       "một thư viện bật `-e` sẽ lây sang shell đang nạp nó, làm hỏng cả những thứ chẳng liên quan"
+      ],
+      [
+       "chốt chống nạp trùng ở mỗi thư viện",
+       "nhiều thư viện cùng nạp `common.sh` thì hàm bị định nghĩa lại nhiều lần"
+      ],
+      [
+       "`init` từ chối ghi đè nếu không có `--force`",
+       "một lần gõ nhầm xoá mất ảnh chụp môi trường đã dùng được nhiều tháng"
+      ],
+      [
+       "`doctor` mặc định chỉ so, không sửa",
+       "lệnh chẩn đoán tự ý đổi cấu hình là lệnh không ai dám chạy; có `--fix` thì chép `.bak` trước"
+      ],
+      [
+       "chốt chống chạy lại vô hạn",
+       "file khởi động tự gọi lại chính mình dưới trình thông dịch khác, mãi mãi"
+      ],
+      [
+       "cổng phiên bản shell, kèm cách khắc phục",
+       "thay vì lỗi cú pháp giữa chừng, tool thoát sạch với câu \"cài bản mới bằng lệnh này\""
+      ],
+      [
+       "ghi file kiểu nguyên tử",
+       "máy tắt giữa chừng để lại file cấu hình viết dở, lần chạy sau đọc phải file hỏng"
+      ]
+     ],
+     "note": "Những cái chặn nằm trong **dự án được sinh ra**. Mỗi dòng: luật, rồi chuyện xảy ra khi vắng nó.",
+     "ascii": "set -euo pipefail chỉ ở file chạy được   một thư viện bật -e sẽ lây sang\n                                         shell đang nạp nó, làm hỏng cả\n                                         những thứ chẳng liên quan\n\nchốt chống nạp trùng ở mỗi thư viện      nhiều thư viện cùng nạp common.sh\n                                         thì hàm bị định nghĩa lại nhiều lần\n\ninit từ chối ghi đè nếu không --force     một lần gõ nhầm xoá mất snapshot\n                                         đã dùng được nhiều tháng\n\ndoctor mặc định chỉ so, không sửa        lệnh chẩn đoán tự ý đổi cấu hình\n                                         là lệnh không ai dám chạy\n\nchốt chống chạy lại vô hạn               file khởi động tự gọi lại chính\n                                         mình dưới trình thông dịch khác\n\ncổng phiên bản shell, kèm cách khắc      thoát sạch với câu \"cài bản mới\n                                         bằng lệnh này\" thay vì lỗi cú pháp\n                                         giữa chừng\n\nghi file kiểu nguyên tử                  máy tắt giữa chừng không để lại\n                                         file cấu hình viết dở"
+    },
+    {
+     "type": "md",
+     "text": "Cái cuối đáng dừng lại một chút. **Ghi nguyên tử** nghĩa là: không ghi thẳng vào file đích, mà ghi ra một file tạm mang số hiệu tiến trình rồi đổi tên đè lên. Việc đổi tên hoặc xong hẳn hoặc chưa xảy ra, nên người đọc không bao giờ bắt gặp file ở trạng thái nửa vời. Số hiệu tiến trình trong tên file tạm là để hai tiến trình ghi cùng lúc không giẫm lên nhau."
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "no": "09",
+   "title": "Những quyết định đáng lấy",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "### Chia theo vòng đời, không chia theo chủ đề\n\nHai skill, một để tạo, một để bảo trì — thay vì một skill to nói cả hai. Đánh đổi: cùng một quy ước bị mô tả ở hai nơi (khuôn file điểm vào vừa nằm trong file mẫu vừa nằm trong file tham chiếu), và đó đúng là chỗ hai bản sẽ lệch nhau theo thời gian.\n\n### Template là file thật, không phải lời mô tả\n\nBộ khung **chép** bash chạy được thay vì mô tả bash nên trông thế nào. Đánh đổi: file mẫu không tự chạy và không tự test được, vì chúng còn đầy marker. Không có gì canh chúng ngoài lần chạy `--help` sau khi đã thay xong.\n\n### Bảng định tuyến thay cho quy trình\n\nThân `bash-cli-pattern` gần như chỉ gồm \"nếu bạn đang làm X thì mở Y\". Đánh đổi: không có đường thẳng để đi theo, nên skill vô dụng nếu agent chọn sai file để mở.\n\n### Bất biến đánh số, mỗi dòng kèm một cột \"vì sao\"\n\nMười điều, mỗi điều có hậu quả đi kèm. Một luật kèm lý do thì nhớ được; một luật trần trụi thì bị bỏ qua ngay lần đầu thấy bất tiện.\n\n### Cho phép lệch, và nói rõ lệch bao nhiêu thì hỏng\n\nCâu đáng lấy nguyên văn: *lệch một điều thì chấp nhận được; lệch nhiều điều nghĩa là file này không còn thuộc khuôn mẫu nữa*. Rất hiếm tài liệu quy ước nào dám ghi ngưỡng. Đánh đổi: ngưỡng mờ, nên vẫn cần người đọc có phán đoán.\n\n### Mô tả được viết như danh sách tình huống\n\nCả hai `description` đều dài, nhồi những câu người dùng sẽ gõ thật — \"thêm lệnh con\", \"dựng khung CLI\", \"sửa lệnh doctor\" — chứ không tóm tắt skill làm gì. `bash-cli-pattern` còn đi xa hơn: nó nhận diện **hình dạng thư mục** để tự kích hoạt mà không cần được gọi tên. Đánh đổi: mô tả là phần duy nhất luôn nằm trong context, nên nó là đoạn văn đắt nhất trong cả skill — trả tiền ở mọi lượt của mọi cuộc hội thoại, kể cả những lượt chẳng liên quan gì tới bash.\n\n### Phần ruột thật ra chỉ là một ý\n\nBỏ hết bố cục thư mục sang một bên, thứ hai skill thật sự bán là bộ ba `init` / `doctor` / `assert`: **chụp lại môi trường một lần, rồi so lệch cho rẻ**, thay vì kiểm tra vặt rải rác khắp mã nguồn. Bố cục thư mục chỉ là cái nhà cho ý đó ở."
+    }
+   ],
+   "toc_group": "PHẦN 4 — Học lại thiết kế"
+  },
+  {
+   "id": "s10",
+   "no": "10",
+   "title": "Tự dựng skill của bạn",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bạn vừa xem một skill được thiết kế. Giờ là những quyết định đến lượt bạn phải quyết.\n\n### 1 · Lĩnh vực của bạn có hai nửa vòng đời không?\n\nNếu có một việc \"làm một lần lúc đầu\" và một việc \"đụng vào mãi mãi\", hãy tách hai skill. Nếu không, đừng tách cho giống người ta. Khi tách thì **nối chúng lại bằng một dòng trong mỗi mô tả**: *đừng dùng cái này cho việc kia — dùng skill kia*. Thiếu dòng đó, hai skill sẽ tranh nhau và cái sai thắng một nửa số lần.\n\n### 2 · Cái gì ở lại `SKILL.md`, cái gì xuống `references/`\n\nLuật mà cặp skill này minh hoạ: **`SKILL.md` giữ quyết định đọc gì tiếp theo; `references/` giữ thứ chỉ cần khi bạn đã ở đó.** Thân `bash-cli-pattern` gần như chỉ là bảng định tuyến, còn chiều sâu nằm trong các file tham chiếu — mỗi lần chỉ mở một.\n\nPhép thử: câu này có cần đọc ở **mọi** lần chạy không? Không thì nó thuộc `references/`.\n\n### 3 · Vật liệu hay phán đoán?\n\nNếu đầu ra là một file mà agent sẽ chép — hãy đưa hẳn file đó vào `templates/`. Nếu đầu ra là một lựa chọn phải cân nhắc — hãy viết văn xuôi. Đừng mô tả một file bằng lời khi bạn có thể đưa luôn file.\n\nVà chỉ thêm `scripts/` khi công việc **thật sự là thuật toán**. Một loạt phép thay chuỗi thì không phải.\n\n### 4 · Viết `description` như một danh sách tình huống\n\nKhông phải \"skill này giúp bạn dựng CLI\". Mà là những câu người dùng sẽ gõ thật, càng cụ thể càng tốt, cộng thêm dòng ranh giới, cộng thêm — nếu bạn muốn nó tự bật — một dấu hiệu **nhận diện được bằng mắt**: một tên file, một cặp thư mục, một đuôi mở rộng.\n\nNhớ rằng đây là đoạn đắt nhất bạn viết. Dài thì bắt trúng nhiều tình huống hơn, nhưng bạn trả tiền cho nó ở mọi lượt.\n\n### 5 · Mỗi luật phải mang theo lý do\n\n\"Đừng quên thêm nhánh trợ giúp\" thì quên ngay. \"Thiếu nhánh trợ giúp thì người dùng nhìn thấy, và đó là **lỗi** chứ không phải sơ suất\" thì không quên được. Khi viết một luật, hãy tìm lại chuyện đã hỏng khiến luật đó ra đời — nếu không tìm ra, có lẽ luật đó không cần tồn tại.\n\n### 6 · Đặt một cái chặn rẻ ở cuối\n\nChọn thứ rẻ nhất mà **quan sát được** để chứng minh việc đã thành: ở đây là màn hình trợ giúp. Rồi biến nó thành điều kiện dừng, viết bằng câu mệnh lệnh: *nếu nó không hiện ra thì dừng, đừng báo xong*.\n\n### 7 · Nói rõ đâu là chịu lực, đâu là gợi ý\n\nKhông phải luật nào cũng ngang nhau. Nếu bạn không phân hạng, người đọc sẽ tự phân — và họ phân sai.\n\n### Bước đầu tiên, làm ngay bây giờ\n\nTạo `~/.claude/skills/<tên-của-bạn>/SKILL.md`. Trong đó đúng ba thứ:\n\n- frontmatter: `name`, và một `description` liệt kê tình huống;\n- một đoạn tiêu đề **\"Vì sao skill này tồn tại\"** — kể lại việc thủ công mà nó xoá bỏ;\n- một bảng định tuyến, kể cả khi bảng mới có một dòng.\n\nChưa tạo `references/` vội. Chỉ tạo nó khi một mục phình ra tới mức bạn không muốn đọc lại ở mọi lần chạy. Thư mục rỗng là tiếng ồn."
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "no": "11",
+   "title": "Bảng thuật ngữ",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**assert (chốt chặn lúc chạy)** — hàm được gọi trước khi làm việc thật, thoát ngay nếu cấu hình đã lưu lệch với môi trường hiện tại.\n\n**bats** — bộ chạy test dành cho bash; mỗi test là một khối `@test`.\n\n**bin/ và lib/** — quy ước tách file: `bin/` chứa file chạy trực tiếp, `lib/` chứa file chỉ được nạp vào file khác.\n\n**bóc dần (progressive disclosure)** — cách sắp xếp sao cho phần luôn phải đọc thì ngắn, phần dài thì chỉ đọc khi cần.\n\n**bộ điều phối (dispatcher)** — khối phân nhánh ở cuối file điểm vào, nhìn đối số đầu tiên rồi gọi hàm lệnh con tương ứng.\n\n**chốt chống nạp trùng (source guard)** — hai dòng đầu file thư viện, thoát ngay nếu file đã được nạp trước đó.\n\n**description** — dòng mô tả trong frontmatter; là bề mặt kích hoạt, quyết định skill có được chọn hay không.\n\n**doctor** — lệnh con so sánh cấu hình đã lưu với môi trường hiện tại và in ra khác biệt.\n\n**điểm vào (entry point)** — file được chạy trực tiếp, là nơi duy nhất bật chế độ nghiêm ngặt và nạp thư viện.\n\n**frontmatter** — khối dữ liệu ở đầu `SKILL.md`, chứa `name` và `description`.\n\n**ghi nguyên tử (atomic write)** — ghi ra file tạm rồi đổi tên đè lên đích, để người đọc không bao giờ thấy file viết dở.\n\n**hook** — cơ chế cho phép chạy một lệnh tự động khi có sự kiện xảy ra; cặp skill này không dùng.\n\n**init** — lệnh con chạy một lần, quét môi trường và ghi ra file cấu hình cho máy hiện tại.\n\n**jq** — công cụ dòng lệnh để đọc và dựng JSON.\n\n**lệch (drift)** — trạng thái cấu hình đã lưu không còn khớp với môi trường thật.\n\n**marker (placeholder)** — chuỗi đánh dấu trong file mẫu, sẽ được thay bằng tên thật lúc sinh file.\n\n**namespace (tiền tố)** — vài ký tự đứng đầu mọi tên hàm trong dự án, để hàm không đụng tên với thứ khác trong shell.\n\n**settings.json** — ảnh chụp môi trường của một máy cụ thể; sinh bởi `init`, không commit.\n\n**shebang** — dòng đầu file script, nói cho hệ điều hành biết chạy file bằng chương trình nào.\n\n**shellcheck** — công cụ soi lỗi tĩnh cho script shell.\n\n**chế độ nghiêm ngặt (strict mode)** — `set -euo pipefail`: dừng khi lỗi, dừng khi dùng biến chưa đặt, dừng khi một khâu trong đường ống hỏng.\n\n**stdout và stderr** — hai luồng ra: dữ liệu có cấu trúc đi ra stdout để nối ống, log và lỗi đi ra stderr.\n\n**lệnh con (subcommand)** — từ đầu tiên sau tên tool, ví dụ `init` trong `pg-migrate.sh init`.\n\n**nạp (source)** — đọc một file bash vào **chính** shell đang chạy, khác với chạy file đó ra một tiến trình riêng.\n\n**chạy lại chính mình (re-exec)** — thay thế tiến trình đang chạy bằng cùng script đó dưới một trình thông dịch khác.\n\n**biến thể (variant)** — nhãn `gnu` / `bsd` / `apple` / `unknown` ghi lại phiên bản nào của một công cụ đang được dùng."
+    }
+   ]
+  }
+ ],
+ "footer": "Trang này mô tả hai skill như chúng đang là: một cặp quy ước viết tay cho công cụ shell, không phải một framework. Chúng không chạy gì thay bạn — chúng chỉ nói cho agent biết phải viết cái gì.\\\nTên `pg-migrate`, `pgm`, `PGM` và danh sách công cụ trong ví dụ là bịa ra để đi hết một vòng cho dễ theo dõi. Bảy câu hỏi đầu vào, hai cây thư mục, luật thay marker và bộ ba `init` / `doctor` / `assert` thì thuộc về hai skill."
+}

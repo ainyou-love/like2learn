@@ -1,0 +1,13 @@
+{% from "_lib.j2" import pill %}
+{% macro html(b, inner) %}
+<div class="grid g{{ b.get('cols', 3) }}">
+{% for m in b['items'] %}
+  <div class="mcard" style="--c:var(--{{ {'acc': 'accent', 'mute': 'ink-3'}.get(m.get('kind', 'mute'), m.get('kind', 'mute')) }})"><h5>{{ m.title }}{% if m.pill is defined %} {{ pill(m.pill) }}{% endif %}</h5>{% if m.text is defined %}<p>{{ m.text|inl }}</p>{% endif %}{% if m.src is defined %}<p class="src">{{ m.src|inl }}</p>{% endif %}</div>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for m in b['items'] %}
+- **{{ m.title }}**{% if m.pill is defined %} `{{ m.pill.text }}`{% endif %}{% if m.text is defined %} — {{ m.text }}{% endif %}{% if m.src is defined %} *{{ m.src }}*{% endif +%}
+{% endfor %}
+{% endautoescape %}{% endmacro %}

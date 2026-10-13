@@ -1,0 +1,19 @@
+<svg viewBox="0 0 640 230" role="img" aria-labelledby="tr-t"><title id="tr-t">So sánh ba hình thức nhận response theo thời gian</title>
+  <line class="ax" x1="150" y1="210" x2="626" y2="210"/>
+  <text class="t-s" x="150" y="226">gửi request</text>
+  <text class="t-s" x="626" y="226" text-anchor="end">thời gian</text>
+  <text class="t t-b" x="12" y="45">Đồng bộ</text>
+  <line class="w-dash" x1="160" y1="40" x2="520" y2="40"/>
+  <circle class="n-box" cx="160" cy="40" r="5"/>
+  <rect class="n-warn" x="522" y="27" width="104" height="26" rx="4"/>
+  <text class="t t-b" x="574" y="45" text-anchor="middle">trọn gói</text>
+  <text class="t t-b" x="12" y="106">Streaming</text>
+  <circle class="n-box" cx="160" cy="101" r="5"/>
+  <rect class="n-new" x="196" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="236" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="276" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="316" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="356" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="396" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="436" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="476" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="516" y="92" width="32" height="18" rx="3"/><rect class="n-new" x="556" y="92" width="32" height="18" rx="3"/>
+  <text class="t t-b" x="12" y="167">Batch</text>
+  <circle class="n-box" cx="160" cy="162" r="5"/><circle class="n-box" cx="172" cy="162" r="5"/><circle class="n-box" cx="184" cy="162" r="5"/>
+  <path class="w-dash" d="M196 162 Q 260 140 330 162 T 470 162 T 540 162"/>
+  <text class="t-s" x="360" y="186" text-anchor="middle">có thể tới 24 giờ</text>
+  <rect class="n-info" x="546" y="149" width="80" height="26" rx="4"/>
+  <text class="t t-b" x="586" y="167" text-anchor="middle">file kết quả</text>
+</svg>

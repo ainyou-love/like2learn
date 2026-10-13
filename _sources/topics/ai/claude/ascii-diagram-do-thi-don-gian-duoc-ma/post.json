@@ -1,0 +1,306 @@
+{
+ "meta": {
+  "title": "ascii-diagram — sơ đồ không vỡ, và một skill được dựng ra sao",
+  "brand": "ascii-diagram",
+  "date": "2026-09-18",
+  "desc": "Mổ xẻ skill ascii-diagram: vì sao sơ đồ vẽ bằng ký tự hỏng, thư mục của một skill gồm những gì, và cách tự dựng skill cho riêng mình.",
+  "lang": "vi",
+  "md_filename": "ascii-diagram-do-thi-don-gian-duoc-ma.md",
+  "storage_key": "ascii-diagram-do-thi-don-gian-duoc-ma",
+  "strict_paths": true
+ },
+ "hero": {
+  "kicker": "Skill Claude Code · bản mổ xẻ",
+  "title": "ascii-diagram — sơ đồ không vỡ, và một skill được dựng ra sao",
+  "lede": "Phần 1 — Sơ đồ vẽ bằng ký tự vỡ lúc nào, vì sao người vẽ không bao giờ thấy nó vỡ, và bạn cầm được gì khi skill này chạy xong.\\\nPhần 2 — Bên trong: bốn file, không một dòng code, và vì sao cách chia đó có lý.\\\nPhần 3 — Mang về: những quyết định thiết kế bạn sẽ phải tự đưa ra khi dựng skill của riêng mình."
+ },
+ "sections": [
+  {
+   "id": "s1",
+   "no": "01",
+   "title": "Mục đích",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Bạn vẽ một sơ đồ kiến trúc bằng ký tự bàn phím — mấy cái hộp, mấy mũi tên. Trên\nmáy bạn nó thẳng hàng, gọn gàng. Bạn dán vào README, đẩy lên, xong việc.\n\nRồi một đồng nghiệp mở đúng file đó trong terminal và thấy một đống dấu hỏi.\nNgười thứ hai dán nó vào chat nhóm để hỏi lại, và các hộp lệch nhau một cách vô\nlý. Người thứ ba đọc trên điện thoại: mỗi dòng bị gấp làm đôi, cái hộp vỡ thành\nrác.\n\nChuyện tệ nhất ở đây không phải là sơ đồ vỡ. Là **bạn không bao giờ thấy nó vỡ**.\nMáy bạn có font đầy đủ, cửa sổ đủ rộng, trình soạn thảo của bạn quy tab ra đúng\nsố cột bạn muốn. Mọi môi trường làm hỏng sơ đồ đều là môi trường của người khác,\nvà phản hồi không bao giờ quay về. Bạn sẽ tiếp tục vẽ như cũ trong nhiều năm.\n\nThiệt hại nhỏ nhưng lặp lại: **một sơ đồ vỡ tệ hơn không có sơ đồ nào.** Không có\nsơ đồ, người đọc đi đọc chữ. Có sơ đồ vỡ, người đọc mất thời gian đoán xem ý đồ\nban đầu là gì, thất bại, rồi kết luận rằng tài liệu này cẩu thả — và cái kết luận\nđó lan sang cả phần chữ bên cạnh.\n\nCó bốn cách để một sơ đồ ký tự vỡ, và cả bốn đều là cùng một lỗi tư duy: cho rằng\nnơi người khác đọc giống nơi mình viết."
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Dùng ký tự vẽ hộp của Unicode",
+       "Font thiếu ký tự: hộp thành dấu hỏi hoặc ô trống"
+      ],
+      [
+       "Thụt dòng bằng tab",
+       "Mỗi nơi quy tab ra số cột khác nhau: các cột lệch"
+      ],
+      [
+       "Dòng dài quá 80 cột",
+       "Cửa sổ hẹp gấp dòng: hộp bị cắt làm đôi"
+      ],
+      [
+       "Để hình trần, ngoài khối code",
+       "Khoảng trắng bị gộp: hình sập thành một dòng chữ"
+      ]
+     ],
+     "note": "Bốn cách một sơ đồ ký tự vỡ. Cột trái là thứ người vẽ làm; cột phải là thứ người đọc nhận được — và người vẽ không bao giờ nhìn thấy cột phải.",
+     "ascii": "Nguyên nhân                     Người đọc nhận được\n---------------------------     -------------------------------\nKy tu ve hop cua Unicode        Hop thanh dau hoi hoac o trong\nThut dong bang tab              Cac cot lech nhau\nDong dai qua 80 cot             Cua so hep gap dong, hop bi cat\nDe hinh tran, ngoai khoi code   Khoang trang bi gop, hinh sap"
+    },
+    {
+     "type": "md",
+     "text": "`ascii-diagram` là tập luật chặn cả bốn. Nó không làm sơ đồ đẹp hơn — nó đánh đổi\ncái đẹp lấy cái chắc chắn: một sơ đồ trông hơi thô nhưng hiện y hệt nhau ở mọi\nnơi. Nguyên tắc gốc của nó nói thẳng điều đó: **tính di động đứng trên tính thẩm\nmỹ.**\n\nAi được lợi? Người viết README, người viết mô tả pull request, người viết runbook,\nngười phải trả lời \"hệ thống chạy thế nào\" ngay trong khung chat. Nói gọn: bất kỳ\nai viết tài liệu kỹ thuật mà không kiểm soát được người đọc sẽ mở nó bằng cái gì."
+    }
+   ],
+   "toc_group": "PHẦN 1 — Vấn đề và kết quả"
+  },
+  {
+   "id": "s2",
+   "no": "02",
+   "title": "Dùng lúc nào, và cầm được gì",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Tình huống cụ thể: bạn đang viết README cho một service, và cần một hình cho biết\nrequest đi từ đâu tới đâu. Cái hình đó sẽ sống cùng lúc ở bốn chỗ mà bạn không\nchọn được — trang repo trên GitHub, terminal của người `cat` file ra đọc, khung\nchat khi ai đó dán lại để hỏi, và email khi nó bị chuyển tiếp cho một người không\ncó tài khoản để mở repo.\n\nSkill này nhắm đúng tình huống đó, và nó **không tạo ra file nào**. Kết quả của\nnó là một đoạn văn bản nằm ngay trong tài liệu bạn đang viết, gồm đúng hai phần\ntheo thứ tự cố định:\n\n1. một đến ba câu giải thích, viết như văn xuôi bình thường, đặt ở ngoài;\n2. bên dưới là sơ đồ, nằm trong khối code ba dấu backtick.\n\nĐây là hình dạng chính xác của thứ bạn cầm được:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "Request luôn đi qua gateway trước khi chạm service; gateway lo\nxác thực và giới hạn tần suất.\n"
+    },
+    {
+     "type": "md",
+     "text": "+--------+  HTTP   +---------+  gRPC   +---------+\n| Client |-------->| Gateway |-------->| Service |\n+--------+         +---------+         +---------+"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": ""
+    },
+    {
+     "type": "md",
+     "text": "Không ảnh, không file đính kèm, không phụ thuộc thư viện vẽ nào. Đoạn trên là chữ\nthuần; chép nó sang bất kỳ đâu dùng font đều, hình vẫn nguyên.\n\nThứ tự \"giải thích trước, hình sau\" là một luật chứ không phải gợi ý. Một cái hình\nkhông tự nói được nó đang trả lời câu hỏi gì.\n\n### Những nơi sơ đồ phải sống được\n\nSkill này không điều khiển nơi nào trong số dưới đây. Nó chỉ đặt ra giả định về\nchúng, và mọi luật của nó sinh ra từ những giả định đó.\n\n| Nơi đến | Skill đòi hỏi gì ở nó |\n|---|---|\n| Terminal | Hiện được ASCII bằng font đều — skill không dùng gì hơn thế |\n| GitHub, markdown đã render | Giữ nguyên khoảng trắng bên trong khối code ba backtick |\n| Slack và các khung chat | Chép dán không đổi ký tự, và hiện khối code bằng font đều |\n| Email | Chữ thuần, không cần trình render nào cả |\n| Font đều (monospace) | Mọi ký tự rộng bằng nhau — đây là giả định duy nhất skill không tự kiểm được |\n| Mermaid | Định dạng skill chuyển sang khi ASCII hết hợp; cần một trình render, đổi lại được tự dàn trang |\n| C4 | Quy ước vẽ kiến trúc nhiều mức phóng; skill chỉ nêu tên như lối ra cho hệ thống lớn |"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "no": "03",
+   "title": "Cấu trúc thư mục",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Đây là chỗ trang này thôi nói về một skill và bắt đầu nói về **skill nói chung**.\nThư mục của `ascii-diagram` nhỏ đến mức bạn nhớ được sau một lần nhìn, mà vẫn đủ\nđể thấy trọn cách một skill được tổ chức."
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "ascii-diagram/\n|\n+-- SKILL.md\n|\n+-- references/\n|     +-- character-rules.md\n|     +-- diagram-type-selector.md\n|     +-- layout-patterns.md\n|\n+-- templates/\n      +-- common-patterns.txt"
+    },
+    {
+     "type": "md",
+     "text": "Việc mà từng phần giữ:\n\n| Phần | Giữ việc gì |\n|---|---|\n| `SKILL.md`, khối đầu file | Tên skill và phần mô tả. Quyết định skill có được chọn hay không |\n| `SKILL.md`, phần thân | Bảy luật, danh sách ký tự được phép, nguyên tắc bố cục, bảng chọn định dạng, danh sách kiểu làm sai |\n| `references/character-rules.md` | Bảng đổi từng ký tự Unicode sang ASCII tương đương, các mẫu mũi tên, ký tự cấm, checklist kiểm cuối |\n| `references/layout-patterns.md` | Mẫu bố cục dựng sẵn — hộp, hộp lồng, luồng ngang, luồng dọc, rẽ nhánh, phân tầng, bảng, ranh giới tin cậy — kèm các cách xử lý khi hình quá rộng |\n| `references/diagram-type-selector.md` | Cây quyết định chọn ASCII hay định dạng khác, bảng so sánh, và các trường hợp ASCII **không** phải lựa chọn đúng |\n| `templates/common-patterns.txt` | Các khối dựng sẵn để chép thẳng ra dùng |\n\n### Ba tầng, ba mức giá\n\nCách chia trên không tuỳ hứng. Nó theo một quy tắc mà mọi skill đều chịu: **thứ\nbạn đặt càng gần đầu thì càng được đọc nhiều lần, và càng tốn.**"
+    },
+    {
+     "type": "kv",
+     "rows": [
+      [
+       "Tầng 1",
+       "*luôn nằm trong context, kể cả khi skill không chạy*"
+      ],
+      [
+       "`SKILL.md · khối đầu file`",
+       "tên và phần mô tả; quyết định skill có được chọn hay không"
+      ],
+      [
+       "Tầng 2",
+       "*đọc mỗi lần skill bật, nên tốn ở mọi lần chạy*"
+      ],
+      [
+       "`SKILL.md · phần thân`",
+       "bảy luật, ký tự được phép, bảng chọn định dạng, kiểu làm sai"
+      ],
+      [
+       "Tầng 3",
+       "*chỉ đọc khi có thứ dẫn tới, nên không tốn gì ở lần chạy không cần*"
+      ],
+      [
+       "`references/character-rules.md`",
+       "bảng đổi Unicode, checklist kiểm cuối"
+      ],
+      [
+       "`references/layout-patterns.md`",
+       "mẫu bố cục dựng sẵn, cách xử lý hình quá rộng"
+      ],
+      [
+       "`references/diagram-type-selector.md`",
+       "cây quyết định chọn định dạng"
+      ],
+      [
+       "`templates/common-patterns.txt`",
+       "khối dựng sẵn để chép thẳng ra dùng"
+      ]
+     ],
+     "sum": [
+      0,
+      2,
+      4
+     ],
+     "note": "Ba tầng, ba mức giá. Càng gần đầu càng được đọc nhiều lần, nên chỗ đó chỉ dành cho thứ lần chạy nào cũng cần.",
+     "ascii": "Luon trong context\n  SKILL.md - khoi dau file : ten + mo ta, quyet dinh skill co duoc chon\n\nDoc moi lan skill bat\n  SKILL.md - phan than     : bay luat, ky tu, bang chon dinh dang\n\nChi doc khi duoc dan toi\n  references/*.md          : bang tra, mau bo cuc, cay quyet dinh\n  templates/*.txt          : khoi dung san de chep"
+    },
+    {
+     "type": "md",
+     "text": "Tên gọi của cách chia này là **lộ dần** — *progressive disclosure*. Ý tưởng gọn\ntrong một câu: thứ luôn cần thì để ở chỗ luôn được đọc; thứ thỉnh thoảng mới cần\nthì để ra ngoài, và trong file luôn-được-đọc chỉ để lại một dòng chỉ đường.\n\nNhìn `ascii-diagram` thì thấy rõ ranh giới nằm ở đâu. Bảy luật ở lại phần thân vì\nluật nào cũng áp dụng cho mọi sơ đồ, không trừ cái nào. Bảng đổi Unicode bị đẩy ra\nngoài vì nó chỉ cần khi đang chuyển đổi một sơ đồ cũ — phần lớn lần chạy không\nđụng tới. Các mẫu bố cục cũng ra ngoài, vì mỗi lần vẽ chỉ dùng đúng một mẫu.\n\n### Và cái thư mục vắng mặt\n\n`ascii-diagram` **không có `scripts/`**. Đây là chi tiết đáng học nhất trong cả\nthư mục này.\n\nMột skill có `scripts/` khi có việc nên giao cho code: đổi kích thước hai trăm tấm\nảnh, bóc dữ liệu từ một file log, gọi một API. Code làm những việc đó rẻ hơn và\nchắc tay hơn là viết hướng dẫn rồi nhờ agent làm bằng tay.\n\nỞ đây, việc cần ràng buộc lại là **soạn văn bản** — đúng cái việc agent vốn đang\nlàm. Một script kiểm ký tự chỉ kiểm được *sau khi* sơ đồ đã viết xong, và phải có\nai đó gọi nó, đọc kết quả, rồi quay lại sửa. Luật viết cho hay thì có tác dụng\nsớm hơn một nhịp: nó chặn ngay ở lúc tay đang chọn ký tự, chứ không bắt lỗi sau.\n\nSkill này chọn vế thứ hai, và trả giá đầy đủ cho lựa chọn đó: **không có gì chặn\nđược một sơ đồ sai.** Luật chỉ nặng bằng đúng mức agent chịu đọc và chịu làm theo.\n\nCòn `templates/` để làm gì, khi `references/layout-patterns.md` cũng đầy ví dụ?\nHai thứ khác nhau ở mục đích sử dụng, không phải ở nội dung. File trong\n`references/` là để **đọc và hiểu**: có tiêu đề, có giải thích, có ghi chú bên\ncạnh từng mẫu. File trong `templates/` là để **chép**: không giải thích, chỉ có\nkhối dựng sẵn ngăn bằng dấu phân cách. Nó mang đuôi `.txt` chứ không phải `.md`\nchính là để báo điều đó — đây là nguyên liệu thô, không phải bài đọc."
+    }
+   ],
+   "toc_group": "PHẦN 2 — Bên trong"
+  },
+  {
+   "id": "s4",
+   "no": "04",
+   "title": "Luồng chạy",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Skill này không có tiến trình, không có script, không có gì để khởi động. \"Luồng\nchạy\" của nó là thứ tự các file được đọc và các luật được áp trong một lần agent\nsoạn ra một sơ đồ. Nói thẳng: nó mỏng. Đó là sự thật về một skill thuần luật, chứ\nkhông phải chỗ thiếu sót.\n\n1. **Kích hoạt.** Phần mô tả ở khối đầu `SKILL.md` khớp với việc đang làm — ai đó\n   cần một sơ đồ kiến trúc, một sơ đồ luồng, một cái hình cho markdown hay\n   terminal. Không có lệnh nào được gõ ra.\n2. **Phần thân vào context.** Bảy luật, danh sách ký tự được phép, bảng chọn định\n   dạng, danh sách kiểu làm sai. Từ lúc này chúng nằm trong tầm mắt cho tới hết\n   việc.\n3. **Chọn định dạng trước, vẽ sau.** Bảng chọn trong phần thân xét hai thứ: sơ đồ\n   sẽ hiện ở đâu, và nó có bao nhiêu nút. Nếu trường hợp nằm ở ranh giới, bước\n   này mở `references/diagram-type-selector.md`.\n4. **Nếu kết luận không phải ASCII, skill dừng ở đây** — nó vừa tự loại mình, và\n   việc chuyển sang Mermaid hay C4 không còn thuộc phạm vi của nó nữa.\n5. **Chọn bố cục.** Hình này là luồng ngang, luồng dọc, rẽ nhánh, hộp lồng hay\n   phân tầng? Bước này mở `references/layout-patterns.md` để lấy khung, hoặc chép\n   thẳng một khối từ `templates/common-patterns.txt`.\n6. **Soạn.** Điền nhãn vào khung, canh các cột, rút gọn nhãn nếu hình sắp chạm\n   giới hạn chiều rộng.\n7. **Tự kiểm.** Luật số bảy bắt rà lại trước khi xuất: chỉ ký tự ASCII, không tab,\n   mọi dòng trong 80 cột, có khối code, các cột còn thẳng. Checklist chi tiết nằm\n   ở cuối `references/character-rules.md`.\n8. **Xuất.** Một đến ba câu giải thích, rồi mới tới khối code."
+    },
+    {
+     "type": "figure",
+     "svg": "<svg viewBox=\"0 0 980 286\" role=\"img\" aria-labelledby=\"fig-chon-t\"><title id=\"fig-chon-t\">Cần một sơ đồ</title>\n<defs><marker id=\"fig-chon-ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 10 5 0 10z\" fill=\"var(--ink-3)\"/></marker></defs>\n<rect class=\"n-box\" x=\"20\" y=\"97\" width=\"230\" height=\"39\" rx=\"10\"/>\n<text class=\"t t-b\" x=\"135\" y=\"122\" text-anchor=\"middle\">Cần một sơ đồ</text>\n<path class=\"w\" d=\"M250 116 C 280 116, 260 41, 288 41\" marker-end=\"url(#fig-chon-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"20\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"46\">ASCII</text>\n<text class=\"t-s\" x=\"508\" y=\"45.0\">terminal, chat, email, README — và dưới khoảng mười lăm nút</text>\n<path class=\"w\" d=\"M250 116 C 280 116, 260 93, 288 93\" marker-end=\"url(#fig-chon-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"72\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"98\">Mermaid</text>\n<text class=\"t-s\" x=\"508\" y=\"97.0\">tài liệu đã render, sơ đồ tuần tự, hoặc nhiều nút hơn mức ASCII chịu nổi</text>\n<path class=\"w\" d=\"M250 116 C 280 116, 260 145, 288 145\" marker-end=\"url(#fig-chon-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"124\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"150\">C4</text>\n<text class=\"t-s\" x=\"508\" y=\"149.0\">nhiều hệ thống, nhiều mức phóng, người đọc là các bên liên quan</text>\n<path class=\"w\" d=\"M250 116 C 280 116, 260 197, 288 197\" marker-end=\"url(#fig-chon-ah)\"/>\n<rect class=\"n-new\" x=\"290\" y=\"176\" width=\"200\" height=\"42\" rx=\"8\"/>\n<text class=\"t t-b\" x=\"302\" y=\"202\">Ở lại với chữ</text>\n<text class=\"t-s\" x=\"508\" y=\"201.0\">hình không cho biết thêm điều gì so với câu văn bên cạnh</text>\n<path class=\"w-dash\" d=\"M250 116 C 280 116, 260 252, 288 252\" marker-end=\"url(#fig-chon-ah)\"/>\n<rect class=\"n-bad\" x=\"290\" y=\"234\" width=\"680\" height=\"36\" rx=\"8\" stroke-dasharray=\"5 4\"/>\n<text class=\"t t-b t-bad\" x=\"302\" y=\"257\">Nếu một câu nói xong rồi thì cái hình chỉ là nhiễu</text>\n</svg>",
+     "caption": "Bước đi trước mọi bước khác: quyết định xem trường hợp này có thuộc về ASCII không. Một skill về sơ đồ ASCII mà bước đầu tiên có thể loại bỏ chính nó.",
+     "ascii": "Can mot so do\n  |\n  +--> ASCII        : terminal, chat, email, README; duoi ~15 nut\n  |\n  +--> Mermaid      : tai lieu da render, so do tuan tu, nhieu nut\n  |\n  +--> C4           : nhieu he thong, nhieu muc phong\n  |\n  +--> O lai voi chu: hinh khong noi them gi so voi cau van\n\nNeu mot cau noi xong roi thi cai hinh chi la nhieu."
+    },
+    {
+     "type": "md",
+     "text": "Bước 3 là bước đáng chú ý nhất, vì nó đi trước mọi thứ khác. Một skill về sơ đồ\nASCII mà việc đầu tiên nó làm là hỏi \"trường hợp này có nên dùng ASCII không\" —\nđó là một lựa chọn thiết kế, sẽ nói kỹ ở mục 9."
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "no": "05",
+   "title": "Dữ liệu và trạng thái",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Mục này cũng mỏng, và cũng là sự thật chứ không phải chỗ bỏ trống.\n\nSkill **đọc**: ba file trong `references/` và một file trong `templates/`, mỗi\nfile chỉ khi bước 3 hoặc bước 5 dẫn tới nó.\n\nSkill **ghi**: không gì cả. Không file tạm, không thư mục làm việc, không log,\nkhông biến môi trường, không bộ nhớ đệm.\n\nSkill **nhớ giữa các lần chạy**: không gì cả. Mỗi lần vẽ là một lần độc lập. Toàn\nbộ \"trạng thái\" chỉ là những gì đang nằm trong context của agent trong lúc soạn —\ntức là bảy luật đọc được ở bước 2, cộng thêm mẫu bố cục nào đó đọc được ở bước 5.\n\nHệ quả thực tế thì dễ chịu: không có gì phải dọn, không có gì hỏng khi hai việc\nchạy song song, không có bản ghi nào cần xoay vòng. Hệ quả khó chịu thì cũng\nthẳng thắn: nếu một sơ đồ ra sai, không còn dấu vết nào để lần lại ngoài chính cái\nsơ đồ đó."
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "no": "06",
+   "title": "Một lần chạy, từ đầu tới cuối",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Yêu cầu vào, nguyên văn:\n\n> Vẽ giúp kiến trúc: người dùng gọi vào API, API đọc ghi Postgres, và đẩy việc\n> nặng sang một worker qua hàng đợi. Cho vào README.\n\n**Bước 3 — chọn định dạng.** Đếm nút: người dùng, API, Postgres, hàng đợi, worker\n— năm nút. Đích đến là README trên GitHub. Bảng chọn xếp README vào ô ASCII: dưới\nmười lăm nút, và ở đây tính an toàn khi chép dán đáng giá hơn việc được tự dàn\ntrang. Không cần mở `diagram-type-selector.md`, vì trường hợp này không nằm ở\nranh giới.\n\n**Bước 5 — chọn bố cục.** Hình có một chỗ rẽ: từ API đi hai đường, một xuống\nPostgres, một ngang sang hàng đợi. Mẫu \"rẽ nhánh\" trong `layout-patterns.md` khớp\nđúng hình dạng đó; lấy khung của nó.\n\n**Bước 6 — soạn.** Nhãn `Postgres` giữ nguyên vì đã ngắn. `Background Worker` rút\nthành `Worker` cho khỏi đội chiều ngang. Các dấu `|` nối xuống được đặt thẳng cột\nvới dấu `+` ở cạnh hộp phía trên.\n\n**Bước 7 — tự kiểm.** Rà lần lượt năm mục:\n\n| Mục kiểm | Kết quả |\n|---|---|\n| Chỉ ký tự ASCII | Chỉ có `+`, `-`, `v`, gạch đứng và chữ thường — đạt |\n| Không có tab | Toàn dấu cách — đạt |\n| Mọi dòng trong 80 cột | Dòng dài nhất 32 cột — đạt |\n| Nằm trong khối code | Có — đạt |\n| Các cột còn thẳng | Mỗi nét nối dọc nằm thẳng cột với `+` ở hộp trên — đạt |\n\n**Bước 8 — xuất.** Giải thích trước, hình sau:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "Client gọi thẳng vào API. API đọc ghi Postgres đồng bộ, còn việc\nnặng thì đẩy vào hàng đợi cho worker xử lý sau.\n"
+    },
+    {
+     "type": "md",
+     "text": "+----------+\n|  Client  |\n+----+-----+\n     |\n     v\n+----+-----+\n|   API    |\n+----+-----+\n     |\n     +------------------+\n     |                  |\n     v                  v\n+----+-----+      +-----+------+\n| Postgres |      |   Queue    |\n+----------+      +-----+------+\n                        |\n                        v\n                  +-----+------+\n                  |   Worker   |\n                  +------------+"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": ""
+    },
+    {
+     "type": "md",
+     "text": "Đó là toàn bộ kết quả. Không file mới, không ảnh, không bước dựng, không thứ gì\ncòn lại trên đĩa."
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "no": "07",
+   "title": "Hook",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Skill này không gắn vào hook nào, và tên nó không xuất hiện trong bất kỳ file\ncấu hình nào — nó chỉ được chọn qua phần mô tả ở khối đầu `SKILL.md`. Nó cũng\nđược đánh dấu là không gọi trực tiếp được, nên không có lệnh gạch chéo nào cho\nnó: hoặc ngữ cảnh khớp và nó bật, hoặc không có gì xảy ra."
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "no": "08",
+   "title": "Rào chắn",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Mỗi luật ở đây là một cái rào. Đáng hỏi với từng cái: bỏ nó ra thì hỏng chuyện gì?\n\n| Rào | Bỏ ra thì hỏng gì |\n|---|---|\n| Danh sách trắng ký tự được phép | \"Đừng dùng Unicode\" là lời khuyên mơ hồ. Một danh sách trắng thì mọi ký tự không có tên trong đó đều bị loại, không cãi được |\n| Bảng đổi Unicode sang ASCII | \"Đổi Unicode sang ASCII\" là việc phải phán đoán. Cùng một dấu nối chữ T có thể thành `+` ở hình này và `-` ở hình kia, ngay trong một tài liệu |\n| Giới hạn 80 cột | Một con số cụ thể thì đo được bằng mắt trong hai giây. \"Giữ cho nó đừng rộng quá\" thì không |\n| Bắt buộc nằm trong khối code | Markdown gộp các khoảng trắng liền nhau. Ngoài khối code, cái hình sập thành một dòng chữ |\n| Cấm tab | Mỗi nơi quy tab ra một số cột khác nhau. Một ký tự tab lọt vào là cả hình lệch, mà nhìn trên máy người viết thì vẫn thẳng |\n| Ngưỡng bỏ ASCII khi hình quá lớn | Không có ngưỡng, skill sẽ đẩy ASCII vào cả những chỗ ASCII không làm nổi, và tự biến mình thành thứ gây hại |\n| Danh sách kiểu làm sai | Luật phát biểu xuôi dễ bị diễn giải lệch. Cùng luật đó phát biểu ngược — dưới dạng cái hỏng mà nó ngăn — thì khó lách hơn nhiều |\n| Bước tự kiểm trước khi xuất | Đây là điểm cưỡng chế duy nhất tồn tại. Không có nó, sáu luật kia chỉ là lời khuyên đọc xong rồi quên |\n\nCần nói thẳng một điều: **tất cả những rào trên đều là rào bằng chữ.** Không có\nscript nào chạy, không có test nào đỏ, không có hook nào chặn ở cửa ra. Một sơ đồ\nvi phạm cả bảy luật vẫn xuất được bình thường.\n\nCái làm cho chúng có sức nặng là mức cụ thể. Một danh sách trắng ngắn, một con số\ncố định là 80, một checklist năm mục — tất cả đều kiểm được bằng mắt trong vài\ngiây, nên bỏ qua chúng là một hành động có ý thức chứ không phải lơ đãng. Đem so\nvới một luật kiểu \"hãy giữ sơ đồ cho đơn giản\": luật đó không thể bị vi phạm, vì\nnó không thể được kiểm. Đó là bài học mang đi được: **một luật thuần chữ chỉ có\nsức khi nó kiểm được bằng mắt trong vài giây.**"
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "no": "09",
+   "title": "Những quyết định đáng học",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Sáu lựa chọn thiết kế, và cái giá của từng lựa chọn.\n\n**Không có script.** Đã nói ở mục 3; đây là hai vế của nó đặt cạnh nhau."
+    },
+    {
+     "type": "cards",
+     "items": [
+      {
+       "title": "Skill có scripts/",
+       "text": "- Chặn được vi phạm ở cửa ra\n- Kiểm sau khi sơ đồ đã viết xong\n- Phải có ai đó gọi, rồi đọc kết quả, rồi sửa\n- Có code để bảo trì và để hỏng"
+      },
+      {
+       "title": "Skill thuần luật",
+       "text": "- Không chặn được gì cả\n- Có tác dụng ngay lúc tay đang chọn ký tự\n- Không có bước phụ nào\n- Chỉ có chữ để sửa"
+      }
+     ],
+     "note": "Hai vế của cùng một quyết định. `ascii-diagram` chọn cột phải, và trả đủ giá cho lựa chọn đó: không có gì chặn được một sơ đồ sai.",
+     "ascii": "Skill co scripts/                    Skill thuan luat\n----------------------------------   ----------------------------------\nChan duoc vi pham o cua ra           Khong chan duoc gi ca\nKiem sau khi so do da viet xong      Co tac dung ngay luc chon ky tu\nPhai co ai do goi, doc, roi sua      Khong co buoc phu nao\nCo code de bao tri va de hong        Chi co chu de sua"
+    },
+    {
+     "type": "md",
+     "text": "**Skill tự chỉ ra lúc không nên dùng chính nó.** Một phần ba tài liệu tham chiếu\ncủa nó dành để nói \"trường hợp này đừng dùng ASCII\", và bước đầu tiên trong luồng\nchạy là bước có thể loại bỏ chính skill. Trả giá: phạm vi hẹp lại. Được lại: khi\nnó nói \"dùng ASCII đi\", câu đó đáng tin, vì các trường hợp khác đã bị loại trước.\n\n**Danh sách trắng thay vì danh sách đen.** Skill liệt kê ký tự nào được dùng,\nchứ không liệt kê ký tự nào bị cấm. Trả giá: cấm luôn vài ký tự vô hại — dấu sao\nbị loại khỏi cấu trúc sơ đồ dù nó là ASCII hợp lệ. Được lại: không còn vùng xám\nnào để tranh luận.\n\n**Bảng tra thay vì nguyên tắc.** \"Đổi Unicode sang ASCII\" là một nguyên tắc; một\nbảng liệt kê từng ký tự một với ký tự thay thế của nó là một chỗ để tra. Trả giá:\ndài, và phải bảo trì. Được lại: bỏ sạch phán đoán ở đúng chỗ mà phán đoán chỉ\nsinh ra khác biệt giữa hai lần vẽ.\n\n**Một luật không nói gì về ký tự.** Luật \"giải thích trước, hình sau\" là luật về\nngười đọc chứ không về kỹ thuật. Nó nằm chung danh sách với sáu luật kỹ thuật kia\nvì nó chữa cùng một lỗi gốc: tác giả nhìn hình là hiểu ngay, nên tưởng người đọc\ncũng vậy.\n\n**Không gọi trực tiếp được.** Khối đầu file đánh dấu skill không cho gọi bằng\nlệnh. Trả giá: bạn không chủ động triệu nó lên được khi muốn. Được lại: nó không\nbao giờ trở thành một bước thừa mà người dùng phải nhớ — hoặc nó tự bật đúng lúc,\nhoặc nó nên im lặng."
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "no": "10",
+   "title": "Năm quyết định, và chúng đã được trả lời ra sao ở đây",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "Trang này là một ví dụ đã làm xong. Phần dưới biến nó thành công thức: mỗi mục là\nmột quyết định mà tác giả `ascii-diagram` đã phải đưa ra, và bạn sẽ phải đưa ra\nlại cho skill của mình.\n\n### Quyết định 1 — Skill của bạn có cần `scripts/` không?\n\nCâu hỏi để tự trả lời: việc cần làm là *soạn văn bản*, hay là *xử lý dữ liệu*?\n\nNếu là thứ agent vốn đã làm bằng chữ — viết, chọn từ, canh dòng, phán đoán — thì\nluật viết cho hay là đủ, và rẻ hơn. Nếu là thứ code làm chính xác hơn hẳn — đếm,\nđổi định dạng, gọi API, đụng vào hàng trăm file — thì viết script, đừng viết\nhướng dẫn dài.\n\nDấu hiệu bạn đang chọn sai: nếu bạn thấy mình đang viết một đoạn hướng dẫn agent\nlàm tay một việc lặp đi lặp lại và dễ sai số, đó là một script đang chờ được viết.\n\n### Quyết định 2 — Cái gì ở lại `SKILL.md`, cái gì ra `references/`?\n\nMột câu hỏi duy nhất: *lần chạy nào cũng cần cái này không?*\n\nCần mọi lần thì ở lại phần thân. Chỉ cần đôi khi, hoặc chỉ cần trong một nhánh\ncủa công việc, thì ra ngoài — và trong phần thân để lại đúng một dòng chỉ đường\ntới nó, không hơn.\n\nDấu hiệu bạn đã nhét quá nhiều vào phần thân: đọc hết nó không còn vừa một màn\nhình, hoặc trong đó đã có mấy chục dòng bảng tra. Bảng tra hầu như luôn thuộc về\n`references/`.\n\n### Quyết định 3 — Viết phần mô tả sao cho nó bật đúng lúc\n\nPhần mô tả ở khối đầu file là thứ duy nhất luôn nằm trong context, và nó là thứ\nquyết định skill có được chọn hay không. Viết nó như viết một lời tóm tắt là hỏng.\n\nNhìn cách mô tả của skill này được viết: nó không tóm tắt skill làm gì, nó **liệt\nkê các tình huống** — khi vẽ sơ đồ kiến trúc, khi dựng sơ đồ luồng, khi cần một\ncái hình cho markdown hoặc cho terminal — rồi gọi tên thẳng các nơi đến. Người\nđọc nhận ra tình huống của mình trong một danh sách tình huống dễ hơn nhiều so\nvới nhận ra nó trong một lời tóm tắt.\n\nNếu skill của bạn có anh em dễ nhầm, thêm một câu ranh giới: đừng dùng cho X,\ndùng Y. Skill này không có câu đó, vì nó không có anh em nào dễ nhầm.\n\n### Quyết định 4 — Viết luật từ những lần đã hỏng\n\nLuật nào cũng đáng ngờ cho tới khi biết nó chặn cái gì. Cách làm ngược lại thì\ntốt hơn: liệt kê trước những kiểu làm sai bạn từng thấy, rồi mới viết luật chặn\ntừng kiểu.\n\nRồi giữ luôn danh sách kiểu làm sai ở lại trong file, đừng xoá. Ví dụ phản diện\nlà thứ giữ cho luật khỏi bị diễn giải lệch, và nó cũng là lời giải thích ngắn nhất\ncho câu hỏi \"vì sao lại có luật này\".\n\n### Quyết định 5 — Nói rõ lúc nào đừng dùng skill của bạn\n\nSkill nào cũng có vùng nó không làm nổi. Viết vùng đó ra, kèm chỗ nên đi thay thế,\nvà làm cho nó thành một bước sớm trong quy trình chứ không phải một ghi chú ở\ncuối trang. Một skill nhận biết được giới hạn của mình thì đáng tin hơn hẳn ở\ntrong giới hạn đó.\n\n### Bắt đầu\n\nĐủ để chạy được là thế này, không cần gì thêm:"
+    },
+    {
+     "type": "code",
+     "lang": "text",
+     "text": "skill-cua-ban/\n+-- SKILL.md"
+    },
+    {
+     "type": "md",
+     "text": "Trong `SKILL.md`: khối đầu file gồm tên và phần mô tả viết theo Quyết định 3; rồi\nphần thân gồm một câu nguyên tắc gốc, một danh sách luật có đánh số, và một danh\nsách kiểu làm sai.\n\nBa thư mục kia thêm sau, mỗi cái vào đúng ngày nó trở nên cần:\n\n- thêm `references/` vào ngày phần thân dài quá một màn hình;\n- thêm `templates/` vào ngày bạn chép lại cùng một khối tới lần thứ ba;\n- thêm `scripts/` vào ngày bạn viết hướng dẫn cho một việc mà code làm chắc hơn."
+    }
+   ],
+   "toc_group": "PHẦN 3 — Tự dựng skill của bạn"
+  },
+  {
+   "id": "s11",
+   "no": "11",
+   "title": "Từ điển",
+   "blocks": [
+    {
+     "type": "md",
+     "text": "**anti-pattern** — kiểu làm sai được ghi lại có chủ ý, để người đọc nhận ra nó\ntrước khi phạm phải; ở đây là mặt trái của mỗi luật.\n\n**ASCII** — bảng ký tự cũ gồm 128 ký hiệu đầu tiên: chữ cái không dấu, chữ số, và\ncác dấu trên bàn phím Mỹ. Mọi hệ thống đều hiển thị được, không cần font đặc biệt.\n\n**C4** — một quy ước vẽ kiến trúc theo nhiều mức phóng, từ toàn cảnh hệ thống đến\ntừng thành phần. Nêu tên ở đây như lối ra cho hệ thống lớn, không thuộc phạm vi\nskill.\n\n**danh sách trắng (whitelist)** — cách viết luật bằng cách liệt kê những gì được\nphép, ngầm cấm mọi thứ còn lại. Ngược với danh sách đen, vốn liệt kê cái bị cấm.\n\n**font đều (monospace)** — kiểu chữ mà mọi ký tự rộng bằng nhau. Sơ đồ ký tự chỉ\nthẳng hàng khi được hiển thị bằng loại font này.\n\n**frontmatter (khối đầu file)** — khối nằm ngay đầu `SKILL.md`, kẹp giữa hai dòng\nba gạch ngang, chứa tên skill và phần mô tả. Là phần duy nhất luôn nằm trong\ncontext.\n\n**khối code (code block)** — vùng văn bản trong markdown được bao bởi ba dấu\nbacktick. Bên trong nó, khoảng trắng được giữ nguyên và chữ hiện bằng font đều.\n\n**ký tự vẽ hộp (box-drawing characters)** — nhóm ký tự Unicode như `┌ ─ │ ┘` dành\nriêng để vẽ khung. Đẹp hơn ASCII, nhưng cần font có sẵn chúng, nên bị cấm ở đây.\n\n**lộ dần (progressive disclosure)** — cách tổ chức tài liệu sao cho phần luôn cần\nthì luôn có mặt, còn phần chi tiết chỉ được đọc khi có thứ dẫn tới nó.\n\n**Mermaid** — một cú pháp mô tả sơ đồ bằng chữ, được trình render dựng thành hình.\nTự dàn trang, chịu được nhiều nút, nhưng cần nơi hiển thị biết render nó.\n\n**skill** — một thư mục hướng dẫn mà agent đọc khi gặp đúng loại việc; tối thiểu\nchỉ gồm một file `SKILL.md`.\n\n**Unicode** — bảng ký tự lớn bao trùm gần như mọi chữ viết và ký hiệu. Vượt ra\nngoài ASCII, nên hiển thị được hay không còn tuỳ font và tuỳ nơi."
+    }
+   ]
+  }
+ ],
+ "footer": "Trang này mô tả `ascii-diagram` như một ví dụ đã hoàn chỉnh về thiết kế skill: nhỏ, thuần luật, và biết tự nhận giới hạn của mình.\\\nThứ đáng mang đi không phải bảng đổi Unicode, mà là ba quyết định đứng sau nó — cái gì ở lại chỗ luôn được đọc, cái gì đẩy ra chỗ chỉ đọc khi cần, và lúc nào một luật viết cho hay thay được cho một đoạn code."
+}
