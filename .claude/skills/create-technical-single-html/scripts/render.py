@@ -239,6 +239,9 @@ class Renderer:
                     **({"_w": size[0], "_h": size[1]} if size else {})}
         if "file" in b:
             b = {**b, "file": (self.base / b["file"]).read_text().rstrip("\n")}
+        if b["type"] == "explain":
+            b = {**b, "items": [{**c, "fig": {**c["fig"], "file": (self.base / c["fig"]["file"]).read_text().rstrip("\n")}}
+                                if "file" in c.get("fig", {}) else c for c in b["items"]]}
         return b
 
     def data_uri(self, rel: str) -> str:

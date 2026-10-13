@@ -365,6 +365,36 @@
         }
       }
     },
+    "explain": {
+      "template": "explain.j2",
+      "purpose": "ID'd cards with always-visible label → text rows and a collapsible detail (rows plus an optional diagram) the reader opens on demand.",
+      "use_when": "Principles, rules or symptoms where the short form fits on the card and a worked case explains it: the case goes in `detail`.",
+      "required": [
+        "summary",
+        "items"
+      ],
+      "optional": {
+        "summary": "(md) default toggle label, e.g. \"Apply it\"",
+        "items": "[{id, title (md), rows: [[label, text (md-block), 'ex'|'val'?]], detail: same shape as rows?, summary (md)? (overrides the block's), fig: {file | svg, caption (md), ascii?}?, pill?, meta (md)?}]",
+        "note": "(md) caption line under the block: the takeaway"
+      },
+      "nested": {
+        "items": {
+          "required": [
+            "id",
+            "title",
+            "rows"
+          ],
+          "optional": [
+            "detail",
+            "summary",
+            "fig",
+            "pill",
+            "meta"
+          ]
+        }
+      }
+    },
     "options": {
       "template": "options.j2",
       "purpose": "Design option cards: goal, how, strong, weak, table sketches; one marked chosen.",

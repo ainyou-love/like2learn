@@ -1,0 +1,67 @@
+{% from "_lib.j2" import pill %}
+{% macro rows_html(rows) %}<dl>{% for f in rows %}<dt>{{ f[0] }}</dt><dd{% if f|length > 2 %} class="{{ f[2] }}"{% endif %}>{{ f[1]|md }}</dd>{% endfor %}</dl>{% endmacro %}
+{% macro rows_md(rows) %}{% autoescape false %}
+{% for f in rows %}
+{% if '\n' in f[1] %}
+- **{{ f[0] }}:**
+
+{{ f[1]|indent(2, true) }}
+
+{% else %}
+- **{{ f[0] }}:** {{ f[1] }}
+{% endif %}
+{% endfor %}
+{% endautoescape %}{% endmacro %}
+{% macro html(b, inner) %}
+{% for c in b['items'] %}
+  <article class="fcard xp" id="{{ c.id|lower }}">
+    <header><span class="fid">{{ c.id }}</span>{% if c.pill is defined %}{{ pill(c.pill) }}{% endif %}<h4>{{ c.title|inl }}</h4></header>
+    {{ rows_html(c.rows) }}
+{% if c.detail is defined %}
+    <details class="xp-more"><summary>{{ c.get('summary', b.summary)|inl }}</summary>
+      {{ rows_html(c.detail) }}
+{% if c.fig is defined %}
+      <figure class="fig"><div class="scroll">
+{{ (c.fig.svg if c.fig.svg is defined else c.fig.file)|safe }}
+</div><figcaption>{{ c.fig.caption|inl }}</figcaption></figure>
+{% endif %}
+    </details>
+{% endif %}
+{% if c.meta is defined %}    <div class="meta-line">{{ c.meta|inl }}</div>
+{% endif %}
+  </article>
+{% endfor %}
+{% if b.note is defined %}<p class="blk-note">{{ b.note|inl }}</p>
+{% endif %}
+{% endmacro %}
+{% macro md(b, inner) %}{% autoescape false %}
+{% for c in b['items'] %}
+### {{ c.id }}{% if c.pill is defined %} · {{ c.pill.text }}{% endif %} · {{ c.title }}
+
+{{ rows_md(c.rows) }}
+{% if c.detail is defined %}
+
+**{{ c.get('summary', b.summary) }}**
+
+{{ rows_md(c.detail) }}
+{% endif %}
+{% if c.fig is defined %}
+{% if c.fig.ascii is defined %}
+
+{{ c.fig.ascii|fence }}text
+{{ c.fig.ascii }}
+{{ c.fig.ascii|fence }}
+{% endif %}
+
+*{{ c.fig.caption }}*
+{% endif %}
+{% if c.meta is defined %}
+
+*{{ c.meta }}*
+{% endif %}
+
+{% endfor %}
+{% if b.note is defined %}
+*{{ b.note }}*
+{% endif %}
+{% endautoescape %}{% endmacro %}

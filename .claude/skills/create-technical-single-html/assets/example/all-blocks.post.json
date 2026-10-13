@@ -427,6 +427,76 @@
           ]
         },
         {
+          "type": "explain",
+          "summary": "Apply it",
+          "items": [
+            {
+              "id": "X1",
+              "title": "Rows, a detail with `code`, and an inline figure",
+              "rows": [
+                [
+                  "Rule",
+                  "One short line."
+                ],
+                [
+                  "Pays off",
+                  "Shown in ink.",
+                  "val"
+                ]
+              ],
+              "detail": [
+                [
+                  "Case",
+                  "A paragraph.\n\n```text\nmulti-line | code\n```"
+                ],
+                [
+                  "Fix",
+                  "The move.",
+                  "ex"
+                ]
+              ],
+              "fig": {
+                "svg": "<svg viewBox=\"0 0 680 80\" role=\"img\" aria-label=\"A to B\"><rect class=\"n-box\" x=\"20\" y=\"12\" width=\"200\" height=\"56\" rx=\"8\"/><text class=\"t\" x=\"120\" y=\"40\" text-anchor=\"middle\" dominant-baseline=\"central\">A</text><line class=\"w\" x1=\"220\" y1=\"40\" x2=\"458\" y2=\"40\"/><rect class=\"n-new\" x=\"460\" y=\"12\" width=\"200\" height=\"56\" rx=\"8\"/><text class=\"t\" x=\"560\" y=\"40\" text-anchor=\"middle\" dominant-baseline=\"central\">B</text></svg>",
+                "caption": "A figure inside the detail.",
+                "ascii": "A → B"
+              },
+              "meta": "Source: fixture"
+            },
+            {
+              "id": "X2",
+              "title": "No detail: rows only, with a pill",
+              "pill": {
+                "kind": "warn",
+                "text": "Open"
+              },
+              "rows": [
+                [
+                  "Rule",
+                  "Nothing to open."
+                ]
+              ]
+            },
+            {
+              "id": "X3",
+              "title": "Per-item summary label",
+              "summary": "See the case",
+              "rows": [
+                [
+                  "Rule",
+                  "Text."
+                ]
+              ],
+              "detail": [
+                [
+                  "Case",
+                  "Opened with its own label."
+                ]
+              ]
+            }
+          ],
+          "note": "Edge cases: figure in a detail, no detail, per-item label."
+        },
+        {
           "type": "options",
           "items": [
             {

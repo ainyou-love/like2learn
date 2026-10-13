@@ -96,6 +96,7 @@ Hero stats rise in with staggered delays; the signal line draws once. Everything
 | `steps` | numbered cards in an auto-fit grid, optional ↺ loop line | ordered flows |
 | `kv` | receipt sheet, dashed row rules, totals row | one object's fields |
 | `tags` | tiles with a coloured left bar + legend dots | values with a status |
+| `explain` | finding-card look (ID, title, label → text rows) plus a pill-shaped toggle that opens more rows and an optional diagram | principles or symptoms whose worked case would make the page too long if always open |
 | `callout` | `note` (accent), `warn` (amber), `key` (ink) with an optional mono title; title alone = a label | the one point not to miss |
 | `image` | file embedded as a data URI, size reserved from the file, light/dark variants swap with the theme | existing diagrams and screenshots |
 | `video` | 16:9 rounded frame, lazy YouTube embed, caption line ending in a Watch-on-YouTube link | talks and demos the post is about (the link is the fallback when the embed can't play, e.g. from `file://`) |
