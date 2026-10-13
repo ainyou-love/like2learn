@@ -10,7 +10,7 @@ no build step.
 | **Atoms** | `theme`, `tab`, `menuOpen`, `section`, `filter`, `checklist`, `toast` — small observables with `get` / `set` / `sub` | The only state. `set` notifies subscribers only when the value changes. |
 | **Components** | `ThemeSwitch`, `TabBar`, `Menu`, `Toc`, `FindingFilter`, `Checklist`, `Toast`, `MarkdownView` | Render from an atom; never decide. Guard for missing elements so a page without that component still runs. |
 | **Workflows** | `theme:toggle`, `tab:html`, `tab:md`, `menu:*`, `nav`, `filter`, `check`, `copy:*`, `download:md` | Named business actions: update atoms + side effects (localStorage, URL hash, scroll, clipboard, Blob download). |
-| **Events** | one delegated `click` on `[data-action]`; `keydown` Esc; IntersectionObserver for the active section; `matchMedia` for theme and width; `hashchange` | Normalise every input into a workflow call. Parametrised actions use a prefix (`filter:P0`, `check:3`). |
+| **Events** | one delegated `click` on `[data-action]`; `keydown` Esc; IntersectionObserver for the active section; `matchMedia` for width (the theme starts light and changes only through the toggle); `hashchange` | Normalise every input into a workflow call. Parametrised actions use a prefix (`filter:P0`, `check:3`). |
 
 Storage is wrapped in `try/catch`: private windows, previews and `data:` origins throw, and the
 page must work without it. Keys are `<storage-key>-theme` and `<storage-key>-checklist`.

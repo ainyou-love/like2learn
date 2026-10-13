@@ -16,8 +16,9 @@ Loaded from Google Fonts with system fallbacks, so the file still reads offline.
 
 ## Colour tokens
 
-Declared on `:root`, redeclared for dark under `@media (prefers-color-scheme: dark)` guarded
-by `:root:not([data-theme="light"])`, and again under `:root[data-theme="dark"]` for the toggle.
+Declared on `:root` (light), redeclared under `:root[data-theme="dark"]`. Light is the default
+for every reader, whatever their OS setting; dark appears only after the reader picks it with the
+toggle, and that choice is remembered per page.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|

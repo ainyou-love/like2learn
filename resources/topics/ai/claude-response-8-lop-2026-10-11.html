@@ -23,15 +23,6 @@
   --side:272px; --head:60px;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
-    --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
-    --accent:#3fd0bf; --accent-ink:#06201d; --accent-soft:#123a36;
-    --ok:#5fd07f; --ok-soft:#14301d; --warn:#f2a640; --warn-soft:#3a2a12; --bad:#ff7a6b; --bad-soft:#3d1a16; --info:#79aee6; --info-soft:#15283c;
-    --code-bg:#11171d; --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 28px -18px rgba(0,0,0,.8); --grain:.05; color-scheme:dark;
-  }
-}
 :root[data-theme="dark"]{
   --bg:#0e1216; --bg-2:#131920; --surface:#161d24; --surface-2:#1b232c; --line:#2a343f; --line-2:#222b35;
   --ink:#e8ecef; --ink-2:#b3bcc5; --ink-3:#7f8a95;
@@ -2024,11 +2015,10 @@ Mỗi lớp nên có một nơi chịu trách nhiệm trong hệ thống. Không
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
   };
-  const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
   const mqNarrow = window.matchMedia("(max-width: 900px)");
 
   const state = {
-    theme: atom(store.get("claude-response-8-lop-theme") || (mqDark.matches ? "dark" : "light")),
+    theme: atom(store.get("claude-response-8-lop-theme") || "light"),
     tab: atom(location.hash === "#markdown" ? "md" : "html"),
     menuOpen: atom(!mqNarrow.matches),
     section: atom("start"),
@@ -2158,7 +2148,6 @@ Mỗi lớp nên có một nơi chịu trách nhiệm trong hệ thống. Không
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && mqNarrow.matches) run("menu:close");
   });
-  mqDark.addEventListener("change", (e) => { if (!store.get("claude-response-8-lop-theme")) state.theme.set(e.matches ? "dark" : "light"); });
   mqNarrow.addEventListener("change", (e) => state.menuOpen.set(!e.matches));
   window.addEventListener("hashchange", () => { if (location.hash === "#markdown") state.tab.set("md"); });
   if ("IntersectionObserver" in window) {
