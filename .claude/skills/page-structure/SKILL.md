@@ -1,6 +1,6 @@
 ---
 name: page-structure
-description: The layout contract for the like2learn site — where a page file goes under resources/, how it must be named, where its images live, and how it gets registered in resources/post_metadata.json so the index, reader and gallery can find it. Use this whenever you add, move, rename or delete anything under resources/ — a post, a book chapter, a report, a lead image, a gallery album — or whenever you are about to run _tools/sync_post_metadata.py, assign a category, or give a post a feature image. Also use it when a page exists but is not showing up on the index, shows the wrong title or date, has no description under its link, or when an image 404s in the reader or appears in the wrong album. The post-creating skills (generate-learning-doc, tech-doc-report, gen-tech-doc-html, skill-study-doc) all hand off here for the filing and registration step rather than restating it. Not for writing a page's content or styling it — this covers where it lives and how the site learns about it.
+description: The layout contract for the like2learn site — where a page file goes under resources/, how it must be named, where its images live, and how it gets registered in resources/post_metadata.json and mapped to its /post/<name> URL in _data/post_index.json so the index, reader and gallery can find it. Use this whenever you add, move, rename or delete anything under resources/ — a post, a book chapter, a report, a lead image, a gallery album — or whenever you are about to run _tools/sync_post_metadata.py, assign a category, or give a post a feature image. Also use it when a page exists but is not showing up on the index, a /post/ link shows 404, shows the wrong title or date, has no description under its link, or when an image 404s in the reader or appears in the wrong album. The post-creating skills (generate-learning-doc, tech-doc-report, gen-tech-doc-html, skill-study-doc) all hand off here for the filing and registration step rather than restating it. Not for writing a page's content or styling it — this covers where it lives and how the site learns about it.
 ---
 
 # Page structure
@@ -37,6 +37,13 @@ transliterated (`Kỷ luật của bình minh` → `ky-luat-cua-binh-minh`). Thi
 filename is the fallback label: `resourceFileLabel` in `_includes/resource-tree.html` turns
 `05-ky-luat-cua-binh-minh.html` into `05 — ky luat cua binh minh` when metadata is missing, and
 underscores or diacritics make that fallback read badly.
+
+**A post's file name is its public URL.** Every post is read at `/post/<file name>`
+(`/post/claude-inside-26-10-11.html`), whatever folder it sits in, so file names must be unique
+across all of `resources/` — the sync tool stops with an `ERROR` when two files share a name.
+Book chapters are the usual trap: `01-chuong-01-….html` in two books clash, so give the slug
+part something book-specific. The URL exists only once the name is mapped in
+`_data/post_index.json` — see [Map its URL](#map-its-url).
 
 The `NN-` prefix is meaningful only where the table says so. Adding one to a topic post buys
 nothing and puts a stray number in the label.
@@ -102,7 +109,7 @@ python3 _tools/sync_post_metadata.py
 It walks `resources/**/*.html`, refreshes every title and description, keeps `created_at` (a new
 page takes the date git first saw it, or its mtime if uncommitted), and drops entries whose file
 is gone. It prints what it added, updated or removed — a rename shows up as one added and one
-removed, which is your cue that the old URL is dead.
+removed, which is your cue to fix its `_data/post_index.json` entry (see below).
 
 Then give the page the two things the tool cannot infer.
 
@@ -153,17 +160,43 @@ Worth knowing, because it explains why the conventions are shaped the way they a
 - **`index.html`** offers the same posts three ways — newest-first, by topic, and as the folder
   tree — plus the category filter row. All three are driven by the metadata, so a post with no
   entry appears with a bare filename and no blurb.
-- **`read.html`** is a shell: a breadcrumb bar built from the folder path, the lead image if
-  there is one, and the page itself in an iframe. The page keeps its own styling and scrolling,
+- **`/post/<file name>`** is the reader. There is no file at that path, so GitHub Pages serves
+  `404.html` (with HTTP status 404 — search engines will not index these URLs). It looks the name
+  up in `_data/post_index.json` and renders `_includes/post-reader.html` in place — a
+  breadcrumb bar built from the folder path, the lead image if there is one, and the page itself
+  in an iframe. The old `read.html?p=<path>` links only redirect there. The page keeps its own styling and scrolling,
   which is why pages here are self-contained rather than sharing a layout.
 - **`gallery-preview.html`** renders one album as a slideshow.
+
+## Map its URL
+
+`/post/` is a virtual folder: nothing is stored there. `_data/post_index.json` maps each file
+name to the post's path under `resources/`, and it is kept **by hand** — no tool writes it.
+Add one line per new post:
+
+```json
+{
+  "claude-inside-26-10-11.html": "topics/ai/claude-inside-26-10-11.html"
+}
+```
+
+The reader opens `/post/<name>` only for a name in this map; anything else shows the 404 page.
+A post left out still appears on the index, but its link opens the raw file instead of the
+reader. The sync run warns about both directions — a post missing from the map, and an entry
+whose path points at no file.
+
+Renaming or moving a post: update the path, and when the file name changes, keep the old name
+as a second key pointing at the new path. `/post/<old name>` then forwards to `/post/<new name>`,
+so links already shared keep working. (`_data/redirects.json` covers the older
+`read.html?p=<path>` links the same way, keyed by full path.)
 
 ## Before you call it done
 
 - The file is in the right home, with the right name shape for that home.
 - Its `<head>` has a real `<title>` and a real one-sentence `<meta name="description">`.
 - A lead image, if any, sits beside the post as `.webp` and is pointed at by `feature_img`.
-- `python3 _tools/sync_post_metadata.py` runs clean — no `WARN` lines for this page.
+- Its file name is mapped to its path in `_data/post_index.json`.
+- `python3 _tools/sync_post_metadata.py` runs clean — no `ERROR`, no `WARN` lines for this page.
 - It has exactly one category.
 - New image and page files are staged. An untracked lead image deploys as no image at all: the
   reader removes the band when it fails to load, so nothing visibly breaks and nobody notices.

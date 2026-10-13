@@ -11,6 +11,7 @@ layout: null
   {% include resource-tree.html %}
   {% include post-views.html %}
   {% include gallery.html %}
+  {% include post-reader.html %}
 </head>
 <body>
 
@@ -62,6 +63,8 @@ function oldBookNote(number) {
 }
 
 const key = decodedPath().replace(/^\/+|\/+$/g, "");
+const postName = key.match(/^post\/([^/]+)$/)?.[1];
+const postPath = postName && resourcePostPath(postName);
 const shortLinks = resourceShortLinks();
 const flatNote = key.match(/^resources\/(\d+)-[^/]+$/);
 const oldBookPath = key.startsWith(OLD_BOOK_FOLDER) && key.match(/\/(\d+)-[^/]+$/);
@@ -73,7 +76,11 @@ const posts = document.createElement("div");
 
 const gallery = galleryTarget(key);
 
-if (gallery) {
+if (postPath && resourcePostName(postPath) === postName.normalize("NFC")) {
+  showReader(postPath);
+} else if (postPath) {
+  location.replace(resourceReadUrl(postPath) + location.hash);
+} else if (gallery) {
   location.replace(gallery);
 } else if (target) {
   location.replace(resourceReadUrl(target));

@@ -65,8 +65,29 @@ function resourceFileUrl(path) {
   return encodeURI(path).replace(/[#?]/g, encodeURIComponent);
 }
 
+function resourceName(path) {
+  return path.split("/").pop().normalize("NFC");
+}
+
+// /post/<name> is a virtual folder: _data/post_index.json, kept by hand, maps each name to a
+// path under resources/. A post missing from it has no /post/ URL and is linked as its raw file.
+const POST_INDEX = new Map(Object.entries({{ site.data.post_index | jsonify }} ?? {})
+  .map(([name, key]) => [name.normalize("NFC"), key.normalize("NFC")]));
+
+function resourcePostPath(name) {
+  const key = POST_INDEX.get(name.normalize("NFC"));
+  return key && RESOURCE_PATHS.find((path) => resourceKey(path) === key);
+}
+
+function resourcePostName(path) {
+  const key = resourceKey(path);
+  if (POST_INDEX.get(resourceName(path)) === key) return resourceName(path);
+  return [...POST_INDEX].find(([, value]) => value === key)?.[0];
+}
+
 function resourceReadUrl(path) {
-  return `/read.html?p=${encodeURI(resourceKey(path)).replace(/[#?&+]/g, encodeURIComponent)}`;
+  const name = resourcePostName(path);
+  return name ? `/post/${encodeURIComponent(name)}` : resourceFileUrl(path);
 }
 
 function resourceBreadcrumb(dirs, current, folderHref = (i) => `/${RESOURCE_ROOT}/${dirs.slice(0, i + 1).join("/")}/`) {

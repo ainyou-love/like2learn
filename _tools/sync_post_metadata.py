@@ -15,6 +15,11 @@ edit the post's <head>, not the JSON. created_at is kept once set; a new entry t
 git first added the file (following renames), or the file's mtime when it is not committed yet.
 Entries whose file is gone are dropped.
 
+A post's file name is its public URL (/post/<name>), so file names must be unique across all of
+resources/; a clash stops the run before anything is written. The URL works only once the name
+is mapped to its path in _data/post_index.json, which is kept by hand: the run never edits it,
+but warns about posts missing from it and entries pointing at no file.
+
 categories holds exactly one category, assigned by whoever adds the post (not derived from the
 file) and kept across runs. Every run prints the categories in use with their post counts; reuse
 one of those, and only add a new category when none fits.
@@ -45,6 +50,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 RESOURCES = REPO / "resources"
 OUT = RESOURCES / "post_metadata.json"
+POST_INDEX = REPO / "_data" / "post_index.json"
 SETTINGS = {"feature_image_enabled": True}
 CHUNK = 4096
 NOTEBOOK_PREFIX = re.compile(r"^Sổ ghi chép\s*·?\s*No\.\s*\d+\s*[—·–-]\s*")
@@ -143,6 +149,15 @@ def main():
             "feature_img": featured.get(key, ""),
         }
 
+    by_name = {}
+    for key in posts:
+        by_name.setdefault(key.rsplit("/", 1)[-1], []).append(key)
+    clashes = {name: keys for name, keys in by_name.items() if len(keys) > 1}
+    if clashes:
+        for name, keys in clashes.items():
+            print(f"ERROR {name}: file name used by {', '.join(keys)}", file=sys.stderr)
+        sys.exit("ERROR post file names must be unique across resources/: they are the /post/<name> URL")
+
     added = sorted(posts.keys() - old.keys())
     removed = sorted(old.keys() - posts.keys())
     changed = sorted(k for k in posts.keys() & old.keys() if posts[k] != old[k])
@@ -160,6 +175,13 @@ def main():
             print(f"WARN {key}: needs exactly one category (--set-category)", file=sys.stderr)
         if meta["feature_img"] and not (RESOURCES / meta["feature_img"]).is_file():
             print(f"WARN {key}: feature_img not found at resources/{meta['feature_img']}", file=sys.stderr)
+    index = json.loads(POST_INDEX.read_text(encoding="utf-8")) if POST_INDEX.exists() else {}
+    index = {unicodedata.normalize("NFC", n): unicodedata.normalize("NFC", k) for n, k in index.items()}
+    for name, key in index.items():
+        if key not in posts:
+            print(f"WARN {POST_INDEX.relative_to(REPO)}: {name} points at no post (resources/{key})", file=sys.stderr)
+    for key in sorted(posts.keys() - set(index.values())):
+        print(f"WARN {key}: not in {POST_INDEX.relative_to(REPO)}, so it has no /post/ URL", file=sys.stderr)
     counts = Counter(c for meta in posts.values() for c in meta["categories"])
     print("categories: " + (" · ".join(f"{c} ({n})" for c, n in counts.most_common()) or "none"))
     print("settings: " + " · ".join(f"{k}={json.dumps(v)}" for k, v in settings.items()))
