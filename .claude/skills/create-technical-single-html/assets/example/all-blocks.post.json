@@ -355,13 +355,15 @@
           "type": "findings",
           "filters": [
             "P0",
-            "P1"
+            "P1",
+            "Multi word tag"
           ],
           "items": [
             {
               "id": "F1",
               "tags": [
-                "P0"
+                "P0",
+                "Multi word tag"
               ],
               "pill": {
                 "kind": "bad",

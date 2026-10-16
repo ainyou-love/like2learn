@@ -3575,7 +3575,7 @@ Thuật ngữ chuyên ngành giữ nguyên tiếng Anh; phần giải thích b�
   const Toc = (id) => $$(".toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${id}`)));
   const FindingFilter = (f) => {
     $$(".fbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.action === `filter:${f}`)));
-    $$(".flist .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split(" ").includes(f); });
+    $$(".flist .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split("|").includes(f); });
   };
   let toastTimer;
   const Toast = (msg) => {

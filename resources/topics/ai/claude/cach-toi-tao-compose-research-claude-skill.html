@@ -1962,7 +1962,7 @@ Mỗi dòng gói trọn năm điều: là gì, làm gì trong hệ, nhận ra b�
   const Toc = (id) => $$(".toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${id}`)));
   const FindingFilter = (f) => {
     $$(".fbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.action === `filter:${f}`)));
-    $$(".flist .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split(" ").includes(f); });
+    $$(".flist .fcard").forEach((el) => { el.hidden = f !== "all" && !(el.dataset.tags || "").split("|").includes(f); });
   };
   let toastTimer;
   const Toast = (msg) => {
