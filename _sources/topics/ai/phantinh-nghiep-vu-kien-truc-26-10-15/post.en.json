@@ -1,0 +1,1838 @@
+{
+  "meta": {
+    "title": "PHẢN-TỈNH: business and architecture",
+    "brand": "PHẢN-TỈNH",
+    "desc": "PHẢN-TỈNH from overview to detail: a personal AI workbench that drives real Claude Code sessions in tmux. Covers its 52 modules and 15 kinds, the chat and one-shot flows, the host bridge, the data model, the frontend and design principles.",
+    "lang": "en",
+    "md_filename": "phantinh-business-architecture.en.md",
+    "sidebar_note": "<div class=\"ext\"><div class=\"legend\" aria-label=\"Diagram color legend\"><span><i style=\"--c:var(--accent)\"></i>Central component</span><span><i style=\"--c:var(--ink-3)\"></i>Ordinary component</span><span><i style=\"--c:var(--ok)\"></i>Result, source of truth</span><span><i style=\"--c:var(--warn)\"></i>Abnormal</span><span><i style=\"--c:var(--bad)\"></i>Error</span></div></div>"
+  },
+  "hero": {
+    "kicker": "Project study · business and architecture",
+    "title": "A personal AI workbench, *running on real Claude Code*",
+    "lede": "PHẢN-TỈNH started as a reflection skill: separate fact, emotion, ego and structure so you act with a clearer head. Today it is a personal web app with 52 modules, spanning reflection, languages, research, decisions and economics. It uses no API key. Every chat session is a real Claude Code TUI in tmux on the host machine, and every one-shot run is a `claude -p` call that returns JSON matching a schema. This page goes from the product overview down to each flow and each table.",
+    "chips": [
+      {
+        "label": "Source",
+        "value": "the project's code, plans/, requirements/, docs/"
+      },
+      {
+        "label": "Read on",
+        "value": "2026-10-16"
+      },
+      {
+        "label": "Status",
+        "pill": {
+          "kind": "info",
+          "text": "Description"
+        }
+      }
+    ],
+    "stats": [
+      {
+        "n": "52",
+        "l": "modules in the catalog, in 11 groups"
+      },
+      {
+        "n": "15",
+        "l": "kinds: each kind is one workflow type"
+      },
+      {
+        "n": "329",
+        "l": "GraphQL fields: 116 queries, 212 mutations, 1 subscription"
+      },
+      {
+        "n": "1",
+        "l": "user: the author, on their own Mac"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "start",
+      "no": "→",
+      "title": "How to read this",
+      "head": false,
+      "blocks": [
+        {
+          "type": "start",
+          "kicker": "Start here",
+          "title": "From overview to detail",
+          "intro": "Part 1 answers “what does the app do, for whom”. Part 2 answers “how is it built”, each section a level deeper than the last. Part 3 holds design principles and reference.",
+          "route_label": "15-minute path",
+          "route": [
+            [
+              "Product",
+              "#s-what"
+            ],
+            [
+              "Feature map",
+              "#s-catalog"
+            ],
+            [
+              "Five layers",
+              "#s-layers"
+            ],
+            [
+              "Chat flow",
+              "#s-chat"
+            ],
+            [
+              "UzAI",
+              "#s-uzai"
+            ]
+          ],
+          "columns": [
+            [
+              {
+                "title": "To understand the product",
+                "items": [
+                  {
+                    "text": "Philosophy and the five reflection layers",
+                    "refs": [
+                      [
+                        "§02",
+                        "#s-philo"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "52 modules by group",
+                    "refs": [
+                      [
+                        "§03",
+                        "#s-catalog"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Six main journeys",
+                    "refs": [
+                      [
+                        "§04",
+                        "#s-journeys"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "title": "To understand how it is built",
+                "items": [
+                  {
+                    "text": "A module is data; its kind picks the code",
+                    "refs": [
+                      [
+                        "§08",
+                        "#s-module"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "TUI chat and one-shot, end to end",
+                    "refs": [
+                      [
+                        "§09",
+                        "#s-chat"
+                      ],
+                      [
+                        "§10",
+                        "#s-oneshot"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "The host bridge and why it exists",
+                    "refs": [
+                      [
+                        "§07",
+                        "#s-deploy"
+                      ],
+                      [
+                        "§11",
+                        "#s-bridge"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "title": "Reference",
+                "items": [
+                  {
+                    "text": "Data model by domain",
+                    "refs": [
+                      [
+                        "§13",
+                        "#s-data"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Feature timeline",
+                    "refs": [
+                      [
+                        "§20",
+                        "#s-timeline"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Glossary",
+                    "refs": [
+                      [
+                        "§21",
+                        "#s-glossary"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-what",
+      "no": "01",
+      "title": "What the product is",
+      "toc_group": "Part 1 · Business",
+      "intro": "A reflection and systems-thinking app for one person, using Claude Code as its brain instead of an API key.",
+      "blocks": [
+        {
+          "type": "md",
+          "text": "The README describes itself: *“A personal reflection & systems-thinking app. Each chat session is bound 1:1 to a real Claude Code TUI session running in tmux on your host; the PWA is the structured front end, your terminal is the live observer.”*\n\nThe original requirements (`phantinh-requirement.md`) set a few constraints that shape the whole architecture:\n\n- **No API key.** Every AI turn must run through the Claude Code CLI that is already logged in on the machine. The web is a structured shell in front of the terminal.\n- **No login.** Skip sign-in and go straight to the dashboard. There is no user table; learning profiles are one-to-one with a Module.\n- **Everything is stored in the DB.** Each business flow starts from a question or pain point and ends in a report.\n- **Installable as a PWA**, opened with a hotkey (later, Raycast)."
+        },
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "At the start",
+              "text": "Seven reflection modules and a Quick Mode, running the `phan-tinh` skill in a chat session.",
+              "pill": {
+                "kind": "mute",
+                "text": "2026-05"
+              }
+            },
+            {
+              "title": "Today",
+              "text": "52 modules in 11 groups: reflection, languages, software, metaphysics, research, health, planning, economics, tools, personal, assistant.",
+              "pill": {
+                "kind": "info",
+                "text": "2026-10"
+              }
+            },
+            {
+              "title": "The common thread",
+              "text": "The reflection philosophy still runs through the decision, goal and research tools: the 24 Conditions lens, cause-and-condition goal plans, the decision framework's blocking gates."
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "The core architectural idea",
+          "text": "The web never talks to a model. It talks to **a real Claude Code terminal**, typing into tmux and reading back the JSONL transcript Claude writes itself. Almost every architectural decision downstream follows from that choice."
+        }
+      ]
+    },
+    {
+      "id": "s-philo",
+      "no": "02",
+      "title": "The founding philosophy",
+      "intro": "The PHẢN-TỈNH v1.0 skill is the business source document. The reflection modules run this skill directly.",
+      "blocks": [
+        {
+          "type": "callout",
+          "kind": "note",
+          "text": "*“Không phải dùng bản thân để chống lại hỗn loạn. Mà là dùng sự tỉnh táo để tạo cấu trúc đúng.”* — Not using yourself to fight chaos, but using clarity to build the right structure."
+        },
+        {
+          "type": "table",
+          "caption": "The five reflection layers",
+          "head": [
+            "Layer",
+            "Question"
+          ],
+          "rows": [
+            [
+              "FACT",
+              "What is actually happening?"
+            ],
+            [
+              "EMOTION",
+              "Which emotion is pulling the mind?"
+            ],
+            [
+              "EGO",
+              "Is there attachment to right/wrong, control, self-image, over-responsibility?"
+            ],
+            [
+              "SYSTEM",
+              "Is this a people, process, structure, ambiguity, incentive, dependency or communication problem?"
+            ],
+            [
+              "ESSENCE",
+              "What truly matters at a deeper level?"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "LỄ · protocol",
+              "text": "Shared understanding, protocol, harmony, aligned expectations."
+            },
+            {
+              "title": "PHÁP · rules",
+              "text": "Rules, ownership, governance. *Does the system depend on one person?*"
+            },
+            {
+              "title": "THUẬT · method",
+              "text": "How work is executed, bottlenecks, automation."
+            },
+            {
+              "title": "THẾ · leverage",
+              "text": "Leverage, position, timing. *Are you using force or position?*"
+            }
+          ],
+          "note": "The LỄ · PHÁP · THUẬT · THẾ frame looks at a systems problem from four angles."
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Raw thoughts",
+              "text": "A tangle of thoughts"
+            },
+            {
+              "title": "PHẢN-TỈNH",
+              "text": "Seen through five layers"
+            },
+            {
+              "title": "Structural clarity",
+              "text": "The structure shows"
+            },
+            {
+              "title": "Leverage",
+              "text": "Find the leverage point"
+            },
+            {
+              "title": "Calmer action",
+              "text": "Act calmly"
+            },
+            {
+              "title": "Sustainable system",
+              "text": "A system that lasts"
+            }
+          ],
+          "note": "The ideal workflow from the source document. When the user is overloaded, compress; when scattered, focus on ONE leverage point only."
+        }
+      ]
+    },
+    {
+      "id": "s-catalog",
+      "no": "03",
+      "title": "Feature map",
+      "intro": "52 module YAMLs in 11 groups. Every module has a kind, and the kind decides which engine runs it.",
+      "blocks": [
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "TUI chat · `tui_chat`",
+              "meta": "20 modules",
+              "text": "A live `claude` TUI session in tmux. The skill loads through an opening command. Options: an intake form first (`gate`), single run (`run_once`), mid-chat notes (`note`)."
+            },
+            {
+              "title": "One-shot · `oneshot_prompt`",
+              "meta": "19 modules",
+              "text": "One `claude -p --json-schema` call (or `codex exec`), no tmux. The prompt comes from a template; the result is checked against the schema and rendered to markdown."
+            },
+            {
+              "title": "Bespoke kinds",
+              "meta": "13 kinds × 1 module",
+              "text": "Hand-built workflows: the focus board, economic learning, event reasoning, the decision framework, the ebook reader… They call AI through prompt + schema pairs."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "wide": true,
+          "head": [
+            "Group",
+            "Count",
+            "Typical modules",
+            "What the user gets"
+          ],
+          "rows": [
+            [
+              "Reflection",
+              "9",
+              "Overload, Conflict, System design, Leadership, Inner stability, Daily reflection, Strategic direction, Quick",
+              "Chat on the `phan-tinh` skill, structured notes, an end-of-session report. One internal module rewrites it as a VI/EN business report, exportable to PDF."
+            ],
+            [
+              "Languages",
+              "7",
+              "Grammar fix (with a deep mode), sentence analysis, paragraph reader, term concept map, Sino-Vietnamese / English / Vietnamese etymology",
+              "Corrections with explanations, IPA, read-aloud, saved learning points, etymology trees with evidence levels."
+            ],
+            [
+              "Software",
+              "7",
+              "System evaluator, requirement → design (4 modes), core-concern analysis, AI learning framework, ebook learner, AKM explorer",
+              "Designs, an anti-overengineering audit, lessons from book chapters with the UzAI assistant."
+            ],
+            [
+              "Metaphysics",
+              "11",
+              "Purple Star, Four Pillars, Numerology, Zodiac, Feng Shui, I Ching, Plum Blossom, 16 personalities, cross-system synthesis, temporal readiness",
+              "Consultations from a personal profile. Readiness runs several lenses then a synthesis, under the rule “no event prophecy”."
+            ],
+            [
+              "Research",
+              "2",
+              "Multi-lens research (12 modes), statement analysis",
+              "One topic, many lenses in parallel, one synthesis, generated tags, a print view."
+            ],
+            [
+              "Health",
+              "4",
+              "Traditional medicine: self-check, systemic analysis, triage, chronic tracker",
+              "Four-level triage with red flags, no medication, no diagnosis."
+            ],
+            [
+              "Planning",
+              "4",
+              "Goal planner, decision framework, decision training, must-win goal",
+              "A cause-and-condition board, 9 decision layers with 3 blocking gates, spaced drills, goals handed to an unattended agent."
+            ],
+            [
+              "Economics",
+              "2",
+              "Economic learning (learning OS), economic reasoning",
+              "A short daily session, a mental model behind an admission gate, causal chains to asset classes checked when due."
+            ],
+            [
+              "Tools",
+              "2",
+              "Image studio, image generation",
+              "Crop and join images on the browser canvas; illustrations generated with codex."
+            ],
+            [
+              "Personal",
+              "2",
+              "Photo carousel, focus board",
+              "Year-by-year slideshows; N priority slots, checklists, a context log."
+            ],
+            [
+              "Assistant",
+              "1",
+              "General chat",
+              "Free-form chat with its own Claude config."
+            ]
+          ],
+          "note": "One module (`claude_tech_impact`) has no group and runs only internally from /knowledge. `code_review` is switched off."
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "Listed in the catalog",
+              "code": "catalog",
+              "kind": "ok"
+            },
+            {
+              "text": "Runs by id, never listed",
+              "code": "internal",
+              "kind": "info"
+            },
+            {
+              "text": "Switched off",
+              "code": "is_active: false",
+              "kind": "mute"
+            },
+            {
+              "text": "In Raycast (8 modules)",
+              "code": "raycast_enabled",
+              "kind": "acc"
+            }
+          ],
+          "note": "One rule (`IN_CATALOG` = on AND catalog) decides which modules are listed, everywhere."
+        }
+      ]
+    },
+    {
+      "id": "s-journeys",
+      "no": "04",
+      "title": "User journeys",
+      "intro": "Six ways the author uses the app day to day, each through a different engine.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Pick “Overload”",
+              "text": "Dashboard `/`, catalog by group"
+            },
+            {
+              "title": "A tmux session opens",
+              "text": "`claude` TUI running the `phan-tinh` skill"
+            },
+            {
+              "title": "Chat on the web",
+              "text": "Replies stream back over WebSocket"
+            },
+            {
+              "title": "Note mid-chat",
+              "text": "focus / surfaced / lighten / next step"
+            },
+            {
+              "title": "End → report",
+              "text": "`/r/<id>`, optional business report, PDF"
+            }
+          ],
+          "note": "Journey 1: daily reflection. You can watch it live with `tmux attach -t phantinh-<id>`."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Journey",
+            "Path",
+            "Outcome"
+          ],
+          "rows": [
+            [
+              "2 · Quick lookup from Raycast",
+              "Hotkey → form → `claude -p`, result inline; background work closes the popup",
+              "A grammar fix, an etymology, a statement analysis; learning points land in `/learn`"
+            ],
+            [
+              "3 · Research, then plan",
+              "Pick lenses → run in parallel → synthesis → tags → link to a goal",
+              "A research topic with a print view; a cause-and-condition plan in Before / During / After"
+            ],
+            [
+              "4 · Decide, practise, execute",
+              "9 layers + AI assistant → gates 1 and 2 → drills on real records → hand to an unattended agent",
+              "Decision records, honesty statistics, a run in a git worktree"
+            ],
+            [
+              "5 · Learn from a book",
+              "Index a PDF/EPUB (structure only) → open a chapter → canonical learning model",
+              "Multi-level lessons, diagrams, code per language, questions to UzAI"
+            ],
+            [
+              "6 · Daily economics",
+              "Ingested news → reconcile with yesterday → learn one thing → update a hypothesis",
+              "Causal chains to assets; at the horizon, check and score the “laws”"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "note",
+          "text": "The plans show the author uses journey 4 to build PHẢN-TỈNH itself: decision record → research topic → plan, and only then code."
+        }
+      ]
+    },
+    {
+      "id": "s-cross",
+      "no": "05",
+      "title": "Cross-cutting features",
+      "intro": "Things no single module owns that every module uses.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Feature",
+            "What it does"
+          ],
+          "rows": [
+            [
+              "Sessions and history",
+              "`/history` gathers every run. Each module's history opens in a drawer, which can grow into a popup or its own page by URL."
+            ],
+            [
+              "Notes",
+              "A “take-note” button mid-chat runs a one-shot over the transcript with the module's own schema."
+            ],
+            [
+              "Reports and PDF",
+              "Each run keeps a structured payload and markdown. PDFs are built with pandoc on the host and fall back to markdown. Decisions, plans and research have `/print` routes."
+            ],
+            [
+              "Follow-ups",
+              "One run can start another, e.g. etymology → illustration. At most 3 levels; automatic runs never overwrite an existing file."
+            ],
+            [
+              "Tags",
+              "A shared taxonomy with Unicode-aware slugs; AI tags research and decisions."
+            ],
+            [
+              "Personal profiles",
+              "Lunar–solar birth data for the metaphysics modules; a page to assign runs that have no person."
+            ],
+            [
+              "Read-aloud",
+              "IPA and macOS `say` through the bridge; the voice catalog is managed in admin."
+            ],
+            [
+              "Admin",
+              "`/admin/settings` has 7 tabs: modules, categories, ai agent, voice, bridge, credentials, infra. `/admin/sessions` bulk-closes, deletes and reconciles tmux with the DB."
+            ],
+            [
+              "Performance",
+              "`/admin/performance`: model / proxy / ingest / tool time per turn, tokens, cache hits. Cost is deliberately not tracked, because the app runs on a subscription plan."
+            ],
+            [
+              "Knowledge sync",
+              "`/knowledge` ingests Claude-ecosystem sources by trust tier, through 5 validation gates, into “points”."
+            ],
+            [
+              "UzAI assistant",
+              "Inside lessons: a study assistant that can call tools, with a bounded number of rounds. On every other page: a guide that returns links to the right module, after private values are masked."
+            ],
+            [
+              "Accounts",
+              "Login status per Claude/Codex config directory, sync between them, sign-in from the web."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-layers",
+      "no": "06",
+      "title": "The architecture at a glance",
+      "toc_group": "Part 2 · Architecture",
+      "intro": "Five layers from the person to the AI agent. Each lower layer does something the one above cannot.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-layers.svg",
+          "caption": "The core API is the centre: it holds the Module catalog, runs the engines and writes to two stores. Anything that touches the host machine goes through layer 4.",
+          "ascii": "1 Surfaces     PWA · Raycast · Terminal (tmux attach -r)\n      |\n2 Web edge     Next.js :7777  (/api/gql proxy, /raycast/*)\n      |\n3 Core API     Django + Strawberry GraphQL :8888 — Postgres · Redis\n      |\n4 Host bridge  host-shim :9876 → phantinh-bridge (bash)\n      |\n5 AI agents    claude TUI in tmux · claude -p / codex exec"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Layer",
+            "Technology",
+            "Why it is here"
+          ],
+          "rows": [
+            [
+              "Surfaces",
+              "PWA (Serwist), Raycast extension, terminal",
+              "Three ways into one system; the terminal is for watching only."
+            ],
+            [
+              "Web edge",
+              "Next.js 16, React 19, Tailwind, urql + Graphcache",
+              "Same-origin proxy for HTTP; the only place with authentication (the Raycast token)."
+            ],
+            [
+              "Core API",
+              "Django 5, Strawberry GraphQL, Pydantic, Postgres 16, Redis 7",
+              "Catalog, engines, storage. Redis holds live state, Postgres holds durable state."
+            ],
+            [
+              "Host bridge",
+              "`host-shim.py` (stdlib HTTP), `phantinh-bridge` (bash ≥ 4)",
+              "Docker Desktop on macOS will not let a container use the host's tmux unix socket."
+            ],
+            [
+              "AI agents",
+              "Claude Code CLI, Codex CLI",
+              "No API key: use the CLIs that are already logged in."
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "Named patterns",
+          "text": "The project's architecture skill names them: **Server-Driven UI** (dispatch variant: the server declares a `kind`, the client looks up a component), **Atomic Design** (pure atoms → workflows → thin route shells), and the catalog vocabulary of **Backstage**."
+        }
+      ]
+    },
+    {
+      "id": "s-deploy",
+      "no": "07",
+      "title": "Deployment: host and Docker",
+      "intro": "What runs in containers, what must run on the Mac, and why.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-deploy.svg",
+          "caption": "The API in Docker calls `host-shim` on the host over HTTP; the shim runs `phantinh-bridge`, which drives tmux and `claude`. The browser opens its WebSocket straight to :8888 because the Next dev server does not proxy WebSockets.",
+          "ascii": "HOST (macOS, process-compose)\n  Next.js :7777   host-shim 127.0.0.1:9876 → phantinh-bridge → tmux → claude TUI\n                                                     └→ claude -p / codex exec\n  keychain, git, pandoc, say, ebook files, JSONL transcripts\n            ^ HTTP host.docker.internal:9876\nDOCKER\n  api (uvicorn) :8888   db Postgres :5555   redis :6666\n  api-reaper (600s)  api-sync (3600s)  api-mustwin (30s)"
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "In Docker",
+              "text": "- `api`: uvicorn, Django + Strawberry, hot reload\n- `db`: Postgres 16, `redis`: Redis 7, with volumes\n- `api-reaper`: closes idle sessions every 600 s\n- `api-sync`: syncs knowledge sources every 3600 s\n- `api-mustwin`: advances unattended runs every 30 s"
+            },
+            {
+              "title": "On the host",
+              "text": "- `host-shim.py` on `127.0.0.1:9876`\n- Next.js dev on `:7777`\n- the tmux server, sessions `phantinh-<id>`\n- `claude`, the keychain OAuth grant, git, pandoc/xelatex, `say`, book files, JSONL transcripts\n- All managed by `process-compose` (`make dev`)"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Port",
+            "Service"
+          ],
+          "rows": [
+            [
+              "7777",
+              "Web"
+            ],
+            [
+              "8888",
+              "GraphQL API (HTTP + WebSocket)"
+            ],
+            [
+              "5555",
+              "Postgres"
+            ],
+            [
+              "6666",
+              "Redis"
+            ],
+            [
+              "9876",
+              "host-shim: loopback bind, accepts only a local Host or a token"
+            ],
+            [
+              "8080",
+              "process-compose API (for `make dev-status`)"
+            ]
+          ]
+        },
+        {
+          "type": "md",
+          "text": "There is an alternative mode for Linux: `PHANTINH_BRIDGE_MODE=subprocess` runs the bridge inside the container against the mounted tmux socket. The compose default is `http`."
+        }
+      ]
+    },
+    {
+      "id": "s-module",
+      "no": "08",
+      "title": "A module is data",
+      "intro": "A new module of an existing kind needs only data. Only a new kind needs code.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-dispatch.svg",
+          "caption": "YAML seeds once; after that the Module row in the DB is the source of truth. The row's `kind` picks the workflow on the web and the engine in the API.",
+          "ascii": "modules/*.yaml --seed_modules (insert-only)--> Module row (DB) <-- /admin/settings\n                                     | kinds.py checks keys + links\n            +------------------------+------------------------+\n   WEB: WORKFLOW_BY_KIND[kind]                API: engine by kind\n        workflow (state + GraphQL)                 tui_chat (20) · oneshot (19)\n        atoms (pure, props only)                   13 bespoke kinds"
+        },
+        {
+          "type": "kv",
+          "title": "Main Module fields",
+          "rows": [
+            [
+              "`id`",
+              "natural key, e.g. `overload`"
+            ],
+            [
+              "`kind`",
+              "one of 15 `ModuleKind` values"
+            ],
+            [
+              "`workflow_config`",
+              "JSON whose shape the kind decides"
+            ],
+            [
+              "`skill_name`, `opening_command`",
+              "for `tui_chat`: the skill and the opening command"
+            ],
+            [
+              "`claude_args`, `env`, `cwd_override`",
+              "how the CLI is launched"
+            ],
+            [
+              "`report_schema`, `report_markdown_template`",
+              "the output contract and how it renders"
+            ],
+            [
+              "`visibility`, `is_active`, `raycast_enabled`",
+              "where it is listed"
+            ]
+          ]
+        },
+        {
+          "type": "requirements",
+          "items": [
+            "**The DB is the source of truth.** `seed_modules` only inserts, so admin edits survive; `--force` re-upserts (destructive). Agents, sources and voices follow the same pattern.",
+            "**`kinds.py` is the kind manifest.** Each kind declares its valid keys and JSON types, its AI-block pairs (prompt + schema), and its links to other modules. The checks are structural only; the rules inside each section stay with that section's parser.",
+            "**Three doors run the checks:** admin save (which refuses only problems the edit itself introduces), `seed_modules`, and `check_schemas`.",
+            "**`ROLES` is the only place code names a module by id:** `business_report`, `image_follow_up` → `image_gen`, `knowledge_impact`, `must_win_goal`. The web reads them through the `moduleRoles` query.",
+            "**The two kind lists always match:** an API test compares `KINDS` with `ModuleKind`; a host-side bats test compares `ModuleKind` with the web's `MODULE_KINDS`.",
+            "**Slots and the query registry:** module config picks atoms by name (`slots`) and registered GraphQL documents by name (`queries`), never carrying code or query text."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-chat",
+      "no": "09",
+      "title": "The TUI chat flow",
+      "intro": "A message goes out by pasting into tmux; the reply comes back by reading the JSONL transcript Claude writes itself.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-chat.svg",
+          "caption": "Outbound and inbound are separate. The tailer writes two places for every event: Redis for live viewers, Postgres so a page reload is still complete.",
+          "ascii": "OUTBOUND: Browser sendMessage → api (Message row) → host-shim POST /run → bridge send (paste-buffer) → claude TUI\n                                                                                          | writes\nINBOUND:  Browser ← graphql-ws subscription ← tailer ← bridge tail (tail -F → NDJSON) ← JSONL\n                                               ├→ Redis publish phantinh.session.<id>\n                                               └→ Postgres: Message, Report, jsonl_cursor"
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "createSession",
+              "text": "Build the opening (static, or a template + profile), create a PROVISIONING row"
+            },
+            {
+              "title": "bridge spawn",
+              "text": "`tmux new-session`, wait for the TUI's session UUID (up to 15 s), paste the opening, find the JSONL file"
+            },
+            {
+              "title": "ACTIVE",
+              "text": "Store the tmux name, session id, JSONL path, attach command; start the tailer"
+            },
+            {
+              "title": "sendMessage",
+              "text": "A USER row, then `bridge send` pastes into the pane + Enter"
+            },
+            {
+              "title": "tail",
+              "text": "Each JSONL line becomes an event: `turn_started`, `turn_event` (text, tool_use, tool_result, thinking), `turn_complete`"
+            },
+            {
+              "title": "tailer",
+              "text": "Publish to Redis, write Message, Report (if there is a YAML report block), TurnLatency; only then advance the cursor"
+            },
+            {
+              "title": "sessionStream",
+              "text": "The subscription reads Redis pub/sub and pushes 4 chunk types over graphql-ws"
+            }
+          ]
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C1",
+              "title": "The cursor advances only after the writes land",
+              "pill": {
+                "kind": "ok",
+                "text": "Invariant"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "`jsonl_cursor` moves only after side effects succeed, and only forward."
+                ],
+                [
+                  "Example",
+                  "The API reloads mid-turn 7. The next subscribe sees an ACTIVE row with no tailer, calls `ensure_tailer`, and reads again from the stored cursor. Every write is idempotent, so no message is duplicated.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C2",
+              "title": "Tools that block on a human are disabled",
+              "pill": {
+                "kind": "ok",
+                "text": "Invariant"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "Every TUI session runs with `--disallowedTools \"AskUserQuestion ExitPlanMode\"`."
+                ],
+                [
+                  "Example",
+                  "If Claude asked through AskUserQuestion, that turn would end in `tool_use`, not `end_turn`, and would not reach the JSONL until someone answered in the TUI. The web would show your message with no reply, and the session would sit ACTIVE forever.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C3",
+              "title": "The report travels inside the reply",
+              "pill": {
+                "kind": "info",
+                "text": "Design"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "The skill prints a ```` ```yaml ```` block marked `---phan-tinh-report---`. The bridge lifts it out as `report_block`; the API checks it against `report_schema` and renders markdown."
+                ],
+                [
+                  "Value",
+                  "A free-form chat still ends in a structured report you can store and print.",
+                  "val"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-oneshot",
+      "no": "10",
+      "title": "The one-shot flow",
+      "intro": "One prompt in, one schema-valid JSON out. Every door (web form, lenses, follow-ups, business reports, Raycast) goes through one engine.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "prepare(RunSpec)",
+              "text": "Check kind, mode, inputs against the schema, provider, profile — before any row exists"
+            },
+            {
+              "title": "create_row",
+              "text": "A PROVISIONING row with the full lineage; hold a Redis lease"
+            },
+            {
+              "title": "run",
+              "text": "Wait on the shared semaphore (3 at a time), build the prompt with `$`-substitution"
+            },
+            {
+              "title": "bridge oneshot",
+              "text": "`claude -p --json-schema … --output-format json`, prompt on stdin"
+            },
+            {
+              "title": "Store",
+              "text": "Re-check the payload, render markdown, write Report + `run_meta`, extract learning points, CLOSED"
+            },
+            {
+              "title": "Follow-up",
+              "text": "Optional: start a child run, at most 3 levels"
+            }
+          ],
+          "note": "`oneshot/engine.py` is the only place a one-shot run is created, executed, failed or retried; a test guards that boundary."
+        },
+        {
+          "type": "table",
+          "caption": "Run profiles: the CLI's permissions are set by code, not by config",
+          "head": [
+            "Profile",
+            "claude flags",
+            "Used for"
+          ],
+          "rows": [
+            [
+              "`structured` (default)",
+              "`--tools \"\"` — no tools",
+              "Most modules: produce JSON only"
+            ],
+            [
+              "`repo_read`",
+              "`Read,Grep,Glob`, restricted",
+              "Research that reads a repo"
+            ],
+            [
+              "`web`",
+              "`WebSearch`",
+              "Web lookups"
+            ],
+            [
+              "`scripts`",
+              "`Bash`",
+              "Running scripts"
+            ],
+            [
+              "`agent`",
+              "unrestricted",
+              "Image generation with codex, unattended agents"
+            ]
+          ],
+          "note": "Every profile except `agent` also runs with `--safe-mode` (no skills, CLAUDE.md, hooks or connectors) and `--strict-mcp-config`. Extra args from a module or from settings pass an allowlist: only `--model`, `--effort` and `--append-system-prompt`, plus `--add-dir` under `agent`. Anything else is refused by the bridge with `PROFILE_FLAG_OVERRIDE`."
+        },
+        {
+          "type": "kv",
+          "title": "Timeout stack, all derived from PT_ONESHOT_TIMEOUT_S",
+          "rows": [
+            [
+              "host-shim",
+              "600 s — kills the whole process group, returns `TIMEOUT`"
+            ],
+            [
+              "API facade",
+              "+20 s"
+            ],
+            [
+              "Web `/api/gql` and Raycast",
+              "+40 s"
+            ]
+          ],
+          "note": "Each outer layer waits longer than the inner one, so the error always comes from the layer that knows the cause best."
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C4",
+              "title": "A lease for a reaper in another container",
+              "pill": {
+                "kind": "ok",
+                "text": "Invariant"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "Redis key `phantinh.oneshot.lease.<id>`, TTL 180 s, refreshed every 60 s. The reaper closes a PROVISIONING row only once its lease has expired."
+                ],
+                [
+                  "Example",
+                  "A research run takes 8 minutes. The reaper runs every 10 minutes and sees a PROVISIONING row older than 5 minutes, but the lease is alive, so it skips it. If Redis does not answer, the reaper skips every one-shot row that tick.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C5",
+              "title": "The render contract",
+              "pill": {
+                "kind": "ok",
+                "text": "Tested"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "Every field substituted into a template must be `required` in the schema; modules without modes may substitute only scalar values."
+                ],
+                [
+                  "Example",
+                  "`safe_substitute` leaves `$name` in place when a field is missing, and prints a list as a Python repr. The test found 33 violations, all fixed; the fix is a pre-rendered “twin” field such as `corrections_markdown`.",
+                  "ex"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-bridge",
+      "no": "11",
+      "title": "phantinh-bridge and host-shim",
+      "intro": "A bash CLI does everything that touches the host. Every command prints exactly one final JSON line on stdout.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Command",
+            "What it does"
+          ],
+          "rows": [
+            {
+              "group": "Chat sessions"
+            },
+            [
+              "`spawn`",
+              "Open a tmux session running `claude`, wait until the TUI is ready, paste the opening, find the JSONL file, write `meta.json`"
+            ],
+            [
+              "`send`",
+              "Paste the content (stdin) into the pane, then Enter"
+            ],
+            [
+              "`tail`",
+              "`tail -F` the JSONL file, turn each line into an event; resume from `--from-line`"
+            ],
+            [
+              "`close` / `respawn`",
+              "`/quit` then kill; reopen with the original args, with `--resume` when keeping history"
+            ],
+            [
+              "`status` / `attach-cmd`",
+              "List `phantinh-*` sessions; return a read-only `tmux attach` command"
+            ],
+            {
+              "group": "One-off runs and host utilities"
+            },
+            [
+              "`oneshot`",
+              "`claude -p` or `codex exec` under a profile, return payload + metadata"
+            ],
+            [
+              "`pdf`",
+              "pandoc + xelatex, return the PDF as base64"
+            ],
+            [
+              "`ebook`",
+              "Read the outline or a page range of a PDF/EPUB"
+            ],
+            [
+              "`say`",
+              "Read aloud with macOS `say`; list voices"
+            ],
+            [
+              "`akm`",
+              "Read AKM session data for the AKM explorer"
+            ],
+            [
+              "`workdir`",
+              "Create / read / remove a git worktree for unattended runs"
+            ],
+            [
+              "`credential`",
+              "Status, sync and sign-in for Claude/Codex accounts"
+            ],
+            {
+              "group": "Operations"
+            },
+            [
+              "`init` / `doctor`",
+              "Generate `settings.json`; check tmux, jq, bash, claude and the mounts"
+            ]
+          ]
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "tmux session already exists",
+              "code": "SESSION_EXISTS",
+              "kind": "warn"
+            },
+            {
+              "text": "TUI printed no session id in 15 s",
+              "code": "TUI_NOT_READY",
+              "kind": "bad"
+            },
+            {
+              "text": "Transcript not found",
+              "code": "JSONL_DISCOVERY_FAILED",
+              "kind": "bad"
+            },
+            {
+              "text": "tmux is gone",
+              "code": "SESSION_NOT_FOUND",
+              "kind": "warn"
+            },
+            {
+              "text": "OAuth grant expired",
+              "code": "CLAUDE_LOGIN_EXPIRED",
+              "kind": "bad"
+            },
+            {
+              "text": "Arg outside the profile's allowlist",
+              "code": "PROFILE_FLAG_OVERRIDE",
+              "kind": "bad"
+            },
+            {
+              "text": "Over 600 s",
+              "code": "TIMEOUT",
+              "kind": "warn"
+            },
+            {
+              "text": "API cannot reach the shim",
+              "code": "SHIM_UNREACHABLE",
+              "kind": "bad"
+            },
+            {
+              "text": "Shim refused the request (Host, token or content type)",
+              "code": "SHIM_REFUSED",
+              "kind": "bad"
+            }
+          ],
+          "legend": [
+            {
+              "kind": "warn",
+              "text": "The API handles it (closes the session, tells the user)"
+            },
+            {
+              "kind": "bad",
+              "text": "The run fails"
+            }
+          ],
+          "note": "Every failure is `{\"kind\":\"bridge_error\",\"code\":…}`; the facade turns it into `BridgeInvocationError(code, detail)`."
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "host-shim.py",
+              "text": "A standard-library HTTP server with 3 endpoints: `POST /run` runs one bridge command, `POST /tail` streams chunked NDJSON, `GET /health`. A POST must be `application/json` (so a foreign web page is stopped at the preflight) and carry a local Host, or a Bearer `PT_HOST_SHIM_TOKEN` when one is set; without a token it refuses to bind anything but loopback. The token is not passed down to the bridge. It writes a pidfile; the readiness probe compares the serving pid with the pidfile to catch a stale shim holding the port."
+            },
+            {
+              "title": "One shared event contract",
+              "text": "`shared/protocol` defines the Pydantic event union and the Redis channel name for both the bridge and the API. The Python `RunProfile` must match `_profiles.sh`; a bats test checks it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-api",
+      "no": "12",
+      "title": "Backend: packages and GraphQL",
+      "intro": "One Django app, one GraphQL endpoint. Domain cores are plain Python; resolvers only orchestrate.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Package",
+            "Responsibility"
+          ],
+          "rows": [
+            [
+              "`schema/`",
+              "The GraphQL root: queries and 26 mutation partials merged with `merge_types` so a name clash is an error; 23 type modules; `subscriptions.py`"
+            ],
+            [
+              "`oneshot/`",
+              "The one-shot engine, leases, the research fan-out"
+            ],
+            [
+              "`reasoning/`",
+              "Event reasoning: laws, chains, impact aggregation, verification"
+            ],
+            [
+              "`training/`",
+              "Decision training: selection, grading, mastery, SM-2 scheduling"
+            ],
+            [
+              "`decision/`",
+              "Decision framework: gate rules, AI assist, statistics"
+            ],
+            [
+              "`learning/`",
+              "Learning OS: admission gate, session assembly, progress, ingestion"
+            ],
+            [
+              "`canonical/`",
+              "AI learning framework: extraction, generation, cache, graph, memory, verification"
+            ],
+            [
+              "`paragraph/`, `ebook/`, `mustwin/`",
+              "Sentence split and token alignment; outline trees and re-index matching; task-file diffs"
+            ],
+            [
+              "`assistant/`",
+              "UzAI on top of `bridge.oneshot`: the tool loop inside lessons, and the site router (pure `site_router.py`, `site.py` orchestrating); the eval sets"
+            ],
+            [
+              "`sync/`",
+              "Knowledge-source ingestion: fetch, 5 gates, extraction"
+            ],
+            [
+              "`management/commands/`",
+              "seed_*, close_idle_sessions, sync_resources, sync_must_win_goals, reingest_session, eval_assistant, eval_site_router…"
+            ],
+            [
+              "top-level files",
+              "`bridge_facade.py`, `session_streamer.py`, `kinds.py`, `run_meta.py`, `report_pdf.py`, `healthz.py`, `pricing.py`…"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "116 queries",
+              "text": "Prefixed by domain (`learning*`, `reasoning*`, `decision*`…) so the flat namespace never clashes. Covers the catalog, sessions, research, knowledge and latency stats."
+            },
+            {
+              "title": "212 mutations",
+              "text": "Session lifecycle, one-shot runs and fan-outs, admin CRUD, accounts, and mostly each engine's own operations."
+            },
+            {
+              "title": "1 subscription",
+              "text": "`sessionStream`: Redis pub/sub → the union `StreamTokenChunk`, `StreamTurnComplete`, `StreamSessionClosed`, `StreamBridgeError`. Django Channels is not used."
+            }
+          ],
+          "note": "The SDL file `schema.graphql` is committed, generated from the Strawberry schema, and feeds the web's codegen."
+        }
+      ]
+    },
+    {
+      "id": "s-data",
+      "no": "13",
+      "title": "Data model",
+      "intro": "One `models.py`, 64 migrations. Most primary keys are ULIDs; Module, Category and Voice use natural keys.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-schema.svg",
+          "caption": "The core is three domains: `catalog` (Module is the hub), `session` (one run, holding the lineage) and `profile`. Every other domain adds tables and points back to Module; links between domains are few. Domain names follow the `models/` package the author is splitting `models.py` into (not yet committed).",
+          "ascii": "CORE ─ profile ◀─ session ─▶ catalog (Module = the hub)\n         ▲          ▲  ▲\n   forecast    planner  must_win_goal ─▶ focus          (linked to a run)\n   learning_os ◀─ event_reasoning   training · decision · paragraph   (engine domains)\n        ▼            ↘\n   knowledge         agent   ebook ─▶ canonical ◀─ assistant          (sources, assistants)\nEvery domain table has an FK to Module."
+        },
+        {
+          "type": "table",
+          "wide": true,
+          "head": [
+            "Domain",
+            "Entities",
+            "Worth knowing"
+          ],
+          "rows": [
+            [
+              "Core",
+              "Category, Tag, Voice, Profile, **Module**, ResearchTopic, **Session**, Message, Report, Note, LearningPoint, PeriodSummary, TurnLatency",
+              "Session is the hub: it links Module, Profile, topic, forecast run, source session and follow-up parent. Report is one-to-one with Session."
+            ],
+            [
+              "Knowledge sync",
+              "IngestProfile, Resource, Point, SyncRun",
+              "Point carries `dedup_key` and `raw_hash`; extraction reruns only when the hash changes."
+            ],
+            [
+              "Forecast",
+              "ForecastRun, Outcome",
+              "Lenses run blind of any Outcome."
+            ],
+            [
+              "Goals and focus",
+              "Goal, PlanItem, GoalRelation, GoalSource, FocusGoal, FocusGoalTask, FocusContextLog",
+              "A GoalSource points to exactly one of: a research topic or a session."
+            ],
+            [
+              "Learning OS",
+              "LearningProfile, Concept, ConceptRelation, Indicator, Hypothesis, Evidence, ChangeItem, InboxItem, LearningSession, CadenceReview, ModelVersion…",
+              "A hypothesis needs invalidation conditions to leave draft; ModelVersion snapshots the confirmed model."
+            ],
+            [
+              "Event reasoning",
+              "ReasoningEvent, Run, Node, Edge, TransmissionChain, ReasoningLaw, AssetImpact, NetImpact, Prediction, RealityObservation, VerificationResult",
+              "A law's score moves only on a VerificationResult; a failure revises its conditions and never deletes it."
+            ],
+            [
+              "Decisions and training",
+              "Decision, DecisionLayer, DecisionEvent, DecisionCheckpoint, DecisionAiRun, TrainingCase, TrainingSession, Drill, MasteryState",
+              "DecisionAiRun is deliberately not a Session, so it does not skew session counts and cost."
+            ],
+            [
+              "Must-win goal",
+              "MustWinGoal, MustWinGoalLog",
+              "The log is append-only, numbered by `seq`."
+            ],
+            [
+              "Canonical learning",
+              "SourceDocument, SourceSection, SourceChunk, ConceptLesson, CanonicalModel, CanonicalConcept, Artifact, Implementation, AssessmentItem, ConceptProgress, LearningMemory…",
+              "Models are versioned, never edited in place; cache keys include the prompt and model versions."
+            ],
+            [
+              "Ebook, paragraphs",
+              "EbookBook, EbookChapter, EbookChapterState, EbookStatusEvent, Paragraph, ParagraphSentence",
+              "Chapter state is kept apart from structure so a re-index never loses progress."
+            ],
+            [
+              "AI assistant",
+              "AiAgentProfile, ModuleAgentConfig, SiteAgentConfig, AgentTool, AssistantThread, AssistantMessage, AssistantToolCall",
+              "Tools come in 3 kinds: service (registered in code), graphql (read-only), http (GET). SiteAgentConfig is one row: on/off, prompt, mask rules, excluded modules, hints. AssistantMessage keeps `run_meta` and the validated `links`."
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "note",
+          "title": "One learner, no accounts",
+          "text": "LearningProfile, TrainingProfile and LearningMemory are all one-to-one with Module. The docstrings say that supporting several learners later would be a one-line change."
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "DecisionEvent",
+              "kind": "info"
+            },
+            {
+              "text": "MustWinGoalLog",
+              "kind": "info"
+            },
+            {
+              "text": "EbookStatusEvent",
+              "kind": "info"
+            },
+            {
+              "text": "ConfidenceChange",
+              "kind": "info"
+            },
+            {
+              "text": "Drill (the answer)",
+              "kind": "info"
+            },
+            {
+              "text": "AssessmentAttempt",
+              "kind": "info"
+            }
+          ],
+          "note": "Append-only or write-once tables — the audit history is never overwritten."
+        }
+      ]
+    },
+    {
+      "id": "s-web",
+      "no": "14",
+      "title": "Frontend",
+      "intro": "Next.js 16 with thin routes; data through urql + Graphcache with typed documents generated from the SDL.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Route",
+            "Screen"
+          ],
+          "rows": [
+            [
+              "`/`",
+              "Dashboard and the module catalog by group"
+            ],
+            [
+              "`/m/[module]`",
+              "The dispatcher: looks up `WORKFLOW_BY_KIND` (lazy-loaded) by the module's kind; takes `?f.<field>=` to prefill the form"
+            ],
+            [
+              "`/s/[id]`, `/r/[id]`",
+              "A live session (chat or one-shot); a finished report, with PDF download"
+            ],
+            [
+              "`/history`, `/profiles`, `/p/[id]`",
+              "History, personal profiles"
+            ],
+            [
+              "`/research`, `/forecast`, `/knowledge`, `/learn`",
+              "Research, forecasts, Claude knowledge, learning points"
+            ],
+            [
+              "`/plan`, `/decisions`, `/mustwin`",
+              "Plans, decisions (with stats and print), unattended runs"
+            ],
+            [
+              "`/learning/[id]/*`, `/reasoning/[id]/*`, `/training/[id]/*`, `/concept/[id]/*`, `/paragraph/…`",
+              "Each engine's sub-screens"
+            ],
+            [
+              "`/admin/settings`, `/admin/sessions`, `/admin/performance`",
+              "Administration"
+            ],
+            [
+              "`/api/gql`, `/raycast/*`, `/serwist/*`",
+              "Same-origin GraphQL proxy, the Raycast door, the service worker"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "Three component layers",
+              "text": "**Atoms** (~150 files, most with stories): props only, no GraphQL. **Workflows** per kind: hold state and fetch data. **Route shells**: thin, just look up the kind and render."
+            },
+            {
+              "title": "Data layer",
+              "text": "Codegen reads the committed SDL and writes a `.generated.ts` next to each per-domain `.graphql`. Not client-preset, because it pulled all ~350 documents (757 KB) into one import."
+            },
+            {
+              "title": "The cache owns writes",
+              "text": "18 per-domain update maps, `invalidateQuery` / `invalidateEntity` instead of refetching after a mutation. Types with no `id` get generated null keys, removing ~500 warnings."
+            },
+            {
+              "title": "One content surface",
+              "text": "`?surface=drawer|popup&business=…&business-id=…`: one controller opens the same content as a drawer, a popup or its own page."
+            },
+            {
+              "title": "Rendering structured output",
+              "text": "`StructuredReport` reads the schema only for labels and order, and picks a widget from each value. Metaphysics has its own chart registry (Purple Star chart, four pillars, hexagrams…)."
+            },
+            {
+              "title": "PWA, mobile, bundles",
+              "text": "Serwist, switched on by `PT_PWA_ENABLED`. 22 routes checked at 390/768/1440 px. Bundle splitting took `layout.js` from 16.5 MB to 0.82 MB."
+            }
+          ]
+        },
+        {
+          "type": "md",
+          "text": "There is no global state library. State lives in Graphcache's normalized cache, in the URL (filters, surface, `?s=`), in `useState`, and in localStorage for view preferences."
+        }
+      ]
+    },
+    {
+      "id": "s-raycast",
+      "no": "15",
+      "title": "Raycast",
+      "intro": "The only authenticated door: a Bearer token, checked at the Next edge.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Command",
+            "What it does"
+          ],
+          "rows": [
+            [
+              "Phantinh Actions",
+              "Lists the Raycast-enabled modules, builds a form from the schema, shows markdown/sections inline, or says “dispatched” for background runs"
+            ],
+            [
+              "Add Goal, Add Context Log",
+              "Add a goal and a context note to the focus board"
+            ],
+            [
+              "Start Must-Win Goal",
+              "Start an unattended run and close the popup"
+            ],
+            [
+              "Edit Image",
+              "Take an image from Finder or the clipboard, convert HEIC/TIFF to PNG, open Image Studio"
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Raycast",
+              "text": "Calls `:7777/raycast/*` with a Bearer token"
+            },
+            {
+              "title": "Next edge",
+              "text": "`checkAuth`, relay to GraphQL"
+            },
+            {
+              "title": "runRaycastAction",
+              "text": "The one-shot engine, waits up to ~600 s"
+            },
+            {
+              "title": "Envelope",
+              "text": "`markdown` · `sections` · `error` · `dispatched`, checked with zod"
+            }
+          ],
+          "note": "Images from Raycast never reach the API: Next keeps them in memory and returns a single-use 128-bit id that lives 5 minutes."
+        }
+      ]
+    },
+    {
+      "id": "s-uzai",
+      "no": "16",
+      "title": "UzAI: study assistant and site guide",
+      "intro": "One assistant, two surfaces. Inside a lesson, UzAI calls tools to explain. On every other page it only points the way: it returns links to existing modules and never does a module's work itself.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Surface",
+            "Where",
+            "Returns",
+            "Limits"
+          ],
+          "rows": [
+            [
+              "`lesson`",
+              "Beside a lesson of the AI learning framework",
+              "An answer, possibly after a few tool rounds (sources, concepts, book outline, quiz results)",
+              "A cap on rounds; long content such as `lesson.artifact` is read page by page (offset)"
+            ],
+            [
+              "`site`",
+              "A floating button on every page, except pages that mount their own assistant",
+              "0–3 links `/m/<id>?f.<field>=…` to catalog modules",
+              "One `bridge.oneshot` call, no tool loop, no data lookups, never runs a module"
+            ]
+          ],
+          "note": "Both share `AssistantThread`; a `surface` column tells them apart, and a CHECK constraint makes a `lesson` thread have a lesson and a `site` thread have none."
+        },
+        {
+          "type": "figure",
+          "file": "pt-site.svg",
+          "caption": "The safe flow borrowed from the Moza admin assistant: mask before the LLM boundary, and build links from the catalog, never from the model. The example is a health question routed to `dongy_triage`; the onset date leaves the browser only as `<DATE_1>`.",
+          "ascii": "BROWSER (real values)               SERVER (tokens)                     MODEL (tokens + catalog)\n1 type: đau đầu, sốt nhẹ từ 12/10/2026\n2 mask: … từ <DATE_1>  ──────────▶  3 re-check: raw value → refused ───▶  4 receives masked question + catalog\n  sessionStorage: <DATE_1>=12/10/2026                                               │\n7 unmask, open prefilled form ◀────  6 check module/field/substring, build ◀── 5 picks dongy_triage,\n  the user still presses Run           /m/dongy_triage?f.started_when=<DATE_1>     started_when=<DATE_1>\nVariant, value missing: model leaves it out → no placeholder in the link → the user types it in the module's form"
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C6",
+              "title": "Private values never leave the browser",
+              "pill": {
+                "kind": "ok",
+                "text": "Tested"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "A mask rule must behave the same in JS and Python (JS syntax, ASCII semantics, no empty matches). If the stored rule set no longer parses, the router turns OFF rather than letting a question through unchecked."
+                ],
+                [
+                  "Example",
+                  "With `\\b` around numbers, `_` counts as a word character, so `<PHONE_0901234567>` would smuggle a raw phone number past the check. That is why the rules use digit lookarounds and token indexes are capped at 4 digits.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C7",
+              "title": "Measured by an eval, not by feel",
+              "pill": {
+                "kind": "info",
+                "text": "Measured"
+              },
+              "fields": [
+                [
+                  "Rule",
+                  "`manage.py eval_site_router` runs 20 real questions through the same code as the mutation, with no DB writes; 5 are held out and never used to tune `hints`. `eval_assistant` does the same for UzAI inside lessons."
+                ],
+                [
+                  "Result",
+                  "On 2026-10-16: 20/20 hits, 5/5 on the held-out set, and the first link was right 18/20 times.",
+                  "val"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-ops",
+      "no": "17",
+      "title": "Operations: sessions, cleanup, accounts",
+      "intro": "Who moves a session's state, and how the system heals itself.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-states.svg",
+          "caption": "Spawn moves a session to active; a close, a lost tmux or idleness move it to closed. A session closed for idleness whose tmux is still alive revives when someone subscribes.",
+          "ascii": "provisioning --spawn ok--> active --close / tmux_gone / idle_ttl--> closed\n     |                       |                                     |\n bridge error        reconcileSessions              revive: idle_ttl + tmux alive → active\n     v                       v\n   error                   lost\nprovisioning --oneshot done, or reaper provisioning_timeout (no lease)--> closed"
+        },
+        {
+          "type": "status",
+          "cols": 3,
+          "items": [
+            {
+              "title": "B1 · Soft close",
+              "kind": "info",
+              "text": "ACTIVE idle over 60 minutes → `idle_ttl`. PROVISIONING over 5 minutes with no lease → `provisioning_timeout`. tmux and Claude stay alive."
+            },
+            {
+              "title": "B2 · Revive",
+              "kind": "ok",
+              "text": "On subscribe, if a session closed for idleness and its tmux is alive, the row goes back to ACTIVE and the tailer restarts."
+            },
+            {
+              "title": "B3 · Hard reap",
+              "kind": "warn",
+              "text": "Kill tmux sessions that have no DB row, closed on timeout, or closed more than 1440 minutes ago."
+            }
+          ]
+        },
+        {
+          "type": "md",
+          "text": "**Health.** `/livez` checks only the DB and Redis. It is the api container's healthcheck, which the three loop containers wait on, so they start even while the shim on the host is down. `/healthz` adds `bridge doctor` and is for monitoring (`make healthz`). Compose checks `pg_isready` and `redis-cli ping` for db and redis.\n\n**Accounts.** Claude Code stores its OAuth grant per `CLAUDE_CONFIG_DIR` in the macOS keychain. The bridge reads the status without refreshing the token, syncs grants between directories, and runs sign-in in its own tmux session, opening the URL in the right browser profile. Before every `spawn`, a pre-flight check blocks a new session if the grant has expired.\n\n**Tests.** Bats for the bridge (`make test-bridge`): doctor, every subcommand, JSONL parsing, one-shot profiles, accounts, ebook, akm, and the kind-list comparison. Pytest for the API inside the container."
+        }
+      ]
+    },
+    {
+      "id": "s-admin",
+      "no": "18",
+      "title": "Admin: settings and troubleshooting",
+      "intro": "Each setting starts in a file, is edited in one tab, and is read back by one part of the code. The operating pages use the same data to find faults.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-admin.svg",
+          "caption": "Four tabs write the DB and are seeded only once from YAML (insert-only), so admin edits are never overwritten by a seed. Bridge and Infra are read-only; Credentials acts on the host keychain through the bridge.",
+          "ascii": "SOURCE                     /admin/settings TAB              READ BY\nmodules/*.yaml        ──▶  Modules (writes DB)        ──▶  /m/[module], engines, Raycast, UzAI\nmodules/_meta.yaml    ──▶  Categories (writes DB)     ──▶  catalog groups\nagents.yaml           ──▶  AI agent (writes DB)       ──▶  UzAI lesson + site router\nvoices.yaml           ──▶  Voice (writes DB)          ──▶  bridge say\nkeychain              ──▶  Credentials (via bridge)   ──▶  login check before spawn\nbridge/settings.json  ──▶  Bridge (read-only, doctor) ──▶  phantinh-bridge\n.env · compose        ──▶  Infra (read-only)          ──▶  api settings\nOPERATE: /admin/sessions (close, delete, reconcile, quality) · /admin/performance (TurnLatency)"
+        },
+        {
+          "type": "md",
+          "text": "**A session's quality score.** `/admin/sessions` scores each session green, amber or red. Red when the session is in ERROR, a turn has been stuck mid-stream for over 5 minutes, the report failed schema validation, or the JSONL transcript has more turns than the DB (sync drift). Amber for any other issue: bridge errors, closed with no report, average TTFT over 30 s, a very short session."
+        },
+        {
+          "type": "figure",
+          "file": "pt-trouble.svg",
+          "caption": "Almost every step lives in admin. The exception is `reingest_session`: a `manage.py` command that replays the transcript into the DB, safe to rerun because every write is idempotent.",
+          "ascii": "Chat won't start        → Bridge tab (doctor)        → SHIM_UNREACHABLE / SHIM_REFUSED → start the shim, same token\nSpawn blocked by login  → Credentials tab            → CLAUDE_LOGIN_EXPIRED           → sync the grant / log in\nSent, but no reply      → Sessions · quality         → stuck stream, sync drift       → CLI reingest_session <sid>\nList and tmux disagree  → Sessions · Reconcile       → DB orphans / tmux orphans      → Apply fix\nOne-shot never ends     → Sessions · Running         → > 5 min no lease / TIMEOUT     → reaper closes it; run again\nAnswers are slow        → Performance                → model/proxy/ingest/tool stage  → fix the slow stage\nReport missing/invalid  → Sessions · Modules         → no report / schema errors      → fix schema, preview"
+        }
+      ]
+    },
+    {
+      "id": "s-principles",
+      "no": "19",
+      "title": "Design principles",
+      "toc_group": "Part 3 · Principles and reference",
+      "intro": "Invariants read from the code and plans, each held by a test or a docstring.",
+      "blocks": [
+        {
+          "type": "requirements",
+          "items": [
+            "**The DB is authoritative; YAML is only a seed.** Config is read per request from the Module row and degrades to named defaults instead of raising, so a half-edited config never makes a page return 500.",
+            "**The host does what the container cannot.** tmux, git worktrees, book files, PDFs, `say` and AKM transcripts all go through the bridge.",
+            "**One protocol, defined once** in `shared/protocol`, shared by the bridge and the API.",
+            "**Ingestion can always resume.** The cursor advances only after writes land; every write is idempotent.",
+            "**Redis holds live state, Postgres holds durable state.**",
+            "**One door into one-shot runs, one concurrency cap.** Retries keep the lineage; a refused run becomes a re-runnable ERROR row.",
+            "**Pure cores, thin resolvers.** reasoning, training, decision, canonical, paragraph, ebook and mustwin never touch the ORM and are unit-tested.",
+            "**Check structure; don't copy the parsers' rules.**",
+            "**Security lives in code.** CLI permissions come from profiles, extra args pass an allowlist; the shim requires a local Host or a token; private values are masked before they reach the model; the must-win guard code is checked in the API, fails closed and covers respawn; the runtime snapshot never stores `env`; UzAI's tool scope is enforced by code.",
+            "**History is append-only.**"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-timeline",
+      "no": "20",
+      "title": "Timeline",
+      "intro": "Features by plan date, 2026.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Date",
+            "Features"
+          ],
+          "rows": [
+            [
+              "05-23",
+              "System plan: one tmux Claude TUI per chat, a bash bridge, Django/GraphQL, a Next PWA"
+            ],
+            [
+              "05-24 → 26",
+              "Admin, `kind` + `workflow_config`, the one-shot kind, module groups, notes, deep grammar, metaphysics, multi-lens research"
+            ],
+            [
+              "05-27 → 31",
+              "TUI→web latency, the performance page, the reaper, the system evaluator, traditional medicine, the gallery, universal content surfaces"
+            ],
+            [
+              "06-01 → 22",
+              "Claude knowledge sync, Raycast, tagged research, business reports, IPA + `say`, forecasts, statement analysis"
+            ],
+            [
+              "07-21 → 08-04",
+              "Goal planner, economic learning, economic reasoning, the focus board, image studio, query registry, mobile"
+            ],
+            [
+              "08-15 → 22",
+              "Decision framework, decision training, must-win goal, more lenses, etymology ×3, the codex provider, image generation"
+            ],
+            [
+              "09-02 → 15",
+              "Ebook learner, core-concern analysis, AKM explorer, bundle splitting"
+            ],
+            [
+              "10-01 → 14",
+              "Paragraph reader, the one-shot engine as a service, module contracts (`kinds.py`), typed GraphQL with cache-owned writes, agent hardening"
+            ],
+            [
+              "10-15 → 16",
+              "An allowlist for one-shot args, run metadata, evals for UzAI, reader-feedback cleanup, the UzAI site router on every page"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-glossary",
+      "no": "21",
+      "title": "Glossary",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Term",
+            "Meaning in this project"
+          ],
+          "rows": [
+            [
+              "Module",
+              "A catalog entry: a DB row describing what the user does and how it runs"
+            ],
+            [
+              "Kind",
+              "The module's workflow type; picks the component on the web and the engine in the API"
+            ],
+            [
+              "`workflow_config`",
+              "The module's own JSON config, shaped by its kind"
+            ],
+            [
+              "TUI",
+              "Claude Code's interactive terminal interface"
+            ],
+            [
+              "One-shot",
+              "A single `claude -p` (or `codex exec`) call returning schema-checked JSON"
+            ],
+            [
+              "Bridge",
+              "`phantinh-bridge`, the bash CLI that does everything on the host"
+            ],
+            [
+              "host-shim",
+              "A small HTTP server on the host so the container can call the bridge"
+            ],
+            [
+              "Tailer",
+              "An asyncio task, one per session, that reads events from the bridge and writes Redis and Postgres"
+            ],
+            [
+              "Lease",
+              "A Redis key with a TTL marking a one-shot run as alive"
+            ],
+            [
+              "Lineage",
+              "A run's relations: topic, forecast run, source session, parent"
+            ],
+            [
+              "Run profile",
+              "A fixed set of tool permissions, defined in code, for a one-shot run"
+            ],
+            [
+              "Site router",
+              "UzAI on every page: turns a masked question into links to modules"
+            ],
+            [
+              "Mask token",
+              "A `<TYPE_n>` string that stands in for a private value before a question leaves the browser"
+            ],
+            [
+              "Reaper",
+              "A periodic command that closes idle sessions and kills orphaned tmux sessions"
+            ],
+            [
+              "Slot",
+              "The atom name a module's config picks to render part of a screen"
+            ],
+            [
+              "Role",
+              "A name code uses to find a module by id (e.g. `business_report`)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "footer": "Read from the PHẢN-TỈNH project's source code and plans, updated to commit `234d046` on 2026-10-16. Counts (modules, GraphQL fields, lines of code) come straight from the files; inferences are marked as such."
+}

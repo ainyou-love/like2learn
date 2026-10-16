@@ -288,6 +288,15 @@
     ],
     "feature_img": ""
   },
+  "topics/ai/phantinh-nghiep-vu-kien-truc-26-10-15.html": {
+    "subject": "PHẢN-TỈNH: nghiệp vụ và kiến trúc",
+    "description": "PHẢN-TỈNH từ tổng quan đến chi tiết: một bàn làm việc AI cá nhân lái phiên Claude Code thật trong tmux. Gồm 52 module, 15 kind, luồng chat và oneshot, cầu nối host, mô hình dữ liệu, frontend và các nguyên tắc thiết kế.",
+    "created_at": "2026-10-15T13:14:50+07:00",
+    "categories": [
+      "AI & Claude Code"
+    ],
+    "feature_img": ""
+  },
   "topics/ai/typesafe-jev-brief-v3.html": {
     "subject": "TypeSafe AI / Jev — Engineering Brief · v3",
     "description": "Đánh giá TypeSafe AI và model Jev như một decision layer, thiết kế một custom context reasoning tracker, và chi phí cơ hội của ngôn ngữ functional type-safe trong agent tooling.",

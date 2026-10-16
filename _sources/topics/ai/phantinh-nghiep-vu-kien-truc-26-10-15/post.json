@@ -1,0 +1,1842 @@
+{
+  "meta": {
+    "title": "PHẢN-TỈNH: nghiệp vụ và kiến trúc",
+    "brand": "PHẢN-TỈNH",
+    "date": "2026-10-16",
+    "desc": "PHẢN-TỈNH từ tổng quan đến chi tiết: một bàn làm việc AI cá nhân lái phiên Claude Code thật trong tmux. Gồm 52 module, 15 kind, luồng chat và oneshot, cầu nối host, mô hình dữ liệu, frontend và các nguyên tắc thiết kế.",
+    "lang": "vi",
+    "md_filename": "phantinh-nghiep-vu-kien-truc.md",
+    "storage_key": "phantinh-nghiep-vu-kien-truc",
+    "strict_paths": true,
+    "sidebar_note": "<div class=\"ext\"><div class=\"legend\" aria-label=\"Chú thích màu sơ đồ\"><span><i style=\"--c:var(--accent)\"></i>Thành phần trung tâm</span><span><i style=\"--c:var(--ink-3)\"></i>Thành phần thường</span><span><i style=\"--c:var(--ok)\"></i>Kết quả, nguồn sự thật</span><span><i style=\"--c:var(--warn)\"></i>Bất thường</span><span><i style=\"--c:var(--bad)\"></i>Lỗi</span></div></div>",
+    "alt": "post.en.json"
+  },
+  "hero": {
+    "kicker": "Nghiên cứu dự án · nghiệp vụ và kiến trúc",
+    "title": "Một bàn làm việc AI cá nhân, *chạy trên Claude Code thật*",
+    "lede": "PHẢN-TỈNH khởi đầu là một skill phản tỉnh: tách sự kiện, cảm xúc, bản ngã và cấu trúc để hành động tỉnh táo hơn. Nay nó là một app web cá nhân với 52 module, trải từ phản tỉnh, ngôn ngữ, nghiên cứu, quyết định đến kinh tế. App không gọi API key nào. Mỗi phiên chat là một Claude Code TUI thật trong tmux trên máy host. Mỗi lượt oneshot là một lệnh `claude -p` trả JSON theo schema. Trang này đi từ tổng quan sản phẩm xuống từng luồng, từng bảng dữ liệu.",
+    "chips": [
+      {
+        "label": "Nguồn",
+        "value": "mã nguồn, plans/, requirements/, docs/ của dự án"
+      },
+      {
+        "label": "Đọc ngày",
+        "value": "2026-10-16"
+      },
+      {
+        "label": "Trạng thái",
+        "pill": {
+          "kind": "info",
+          "text": "Mô tả"
+        }
+      }
+    ],
+    "stats": [
+      {
+        "n": "52",
+        "l": "module trong danh mục, chia 11 nhóm"
+      },
+      {
+        "n": "15",
+        "l": "kind: mỗi kind là một kiểu workflow"
+      },
+      {
+        "n": "329",
+        "l": "field GraphQL: 116 query, 212 mutation, 1 subscription"
+      },
+      {
+        "n": "1",
+        "l": "người dùng: chính tác giả, chạy trên Mac của mình"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "start",
+      "no": "→",
+      "title": "Đọc thế nào",
+      "head": false,
+      "blocks": [
+        {
+          "type": "start",
+          "kicker": "Bắt đầu",
+          "title": "Đi từ tổng quan xuống chi tiết",
+          "intro": "Phần 1 trả lời “app làm gì cho ai”. Phần 2 trả lời “nó được dựng thế nào”, mỗi mục sâu hơn mục trước. Phần 3 là nguyên tắc thiết kế và tra cứu.",
+          "route_label": "Lộ trình 15 phút",
+          "route": [
+            [
+              "Sản phẩm",
+              "#s-what"
+            ],
+            [
+              "Bản đồ tính năng",
+              "#s-catalog"
+            ],
+            [
+              "Năm tầng",
+              "#s-layers"
+            ],
+            [
+              "Luồng chat",
+              "#s-chat"
+            ],
+            [
+              "UzAI",
+              "#s-uzai"
+            ]
+          ],
+          "columns": [
+            [
+              {
+                "title": "Nếu bạn muốn hiểu sản phẩm",
+                "items": [
+                  {
+                    "text": "Triết lý và năm tầng phản tỉnh",
+                    "refs": [
+                      [
+                        "§02",
+                        "#s-philo"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "52 module theo nhóm",
+                    "refs": [
+                      [
+                        "§03",
+                        "#s-catalog"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Sáu hành trình chính",
+                    "refs": [
+                      [
+                        "§04",
+                        "#s-journeys"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "title": "Nếu bạn muốn hiểu cách dựng",
+                "items": [
+                  {
+                    "text": "Module là dữ liệu, kind chọn code",
+                    "refs": [
+                      [
+                        "§08",
+                        "#s-module"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Chat TUI và oneshot từ đầu đến cuối",
+                    "refs": [
+                      [
+                        "§09",
+                        "#s-chat"
+                      ],
+                      [
+                        "§10",
+                        "#s-oneshot"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Cầu nối host và lý do nó tồn tại",
+                    "refs": [
+                      [
+                        "§07",
+                        "#s-deploy"
+                      ],
+                      [
+                        "§11",
+                        "#s-bridge"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "title": "Tra cứu",
+                "items": [
+                  {
+                    "text": "Mô hình dữ liệu theo miền",
+                    "refs": [
+                      [
+                        "§13",
+                        "#s-data"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Dòng thời gian tính năng",
+                    "refs": [
+                      [
+                        "§20",
+                        "#s-timeline"
+                      ]
+                    ]
+                  },
+                  {
+                    "text": "Thuật ngữ",
+                    "refs": [
+                      [
+                        "§21",
+                        "#s-glossary"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-what",
+      "no": "01",
+      "title": "Sản phẩm là gì",
+      "toc_group": "Phần 1 · Nghiệp vụ",
+      "intro": "Một app phản tỉnh và tư duy hệ thống cho một người, dùng Claude Code làm bộ não thay cho API key.",
+      "blocks": [
+        {
+          "type": "md",
+          "text": "README tự mô tả: *“A personal reflection & systems-thinking app. Each chat session is bound 1:1 to a real Claude Code TUI session running in tmux on your host; the PWA is the structured front end, your terminal is the live observer.”*\n\nYêu cầu gốc (`phantinh-requirement.md`) đặt ra vài ràng buộc định hình toàn bộ kiến trúc:\n\n- **Không có API key.** Mọi lượt AI phải chạy qua Claude Code CLI đã đăng nhập sẵn trên máy. Web chỉ là lớp vỏ có cấu trúc đứng trước terminal.\n- **Không đăng nhập.** Bỏ qua login, vào thẳng dashboard. Không có bảng user; các bảng hồ sơ học tập gắn 1–1 với Module.\n- **Mọi thứ lưu trong DB.** Mỗi luồng nghiệp vụ bắt đầu từ một câu hỏi hoặc nỗi đau và kết thúc bằng một báo cáo.\n- **Cài được như PWA**, gọi bằng phím tắt (về sau là Raycast)."
+        },
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "Ban đầu",
+              "text": "Bảy module phản tỉnh và một Quick Mode, chạy skill `phan-tinh` trong phiên chat.",
+              "pill": {
+                "kind": "mute",
+                "text": "2026-05"
+              }
+            },
+            {
+              "title": "Hiện tại",
+              "text": "52 module, 11 nhóm: phản tỉnh, ngôn ngữ, phần mềm, huyền học, nghiên cứu, sức khỏe, kế hoạch, kinh tế, công cụ, cá nhân, trợ lý.",
+              "pill": {
+                "kind": "info",
+                "text": "2026-10"
+              }
+            },
+            {
+              "title": "Sợi chỉ xuyên suốt",
+              "text": "Triết lý phản tỉnh vẫn nằm trong các công cụ quyết định, mục tiêu và nghiên cứu: thấu kính 24 Duyên, kế hoạch nhân-duyên, cổng chặn của khung quyết định."
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "Ý tưởng cốt lõi về kiến trúc",
+          "text": "Web không nói chuyện với model. Web nói chuyện với **một terminal Claude Code thật**, gõ phím vào tmux và đọc lại file transcript JSONL mà Claude tự ghi. Gần như mọi quyết định kiến trúc phía sau đều xuất phát từ lựa chọn này."
+        }
+      ]
+    },
+    {
+      "id": "s-philo",
+      "no": "02",
+      "title": "Triết lý gốc",
+      "intro": "Skill PHẢN-TỈNH v1.0 là tài liệu nguồn của nghiệp vụ. Các module phản tỉnh chạy trực tiếp skill này.",
+      "blocks": [
+        {
+          "type": "callout",
+          "kind": "note",
+          "text": "*“Không phải dùng bản thân để chống lại hỗn loạn. Mà là dùng sự tỉnh táo để tạo cấu trúc đúng.”*"
+        },
+        {
+          "type": "table",
+          "caption": "Năm tầng phản chiếu",
+          "head": [
+            "Tầng",
+            "Câu hỏi"
+          ],
+          "rows": [
+            [
+              "FACT",
+              "Điều gì thực sự đang xảy ra?"
+            ],
+            [
+              "EMOTION",
+              "Cảm xúc nào đang kéo tâm?"
+            ],
+            [
+              "EGO",
+              "Có dính chấp vào đúng/sai, kiểm soát, hình ảnh bản thân, trách nhiệm quá mức?"
+            ],
+            [
+              "SYSTEM",
+              "Đây là vấn đề con người, process, structure, ambiguity, incentive, dependency hay communication?"
+            ],
+            [
+              "ESSENCE",
+              "Điều gì thật sự quan trọng ở tầng sâu hơn?"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "LỄ",
+              "text": "Hiểu biết chung, giao thức, hài hòa, đồng thuận kỳ vọng."
+            },
+            {
+              "title": "PHÁP",
+              "text": "Luật, quyền sở hữu, quản trị. *Hệ thống có đang phụ thuộc cá nhân không?*"
+            },
+            {
+              "title": "THUẬT",
+              "text": "Cách thực thi, nút cổ chai, tự động hóa."
+            },
+            {
+              "title": "THẾ",
+              "text": "Đòn bẩy, vị thế, thời điểm. *Đang dùng lực hay dùng thế?*"
+            }
+          ],
+          "note": "Khung LỄ · PHÁP · THUẬT · THẾ dùng để soi một vấn đề hệ thống từ bốn góc."
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Raw thoughts",
+              "text": "Ý nghĩ còn rối"
+            },
+            {
+              "title": "PHẢN-TỈNH",
+              "text": "Soi qua năm tầng"
+            },
+            {
+              "title": "Structural clarity",
+              "text": "Thấy cấu trúc"
+            },
+            {
+              "title": "Leverage",
+              "text": "Tìm điểm đòn bẩy"
+            },
+            {
+              "title": "Calmer action",
+              "text": "Hành động bình tĩnh"
+            },
+            {
+              "title": "Sustainable system",
+              "text": "Hệ thống bền"
+            }
+          ],
+          "note": "Quy trình lý tưởng theo tài liệu gốc. Khi người dùng quá tải thì nén lại; khi tản mát thì chỉ tập trung vào MỘT điểm đòn bẩy."
+        }
+      ]
+    },
+    {
+      "id": "s-catalog",
+      "no": "03",
+      "title": "Bản đồ tính năng",
+      "intro": "52 module YAML, 11 nhóm. Mỗi module có một kind; kind quyết định nó chạy bằng engine nào.",
+      "blocks": [
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "Chat TUI · `tui_chat`",
+              "meta": "20 module",
+              "text": "Một phiên `claude` TUI sống trong tmux. Skill được nạp bằng lệnh mở đầu. Có thể có form nhập trước (`gate`), chạy một lần (`run_once`), ghi chú giữa chừng (`note`)."
+            },
+            {
+              "title": "Oneshot · `oneshot_prompt`",
+              "meta": "19 module",
+              "text": "Một lệnh `claude -p --json-schema` (hoặc `codex exec`), không có tmux. Prompt được dựng từ template, kết quả được kiểm theo schema rồi render thành markdown."
+            },
+            {
+              "title": "Kind riêng",
+              "meta": "13 kind × 1 module",
+              "text": "Workflow viết riêng: bảng tập trung, học kinh tế, suy luận sự kiện, khung quyết định, đọc ebook… Có thể gọi AI qua các cặp prompt + schema."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "wide": true,
+          "head": [
+            "Nhóm",
+            "Số",
+            "Module tiêu biểu",
+            "Người dùng nhận được gì"
+          ],
+          "rows": [
+            [
+              "Phản tỉnh",
+              "9",
+              "Quá tải, Mâu thuẫn, Thiết kế hệ thống, Lãnh đạo, An nội, Tỉnh thức hàng ngày, Hướng chiến lược, Tỉnh nhanh",
+              "Chat theo skill `phan-tinh`, ghi chú có cấu trúc, báo cáo cuối phiên. Một module nội bộ viết lại thành báo cáo business VI/EN, xuất PDF."
+            ],
+            [
+              "Ngôn ngữ",
+              "7",
+              "Sửa ngữ pháp (có chế độ sâu), phân tích câu, đọc đoạn văn, bản đồ thuật ngữ, từ nguyên Hán–Việt / Anh / Việt",
+              "Bản sửa có giải thích, IPA, đọc thành tiếng, điểm học được lưu lại, cây từ nguyên có mức bằng chứng."
+            ],
+            [
+              "Phần mềm",
+              "7",
+              "Đánh giá hệ thống, yêu cầu → thiết kế (4 chế độ), phân tích mối quan tâm cốt lõi, khung học AI, đọc ebook, AKM explorer",
+              "Thiết kế, bản kiểm chống over-engineering, bài học từ chương sách kèm trợ lý UzAI."
+            ],
+            [
+              "Huyền học",
+              "11",
+              "Tử Vi, Bát Tự, Thần Số Học, Cung Hoàng Đạo, Phong Thủy, Kinh Dịch, Mai Hoa, Tính cách 16 loại, Tổng luận, Dự toán theo thời gian",
+              "Tư vấn theo hồ sơ cá nhân. Dự toán chạy nhiều thấu kính rồi tổng hợp, với nguyên tắc “không tiên tri sự kiện”."
+            ],
+            [
+              "Nghiên cứu",
+              "2",
+              "Nghiên cứu đa thấu kính (12 chế độ), phân tích phát ngôn",
+              "Một chủ đề, nhiều thấu kính chạy song song, một bản tổng hợp, tag tự sinh, bản in."
+            ],
+            [
+              "Sức khỏe",
+              "4",
+              "Đông y: tự kiểm, phân tích hệ thống, phân loại khẩn cấp, theo dõi mạn tính",
+              "Phân loại 4 mức có cờ đỏ, không kê thuốc, không chẩn đoán."
+            ],
+            [
+              "Kế hoạch",
+              "4",
+              "Kế hoạch mục tiêu, khung quyết định, luyện ra quyết định, mục tiêu phải thắng",
+              "Bảng nhân-duyên, 9 tầng quyết định với 3 cổng chặn, bài luyện có lịch ôn, giao mục tiêu cho agent chạy tự động."
+            ],
+            [
+              "Kinh tế",
+              "2",
+              "Học kinh tế (learning OS), suy luận kinh tế",
+              "Phiên học ngắn mỗi ngày, mô hình tư duy qua cổng chấp nhận, chuỗi nhân quả đến lớp tài sản và kiểm lại khi đến hạn."
+            ],
+            [
+              "Công cụ",
+              "2",
+              "Image studio, sinh ảnh",
+              "Cắt và ghép ảnh ngay trên canvas trình duyệt; sinh ảnh minh họa bằng codex."
+            ],
+            [
+              "Cá nhân",
+              "2",
+              "Trình chiếu ảnh, bảng tập trung",
+              "Slideshow album theo năm; N ô ưu tiên, checklist, nhật ký ngữ cảnh."
+            ],
+            [
+              "Trợ lý",
+              "1",
+              "Trò chuyện AI",
+              "Chat tự do với cấu hình Claude tách riêng."
+            ]
+          ],
+          "note": "Một module (`claude_tech_impact`) không thuộc nhóm nào và chỉ chạy nội bộ từ trang /knowledge. `code_review` đang tắt."
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "Hiện trong danh mục",
+              "code": "catalog",
+              "kind": "ok"
+            },
+            {
+              "text": "Chỉ chạy theo id, không liệt kê",
+              "code": "internal",
+              "kind": "info"
+            },
+            {
+              "text": "Tắt",
+              "code": "is_active: false",
+              "kind": "mute"
+            },
+            {
+              "text": "Có trong Raycast (8 module)",
+              "code": "raycast_enabled",
+              "kind": "acc"
+            }
+          ],
+          "note": "Một quy tắc duy nhất (`IN_CATALOG` = bật VÀ catalog) quyết định module nào được liệt kê, ở mọi nơi."
+        }
+      ]
+    },
+    {
+      "id": "s-journeys",
+      "no": "04",
+      "title": "Hành trình người dùng",
+      "intro": "Sáu cách tác giả dùng app hằng ngày, mỗi cách đi qua một engine khác.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Chọn “Quá tải”",
+              "text": "Dashboard `/`, danh mục theo nhóm"
+            },
+            {
+              "title": "Phiên tmux mở",
+              "text": "`claude` TUI chạy skill `phan-tinh`"
+            },
+            {
+              "title": "Chat trên web",
+              "text": "Trả lời stream về qua WebSocket"
+            },
+            {
+              "title": "Ghi chú giữa chừng",
+              "text": "focus / surfaced / lighten / next step"
+            },
+            {
+              "title": "Kết thúc → báo cáo",
+              "text": "`/r/<id>`, tùy chọn báo cáo business, PDF"
+            }
+          ],
+          "note": "Hành trình 1: phản tỉnh hằng ngày. Có thể xem trực tiếp bằng `tmux attach -t phantinh-<id>`."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Hành trình",
+            "Đi qua",
+            "Kết quả"
+          ],
+          "rows": [
+            [
+              "2 · Tra nhanh từ Raycast",
+              "Phím tắt → form → `claude -p`, kết quả hiện ngay; việc chạy nền thì đóng popup",
+              "Bản sửa ngữ pháp, từ nguyên, phân tích phát ngôn; điểm học vào `/learn`"
+            ],
+            [
+              "3 · Nghiên cứu rồi lập kế hoạch",
+              "Chọn thấu kính → chạy song song → tổng hợp → tag → gắn vào mục tiêu",
+              "Chủ đề nghiên cứu có bản in; kế hoạch nhân-duyên Trước / Trong / Sau"
+            ],
+            [
+              "4 · Quyết định, luyện, thực thi",
+              "9 tầng + trợ lý AI → cổng 1, 2 → luyện trên hồ sơ thật → giao cho agent tự chạy",
+              "Hồ sơ quyết định, thống kê độ trung thực, lần chạy trong git worktree"
+            ],
+            [
+              "5 · Học từ sách",
+              "Đánh chỉ mục PDF/EPUB (chỉ cấu trúc) → mở chương → mô hình học chuẩn",
+              "Bài học nhiều mức, sơ đồ, code theo ngôn ngữ, hỏi UzAI"
+            ],
+            [
+              "6 · Kinh tế hằng ngày",
+              "Tin đã nạp → đối chiếu hôm qua → học một điều → cập nhật giả thuyết",
+              "Chuỗi nhân quả đến tài sản; đến hạn thì kiểm và chấm điểm các “luật”"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "note",
+          "text": "Các plan cho thấy tác giả dùng chính vòng 4 để xây PHẢN-TỈNH: hồ sơ quyết định → chủ đề nghiên cứu → plan, rồi mới code."
+        }
+      ]
+    },
+    {
+      "id": "s-cross",
+      "no": "05",
+      "title": "Tính năng xuyên suốt",
+      "intro": "Những thứ không thuộc riêng module nào mà mọi module dùng chung.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Tính năng",
+            "Làm gì"
+          ],
+          "rows": [
+            [
+              "Phiên và lịch sử",
+              "`/history` gom mọi lượt chạy. Lịch sử từng module mở trong drawer, có thể phóng thành popup hoặc trang riêng qua URL."
+            ],
+            [
+              "Ghi chú",
+              "Một nút “take-note” giữa chat, chạy oneshot trên transcript theo schema riêng của module."
+            ],
+            [
+              "Báo cáo và PDF",
+              "Mỗi lượt có payload có cấu trúc và markdown. PDF dựng bằng pandoc trên host, lỗi thì trả markdown. Quyết định, kế hoạch, nghiên cứu có route `/print`."
+            ],
+            [
+              "Follow-up",
+              "Một lượt có thể sinh lượt khác, ví dụ từ nguyên → ảnh minh họa. Tối đa 3 tầng; tự động thì không ghi đè file đã có."
+            ],
+            [
+              "Tag",
+              "Taxonomy dùng chung, slug hiểu Unicode, AI tự gắn tag cho nghiên cứu và quyết định."
+            ],
+            [
+              "Hồ sơ cá nhân",
+              "Dữ liệu ngày sinh âm–dương cho các module huyền học; trang gom các lượt chạy chưa gắn người."
+            ],
+            [
+              "Đọc thành tiếng",
+              "IPA và lệnh `say` của macOS qua bridge; danh mục giọng quản lý trong admin."
+            ],
+            [
+              "Admin",
+              "`/admin/settings` có 7 tab: modules, categories, ai agent, voice, bridge, credentials, infra. `/admin/sessions` đóng/xóa hàng loạt và đối chiếu tmux với DB."
+            ],
+            [
+              "Hiệu năng",
+              "`/admin/performance`: thời gian model / proxy / ingest / tool theo từng lượt, token, cache hit. Chi phí cố ý không tính vì app chạy bằng gói thuê bao."
+            ],
+            [
+              "Đồng bộ kiến thức",
+              "`/knowledge` nạp tin từ các nguồn hệ sinh thái Claude theo tầng tin cậy, qua 5 cổng kiểm, thành các “point”."
+            ],
+            [
+              "Trợ lý UzAI",
+              "Trong bài học: trợ lý học gọi được công cụ, số vòng có giới hạn. Trên mọi trang khác: người dẫn đường trả link tới module phù hợp, sau khi đã che giá trị riêng tư."
+            ],
+            [
+              "Tài khoản",
+              "Xem trạng thái đăng nhập của từng thư mục cấu hình Claude/Codex, đồng bộ, đăng nhập ngay trên web."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-layers",
+      "no": "06",
+      "title": "Bức tranh kiến trúc",
+      "toc_group": "Phần 2 · Kiến trúc",
+      "intro": "Năm tầng, từ con người đến AI agent. Mỗi tầng dưới làm được điều mà tầng trên không làm được.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-layers.vi.svg",
+          "caption": "API lõi là trung tâm: giữ danh mục Module, chạy các engine và ghi vào hai kho. Mọi việc chạm vào máy host đều đi qua tầng 4.",
+          "ascii": "1 Giao diện   PWA · Raycast · Terminal (tmux attach -r)\n      |\n2 Web edge    Next.js :7777  (/api/gql proxy, /raycast/*)\n      |\n3 API lõi     Django + Strawberry GraphQL :8888 — Postgres · Redis\n      |\n4 Cầu nối     host-shim :9876 → phantinh-bridge (bash)\n      |\n5 AI agent    claude TUI trong tmux · claude -p / codex exec"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Tầng",
+            "Công nghệ",
+            "Vì sao ở đây"
+          ],
+          "rows": [
+            [
+              "Giao diện",
+              "PWA (Serwist), extension Raycast, terminal",
+              "Ba cách vào cùng một hệ thống; terminal chỉ để quan sát."
+            ],
+            [
+              "Web edge",
+              "Next.js 16, React 19, Tailwind, urql + Graphcache",
+              "Proxy cùng origin cho HTTP; nơi duy nhất có xác thực (token Raycast)."
+            ],
+            [
+              "API lõi",
+              "Django 5, Strawberry GraphQL, Pydantic, Postgres 16, Redis 7",
+              "Danh mục, engine, lưu trữ. Redis giữ trạng thái sống, Postgres giữ trạng thái bền."
+            ],
+            [
+              "Cầu nối host",
+              "`host-shim.py` (stdlib HTTP), `phantinh-bridge` (bash ≥ 4)",
+              "Docker Desktop trên macOS không cho container dùng unix socket của tmux trên host."
+            ],
+            [
+              "AI agent",
+              "Claude Code CLI, Codex CLI",
+              "Không có API key: dùng CLI đã đăng nhập sẵn."
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "Mẫu kiến trúc có tên",
+          "text": "Skill kiến trúc của dự án gọi tên rõ: **Server-Driven UI** (biến thể dispatch: server khai báo `kind`, client tra bảng component), **Atomic Design** (atom thuần → workflow → route shell mỏng), và từ vựng danh mục của **Backstage**."
+        }
+      ]
+    },
+    {
+      "id": "s-deploy",
+      "no": "07",
+      "title": "Triển khai: host và Docker",
+      "intro": "Cái gì chạy trong container, cái gì phải chạy trên Mac, và vì sao.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-deploy.vi.svg",
+          "caption": "API trong Docker gọi HTTP sang `host-shim` trên host; shim chạy `phantinh-bridge`, bridge điều khiển tmux và `claude`. Trình duyệt nối WebSocket thẳng tới :8888 vì Next dev không proxy WebSocket.",
+          "ascii": "HOST (macOS, process-compose)\n  Next.js :7777   host-shim 127.0.0.1:9876 → phantinh-bridge → tmux → claude TUI\n                                                     └→ claude -p / codex exec\n  keychain, git, pandoc, say, file ebook, transcript JSONL\n            ^ HTTP host.docker.internal:9876\nDOCKER\n  api (uvicorn) :8888   db Postgres :5555   redis :6666\n  api-reaper (600s)  api-sync (3600s)  api-mustwin (30s)"
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "Trong Docker",
+              "text": "- `api`: uvicorn, Django + Strawberry, hot reload\n- `db`: Postgres 16, `redis`: Redis 7, có volume\n- `api-reaper`: đóng phiên idle mỗi 600 s\n- `api-sync`: đồng bộ nguồn kiến thức mỗi 3600 s\n- `api-mustwin`: đẩy tiến độ lần chạy tự động mỗi 30 s"
+            },
+            {
+              "title": "Trên host",
+              "text": "- `host-shim.py` ở `127.0.0.1:9876`\n- Next.js dev ở `:7777`\n- tmux server, các phiên `phantinh-<id>`\n- `claude`, keychain OAuth, git, pandoc/xelatex, `say`, file sách, transcript JSONL\n- Tất cả do `process-compose` quản lý (`make dev`)"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Cổng",
+            "Dịch vụ"
+          ],
+          "rows": [
+            [
+              "7777",
+              "Web"
+            ],
+            [
+              "8888",
+              "API GraphQL (HTTP + WebSocket)"
+            ],
+            [
+              "5555",
+              "Postgres"
+            ],
+            [
+              "6666",
+              "Redis"
+            ],
+            [
+              "9876",
+              "host-shim: bind loopback, chỉ nhận Host cục bộ hoặc token"
+            ],
+            [
+              "8080",
+              "API của process-compose (cho `make dev-status`)"
+            ]
+          ]
+        },
+        {
+          "type": "md",
+          "text": "Có một chế độ thay thế cho Linux: `PHANTINH_BRIDGE_MODE=subprocess`, chạy bridge ngay trong container trên socket tmux được mount. Mặc định trong compose là `http`."
+        }
+      ]
+    },
+    {
+      "id": "s-module",
+      "no": "08",
+      "title": "Module là dữ liệu",
+      "intro": "Thêm module mới thuộc kind có sẵn chỉ cần dữ liệu. Thêm kind mới mới cần code.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-dispatch.vi.svg",
+          "caption": "YAML chỉ seed một lần; sau đó dòng Module trong DB là nguồn sự thật. `kind` của dòng chọn workflow ở web và engine ở API.",
+          "ascii": "modules/*.yaml --seed_modules (chỉ insert)--> Module row (DB) <-- /admin/settings\n                                     | kinds.py kiểm key + liên kết\n            +------------------------+------------------------+\n   WEB: WORKFLOW_BY_KIND[kind]                API: engine theo kind\n        workflow (state + GraphQL)                 tui_chat (20) · oneshot (19)\n        atoms (thuần, chỉ props)                   13 kind riêng"
+        },
+        {
+          "type": "kv",
+          "title": "Các field chính của Module",
+          "rows": [
+            [
+              "`id`",
+              "khóa tự nhiên, ví dụ `overload`"
+            ],
+            [
+              "`kind`",
+              "1 trong 15 giá trị `ModuleKind`"
+            ],
+            [
+              "`workflow_config`",
+              "JSON, hình dạng do kind quyết định"
+            ],
+            [
+              "`skill_name`, `opening_command`",
+              "cho `tui_chat`: skill và lệnh mở đầu"
+            ],
+            [
+              "`claude_args`, `env`, `cwd_override`",
+              "cách khởi chạy CLI"
+            ],
+            [
+              "`report_schema`, `report_markdown_template`",
+              "hợp đồng đầu ra và cách render"
+            ],
+            [
+              "`visibility`, `is_active`, `raycast_enabled`",
+              "liệt kê ở đâu"
+            ]
+          ]
+        },
+        {
+          "type": "requirements",
+          "items": [
+            "**DB là nguồn sự thật.** `seed_modules` chỉ insert, giữ nguyên chỉnh sửa trong admin; `--force` mới upsert lại (phá hủy). Cùng mẫu cho agent, nguồn, giọng đọc.",
+            "**`kinds.py` là bảng kê kind.** Mỗi kind khai báo key hợp lệ và kiểu JSON, các cặp AI block (prompt + schema), và liên kết sang module khác. Kiểm chỉ ở mức cấu trúc; luật bên trong do parser của từng phần giữ.",
+            "**Ba cửa chạy bộ kiểm:** lưu trong admin (chỉ từ chối lỗi do chính lần sửa gây ra), `seed_modules`, và `check_schemas`.",
+            "**`ROLES` là nơi duy nhất code gọi module theo id:** `business_report`, `image_follow_up` → `image_gen`, `knowledge_impact`, `must_win_goal`. Web đọc qua query `moduleRoles`.",
+            "**Hai danh sách kind luôn khớp:** test API so `KINDS` với `ModuleKind`; một test bats trên host so `ModuleKind` với `MODULE_KINDS` của web.",
+            "**Slot và query registry:** config của module chọn atom theo tên (`slots`) và chọn tài liệu GraphQL đã đăng ký theo tên (`queries`), không bao giờ chứa code hay chuỗi query."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-chat",
+      "no": "09",
+      "title": "Luồng chat TUI",
+      "intro": "Tin nhắn đi bằng cách paste vào tmux, câu trả lời quay về bằng cách đọc transcript JSONL mà Claude tự ghi.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-chat.vi.svg",
+          "caption": "Chiều đi và chiều về tách rời. Tailer ghi hai nơi cho mỗi sự kiện: Redis cho người đang xem, Postgres để tải lại trang vẫn đủ.",
+          "ascii": "CHIỀU ĐI: Browser sendMessage → api (dòng Message) → host-shim POST /run → bridge send (paste-buffer) → claude TUI\n                                                                                          | ghi\nCHIỀU VỀ: Browser ← graphql-ws subscription ← tailer ← bridge tail (tail -F → NDJSON) ← JSONL\n                                               ├→ Redis publish phantinh.session.<id>\n                                               └→ Postgres: Message, Report, jsonl_cursor"
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "createSession",
+              "text": "Dựng lệnh mở đầu (tĩnh, hoặc từ template + hồ sơ), tạo dòng PROVISIONING"
+            },
+            {
+              "title": "bridge spawn",
+              "text": "`tmux new-session`, chờ TUI in session UUID (tối đa 15 s), paste lệnh mở đầu, tìm file JSONL"
+            },
+            {
+              "title": "ACTIVE",
+              "text": "Lưu tên tmux, session id, đường dẫn JSONL, lệnh attach; bật tailer"
+            },
+            {
+              "title": "sendMessage",
+              "text": "Dòng USER, rồi `bridge send` paste vào pane + Enter"
+            },
+            {
+              "title": "tail",
+              "text": "Mỗi dòng JSONL thành sự kiện: `turn_started`, `turn_event` (text, tool_use, tool_result, thinking), `turn_complete`"
+            },
+            {
+              "title": "tailer",
+              "text": "Publish Redis, ghi Message, Report (nếu có khối YAML báo cáo), TurnLatency; rồi mới tăng cursor"
+            },
+            {
+              "title": "sessionStream",
+              "text": "Subscription đọc Redis pub/sub, đẩy qua graphql-ws thành 4 loại chunk"
+            }
+          ]
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C1",
+              "title": "Cursor chỉ tiến sau khi ghi xong",
+              "pill": {
+                "kind": "ok",
+                "text": "Bất biến"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "`jsonl_cursor` chỉ tăng sau khi side effect thành công, và chỉ tăng về phía trước."
+                ],
+                [
+                  "Ví dụ",
+                  "API reload giữa lượt 7. Lần subscribe sau thấy dòng ACTIVE mà chưa có tailer, gọi `ensure_tailer`, đọc lại từ cursor cũ. Mọi lần ghi đều idempotent nên không có tin trùng.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C2",
+              "title": "Tắt các công cụ chặn chờ người",
+              "pill": {
+                "kind": "ok",
+                "text": "Bất biến"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "Mọi phiên TUI chạy với `--disallowedTools \"AskUserQuestion ExitPlanMode\"`."
+                ],
+                [
+                  "Ví dụ",
+                  "Nếu Claude hỏi bằng AskUserQuestion, lượt đó kết thúc bằng `tool_use` chứ không phải `end_turn` và không được ghi ra JSONL cho đến khi có người trả lời trong TUI. Web sẽ thấy tin của mình không có hồi âm, phiên treo ACTIVE mãi.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C3",
+              "title": "Báo cáo đi kèm trong câu trả lời",
+              "pill": {
+                "kind": "info",
+                "text": "Thiết kế"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "Skill in ra một khối ```` ```yaml ```` có dấu `---phan-tinh-report---`. Bridge tách ra thành `report_block`; API kiểm theo `report_schema` rồi render markdown."
+                ],
+                [
+                  "Giá trị",
+                  "Phiên chat tự do vẫn kết thúc bằng một báo cáo có cấu trúc, lưu được, in được.",
+                  "val"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-oneshot",
+      "no": "10",
+      "title": "Luồng oneshot",
+      "intro": "Một prompt vào, một JSON đúng schema ra. Mọi cửa (form web, thấu kính, follow-up, báo cáo business, Raycast) đều đi qua một engine.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "prepare(RunSpec)",
+              "text": "Kiểm kind, mode, input theo schema, provider, profile — trước khi có dòng nào"
+            },
+            {
+              "title": "create_row",
+              "text": "Dòng PROVISIONING kèm toàn bộ lineage; giữ lease Redis"
+            },
+            {
+              "title": "run",
+              "text": "Chờ semaphore chung (3 lượt song song), dựng prompt bằng `$`-substitution"
+            },
+            {
+              "title": "bridge oneshot",
+              "text": "`claude -p --json-schema … --output-format json`, prompt qua stdin"
+            },
+            {
+              "title": "Lưu",
+              "text": "Kiểm lại payload, render markdown, ghi Report + `run_meta`, trích điểm học, CLOSED"
+            },
+            {
+              "title": "Follow-up",
+              "text": "Tùy chọn: sinh lượt con, tối đa 3 tầng"
+            }
+          ],
+          "note": "`oneshot/engine.py` là nơi duy nhất tạo, chạy, đánh lỗi hoặc chạy lại một lượt oneshot; một test kiểm ranh giới này."
+        },
+        {
+          "type": "table",
+          "caption": "Profile chạy: quyền của CLI do code quyết định, không do config",
+          "head": [
+            "Profile",
+            "Cờ cho claude",
+            "Dùng cho"
+          ],
+          "rows": [
+            [
+              "`structured` (mặc định)",
+              "`--tools \"\"` — không công cụ",
+              "Phần lớn module: chỉ sinh JSON"
+            ],
+            [
+              "`repo_read`",
+              "`Read,Grep,Glob`, restricted",
+              "Nghiên cứu có đọc repo"
+            ],
+            [
+              "`web`",
+              "`WebSearch`",
+              "Tra cứu web"
+            ],
+            [
+              "`scripts`",
+              "`Bash`",
+              "Chạy script"
+            ],
+            [
+              "`agent`",
+              "không giới hạn",
+              "Sinh ảnh bằng codex, agent tự chạy"
+            ]
+          ],
+          "note": "Mọi profile trừ `agent` còn chạy với `--safe-mode` (bỏ skill, CLAUDE.md, hook, connector) và `--strict-mcp-config`. Tham số thêm từ module hay settings đi qua một allowlist: chỉ `--model`, `--effort`, `--append-system-prompt`; `--add-dir` chỉ dưới `agent`. Cờ nào khác bị bridge từ chối với `PROFILE_FLAG_OVERRIDE`."
+        },
+        {
+          "type": "kv",
+          "title": "Chồng timeout, tất cả lấy từ PT_ONESHOT_TIMEOUT_S",
+          "rows": [
+            [
+              "host-shim",
+              "600 s — giết cả process group, trả `TIMEOUT`"
+            ],
+            [
+              "API facade",
+              "+20 s"
+            ],
+            [
+              "Web `/api/gql` và Raycast",
+              "+40 s"
+            ]
+          ],
+          "note": "Mỗi tầng ngoài chờ lâu hơn tầng trong, nên lỗi luôn đến từ tầng biết rõ nguyên nhân nhất."
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C4",
+              "title": "Lease cho người dọn dẹp ở container khác",
+              "pill": {
+                "kind": "ok",
+                "text": "Bất biến"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "Khóa Redis `phantinh.oneshot.lease.<id>`, TTL 180 s, làm mới mỗi 60 s. Reaper chỉ đóng dòng PROVISIONING khi lease đã hết."
+                ],
+                [
+                  "Ví dụ",
+                  "Một lượt nghiên cứu chạy 8 phút. Reaper chạy mỗi 10 phút, thấy dòng PROVISIONING quá 5 phút, nhưng lease còn sống nên bỏ qua. Nếu Redis không trả lời, reaper bỏ qua mọi dòng oneshot trong lần đó.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C5",
+              "title": "Hợp đồng render",
+              "pill": {
+                "kind": "ok",
+                "text": "Có test"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "Mọi field được thay vào template phải là `required` trong schema; module không có mode chỉ được thay giá trị vô hướng."
+                ],
+                [
+                  "Ví dụ",
+                  "`safe_substitute` để nguyên `$name` nếu thiếu field, và in một list ra dạng repr của Python. Test này tìm ra 33 vi phạm, đã sửa hết; cách sửa là thêm field “twin” đã render sẵn như `corrections_markdown`.",
+                  "ex"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-bridge",
+      "no": "11",
+      "title": "phantinh-bridge và host-shim",
+      "intro": "Một bash CLI làm mọi việc chạm vào máy host. Mỗi lệnh in đúng một dòng JSON cuối cùng ra stdout.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Lệnh",
+            "Làm gì"
+          ],
+          "rows": [
+            {
+              "group": "Phiên chat"
+            },
+            [
+              "`spawn`",
+              "Mở phiên tmux chạy `claude`, chờ TUI sẵn sàng, paste lệnh mở đầu, tìm file JSONL, ghi `meta.json`"
+            ],
+            [
+              "`send`",
+              "Paste nội dung (stdin) vào pane rồi Enter"
+            ],
+            [
+              "`tail`",
+              "`tail -F` file JSONL, đổi mỗi dòng thành sự kiện; tiếp tục từ `--from-line`"
+            ],
+            [
+              "`close` / `respawn`",
+              "`/quit` rồi kill; mở lại với tham số cũ, có `--resume` nếu giữ lịch sử"
+            ],
+            [
+              "`status` / `attach-cmd`",
+              "Liệt kê phiên `phantinh-*`; trả lệnh `tmux attach` chỉ đọc"
+            ],
+            {
+              "group": "Chạy một lần và tiện ích host"
+            },
+            [
+              "`oneshot`",
+              "`claude -p` hoặc `codex exec` theo profile, trả payload + metadata"
+            ],
+            [
+              "`pdf`",
+              "pandoc + xelatex, trả PDF dạng base64"
+            ],
+            [
+              "`ebook`",
+              "Đọc mục lục hoặc một khoảng trang của PDF/EPUB"
+            ],
+            [
+              "`say`",
+              "Đọc thành tiếng bằng macOS `say`; liệt kê giọng"
+            ],
+            [
+              "`akm`",
+              "Đọc dữ liệu phiên AKM cho AKM explorer"
+            ],
+            [
+              "`workdir`",
+              "Tạo / đọc / xóa git worktree cho lần chạy tự động"
+            ],
+            [
+              "`credential`",
+              "Trạng thái, đồng bộ, đăng nhập tài khoản Claude/Codex"
+            ],
+            {
+              "group": "Vận hành"
+            },
+            [
+              "`init` / `doctor`",
+              "Sinh `settings.json`; kiểm tmux, jq, bash, claude, các mount"
+            ]
+          ]
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "Phiên tmux đã tồn tại",
+              "code": "SESSION_EXISTS",
+              "kind": "warn"
+            },
+            {
+              "text": "TUI không in session id trong 15 s",
+              "code": "TUI_NOT_READY",
+              "kind": "bad"
+            },
+            {
+              "text": "Không tìm thấy transcript",
+              "code": "JSONL_DISCOVERY_FAILED",
+              "kind": "bad"
+            },
+            {
+              "text": "tmux đã mất",
+              "code": "SESSION_NOT_FOUND",
+              "kind": "warn"
+            },
+            {
+              "text": "Grant OAuth hết hạn",
+              "code": "CLAUDE_LOGIN_EXPIRED",
+              "kind": "bad"
+            },
+            {
+              "text": "Tham số ngoài allowlist của profile",
+              "code": "PROFILE_FLAG_OVERRIDE",
+              "kind": "bad"
+            },
+            {
+              "text": "Quá 600 s",
+              "code": "TIMEOUT",
+              "kind": "warn"
+            },
+            {
+              "text": "API không gọi được shim",
+              "code": "SHIM_UNREACHABLE",
+              "kind": "bad"
+            },
+            {
+              "text": "Shim từ chối request (sai Host, token, content type)",
+              "code": "SHIM_REFUSED",
+              "kind": "bad"
+            }
+          ],
+          "legend": [
+            {
+              "kind": "warn",
+              "text": "API xử lý được (đóng phiên, báo người dùng)"
+            },
+            {
+              "kind": "bad",
+              "text": "Lượt chạy thất bại"
+            }
+          ],
+          "note": "Mọi lỗi là `{\"kind\":\"bridge_error\",\"code\":…}`; facade đổi thành `BridgeInvocationError(code, detail)`."
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "host-shim.py",
+              "text": "HTTP server thư viện chuẩn, có 3 endpoint: `POST /run` chạy một lệnh bridge, `POST /tail` stream NDJSON theo chunk, `GET /health`. POST phải là `application/json` (để trang web lạ bị chặn ở preflight) và có Host cục bộ, hoặc Bearer `PT_HOST_SHIM_TOKEN` nếu có đặt; không có token thì từ chối bind ra ngoài loopback. Token không truyền xuống bridge. Ghi pidfile; probe sẵn sàng so pid đang phục vụ với pidfile để bắt shim cũ chiếm cổng."
+            },
+            {
+              "title": "Hợp đồng sự kiện chung",
+              "text": "`shared/protocol` định nghĩa union sự kiện Pydantic và tên kênh Redis cho cả bridge lẫn API. `RunProfile` phía Python phải khớp `_profiles.sh`; một test bats kiểm điều này."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-api",
+      "no": "12",
+      "title": "Backend: gói và GraphQL",
+      "intro": "Một app Django, một endpoint GraphQL. Các lõi miền là Python thuần, resolver chỉ điều phối.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Gói",
+            "Trách nhiệm"
+          ],
+          "rows": [
+            [
+              "`schema/`",
+              "Gốc GraphQL: query và 26 phần mutation ghép bằng `merge_types` để trùng tên là báo lỗi; 23 module type; `subscriptions.py`"
+            ],
+            [
+              "`oneshot/`",
+              "Engine oneshot, lease, fan-out nghiên cứu"
+            ],
+            [
+              "`reasoning/`",
+              "Suy luận sự kiện: luật, chuỗi, gộp tác động, kiểm chứng"
+            ],
+            [
+              "`training/`",
+              "Luyện quyết định: chọn bài, chấm, mastery, lịch ôn SM-2"
+            ],
+            [
+              "`decision/`",
+              "Khung quyết định: luật cổng, trợ lý AI, thống kê"
+            ],
+            [
+              "`learning/`",
+              "Learning OS: cổng chấp nhận, lắp phiên học, tiến độ, nạp tin"
+            ],
+            [
+              "`canonical/`",
+              "Khung học AI: trích, sinh, cache, đồ thị, bộ nhớ, kiểm chứng"
+            ],
+            [
+              "`paragraph/`, `ebook/`, `mustwin/`",
+              "Tách câu và căn token; cây mục lục và khớp khi đánh lại chỉ mục; diff file task"
+            ],
+            [
+              "`assistant/`",
+              "UzAI trên `bridge.oneshot`: vòng gọi công cụ trong bài học, và site router (`site_router.py` thuần, `site.py` điều phối); bộ eval"
+            ],
+            [
+              "`sync/`",
+              "Nạp nguồn kiến thức: fetch, 5 cổng, trích"
+            ],
+            [
+              "`management/commands/`",
+              "seed_*, close_idle_sessions, sync_resources, sync_must_win_goals, reingest_session, eval_assistant, eval_site_router…"
+            ],
+            [
+              "file cấp cao",
+              "`bridge_facade.py`, `session_streamer.py`, `kinds.py`, `run_meta.py`, `report_pdf.py`, `healthz.py`, `pricing.py`…"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 3,
+          "items": [
+            {
+              "title": "116 query",
+              "text": "Tiền tố theo miền (`learning*`, `reasoning*`, `decision*`…) để namespace phẳng không trùng. Gồm danh mục, phiên, nghiên cứu, kiến thức, thống kê độ trễ."
+            },
+            {
+              "title": "212 mutation",
+              "text": "Vòng đời phiên, oneshot và fan-out, CRUD admin, tài khoản, và phần lớn là thao tác riêng của từng engine."
+            },
+            {
+              "title": "1 subscription",
+              "text": "`sessionStream`: Redis pub/sub → union `StreamTokenChunk`, `StreamTurnComplete`, `StreamSessionClosed`, `StreamBridgeError`. Không dùng Django Channels."
+            }
+          ],
+          "note": "File SDL `schema.graphql` được commit, sinh từ schema Strawberry, và là đầu vào cho codegen phía web."
+        }
+      ]
+    },
+    {
+      "id": "s-data",
+      "no": "13",
+      "title": "Mô hình dữ liệu",
+      "intro": "Một file `models.py`, 64 migration. Khóa chính phần lớn là ULID; Module, Category, Voice dùng khóa tự nhiên.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-schema.vi.svg",
+          "caption": "Lõi chỉ có ba miền: `catalog` (Module là trục), `session` (một lượt chạy, nối lineage) và `profile`. Các miền khác chỉ thêm bảng và trỏ ngược về Module; liên kết giữa các miền rất ít. Tên miền theo gói `models/` mà tác giả đang tách từ `models.py` (chưa commit).",
+          "ascii": "LÕI ─ profile ◀─ session ─▶ catalog (Module = trục chính)\n        ▲          ▲  ▲\n   forecast    planner  must_win_goal ─▶ focus          (gắn với lượt chạy)\n   learning_os ◀─ event_reasoning   training · decision · paragraph   (miền engine)\n        ▼            ↘\n   knowledge         agent   ebook ─▶ canonical ◀─ assistant          (nguồn học, trợ lý)\nMọi bảng miền đều có FK tới Module."
+        },
+        {
+          "type": "table",
+          "wide": true,
+          "head": [
+            "Miền",
+            "Thực thể",
+            "Điểm đáng chú ý"
+          ],
+          "rows": [
+            [
+              "Lõi",
+              "Category, Tag, Voice, Profile, **Module**, ResearchTopic, **Session**, Message, Report, Note, LearningPoint, PeriodSummary, TurnLatency",
+              "Session là trục: nối Module, Profile, chủ đề, lần dự toán, phiên nguồn, phiên cha của follow-up. Report 1–1 với Session."
+            ],
+            [
+              "Đồng bộ kiến thức",
+              "IngestProfile, Resource, Point, SyncRun",
+              "Point có `dedup_key`, `raw_hash`; chỉ trích lại khi hash đổi."
+            ],
+            [
+              "Dự toán",
+              "ForecastRun, Outcome",
+              "Thấu kính chạy “mù” với Outcome."
+            ],
+            [
+              "Mục tiêu và tập trung",
+              "Goal, PlanItem, GoalRelation, GoalSource, FocusGoal, FocusGoalTask, FocusContextLog",
+              "GoalSource trỏ đúng một trong: chủ đề nghiên cứu hoặc phiên."
+            ],
+            [
+              "Learning OS",
+              "LearningProfile, Concept, ConceptRelation, Indicator, Hypothesis, Evidence, ChangeItem, InboxItem, LearningSession, CadenceReview, ModelVersion…",
+              "Giả thuyết phải có điều kiện bác bỏ mới ra khỏi nháp; ModelVersion là ảnh chụp mô hình đã xác nhận."
+            ],
+            [
+              "Suy luận sự kiện",
+              "ReasoningEvent, Run, Node, Edge, TransmissionChain, ReasoningLaw, AssetImpact, NetImpact, Prediction, RealityObservation, VerificationResult",
+              "Luật chỉ đổi điểm khi có VerificationResult; thất bại thì sửa điều kiện, không xóa luật."
+            ],
+            [
+              "Quyết định và luyện",
+              "Decision, DecisionLayer, DecisionEvent, DecisionCheckpoint, DecisionAiRun, TrainingCase, TrainingSession, Drill, MasteryState",
+              "DecisionAiRun cố ý không phải Session để không làm lệch số phiên và chi phí."
+            ],
+            [
+              "Mục tiêu phải thắng",
+              "MustWinGoal, MustWinGoalLog",
+              "Log chỉ ghi thêm, đánh số `seq`."
+            ],
+            [
+              "Học chuẩn (canonical)",
+              "SourceDocument, SourceSection, SourceChunk, ConceptLesson, CanonicalModel, CanonicalConcept, Artifact, Implementation, AssessmentItem, ConceptProgress, LearningMemory…",
+              "Mô hình có phiên bản, không sửa tại chỗ; key cache gồm phiên bản prompt và mô hình."
+            ],
+            [
+              "Ebook, đoạn văn",
+              "EbookBook, EbookChapter, EbookChapterState, EbookStatusEvent, Paragraph, ParagraphSentence",
+              "Trạng thái chương tách khỏi cấu trúc để đánh lại chỉ mục không mất tiến độ."
+            ],
+            [
+              "Trợ lý AI",
+              "AiAgentProfile, ModuleAgentConfig, SiteAgentConfig, AgentTool, AssistantThread, AssistantMessage, AssistantToolCall",
+              "Công cụ có 3 loại: service (đăng ký trong code), graphql (chỉ đọc), http (GET). SiteAgentConfig là một dòng: bật/tắt, prompt, luật che, module loại trừ, gợi ý. AssistantMessage giữ `run_meta` và `links` đã kiểm."
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "note",
+          "title": "Một người học, không có tài khoản",
+          "text": "LearningProfile, TrainingProfile, LearningMemory đều 1–1 với Module. Docstring ghi rõ nếu sau này có nhiều người học thì chỉ cần đổi một dòng."
+        },
+        {
+          "type": "tags",
+          "items": [
+            {
+              "text": "DecisionEvent",
+              "kind": "info"
+            },
+            {
+              "text": "MustWinGoalLog",
+              "kind": "info"
+            },
+            {
+              "text": "EbookStatusEvent",
+              "kind": "info"
+            },
+            {
+              "text": "ConfidenceChange",
+              "kind": "info"
+            },
+            {
+              "text": "Drill (câu trả lời)",
+              "kind": "info"
+            },
+            {
+              "text": "AssessmentAttempt",
+              "kind": "info"
+            }
+          ],
+          "note": "Các bảng chỉ ghi thêm hoặc ghi một lần — lịch sử kiểm toán không bị viết đè."
+        }
+      ]
+    },
+    {
+      "id": "s-web",
+      "no": "14",
+      "title": "Frontend",
+      "intro": "Next.js 16 dạng route mỏng; dữ liệu qua urql + Graphcache với tài liệu có kiểu sinh từ SDL.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Route",
+            "Màn hình"
+          ],
+          "rows": [
+            [
+              "`/`",
+              "Dashboard và danh mục module theo nhóm"
+            ],
+            [
+              "`/m/[module]`",
+              "Bộ điều phối: tra `WORKFLOW_BY_KIND` (nạp lười) theo kind của module; nhận `?f.<field>=` để điền sẵn form"
+            ],
+            [
+              "`/s/[id]`, `/r/[id]`",
+              "Phiên đang chạy (chat hoặc oneshot); báo cáo đã xong, có tải PDF"
+            ],
+            [
+              "`/history`, `/profiles`, `/p/[id]`",
+              "Lịch sử, hồ sơ cá nhân"
+            ],
+            [
+              "`/research`, `/forecast`, `/knowledge`, `/learn`",
+              "Nghiên cứu, dự toán, kiến thức Claude, điểm học"
+            ],
+            [
+              "`/plan`, `/decisions`, `/mustwin`",
+              "Kế hoạch, quyết định (có thống kê, bản in), lần chạy tự động"
+            ],
+            [
+              "`/learning/[id]/*`, `/reasoning/[id]/*`, `/training/[id]/*`, `/concept/[id]/*`, `/paragraph/…`",
+              "Các màn hình con của từng engine"
+            ],
+            [
+              "`/admin/settings`, `/admin/sessions`, `/admin/performance`",
+              "Quản trị"
+            ],
+            [
+              "`/api/gql`, `/raycast/*`, `/serwist/*`",
+              "Proxy GraphQL cùng origin, cửa cho Raycast, service worker"
+            ]
+          ]
+        },
+        {
+          "type": "cards",
+          "cols": 2,
+          "items": [
+            {
+              "title": "Ba tầng component",
+              "text": "**Atom** (~150 file, đa số có story): chỉ nhận props, không GraphQL. **Workflow** theo kind: giữ state và gọi dữ liệu. **Route shell**: mỏng, chỉ tra kind và render."
+            },
+            {
+              "title": "Lớp dữ liệu",
+              "text": "Codegen đọc SDL đã commit, sinh file `.generated.ts` cạnh mỗi `.graphql` theo miền. Không dùng client-preset vì nó kéo cả ~350 tài liệu (757 KB) vào một import."
+            },
+            {
+              "title": "Cache sở hữu việc ghi",
+              "text": "18 map cập nhật theo miền, `invalidateQuery` / `invalidateEntity` thay cho refetch sau mutation. Kiểu không có `id` tự sinh key null để hết ~500 cảnh báo."
+            },
+            {
+              "title": "Bề mặt nội dung chung",
+              "text": "`?surface=drawer|popup&business=…&business-id=…`: một controller mở cùng nội dung dưới dạng drawer, popup hay trang riêng."
+            },
+            {
+              "title": "Render đầu ra có cấu trúc",
+              "text": "`StructuredReport` đọc schema chỉ để lấy nhãn và thứ tự, chọn widget theo giá trị. Huyền học có registry biểu đồ riêng (lá số Tử Vi, tứ trụ, quẻ…)."
+            },
+            {
+              "title": "PWA, mobile, bundle",
+              "text": "Serwist, bật bằng `PT_PWA_ENABLED`. 22 route kiểm ở 390/768/1440 px. Tách bundle đưa `layout.js` từ 16,5 MB xuống 0,82 MB."
+            }
+          ]
+        },
+        {
+          "type": "md",
+          "text": "Không có thư viện state toàn cục. State nằm ở cache chuẩn hóa của Graphcache, trên URL (bộ lọc, surface, `?s=`), trong `useState`, và localStorage cho tùy chọn hiển thị."
+        }
+      ]
+    },
+    {
+      "id": "s-raycast",
+      "no": "15",
+      "title": "Raycast",
+      "intro": "Cửa duy nhất có xác thực: token Bearer, kiểm ở Next edge.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Lệnh",
+            "Làm gì"
+          ],
+          "rows": [
+            [
+              "Phantinh Actions",
+              "Liệt kê các module bật Raycast, dựng form từ schema, hiện kết quả markdown/sections ngay, hoặc báo “đã giao việc” với lượt chạy nền"
+            ],
+            [
+              "Add Goal, Add Context Log",
+              "Thêm mục tiêu và ghi chú ngữ cảnh vào bảng tập trung"
+            ],
+            [
+              "Start Must-Win Goal",
+              "Khởi động lần chạy tự động rồi đóng popup"
+            ],
+            [
+              "Edit Image",
+              "Lấy ảnh từ Finder hoặc clipboard, đổi HEIC/TIFF sang PNG, mở Image Studio"
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            {
+              "title": "Raycast",
+              "text": "Gọi `:7777/raycast/*` với Bearer"
+            },
+            {
+              "title": "Next edge",
+              "text": "`checkAuth`, relay sang GraphQL"
+            },
+            {
+              "title": "runRaycastAction",
+              "text": "Engine oneshot, chờ tối đa ~600 s"
+            },
+            {
+              "title": "Envelope",
+              "text": "`markdown` · `sections` · `error` · `dispatched`, kiểm bằng zod"
+            }
+          ],
+          "note": "Ảnh từ Raycast không đi tới API: Next giữ trong bộ nhớ, trả id 128 bit dùng một lần, sống 5 phút."
+        }
+      ]
+    },
+    {
+      "id": "s-uzai",
+      "no": "16",
+      "title": "UzAI: trợ lý học và người dẫn đường",
+      "intro": "Một trợ lý, hai bề mặt. Trong bài học, UzAI gọi công cụ để giải thích. Trên mọi trang khác, nó chỉ chỉ đường: trả về link tới module có sẵn, không tự làm việc của module.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Bề mặt",
+            "Ở đâu",
+            "Trả về",
+            "Giới hạn"
+          ],
+          "rows": [
+            [
+              "`lesson`",
+              "Bên cạnh một bài học của khung học AI",
+              "Câu trả lời, có thể sau vài vòng gọi công cụ (nguồn, khái niệm, mục lục sách, kết quả quiz)",
+              "Số vòng có trần; nội dung dài như `lesson.artifact` được đọc theo trang (offset)"
+            ],
+            [
+              "`site`",
+              "Nút nổi trên mọi trang, trừ trang đã gắn trợ lý riêng",
+              "0–3 link `/m/<id>?f.<field>=…` tới module trong danh mục",
+              "Một lần gọi `bridge.oneshot`, không có vòng công cụ, không tra dữ liệu, không chạy module"
+            ]
+          ],
+          "note": "Cả hai dùng chung `AssistantThread`; cột `surface` phân biệt, và một ràng buộc CHECK ép thread `lesson` phải có bài học còn thread `site` thì không."
+        },
+        {
+          "type": "figure",
+          "file": "pt-site.vi.svg",
+          "caption": "Luồng an toàn học từ trợ lý admin Moza: che trước ranh giới LLM, link dựng từ danh mục chứ không từ model. Ví dụ là một câu hỏi sức khỏe thật dẫn tới module `dongy_triage`; ngày bắt đầu triệu chứng chỉ rời trình duyệt dưới dạng `<DATE_1>`.",
+          "ascii": "TRÌNH DUYỆT (giá trị thật)          SERVER (token)                      MODEL (token + danh mục)\n1 gõ: đau đầu, sốt nhẹ từ 12/10/2026\n2 che: … từ <DATE_1>  ───────────▶  3 kiểm lại: còn giá trị thô → từ chối ──▶  4 nhận: câu hỏi đã che + danh mục\n  sessionStorage: <DATE_1>=12/10/2026                                               │\n7 bỏ che, mở form đã điền  ◀───────  6 kiểm module/field/chuỗi con, dựng  ◀──  5 chọn dongy_triage,\n  người dùng tự bấm Run                /m/dongy_triage?f.started_when=<DATE_1>     started_when=<DATE_1>\nBiến thể thiếu giá trị: model để trống → link không có ô giữ chỗ → người dùng gõ trong form của module"
+        },
+        {
+          "type": "fcards",
+          "items": [
+            {
+              "id": "C6",
+              "title": "Giá trị riêng tư không qua khỏi trình duyệt",
+              "pill": {
+                "kind": "ok",
+                "text": "Có test"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "Luật che phải chạy giống nhau ở JS và Python (cú pháp JS, ngữ nghĩa ASCII, không khớp chuỗi rỗng). Bộ luật lưu trong DB mà không còn parse được thì router TẮT, không cho câu hỏi đi qua mà không kiểm."
+                ],
+                [
+                  "Ví dụ",
+                  "Dùng `\\b` quanh số thì `_` được tính là ký tự từ, nên `<PHONE_0901234567>` lọt được một số điện thoại thô qua bước kiểm. Vì vậy luật dùng lookaround theo chữ số, và chỉ số token bị giới hạn 4 chữ số.",
+                  "ex"
+                ]
+              ]
+            },
+            {
+              "id": "C7",
+              "title": "Đo bằng eval, không bằng cảm giác",
+              "pill": {
+                "kind": "info",
+                "text": "Đo được"
+              },
+              "fields": [
+                [
+                  "Quy tắc",
+                  "`manage.py eval_site_router` chạy 20 câu hỏi thật qua cùng code với mutation, không ghi DB; 5 câu giữ riêng không dùng để chỉnh `hints`. `eval_assistant` làm việc tương tự cho UzAI trong bài học."
+                ],
+                [
+                  "Kết quả",
+                  "Ngày 2026-10-16: trúng 20/20, nhóm giữ riêng 5/5, link đầu tiên đúng 18/20.",
+                  "val"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-ops",
+      "no": "17",
+      "title": "Vận hành: phiên, dọn dẹp, tài khoản",
+      "intro": "Ai chuyển trạng thái phiên, và hệ thống tự lành ra sao.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-states.vi.svg",
+          "caption": "Spawn đưa phiên sang active; đóng, mất tmux hoặc idle đưa sang closed. Phiên đóng vì idle mà tmux còn sống sẽ được hồi lại khi có người subscribe.",
+          "ascii": "provisioning --spawn ok--> active --close / tmux_gone / idle_ttl--> closed\n     |                       |                                     |\n  lỗi bridge          reconcileSessions                hồi lại: idle_ttl + tmux còn → active\n     v                       v\n   error                   lost\nprovisioning --oneshot xong, hoặc reaper provisioning_timeout (không lease)--> closed"
+        },
+        {
+          "type": "status",
+          "cols": 3,
+          "items": [
+            {
+              "title": "B1 · Đóng mềm",
+              "kind": "info",
+              "text": "ACTIVE idle quá 60 phút → `idle_ttl`. PROVISIONING quá 5 phút không có lease → `provisioning_timeout`. tmux và Claude vẫn sống."
+            },
+            {
+              "title": "B2 · Hồi lại",
+              "kind": "ok",
+              "text": "Khi subscribe, nếu phiên đóng vì idle và tmux còn, dòng quay về ACTIVE và tailer chạy lại."
+            },
+            {
+              "title": "B3 · Gặt cứng",
+              "kind": "warn",
+              "text": "Giết phiên tmux không có dòng DB, đóng vì timeout, hoặc đã đóng quá 1440 phút."
+            }
+          ]
+        },
+        {
+          "type": "md",
+          "text": "**Sức khỏe.** `/livez` chỉ kiểm DB và Redis, là healthcheck của container api mà ba container vòng lặp chờ, nên chúng khởi động được cả khi shim trên host chưa chạy. `/healthz` thêm `bridge doctor`, dùng để quan sát (`make healthz`). Compose kiểm `pg_isready` và `redis-cli ping` cho db, redis.\n\n**Tài khoản.** Claude Code lưu grant OAuth theo từng `CLAUDE_CONFIG_DIR` trong keychain macOS. Bridge đọc trạng thái mà không làm mới token, đồng bộ grant giữa các thư mục, và chạy đăng nhập trong một phiên tmux riêng rồi mở URL đúng hồ sơ trình duyệt. Trước mỗi `spawn`, một bước kiểm chặn phiên mới nếu grant đã hết hạn.\n\n**Test.** Bats cho bridge (`make test-bridge`): doctor, mọi lệnh con, tách JSONL, profile oneshot, tài khoản, ebook, akm, và đối chiếu danh sách kind. Pytest cho API trong container."
+        }
+      ]
+    },
+    {
+      "id": "s-admin",
+      "no": "18",
+      "title": "Admin: cài đặt và xử lý sự cố",
+      "intro": "Mỗi cài đặt bắt đầu ở một file, được sửa ở một tab, và được một phần code đọc lại. Các trang vận hành dùng cùng dữ liệu đó để tìm lỗi.",
+      "blocks": [
+        {
+          "type": "figure",
+          "file": "pt-admin.vi.svg",
+          "caption": "Bốn tab ghi vào DB và chỉ seed một lần từ YAML (insert-only), nên sửa trong admin không bị seed ghi đè. Bridge và Infra chỉ để xem; Credentials tác động lên keychain của host qua bridge.",
+          "ascii": "NGUỒN                      TAB /admin/settings              AI ĐỌC\nmodules/*.yaml        ──▶  Modules (ghi DB)          ──▶  /m/[module], engine, Raycast, UzAI\nmodules/_meta.yaml    ──▶  Categories (ghi DB)       ──▶  nhóm danh mục\nagents.yaml           ──▶  AI agent (ghi DB)         ──▶  UzAI bài học + site router\nvoices.yaml           ──▶  Voice (ghi DB)            ──▶  bridge say\nkeychain              ──▶  Credentials (qua bridge)  ──▶  kiểm đăng nhập trước spawn\nbridge/settings.json  ──▶  Bridge (chỉ xem, doctor)  ──▶  phantinh-bridge\n.env · compose        ──▶  Infra (chỉ xem)           ──▶  settings của api\nVẬN HÀNH: /admin/sessions (đóng, xóa, đối chiếu, chất lượng) · /admin/performance (TurnLatency)"
+        },
+        {
+          "type": "md",
+          "text": "**Điểm chất lượng của phiên.** Trang `/admin/sessions` chấm mỗi phiên xanh, vàng hoặc đỏ. Đỏ khi phiên ERROR, có lượt treo giữa stream quá 5 phút, báo cáo lỗi schema, hoặc transcript JSONL có nhiều lượt hơn DB (lệch sync). Vàng cho các vấn đề khác: lỗi bridge, đóng mà không có báo cáo, TTFT trung bình quá 30 s, phiên quá ngắn."
+        },
+        {
+          "type": "figure",
+          "file": "pt-trouble.vi.svg",
+          "caption": "Gần như mọi bước đều nằm trong admin. Ngoại lệ là `reingest_session`: một lệnh `manage.py` phát lại transcript vào DB, an toàn khi chạy lại vì mọi lần ghi đều idempotent.",
+          "ascii": "Không mở được chat      → Tab Bridge (doctor)        → SHIM_UNREACHABLE / SHIM_REFUSED → bật host-shim, cùng token\nSpawn bị chặn vì login  → Tab Credentials            → CLAUDE_LOGIN_EXPIRED           → đồng bộ grant / đăng nhập\nGửi rồi, không hồi âm   → Sessions · quality         → treo stream, lệch sync         → CLI reingest_session <sid>\nDanh sách lệch tmux     → Sessions · Reconcile       → DB orphan / tmux orphan        → Apply fix\nOneshot chạy mãi        → Sessions · Running         → > 5 phút mất lease / TIMEOUT   → reaper tự đóng; chạy lại\nTrả lời chậm            → Performance                → chặng model/proxy/ingest/tool  → sửa chặng chậm\nThiếu / lỗi báo cáo     → Sessions · Modules         → không có báo cáo / lỗi schema  → sửa schema, xem trước"
+        }
+      ]
+    },
+    {
+      "id": "s-principles",
+      "no": "19",
+      "title": "Nguyên tắc thiết kế",
+      "toc_group": "Phần 3 · Nguyên tắc và tra cứu",
+      "intro": "Những bất biến đọc được trong code và plan, mỗi điều có test hoặc docstring giữ.",
+      "blocks": [
+        {
+          "type": "requirements",
+          "items": [
+            "**DB có thẩm quyền, YAML chỉ là seed.** Config đọc theo từng request từ dòng Module, và hạ về mặc định có tên thay vì báo lỗi, để một config đang sửa dở không làm trang trả 500.",
+            "**Host làm việc container không làm được.** tmux, git worktree, file sách, PDF, `say`, transcript AKM đều qua bridge.",
+            "**Một giao thức, định nghĩa một lần** trong `shared/protocol`, dùng chung cho bridge và API.",
+            "**Nạp dữ liệu luôn tiếp tục được.** Cursor chỉ tiến sau khi ghi xong; mọi lần ghi idempotent.",
+            "**Redis giữ trạng thái sống, Postgres giữ trạng thái bền.**",
+            "**Một cửa vào oneshot, một giới hạn song song.** Chạy lại giữ nguyên lineage; lượt bị từ chối thành dòng ERROR chạy lại được.",
+            "**Lõi thuần, resolver mỏng.** reasoning, training, decision, canonical, paragraph, ebook, mustwin không chạm ORM và có unit test.",
+            "**Kiểm cấu trúc, không chép luật của parser.**",
+            "**An ninh nằm trong code.** Quyền CLI theo profile, tham số thêm qua allowlist; shim đòi Host cục bộ hoặc token; giá trị riêng tư được che trước khi tới model; mã bảo vệ của mục tiêu phải thắng kiểm ở API, đóng khi thiếu, áp cả cho respawn; snapshot runtime không lưu `env`; phạm vi công cụ của UzAI do code ép.",
+            "**Lịch sử chỉ ghi thêm.**"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-timeline",
+      "no": "20",
+      "title": "Dòng thời gian",
+      "intro": "Tính năng theo ngày plan, năm 2026.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Ngày",
+            "Tính năng"
+          ],
+          "rows": [
+            [
+              "05-23",
+              "Plan hệ thống: một tmux Claude TUI cho mỗi chat, bridge bash, Django/GraphQL, Next PWA"
+            ],
+            [
+              "05-24 → 26",
+              "Admin, `kind` + `workflow_config`, kind oneshot, nhóm module, ghi chú, ngữ pháp sâu, huyền học, nghiên cứu đa thấu kính"
+            ],
+            [
+              "05-27 → 31",
+              "Độ trễ TUI→web, trang hiệu năng, reaper, đánh giá hệ thống, Đông y, gallery, bề mặt nội dung chung"
+            ],
+            [
+              "06-01 → 22",
+              "Đồng bộ kiến thức Claude, Raycast, nghiên cứu có tag, báo cáo business, IPA + `say`, dự toán, phân tích phát ngôn"
+            ],
+            [
+              "07-21 → 08-04",
+              "Kế hoạch mục tiêu, học kinh tế, suy luận kinh tế, bảng tập trung, image studio, query registry, mobile"
+            ],
+            [
+              "08-15 → 22",
+              "Khung quyết định, luyện quyết định, mục tiêu phải thắng, thêm thấu kính, từ nguyên ×3, provider codex, sinh ảnh"
+            ],
+            [
+              "09-02 → 15",
+              "Đọc ebook, phân tích mối quan tâm cốt lõi, AKM explorer, tách bundle"
+            ],
+            [
+              "10-01 → 14",
+              "Đọc đoạn văn, engine oneshot thành service, hợp đồng module (`kinds.py`), GraphQL có kiểu và cache sở hữu ghi, gia cố agent"
+            ],
+            [
+              "10-15 → 16",
+              "Allowlist cho tham số oneshot, metadata lượt chạy, eval cho UzAI, dọn dẹp theo phản hồi người đọc, UzAI site router trên mọi trang"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-glossary",
+      "no": "21",
+      "title": "Thuật ngữ",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Từ",
+            "Nghĩa trong dự án"
+          ],
+          "rows": [
+            [
+              "Module",
+              "Một mục trong danh mục: một dòng DB mô tả việc người dùng làm và cách chạy nó"
+            ],
+            [
+              "Kind",
+              "Kiểu workflow của module; chọn component ở web và engine ở API"
+            ],
+            [
+              "`workflow_config`",
+              "JSON cấu hình riêng của module, hình dạng do kind quyết định"
+            ],
+            [
+              "TUI",
+              "Giao diện terminal tương tác của Claude Code"
+            ],
+            [
+              "Oneshot",
+              "Một lần gọi `claude -p` (hoặc `codex exec`) trả JSON theo schema"
+            ],
+            [
+              "Bridge",
+              "`phantinh-bridge`, bash CLI làm mọi việc trên host"
+            ],
+            [
+              "host-shim",
+              "HTTP server nhỏ trên host để container gọi bridge"
+            ],
+            [
+              "Tailer",
+              "Task asyncio, mỗi phiên một cái, đọc sự kiện từ bridge, ghi Redis và Postgres"
+            ],
+            [
+              "Lease",
+              "Khóa Redis có TTL đánh dấu một lượt oneshot còn sống"
+            ],
+            [
+              "Lineage",
+              "Quan hệ của một lượt chạy: chủ đề, lần dự toán, phiên nguồn, phiên cha"
+            ],
+            [
+              "Run profile",
+              "Tập quyền công cụ cố định trong code cho một lượt oneshot"
+            ],
+            [
+              "Site router",
+              "UzAI trên mọi trang: đổi câu hỏi đã che thành link tới module"
+            ],
+            [
+              "Token che",
+              "Chuỗi `<LOẠI_n>` thay cho một giá trị riêng tư trước khi câu hỏi rời trình duyệt"
+            ],
+            [
+              "Reaper",
+              "Lệnh định kỳ đóng phiên idle và giết phiên tmux mồ côi"
+            ],
+            [
+              "Slot",
+              "Tên atom mà config module chọn để render một phần màn hình"
+            ],
+            [
+              "Role",
+              "Tên vai trò mà code dùng để tìm module theo id (ví dụ `business_report`)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "footer": "Tài liệu đọc từ mã nguồn và plan của dự án PHẢN-TỈNH, cập nhật theo commit `234d046` ngày 2026-10-16. Số liệu (module, field GraphQL, dòng code) đếm trực tiếp từ file; các điểm suy luận được ghi rõ."
+}
