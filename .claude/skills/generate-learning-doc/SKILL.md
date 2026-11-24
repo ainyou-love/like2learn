@@ -6,7 +6,7 @@ argument-hint: "<raw text | file path | YouTube URL> [số thứ tự]"
 
 # Generate learning doc
 
-Raw Vietnamese transcript (or a YouTube link to one) → `resources/<folder>/NN-<slug>.html`, a notebook entry that looks the same as No.12.
+Raw Vietnamese transcript (or a YouTube link to one) → `resources/<folder>/NN-<slug>.html` (or `YYYY-MM-DD-<slug>.html` in a dated folder), a notebook entry that looks the same as No.12.
 
 This is a pipeline you coordinate. It runs in two stages, one after the other, with a check after each. You don't write the notes or the HTML yourself: separate subagents keep the summary faithful to the script, and keep the page faithful to the summary.
 
@@ -34,10 +34,10 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
    - anything else → an existing folder under `resources/topics/`, or a new one
 
    If the source doesn't make the folder obvious, ask with AskUserQuestion and list the existing folders (`find resources -type d`). Folder names use ASCII with hyphens, like the existing ones.
-3. **Entry number.** Use the number the user gave. If they gave none, take the highest `NN` in the chosen folder (`ls resources/<folder>/[0-9][0-9]-*.html`), add 1 (a new folder starts at 01), and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). Each folder keeps its own sequence; only `Custom-Post` notes get `/NN` short links. If `resources/<folder>/NN-*.html` already exists, ask before overwriting — that's a published entry.
+3. **Entry number or date.** Only `resources/topics/ai/summary-posts/` is dated: its entries take the source's publish date instead of a number (`YYYY-MM-DD-<slug>.html`) — for a YouTube URL the `PUBLISHED:` line the fetch script prints in item 6, otherwise ask. Two entries may share a date; their slugs keep them apart. Every other folder — `Custom-Post`, book chapters, other topics — stays numbered. For a numbered folder: use the number the user gave. If they gave none, take the highest `NN` in the chosen folder (`ls resources/<folder>/[0-9][0-9]-*.html`), add 1 (a new folder starts at 01), and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). Each folder keeps its own sequence; only `Custom-Post` notes get `/NN` short links. If `resources/<folder>/NN-*.html` already exists, ask before overwriting — that's a published entry.
 4. **Time.** Run `date +%Y%m%d%H%M%S` and `date +%Y` in Bash. Don't trust your own sense of today's date.
 5. **Source URL.** Keep the original link (the YouTube URL, or a link the user gave with pasted text). Step 2 puts it in `meta.json` as `source_url`: the footer links to it and a YouTube URL is embedded as a player under the hero. Pasted text with no link → `none`; ask only if the user mentioned a source they can link.
-6. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
+6. **Work dir.** `tmp/learning-notes/<NN or date>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
 
    For a YouTube URL, let the script write `raw.txt`. It needs `uv`, which installs the library on first run:
 
@@ -45,7 +45,7 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
    uv run <skill-dir>/scripts/fetch_transcript.py "<url>" -l vi -o <work>/raw.txt
    ```
 
-   On success it prints `SOURCE: <title> · <channel>` and then `OK`. `-l vi` already matches regional tracks like `vi-VN` and prefers uploaded captions over auto-generated ones. Use the `SOURCE` line plus the URL as the source context for step 1: the title and author are what let the notes fix misheard names. If it says `SOURCE: unknown`, ask the user for the title and author before step 1.
+   On success it prints `SOURCE: <title> · <channel>`, `PUBLISHED: <YYYY-MM-DD>` (Vietnam time, the date a dated entry takes) and then `OK`. `-l vi` already matches regional tracks like `vi-VN` and prefers uploaded captions over auto-generated ones. Use the `SOURCE` line plus the URL as the source context for step 1: the title and author are what let the notes fix misheard names. If it says `SOURCE: unknown`, ask the user for the title and author before step 1.
 
    On failure it exits with `ERROR: <ErrorType>: <reason>`:
    - `NoTranscriptFound`: the video has no Vietnamese track; the error lists the languages it does have. Ask the user whether to translate one (`-l <code> --translate vi`). Machine-translated text is weaker, so don't pick it silently.
@@ -85,7 +85,7 @@ Spawn with the Agent tool, `model: "opus"`, `subagent_type: "general-purpose"`:
 ```
 Read <skill-dir>/references/page-content.md — it is your full instruction set.
 Notes (only content source): <work>/notes.md
-Entry number: <NN>   Year: <YYYY>
+Entry number: <NN>  or  Entry date: <YYYY-MM-DD>   Year: <YYYY>
 Book chapter: <e.g. 4–5, or "none">
 Source URL: <the YouTube/original link, or "none">
 Write meta.json and sections.html into: <work>/

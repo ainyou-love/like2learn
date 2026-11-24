@@ -11,11 +11,13 @@ Usage:
 -l takes language codes in priority order; the first one the video has is used.
 A code also matches its regional variants (vi → vi-VN), and uploaded captions win over auto-generated ones.
 --translate asks YouTube to machine-translate that transcript (what downsub.com shows).
-Without -o the text goes to stdout. The video title and channel are printed to stderr as `SOURCE:`.
+Without -o the text goes to stdout. The video title and channel are printed to stderr as `SOURCE:`,
+and its publish date in Vietnam time (YYYY-MM-DD) as `PUBLISHED:`.
 """
 import argparse
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -26,6 +28,8 @@ from youtube_transcript_api.formatters import TextFormatter
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 PATH_PREFIXES = ("shorts", "embed", "live", "v")
 OEMBED_URL = "https://www.youtube.com/oembed"
+WATCH_URL = "https://www.youtube.com/watch"
+VIETNAM_TZ = timezone(timedelta(hours=7))
 TIMEOUT_SECONDS = 30
 
 
@@ -74,6 +78,19 @@ def video_source(session: Session, video_id: str) -> str:
         return "unknown"
 
 
+def video_published(session: Session, video_id: str) -> str:
+    try:
+        resp = session.get(WATCH_URL, params={"v": video_id}, headers={"Accept-Language": "en"})
+        resp.raise_for_status()
+        m = re.search(r'"(?:uploadDate|publishDate)":"([^"]+)"', resp.text)
+        stamp = datetime.fromisoformat(m.group(1))
+    except (RequestException, AttributeError, ValueError):
+        return "unknown"
+    if stamp.tzinfo is None:
+        return stamp.date().isoformat()
+    return stamp.astimezone(VIETNAM_TZ).date().isoformat()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("video", help="YouTube URL or 11-character video id")
@@ -93,6 +110,7 @@ def main() -> None:
         sys.exit(f"ERROR: {type(e).__name__}: {e}")
 
     print(f"SOURCE: {video_source(session, video_id)}", file=sys.stderr)
+    print(f"PUBLISHED: {video_published(session, video_id)}", file=sys.stderr)
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

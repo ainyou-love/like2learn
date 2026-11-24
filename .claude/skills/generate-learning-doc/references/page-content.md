@@ -7,7 +7,7 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 ## Inputs
 
 - The notes file from step 1 (the only content source — do not reopen the raw script and do not add ideas).
-- Entry number `NO`, year `YEAR`, output dir, and the book chapter when the entry is one, given by the orchestrator.
+- Entry number `NO` (or entry date `DATE` for a dated folder), year `YEAR`, output dir, and the book chapter when the entry is one, given by the orchestrator.
 
 ## File 1 — `meta.json`
 
@@ -27,7 +27,8 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 - `title`: the notes' `#` heading, tightened if needed. Also becomes the file slug.
 - `kicker`: short mono label, `<Loại sổ> · <Nguồn/tác giả>`. For a book chapter use `<Tên sách> · Chương N` instead (e.g. `Nghệ thuật đàm phán · Chương 4–5`).
 - `subtitle`: 1–2 sentences, based on the notes' `Tóm lược`. It is also the page's `<meta name="description">`, which the site index shows under the title. Paraphrase it without quoting: meta fields are plain text, so a quote here can't get its `<em>` styling. Put the quote in a section instead.
-- `pills`: exactly 3 — part count, source, `Ghi chú · No.NN`.
+- `date` (dated entries only, `YYYY-MM-DD`): replaces `no` — give one or the other, never both. The file is named `YYYY-MM-DD-<slug>.html`, the notebook label and the pill/source line show the date instead of `No.NN`.
+- `pills`: exactly 3 — part count, source, `Ghi chú · No.NN` (or `Ghi chú · YYYY-MM-DD`).
 - `source`: footer line, taken from the notes' `Nguồn`.
 - `source_url`: the original link, exactly as the orchestrator gives it. The footer links to it, and a YouTube URL also embeds the video under the hero (the script renders both; never put an `<iframe>` in `sections.html`). Leave the key out when the orchestrator gives none.
 - `chapter` (only for a book chapter): the chapter number as given, e.g. `"1"` or `"4–5"`. The script puts it in the browser tab title and the file name (`NN-chuong-04-05-<slug>.html`). Leave the key out for anything else.

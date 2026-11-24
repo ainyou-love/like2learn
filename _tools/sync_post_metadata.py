@@ -53,7 +53,7 @@ OUT = RESOURCES / "post_metadata.json"
 POST_INDEX = REPO / "_data" / "post_index.json"
 SETTINGS = {"feature_image_enabled": True}
 CHUNK = 4096
-NOTEBOOK_PREFIX = re.compile(r"^Sổ ghi chép\s*·?\s*No\.\s*\d+\s*[—·–-]\s*")
+NOTEBOOK_PREFIX = re.compile(r"^Sổ ghi chép\s*·?\s*(?:No\.\s*\d+|\d{4}-\d{2}-\d{2})\s*[—·–-]\s*")
 NOTEBOOK_SUFFIX = re.compile(r"\s*[—·–-]\s*Sổ ghi chép$")
 
 

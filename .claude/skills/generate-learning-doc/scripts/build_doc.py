@@ -4,9 +4,10 @@
 Usage:
   python3 build_doc.py --meta meta.json --sections sections.html --out-dir resources/<folder> [--force]
 
-meta.json keys: no, title, year, kicker, subtitle, pills (list), source;
+meta.json keys: no or date (YYYY-MM-DD), title, year, kicker, subtitle, pills (list), source;
   optional chapter ("1", "4–5"), source_url (original link; a YouTube URL also embeds the video)
 Entry numbers are unique within a folder: each folder (Custom-Post, one book, one topic) keeps its own sequence.
+A dated entry (date instead of no) is named YYYY-MM-DD-<slug>.html and labelled with that date.
 sections.html: consecutive <section class="entry" id="sN" data-toc="..."> blocks.
 """
 import argparse
@@ -19,7 +20,7 @@ from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE = SKILL_DIR / "assets" / "template.html"
-REQUIRED_META = ["no", "title", "year", "kicker", "subtitle", "pills", "source"]
+REQUIRED_META = ["title", "year", "kicker", "subtitle", "pills", "source"]
 
 
 def slugify(text):
@@ -110,7 +111,13 @@ def main():
     missing = [k for k in REQUIRED_META if not meta.get(k)]
     if missing:
         sys.exit(f"ERROR meta.json missing: {', '.join(missing)}")
-    no = f"{int(meta['no']):02d}"
+    date = str(meta.get("date", "")).strip()
+    if bool(date) == bool(meta.get("no")):
+        sys.exit("ERROR meta.json needs exactly one of: no, date")
+    if date and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        sys.exit(f"ERROR date must be YYYY-MM-DD: {date}")
+    no = date or f"{int(meta['no']):02d}"
+    entry_label = date or f"No.{no}"
     source_url = str(meta.get("source_url", "")).strip()
     if source_url and not re.match(r"https?://", source_url):
         sys.exit(f"ERROR source_url must start with http(s)://: {source_url}")
@@ -138,7 +145,7 @@ def main():
     esc = html.escape
     out = TEMPLATE.read_text(encoding="utf-8")
     replacements = {
-        "{{NO}}": no,
+        "{{LABEL}}": entry_label,
         "{{TAB_TITLE}}": esc(f"Chương {chapter}: {meta['title']}" if chapter else meta["title"], quote=False),
         "{{TITLE}}": esc(meta["title"], quote=False),
         "{{YEAR}}": esc(str(meta["year"])),
@@ -159,11 +166,15 @@ def main():
 
     out_dir = Path(args.out_dir)
     existing = sorted(out_dir.glob(f"{no}-*.html"))
+    if date and chapter:
+        sys.exit("ERROR a book chapter takes no, not date")
     chapter_slug = "-".join(f"{int(n):02d}" for n in re.findall(r"\d+", chapter))
     name = f"{no}-chuong-{chapter_slug}-{slugify(meta['title'])}" if chapter_slug else f"{no}-{slugify(meta['title'])}"
     target = out_dir / f"{name}.html"
+    if date:
+        existing = [target] if target.exists() else []
     if existing and not args.force:
-        sys.exit(f"ERROR entry No.{no} already exists: {existing[0]} (rerun with --force to overwrite)")
+        sys.exit(f"ERROR entry {entry_label} already exists: {existing[0]} (rerun with --force to overwrite)")
     out_dir.mkdir(parents=True, exist_ok=True)
     target.write_text(out, encoding="utf-8")
 

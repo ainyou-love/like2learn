@@ -29,6 +29,7 @@ the breadcrumb the reader shows above the page.
 |---|---|---|
 | `resources/Custom-Post/` | `NN-slug.html` (`07-xay-dung-he-thong.html`) | Standalone numbered posts. The number orders them and shows up in the label. |
 | `resources/topics/<topic>/` | `slug.html` (`nguoi-va-ai-agent.html`) | Topic posts. Nest further when a topic earns it — `topics/ai/claude/` exists. |
+| `resources/topics/ai/summary-posts/` | `YYYY-MM-DD-slug.html` | Notebook summaries of videos, dated by the video's publish date so they sort by it. |
 | `resources/topics/tech-reports/` | `YY-MM-DD--<area>--<from>_<to>.html` | Periodic reports, where the window is part of the identity. |
 | `resources/ebooks/<Author>/<Book>/` | `NN-chuong-NN-slug.html` | Book chapters, numbered so they read in order. |
 
@@ -62,7 +63,7 @@ Both are re-read on every sync, so they live in the page, not in the JSON. If a 
 is wrong on the index, fix the page and re-run — editing the JSON by hand is undone on the next
 run. A `WARN ... no <title> or <meta name="description">` means one is missing.
 
-Notebook pages are the one special case: a `Sổ ghi chép · No.NN — ` prefix (or a
+Notebook pages are the one special case: a `Sổ ghi chép · No.NN — ` (or `Sổ ghi chép · YYYY-MM-DD — `) prefix (or a
 ` — Sổ ghi chép` suffix) is stripped from the title before it is stored, so the index shows the
 subject rather than the series label.
 
