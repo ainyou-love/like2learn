@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ ghi chép · 2026-10-20 — Alexandr Wang: khởi nghiệp và siêu trí tuệ thời AI</title>
+<meta name="description" content="Hành trình từ Los Alamos qua Quora, MIT, YC đến lập Scale năm 19 tuổi; cách khởi nghiệp khi AI agent biến startup thành Goliath, tầm nhìn siêu trí tuệ cá nhân và một năm dựng lại phòng nghiên cứu AI ở Meta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* SOURCE VIDEO */
+.video{margin:0 0 34px}
+.video .player{position:relative; aspect-ratio:16/9; border:2px solid var(--green); border-radius:var(--radius); overflow:hidden; background:var(--ink)}
+.video iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.video figcaption{margin-top:8px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft)}
+.video a, footer a{color:var(--green)}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · 2026-10-20</span>
+      <div class="title">Alexandr Wang: khởi nghiệp và siêu trí tuệ thời AI</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Tuổi 17 đến 19</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Đi làm, rồi đi học</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Dữ liệu và Scale</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Tin trước đám đông</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Không ai giỏi lần đầu</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Goliath đấu Goliath</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Siêu trí tuệ cá nhân</span><span class="num">07</span></a></li>
+        <li><a href="#s8"><span class="t">Một năm ở Meta</span><span class="num">08</span></a></li>
+        <li><a href="#s9"><span class="t">Mô hình rẻ, sóng gấp 10</span><span class="num">09</span></a></li>
+        <li><a href="#s10"><span class="t">Trí tuệ dồi dào</span><span class="num">10</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay công nghệ · Alexandr Wang</p>
+      <h1>Alexandr Wang: khởi nghiệp và siêu trí tuệ thời AI</h1>
+      <p class="subtitle">Hành trình từ Los Alamos qua Quora, MIT, YC đến lập Scale năm 19 tuổi; cách khởi nghiệp khi AI agent biến startup thành Goliath, tầm nhìn siêu trí tuệ cá nhân và một năm dựng lại phòng nghiên cứu AI ở Meta.</p>
+      <div class="meta">
+        <span class="pill">10 phần</span>
+        <span class="pill">Nguồn · Hoang P</span>
+        <span class="pill">Ghi chú · 2026-10-20</span>
+      </div>
+    </header>
+
+    <figure class="video">
+      <div class="player"><iframe src="https://www.youtube-nocookie.com/embed/W8xXZ_yOoQs" title="Alexandr Wang: khởi nghiệp và siêu trí tuệ thời AI" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>
+      <figcaption>Video gốc · <a href="https://www.youtube.com/watch?v=W8xXZ_yOoQs" target="_blank" rel="noopener">Xem trên YouTube ↗</a></figcaption>
+    </figure>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Tuổi 17 đến 19">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Tuổi 17 đến 19: từ Los Alamos đến Thung Lũng Silicon</h2>
+      <p class="summary-line">Biết mình muốn làm điều lớn, chưa biết đường đi — và học từ người quanh mình.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 100 H142"/>
+        <path d="M24 100 L46 66 L60 84 L74 60 L92 100"/>
+        <path d="M30 100 C60 92 90 84 116 60"/>
+        <path d="M110 58 L118 58 L118 66"/>
+        <rect x="114" y="74" width="22" height="26"/>
+        <path d="M120 82 H130 M120 90 H130"/>
+        <circle class="b" cx="122" cy="30" r="9"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Lớn lên ở <strong>Los Alamos, bang New Mexico</strong>, nơi giờ nổi tiếng nhờ phim Oppenheimer <em>"nhưng thực sự là chốn hẻo lánh."</em>; tham gia đủ loại cuộc thi toán rồi cả các cuộc thi khoa học máy tính (người dẫn nhắc anh từng thi Olympic toán).</li>
+    <li>Khi ấy: <em>"tôi biết mình muốn làm những điều thật lớn lao, chỉ có điều tôi chưa rõ phải làm thế nào, đi theo con đường nào để đạt được."</em></li>
+    <li>Một <strong>người bạn cực kỳ mê lập trình</strong>, sau trung học được thực tập ở Thung Lũng Silicon, hình như nơi đầu tiên là Palantir: <em>"Cậu ấy đã có ảnh hưởng khá lớn đến tôi."</em></li>
+    <li>Vì thế sau trung học anh đến làm ở <strong>Quora</strong> tại Thung Lũng Silicon, tạm nghỉ học một năm để đi làm, sau đó vào MIT. Mốc tuổi theo lời kể: <em>"Tôi 19 tuổi khi làm ở Quora. Tôi 18 tuổi khi vào MIT và 19 tuổi khi thành lập Scale."</em> (mốc tuổi ở Quora có vẻ bị lồng tiếng sai, giữ nguyên như nghe được).</li>
+    <li>Quãng <strong>17 đến 19 tuổi</strong>: <em>"tôi cảm thấy bản thân thay đổi liên tục. Ngay cả điều mình thực sự muốn làm cũng không ngừng thay đổi."</em></li>
+    <li><strong>Học rất nhiều từ người xung quanh</strong>: <em>"Cảm giác như lúc nào cũng phải hứng kiến thức từ một vòi nước cứu hỏa đang phun hết công suất."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Chưa rõ đường đi cũng không sao: đặt mình cạnh những người giỏi và học từ họ thật nhanh.</p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Đi làm, rồi đi học">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Hai lời khuyên: đi làm trong một công ty, rồi đi học</h2>
+      <p class="summary-line">Nhìn tận mắt cách một công ty vận hành, rồi dùng trường học để khám phá.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="22" y="40" width="50" height="64"/>
+        <path d="M32 52 H42 M52 52 H62 M32 66 H42 M52 66 H62"/>
+        <rect x="40" y="86" width="14" height="18"/>
+        <path d="M92 58 L118 46 L144 58 L118 70 Z"/>
+        <path d="M102 63 V80 C110 88 126 88 134 80 V63"/>
+        <path class="b" d="M144 58 V76"/>
+        <path class="thin" d="M18 104 H142"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Anh khuyên các bạn trẻ <strong>hai điều</strong> từng đặc biệt quan trọng với mình.</li>
+    <li>Thứ nhất: <em>"trải nghiệm làm việc trong một công ty rất giá trị."</em> Lý do: <em>"nhìn từ bên ngoài, bạn hoàn toàn không biết một công ty vận hành thế nào"</em>, không biết thực sự <strong>xây dựng một sản phẩm</strong>, không biết quá trình liên tục cải tiến sản phẩm ra sao, và <em>"bạn cũng không biết cách một tập thể đưa ra quyết định."</em></li>
+    <li>Thứ hai: việc theo học <strong>MIT</strong> cũng quan trọng vì cho anh rất nhiều cơ hội <em>"khám phá những thứ mình hứng thú."</em> Ví dụ cụ thể: tại MIT anh bắt đầu huấn luyện những mô hình đầu tiên và mày mò với <strong>TensorFlow</strong>, thứ vừa ra mắt; cũng trong năm đó ở MIT anh nảy ra ý tưởng về Scale.</li>
+    <li>Sau một năm ở MIT anh nộp đơn vào <strong>YC</strong>: <em>"Được nhận lúc ấy cứ như một phép màu."</em> YC đóng vai trò then chốt trên hành trình khởi nghiệp.</li>
+    <li>Điều anh quý ở YC là <strong>sự kết hợp</strong>: <em>"Họ luôn hỗ trợ bạn rất nhiệt tình."</em> và <em>"họ cũng cực kỳ thẳng thắn. Sẵn sàng nói khi bạn đang làm điều ngu ngốc."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Lời nói thẳng ấy là <em>"Điều mà tôi nghĩ ai trong chúng ta cũng cần."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Dữ liệu và Scale">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Từ ý tưởng AI y tế đến Scale: dữ liệu là thứ không bấm nút mà có</h2>
+      <p class="summary-line">Tính toán và mã nguồn bấm nút là có; riêng dữ liệu thì không.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="20" y="26" width="30" height="22"/>
+        <path d="M28 37 H42"/>
+        <rect x="20" y="58" width="30" height="22"/>
+        <path d="M28 66 L34 72 L28 78"/>
+        <ellipse class="s" cx="35" cy="96" rx="15" ry="6"/>
+        <path d="M62 37 H86 M62 69 H86"/>
+        <circle cx="110" cy="54" r="20"/>
+        <circle class="b" cx="110" cy="54" r="8"/>
+        <path class="thin" d="M50 96 H84"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Ý tưởng mang đến YC ban đầu rất khác với Scale sau này: <strong>một AI agent giúp mọi người tiếp cận dịch vụ y tế</strong>. Anh tin ý tưởng này cuối cùng sẽ thành hiện thực, và nay các AI agent hỗ trợ tiếp cận dịch vụ y tế đã rất khả thi, <em>"nhưng khi ấy thời điểm chưa phù hợp."</em></li>
+    <li>Nhóm theo đuổi nó khoảng <strong>một đến hai tháng</strong> thì Jared Friedman (người anh làm việc cùng ở YC) gọi riêng cả nhóm và bảo: <em>"tôi không chắc chuyện này sẽ đi đến đâu."</em> Wang: <em>"Đó chính xác là điều chúng tôi cần nghe."</em></li>
+    <li>Vì đã học AI và huấn luyện mô hình ở MIT, nhóm <strong>quay lại từ đầu</strong>, suy nghĩ thật kỹ đâu mới là cơ hội, rồi nghĩ ra Scale. Bối cảnh người dẫn nêu: mô hình ngôn ngữ lớn chưa nổi lên, xe tự lái đang bắt đầu phát triển, thị giác máy tính bỗng trở nên quan trọng.</li>
+    <li>Ở MIT anh huấn luyện đủ loại mô hình, so với ngày nay <em>"chỉ như đồ chơi nhỏ thôi."</em> Để huấn luyện một mô hình cần <strong>ba thứ</strong>: (1) tài khoản GCP, tức dịch vụ đám mây để thuê năng lực tính toán; (2) mã nguồn để chạy; (3) dữ liệu, một bộ dữ liệu.</li>
+    <li><em>"Với hai trong ba thứ đó, bạn chỉ việc nhấn nút trên mạng là có."</em> Riêng <strong>dữ liệu</strong> thì <em>"chẳng có cách nào hiệu quả để lấy dữ liệu huấn luyện mô hình."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nhận định</span>
+    <p>Điều dẫn đến Scale: <em>"đây chính là tương lai. Sẽ có một cách nào đó để chỉ cần bấm nút là lấy được dữ liệu."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Tin trước đám đông">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Tin một điều trước khi đám đông tin</h2>
+      <p class="summary-line">Xây la bàn riêng về tương lai, đừng lái theo tờ báo sáng nay.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle cx="80" cy="62" r="40"/>
+        <circle class="thin" cx="80" cy="62" r="32"/>
+        <path class="s" d="M80 32 L88 62 L80 92 L72 62 Z"/>
+        <circle class="b" cx="80" cy="62" r="4"/>
+        <path d="M80 18 V24 M80 100 V106 M36 62 H42 M118 62 H124"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhiều năm đầu của Scale, <strong>dữ liệu vẫn bị xem là lĩnh vực chẳng hấp dẫn</strong>. Mỗi lần gọi vốn, dù chỉ số và doanh thu rất tốt, các quỹ đầu tư mạo hiểm vẫn hoài nghi: <em>"Tôi không biết đây có phải mô hình kinh doanh, liệu nó có tồn tại lâu dài, có bền vững không?"</em></li>
+    <li>Anh thấy rất kỳ lạ, nhưng hóa ra <em>"chẳng nhà đầu tư nào từng tự huấn luyện mô hình nên có lẽ họ chưa thực sự hiểu vấn đề."</em></li>
+    <li>Scale vẫn gọi vốn được và mở rộng; còn chính <strong>những nhà đầu tư từng từ chối</strong>, từng bi quan về tiềm năng AI, giờ lại viết những bài phân tích nói rằng dữ liệu vô cùng quan trọng và là một trong những cơ hội kinh doanh lớn nhất trong AI. <em>"Thật thú vị khi mọi chuyện quay lại đúng điểm khởi đầu."</em></li>
+    <li>Người dẫn gọi đây là <strong>tư duy từ những nguyên lý nền tảng</strong>: <em>"Bạn không thể khởi nghiệp chỉ bằng cách mở tờ Wall Street Journal ra."</em> rồi nói <em>"À, dữ liệu đang rất hot. Chúng ta sẽ lao vào lĩnh vực đó."</em>; phải bắt đầu từ những nhận định đơn giản về thế giới mà mình biết chắc là đúng rồi xây dựng dựa trên chúng.</li>
+    <li>Wang: <em>"bạn cần xây dựng niềm tin vững chắc và một số nhận định mà chưa ai khác đồng tình."</em> Những công ty thành công nhất thế giới đều được thành lập từ rất lâu trước khi ý tưởng cốt lõi trở nên phổ biến: <em>"Họ âm thầm làm việc miệt mài suốt nhiều năm trời trước khi ý tưởng, lĩnh vực hay mô hình kinh doanh ấy được số đông công nhận."</em> Chính Scale đã làm AI <strong>suốt một thập kỷ</strong>.</li>
+    <li>Cảnh báo: <em>"Nếu cứ quá chạy theo đám đông, bạn sẽ vô cùng lười biếng và cuối cùng chẳng đi tới đâu."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p><em>"bạn phải xây dựng trước la bàn riêng về tương lai mà mình tin sẽ diễn ra"</em>; ý kiến của người khác chỉ khiến bạn thêm nhiễu loạn.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Không ai giỏi lần đầu">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Chẳng ai giỏi khởi nghiệp ngay lần đầu</h2>
+      <p class="summary-line">Ban đầu làm gì cũng tệ; điều then chốt là tiến bộ thật nhanh.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 104 H140"/>
+        <path d="M24 104 V88 H50 V72 H76 V56 H102 V40 H128 V104"/>
+        <circle cx="36" cy="78" r="5"/>
+        <path d="M36 83 V88"/>
+        <path class="b" d="M128 40 V18"/>
+        <path class="s" d="M128 18 L144 24 L128 30"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Người dẫn nêu: <strong>có niềm tin cốt lõi là chưa đủ</strong> (tin điều X dù chẳng ai khác tin); để xây doanh nghiệp còn phải nói chuyện với nhà đầu tư, thuyết phục họ và không để họ làm mình mất tinh thần, nói chuyện với khách hàng, và nhất là <strong>thuyết phục người giỏi</strong> về làm cùng mình.</li>
+    <li>Wang: các kỹ năng cơ bản lúc mới lập công ty thì một số người có năng khiếu hơn, nhưng <em>"chẳng ai giỏi khởi nghiệp ngay lần đầu khởi nghiệp cả."</em></li>
+    <li>Chi tiết của anh: nhiều nhà đầu tư gặp anh từ thuở ban đầu sau này nói anh đã <strong>phát triển, thay đổi nhanh quá</strong>. <em>"Hồi đó tôi không nhận ra."</em></li>
+    <li>Với <strong>mọi doanh nhân</strong>: <em>"ban đầu bạn làm gì cũng khá tệ."</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Vấn đề then chốt là làm sao <em>"không ngừng hoàn thiện bản thân tiến bộ và học hỏi thật nhanh."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Goliath đấu Goliath">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Khởi nghiệp thời AI: từ David đấu Goliath thành Goliath đấu Goliath</h2>
+      <p class="summary-line">Nút thắt giờ là phổ biến AI; startup có agent thành một triệu Goliath.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 104 H142"/>
+        <circle cx="44" cy="34" r="12"/>
+        <path d="M44 46 V82 M28 60 H60 M44 82 L32 104 M44 82 L56 104"/>
+        <circle cx="104" cy="34" r="12"/>
+        <path d="M104 46 V82 M88 60 H120 M104 82 L92 104 M104 82 L116 104"/>
+        <circle class="b" cx="132" cy="40" r="4"/>
+        <circle class="b" cx="138" cy="54" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Người dẫn: đây là <strong>thời điểm rất may mắn để khởi nghiệp</strong>; mọi người trong phòng có thể giúp nhau, và giờ còn có một AI cá nhân có thể bảo <em>"này, đây là vài cách để làm việc đó."</em></li>
+    <li>Wang: thế giới đang ở thời khắc mà <em>"nút thắt không còn là tốc độ tiến bộ của mô hình AI mà là làm sao phổ biến chúng ra toàn xã hội"</em> và giúp thế giới <strong>thích ứng với công nghệ đã có sẵn</strong>.</li>
+    <li><em>"Ngay cả khi các mô hình ngừng cải tiến từ hôm nay vẫn sẽ còn nhiều thập kỷ biến động và thay đổi sâu sắc"</em> trong nền kinh tế, trong cách thế giới vận hành.</li>
+    <li>Vì vậy đây là một trong những <strong>thời điểm hiếm có nhất</strong>, <em>"có lẽ là cơ hội chỉ có một lần trong cả nền văn minh"</em> để dám ước mơ, có tầm nhìn, có tham vọng định hình thế giới tương lai.</li>
+    <li><strong>10 năm trước</strong>, khi anh bắt đầu Scale, lập công ty là ở thế chàng David đối đầu gã khổng lồ Goliath: phải thật khôn ngoan tìm một lối ngách để bước vào thị trường và tìm cách cạnh tranh dù nguồn lực ít hơn rất nhiều.</li>
+    <li>Giờ nhờ <strong>AI Agent</strong>, <em>"cuộc chơi gần như là Goliath đấu Goliath"</em>; <em>"thậm chí một startup có thể trở thành một triệu Goliath"</em>, còn các tập đoàn lớn là kiểu Goliath truyền thống.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Startup biết tận dụng AI Agent và khai thác sức mạnh của chúng thật táo bạo thì <em>"hoàn toàn có thể vượt qua các doanh nghiệp lâu năm"</em>.</p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Siêu trí tuệ cá nhân">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Siêu trí tuệ cá nhân và một hệ sinh thái hàng tỷ agent</h2>
+      <p class="summary-line">Mỗi người một siêu trí tuệ riêng, trong một mạng lưới agent rộng lớn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <circle class="b" cx="80" cy="62" r="12"/>
+        <circle cx="32" cy="30" r="7"/>
+        <circle cx="128" cy="30" r="7"/>
+        <circle cx="32" cy="96" r="7"/>
+        <circle cx="128" cy="96" r="7"/>
+        <circle cx="80" cy="18" r="6"/>
+        <path class="thin" d="M38 35 L70 55 M122 35 L90 55 M38 91 L70 69 M122 91 L90 69 M80 24 V50"/>
+        <path class="thin" d="M39 30 H121 M32 37 V89"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Khái niệm <strong>siêu trí tuệ</strong> nằm ngay trong tên phòng nghiên cứu của anh tại Meta. Một năm trước, Mark đã viết bản ghi nhớ về <strong>siêu trí tuệ cá nhân</strong>, khá giống khái niệm AI cá nhân mà người dẫn nói.</li>
+    <li>Niềm tin của Meta: mỗi người trên thế giới, tất cả <strong>hàng tỷ con người</strong>, sẽ có một siêu trí tuệ được điều chỉnh riêng cho mình, giúp họ đạt mục tiêu, hiểu hoàn cảnh của họ và mở rộng khả năng tự chủ và hành động của chính mình.</li>
+    <li>Trọng tâm là <strong>mở rộng năng lực hành động</strong>: giúp mọi người thực hiện những điều trước đây họ chưa từng dám mơ tới. Câu hỏi nhóm đặt ra: <em>"Nếu mọi việc đều dễ dàng thì mỗi người sẽ làm gì?"</em></li>
+    <li>Nhìn theo hướng <strong>hệ sinh thái</strong>: <em>"chúng tôi không tin vào viễn cảnh AI độc đoán kiểm soát cả thế giới."</em>; AI sẽ củng cố một hệ sinh thái vô cùng rộng lớn.</li>
+    <li>Dự báo một làn sóng bùng nổ khởi nghiệp: <em>"Hiện có 200 triệu doanh nghiệp hoạt động trên các nền tảng Meta."</em> Meta cho rằng con số ấy sẽ lên tới <strong>hàng tỷ</strong> nhờ bùng nổ sáng tạo và các công cụ AI.</li>
+    <li>Hình dung cuối cùng: <strong>agent của doanh nghiệp phối hợp với agent cá nhân</strong>, tạo nên một mạng lưới phức tạp được AI tăng sức mạnh toàn diện.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>AI cá nhân được hình dung để mở rộng năng lực hành động của mỗi người, trong một hệ sinh thái phân tán chứ không phải một AI kiểm soát tất cả.</p>
+  </div>
+</section>
+
+    <!-- SECTION 8 -->
+    <section class="entry" id="s8" data-toc="Một năm ở Meta">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 08</span>
+      <h2>Một năm ở Meta: dựng lại phòng nghiên cứu AI từ con số 0</h2>
+      <p class="summary-line">Mật độ nhân tài, tinh thần làm khoa học và một cơ thể sống lớn dần.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M66 18 H94 M72 18 V50 L42 100 H118 L88 50 V18"/>
+        <path class="thin" d="M54 80 H106"/>
+        <circle class="b" cx="70" cy="90" r="4"/>
+        <circle class="b" cx="88" cy="86" r="3"/>
+        <circle cx="122" cy="34" r="6"/>
+        <circle cx="134" cy="52" r="4"/>
+        <path class="thin" d="M20 100 H142"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Wang gia nhập Meta được <strong>khoảng 1 năm</strong>: <em>"Đó quả là một năm đầy biến động."</em> Khi anh mới đến, Meta chưa đi đúng quỹ đạo phát triển mà Meta cần (câu này trong bản ghi bị méo, chỉ giữ được ý), nên nhóm gần như <strong>thiết kế lại từ con số 0</strong> cách xây dựng toàn bộ một phòng nghiên cứu AI tiên phong, dù vẫn tận dụng rất nhiều thứ sẵn có và phải tiến nhanh nhất có thể.</li>
+    <li>Mốc thời gian: <strong>9 tháng</strong> sau thời điểm đó ra mắt Muse Spark 1; rồi <strong>2 tháng</strong> sau ra mắt Mu Image (tên nghe được) và Muse Spark 1.1.</li>
+    <li>Điều ấn tượng thứ nhất là <strong>mật độ nhân tài</strong>, yếu tố cốt lõi đáng đặt cược, có hiệu ứng tích lũy tự nhiên: <em>"Càng tập hợp được nhiều người xuất sắc, bạn càng thu hút thêm những người giỏi nhất."</em></li>
+    <li>Điều thứ hai: <em>"công việc phát triển AI tiên phong thực chất là nghiên cứu. Đó là công việc khoa học."</em> Khám phá mô hình làm được gì, đẩy giới hạn của chúng đến đâu; việc này đòi hỏi tư duy và mô hình vận hành <strong>hoàn toàn khác</strong> so với các công ty hay sản phẩm Internet trước đây, phải thử nghiệm và làm khoa học nhiều hơn.</li>
+    <li>Điều thứ ba là <strong>mở rộng quy mô</strong>: năng lực AI, sức mạnh tính toán, mức độ tiếp nhận và sử dụng đều tăng theo cấp số nhân, nên phòng nghiên cứu phải lớn lên cùng nhịp ấy. <em>"Điều quan trọng là xây dựng một cơ thể sống."</em></li>
+    <li>Sắp tới: tiếp tục cập nhật dòng Muse Spark; phát triển <strong>các mô hình lớn hơn</strong> mà theo anh sẽ cạnh tranh mạnh mẽ hơn nhiều với cả những mô hình tốt nhất hiện nay; sớm ra mắt <strong>một bộ harness</strong> cho lập trình viên và người xây dựng AI Agent; và làm các mô hình theo hướng mà người dẫn vừa nhắc là mã nguồn mở (chỗ này bản ghi méo, suy từ câu hỏi về mã nguồn mở).</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Quan điểm</span>
+    <p>Tin vào một thế giới nơi năng lực, tiến bộ và phát triển AI được phân tán; muốn trao cho hệ sinh thái và các nhà phát triển nhiều sức mạnh nhất trong khả năng của mình.</p>
+  </div>
+</section>
+
+    <!-- SECTION 9 -->
+    <section class="entry" id="s9" data-toc="Mô hình rẻ, sóng gấp 10">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 09</span>
+      <h2>Mô hình rẻ cho mọi người, và mỗi làn sóng lớn gấp 10 lần</h2>
+      <p class="summary-line">Những sản phẩm AI tốt nhất còn chưa ra đời — mỗi làn sóng lớn gấp 10.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M16 104 H144"/>
+        <path d="M18 96 C26 88 34 88 42 96"/>
+        <path d="M40 96 C52 76 66 76 78 96"/>
+        <path d="M74 96 C92 54 120 50 142 96"/>
+        <path class="b" d="M108 40 L116 30 L124 40"/>
+        <path class="b" d="M116 30 V48"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Người dẫn kể khi dùng Muse Spark với OpenClaw: <em>"nó giỏi ngang Opus"</em>, đặc biệt với quy trình Agent dùng các file kỹ năng, <em>"nhưng thực tế lại rẻ hơn khoảng tám lần."</em></li>
+    <li>Wang: Meta không tin vào một thế giới nơi <strong>mô hình quá đắt đỏ</strong> đến mức chỉ những nhà phát triển và doanh nghiệp giàu có nhất mới được dùng; <strong>ai cũng phải tiếp cận được</strong> công nghệ và xây bất cứ thứ gì mình muốn.</li>
+    <li><em>"những sản phẩm AI tốt nhất còn chưa ra đời."</em> Vì <em>"mỗi làn sóng lại lớn gấp 10 lần làn sóng trước."</em>: làn sóng đầu khi Scale bắt đầu là <strong>xe tự lái</strong>; chatbot và mô hình ngôn ngữ lớn có quy mô gấp 10 lần xe tự lái; vài năm sau các <strong>agent lập trình</strong> có lẽ gấp 10 lần chatbot. Các phương thức tương tác và hình thức sản phẩm mới sẽ lại lớn vượt trội so với thế hệ trước.</li>
+    <li>Cách dùng mô hình lập trình của Meta hiện giờ: dễ nhất là qua <strong>OpenCode</strong>, website có hướng dẫn bắt đầu; chẳng bao lâu nữa sẽ có harness riêng; về lâu dài muốn mô hình tốt kết nối được với tất cả các bộ harness.</li>
+    <li>Người dẫn vẫn dùng OpenClaw, Hermes agent và gọi chúng là <em>"những chiếc Ferrari liên tục học nằm bên vệ đường."</em> (ý: hay hỏng), rồi hỏi harness mới có hỏng không. Wang: <em>"Hy vọng nó không hỏng."</em></li>
+    <li>Harness mới tập trung vào: <strong>tốc độ</strong> (một trong những yếu tố quan trọng nhất với người đã dùng các công cụ này), <strong>độ tin cậy</strong> (<em>"Chúng tôi muốn nó cực kỳ ổn định."</em>), dễ mở rộng tới những cấu hình đa agent phức tạp; còn nhiều đổi mới ngay ở tầng harness, nhất là cách điều phối và hệ sinh thái nơi các agent phối hợp với nhau.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p><em>"các mô hình hiện nay đã mạnh kinh khủng."</em>; đủ mạnh để thúc đẩy tăng trưởng thêm nhiều điểm phần trăm, phần còn lại phụ thuộc vào những người thông minh, có tầm nhìn và tham vọng biến nó thành hiện thực.</p>
+  </div>
+</section>
+
+    <!-- SECTION 10 -->
+    <section class="entry" id="s10" data-toc="Trí tuệ dồi dào">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 10</span>
+      <h2>Điều sẽ hiển nhiên sau 10 năm: trí tuệ trở nên dồi dào</h2>
+      <p class="summary-line">Đừng cãi về thời điểm; cả nền văn minh đang trên đường cong cấp số nhân.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M24 104 H140 M24 104 V16"/>
+        <path d="M28 100 C70 98 100 86 118 60 C126 46 130 32 134 18"/>
+        <circle cx="44" cy="99" r="4"/>
+        <circle cx="96" cy="84" r="4"/>
+        <circle class="b" cx="132" cy="24" r="6"/>
+        <path class="b" d="M132 12 V16 M144 24 H140"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Câu hỏi của người dẫn: nhìn lại <strong>cả thập kỷ</strong>, điều gì về AI sau này mọi người thấy hiển nhiên nhưng hiện giờ chưa nhận ra?</li>
+    <li>Các tranh luận hiện nay: mô hình đang giỏi lên đến đâu, <em>"Khi nào chúng ta có siêu trí tuệ? Trong 2 năm nữa hay 5 năm nữa?"</em>, <em>"Liệu chúng ta có đụng phải bức tường giới hạn?"</em></li>
+    <li>Wang cho rằng phần lớn tranh luận ấy <em>"là hơi lãng phí thời gian"</em> vì <em>"việc xuất hiện những mô hình rất mạnh là điều tất yếu."</em>; sau này nhìn lại, tranh cãi về chính xác thời điểm là quá thiển cận, vì cả nền văn minh đang đi trên <strong>một đường cong phát triển theo cấp số nhân</strong>.</li>
+    <li>So sánh <strong>10 năm</strong>: 10 năm trước <em>"những mô hình AI giỏi nhất chỉ có thể nhận diện mèo trong video YouTube"</em>, còn giờ <em>"chúng ta đang trò chuyện với một kiểu thần linh kỹ thuật số."</em></li>
+    <li>Dự báo: sau 10 năm <em>"chúng ta sẽ thấy trí thông minh và năng lực hành động đã trở nên dồi dào."</em> Điều này sẽ rất lạ lẫm, vì trong suốt lịch sử nhân loại <em>"việc tập hợp những người thông minh cùng theo đuổi một mục tiêu là nút thắt của tiến bộ."</em></li>
+    <li>Anh bắt đầu lấy <strong>Hợp chủng quốc Hoa Kỳ</strong> làm ví dụ thì bản ghi bị cắt giữa câu; không có phần kết.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Mô hình rất mạnh là điều tất yếu; điều sẽ hiển nhiên sau 10 năm là trí thông minh và năng lực hành động trở nên dồi dào.</p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Kênh Hoang P (YouTube, bản Việt hóa) — phỏng vấn Alexandr Wang trên sân khấu · Ghi chú 2026-10-20 · 2026 · <a href="https://www.youtube.com/watch?v=W8xXZ_yOoQs" target="_blank" rel="noopener">Bản gốc ↗</a>
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
