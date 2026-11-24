@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nghĩa địa AI và đường lui của người dùng — Sổ ghi chép</title>
+<meta name="description" content="Các sản phẩm AI đã đóng cửa và những gì người dùng mất theo, bốn kịch bản sụp đổ, năm dấu hiệu cảnh báo sớm, ba việc giữ đường lui và bài học mượn công cụ để mài giũa kỹ năng.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5EE; --paper-deep:#EAEEE3; --ink:#1C2B22; --ink-soft:#44544A;
+  --green:#2F5D4A; --green-line:#C3D0C0; --brass:#9C7A2E; --seal:#B0492F;
+  --card:#FBFCF8; --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Be Vietnam Pro",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(transparent 0 31px, rgba(47,93,74,.045) 31px 32px);
+}
+a{color:inherit;text-decoration:none}
+strong{color:var(--green);font-weight:600}
+em{font-style:italic}
+
+/* ---------- LAYOUT ---------- */
+.wrap{
+  max-width:1240px; margin:0 auto; padding:0 24px;
+  display:grid; grid-template-columns:288px 1fr; gap:48px; align-items:start;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{position:sticky; top:0; height:100vh; overflow-y:auto; padding:24px 0;}
+.cover{
+  background:var(--card); border:2px solid var(--green); border-radius:var(--radius);
+  padding:18px; position:relative;
+}
+.cover::after{
+  content:""; position:absolute; inset:5px; border:1px dashed var(--green-line);
+  border-radius:6px; pointer-events:none;
+}
+.cover .label{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500;
+}
+.cover .title{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:23px; line-height:1.2; margin-top:8px;
+}
+nav.toc-nav{margin-top:20px}
+ol.toc{list-style:none; margin:0; padding:0; counter-reset:none}
+ol.toc li{margin:2px 0}
+ol.toc a{
+  display:flex; align-items:baseline; gap:10px; padding:8px 12px;
+  border-left:3px solid transparent; border-radius:6px; transition:background .15s,color .15s;
+}
+ol.toc a .t{flex:1; font-size:14px; color:var(--ink-soft)}
+ol.toc a .num{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--brass);
+  font-weight:500; min-width:22px; text-align:right; order:2;
+}
+ol.toc a:hover{background:var(--paper-deep)}
+ol.toc a.active{background:var(--card); border-left-color:var(--seal);}
+ol.toc a.active .t{color:var(--green); font-weight:600}
+ol.toc a:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+
+/* ---------- MAIN ---------- */
+.main{padding:40px 0 24px; min-width:0}
+
+/* HERO */
+.hero{position:relative; margin-bottom:40px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; margin:0 0 10px;
+}
+.hero h1{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:clamp(34px,5vw,56px); line-height:1.05; margin:0 0 14px; max-width:16ch;
+}
+.subtitle{font-size:16px; color:var(--ink-soft); max-width:52ch; margin:0 0 18px}
+.meta{display:flex; flex-wrap:wrap; gap:10px}
+.pill{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--green);
+  border:1px solid var(--green-line); background:var(--card);
+  padding:5px 12px; border-radius:999px;
+}
+.stamp{
+  position:absolute; top:-6px; right:0; width:118px; height:118px;
+  transform:rotate(7deg); opacity:.92;
+}
+.stamp text{fill:var(--seal); font-family:"IBM Plex Mono",monospace; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;}
+
+/* ENTRY CARD */
+section.entry{
+  background:var(--card); border:1px solid var(--green-line); border-radius:var(--radius);
+  padding:26px 28px; margin-bottom:26px; scroll-margin-top:24px;
+}
+.entry-head{
+  display:grid; grid-template-columns:1fr 168px; gap:22px; align-items:start;
+  padding-bottom:18px; border-bottom:1px dashed var(--green-line); margin-bottom:18px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--brass); font-weight:500;
+}
+.entry-head h2{
+  font-family:"Bricolage Grotesque",sans-serif; font-weight:700; color:var(--green);
+  font-size:26px; line-height:1.15; margin:6px 0 6px;
+}
+.summary-line{font-style:italic; color:var(--ink-soft); font-size:15px; margin:0}
+.frame{
+  width:168px; height:138px; border:2px solid var(--green); background:var(--paper);
+  border-radius:4px; position:relative; transform:rotate(-1.4deg);
+  display:flex; align-items:center; justify-content:center; padding:12px;
+}
+.frame::after{content:""; position:absolute; inset:4px; border:1px dashed var(--green-line); pointer-events:none}
+.frame svg{width:100%; height:100%}
+
+/* line-art illustration defaults */
+.ill{fill:none; stroke:var(--green); stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.ill .b{stroke:var(--brass)}
+.ill .s{stroke:var(--seal)}
+.ill .thin{stroke-width:2}
+
+/* BODY BULLETS */
+ul.points{list-style:none; margin:0 0 18px; padding:0}
+ul.points li{position:relative; padding-left:24px; margin:9px 0}
+ul.points li::before{
+  content:"—"; position:absolute; left:0; top:0; color:var(--brass); font-weight:600;
+}
+
+/* CALLOUT */
+.callout{
+  border-left:3px solid var(--seal); background:var(--paper);
+  padding:14px 18px; border-radius:0 6px 6px 0;
+}
+.callout .clabel{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--seal); font-weight:500; display:block; margin-bottom:5px;
+}
+.callout p{margin:0; font-size:15px}
+
+/* SOURCE VIDEO */
+.video{margin:0 0 34px}
+.video .player{position:relative; aspect-ratio:16/9; border:2px solid var(--green); border-radius:var(--radius); overflow:hidden; background:var(--ink)}
+.video iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.video figcaption{margin-top:8px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft)}
+.video a, footer a{color:var(--green)}
+
+/* FOOTER */
+footer{
+  border-top:1px dashed var(--green-line); margin-top:14px; padding:20px 0 60px;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft);
+}
+
+/* menu button + backdrop (mobile only) */
+.menu-btn{display:none}
+.backdrop{display:none}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; gap:0; padding:0 18px}
+  .sidebar{
+    position:fixed; top:0; left:0; z-index:40;
+    width:min(82vw,320px); height:100vh; height:100dvh;
+    background:var(--paper); border-right:1px solid var(--green-line);
+    padding:20px 16px; overflow-y:auto;
+    transform:translateX(-100%); transition:transform .28s ease;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:28px 0 24px}
+  .stamp{display:none}
+  .entry-head{grid-template-columns:1fr}
+  .frame{width:100%; max-width:220px; height:150px; margin-top:4px}
+  .menu-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    position:fixed; left:16px; bottom:16px; z-index:50;
+    background:var(--green); color:var(--paper); border:none;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.1em;
+    padding:12px 18px; border-radius:999px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(28,43,34,.25);
+  }
+  .backdrop{
+    display:block; position:fixed; inset:0; z-index:39;
+    background:rgba(28,43,34,.42); opacity:0; visibility:hidden; transition:opacity .28s;
+  }
+  .backdrop.show{opacity:1; visibility:visible}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="cover">
+      <span class="label">Sổ ghi chép · 2026-11-21</span>
+      <div class="title">Nghĩa địa AI và đường lui của người dùng</div>
+    </div>
+    <nav class="toc-nav" aria-label="Mục lục ghi chú">
+      <ol class="toc">
+        <li><a href="#s1"><span class="t">Công cụ nào cũng có thể chết</span><span class="num">01</span></a></li>
+        <li><a href="#s2"><span class="t">Năm bia mộ</span><span class="num">02</span></a></li>
+        <li><a href="#s3"><span class="t">Bốn kịch bản sụp đổ</span><span class="num">03</span></a></li>
+        <li><a href="#s4"><span class="t">Năm dấu hiệu cảnh báo</span><span class="num">04</span></a></li>
+        <li><a href="#s5"><span class="t">Ba việc giữ đường lui</span><span class="num">05</span></a></li>
+        <li><a href="#s6"><span class="t">Mượn công cụ, mài kỹ năng</span><span class="num">06</span></a></li>
+        <li><a href="#s7"><span class="t">Tài sản không bị khai tử</span><span class="num">07</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--seal)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--seal)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="60" y="50" text-anchor="middle" font-size="12">ĐÃ GHI</text>
+        <line x1="38" y1="60" x2="82" y2="60" stroke="var(--seal)" stroke-width="1.5"/>
+        <text x="60" y="78" text-anchor="middle" font-size="11">Sổ · 2026</text>
+      </svg>
+      <p class="kicker">Sổ tay công nghệ · Under30</p>
+      <h1>Nghĩa địa AI và đường lui của người dùng</h1>
+      <p class="subtitle">Các sản phẩm AI đã đóng cửa và những gì người dùng mất theo, bốn kịch bản sụp đổ, năm dấu hiệu cảnh báo sớm, ba việc giữ đường lui và bài học mượn công cụ để mài giũa kỹ năng.</p>
+      <div class="meta">
+        <span class="pill">7 phần</span>
+        <span class="pill">Nguồn · Under30</span>
+        <span class="pill">Ghi chú · 2026-11-21</span>
+      </div>
+    </header>
+
+    <figure class="video">
+      <div class="player"><iframe src="https://www.youtube-nocookie.com/embed/NRJO125cKrQ" title="Nghĩa địa AI và đường lui của người dùng" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>
+      <figcaption>Video gốc · <a href="https://www.youtube.com/watch?v=NRJO125cKrQ" target="_blank" rel="noopener">Xem trên YouTube ↗</a></figcaption>
+    </figure>
+
+    <!-- SECTION 1 -->
+    <section class="entry" id="s1" data-toc="Công cụ nào cũng có thể chết">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 01</span>
+      <h2>Công cụ AI nào cũng có thể vào nghĩa địa</h2>
+      <p class="summary-line">Khi một công cụ AI đóng cửa, người dùng là người chịu thiệt đầu tiên.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M22 104 H138"/>
+        <rect x="52" y="44" width="56" height="40" rx="4"/>
+        <polyline points="72,56 72,72 86,64 72,56"/>
+        <path d="M70 84 V104"/>
+        <path d="M90 84 V104"/>
+        <path class="s" d="M46 30 L114 98"/>
+        <circle class="b" cx="122" cy="26" r="8"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Cuối năm 2025, một ứng dụng <strong>tạo video bằng AI</strong> làm mạng xã hội phát cuồng: gõ vài dòng mô tả là có đoạn phim sắc nét như thật, nhanh chóng chạm mốc khoảng 1 triệu người dùng. Chỉ sau 6 tháng, chính công ty tạo ra nó tuyên bố khai tử — đó là <strong>Sora</strong> của OpenAI, công ty đứng sau ChatGPT.</li>
+    <li>Sora không đơn độc: riêng năm 2026, TechCrunch lập hẳn danh sách <em>"Nghĩa địa AI"</em>, điểm mặt hơn chục cái tên từng đình đám — ứng dụng trò chuyện với nhân vật ảo, trình duyệt AI, ứng dụng email, thiết bị thông minh.</li>
+    <li>Không chỉ startup nhỏ gặp trắc trở: theo số liệu S&amp;P Global mà TechCrunch dẫn lại, có khoảng <strong>42% dự án AI</strong> trong các doanh nghiệp lớn (câu trong script bị cắt ở đây, không nêu rõ 42% này bị làm sao).</li>
+    <li>Câu hỏi đặt ra: <em>"Khi một cái công cụ AI bất ngờ đóng cửa ấy thì ai sẽ là người chịu thiệt thòi đầu tiên?"</em> — chính là <strong>người dùng</strong>: mất video đã dày công tạo ra, mất dữ liệu lưu trữ, mất khoản tiền đóng trước cả năm, mất luôn thói quen làm việc đã quen tay.</li>
+    <li><em>"Rất có thể là ứng dụng AI mà bạn đang trả phí đều đặn mỗi một tháng ấy cũng sẽ góp mặt trong cái danh sách đó vào năm sau."</em> Người nói khẳng định không nói để dọa, mà vì đây là thực tế đã xảy ra với hàng triệu người dùng suốt cả năm nay.</li>
+    <li>Video đi qua <strong>năm phần</strong>: (1) sản phẩm AI nào đã đóng cửa và người dùng mất gì; (2) bốn nguyên nhân cốt lõi khiến sản phẩm AI sụp đổ dù nhiều tiền, đông người dùng; (3) năm dấu hiệu cảnh báo sớm; (4) ba việc cần làm ngay để giữ đường lui; (5) bài học lâu dài cho người học tập và làm việc cùng AI.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Bất kỳ công cụ AI nào, kể cả cái bạn đang trả phí hàng tháng, cũng có thể đóng cửa — và người dùng mất trước tiên.</p>
+  </div>
+</section>
+
+    <!-- SECTION 2 -->
+    <section class="entry" id="s2" data-toc="Năm bia mộ">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 02</span>
+      <h2>Năm bia mộ: người dùng đã mất những gì</h2>
+      <p class="summary-line">Hãng lớn hay startup, nhiều tiền hay đông khách, đều có thể khai tử.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M18 104 H142"/>
+        <path d="M28 104 V68 C28 56 52 56 52 68 V104"/>
+        <path d="M68 104 V50 C68 36 92 36 92 50 V104"/>
+        <path d="M108 104 V68 C108 56 132 56 132 68 V104"/>
+        <path class="b" d="M80 54 V74"/>
+        <path class="b" d="M72 61 H88"/>
+        <path class="thin" d="M34 76 H46"/>
+        <path class="thin" d="M114 76 H126"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhiều người chủ quan rằng cứ chọn sản phẩm của <strong>tập đoàn công nghệ lớn</strong> là an toàn tuyệt đối; những gì diễn ra năm nay chứng minh điều ngược lại hoàn toàn.</li>
+    <li><strong>Bia mộ 1 — Sora (OpenAI):</strong> theo Wall Street Journal, mỗi ngày Sora ngốn khoảng 1 triệu đô la tiền máy chủ, trong khi tổng doanh thu trong ứng dụng từ lúc ra mắt đến khi đóng cửa chỉ khoảng 2,1 triệu đô la — cả vòng đời chỉ đủ trả tiền máy chủ chưa đầy 3 ngày. Người dùng tụt một nửa, từ 1 triệu xuống khoảng 500.000. Ngày 24 tháng 3, OpenAI tuyên bố khai tử, kéo theo thương vụ Disney dự định rót 1 tỷ đô tan thành mây khói. Ai muốn giữ thành phẩm phải tự tải về máy trước hạn đóng cửa.</li>
+    <li><strong>Bia mộ 2 — trình duyệt ChatGPT Atlas (OpenAI):</strong> giới thiệu tháng 10 năm ngoái là trình duyệt web tích hợp sẵn AI, ngừng hoạt động ngày 9 tháng 8 năm nay khi chưa tròn 1 năm tuổi. Trang trợ giúp của OpenAI báo hệ thống sẽ không tự chuyển dấu trang đi đâu cả; ai không tự xuất dữ liệu trước thời hạn coi như mất sạch.</li>
+    <li><strong>Bia mộ 3 — Character AI:</strong> ứng dụng trò chuyện với nhân vật ảo từng được định giá tới 1 tỷ đô la. Tháng 10 vừa qua công ty nộp đơn xin phá sản; Disney chỉ trả giá khởi điểm 20 triệu đô để mua quyền khai thác một phần tài sản trí tuệ, không mua toàn bộ công ty. Trong lúc chờ thủ tục, hệ thống vẫn trừ tiền gói cước hàng tháng như bình thường. Nếu không ai trả giá cao hơn Disney, nền tảng đóng cửa hoàn toàn — những nhân vật ảo nhiều người tâm sự suốt mấy năm trời sẽ biến mất vĩnh viễn.</li>
+    <li><strong>Bia mộ 4 — Humane AI Pin</strong> (cũ hơn một chút nhưng là bài học đắt giá nhất về phần cứng AI): chiếc ghim cài áo tích hợp AI từng được quảng cáo sẽ thay thế hoàn toàn điện thoại thông minh, giá 699 đô la, giúp công ty gọi vốn 230 triệu đô. Tháng 2 năm 2025 công ty bán phần lớn tài sản cho HP với giá 116 triệu đô la; toàn bộ thiết bị trên tay khách bị ngắt kết nối máy chủ chỉ vài ngày sau. Chỉ ai mua trong 90 ngày cuối mới được hoàn tiền, còn lại đều đang giữ <em>"một món trang sức công nghệ đắt đỏ nhất ở trong tủ đồ"</em>.</li>
+    <li><strong>Bia mộ 5 — Notion Mail:</strong> ứng dụng email tích hợp AI của Notion đóng cửa ngày 22 tháng 9 vừa qua. Email gốc vẫn còn nguyên trong Gmail nhờ đồng bộ hai chiều; nhưng dữ liệu chỉ tồn tại riêng trong Notion Mail — thư nháp, thư hẹn giờ, các quy tắc tự động gắn nhãn — đều bị xóa sạch nếu không kịp sao lưu.</li>
+    <li>Năm câu chuyện, <strong>năm kiểu mất mát</strong>: mất video, mất dấu trang, mất nhân vật đồng hành, mất tiền mua thiết bị, mất toàn bộ thư nháp công việc. Có sản phẩm gọi vốn hàng trăm triệu đô, có sản phẩm thu hút cả triệu người dùng — <em>"Vậy tại sao nhiều tiền và đông khách như vậy chúng nó vẫn thất bại?"</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Mác hãng lớn, vốn lớn hay lượng người dùng lớn đều không giữ được sản phẩm khỏi bị khai tử — và mỗi lần như vậy người dùng mất một thứ cụ thể.</p>
+  </div>
+</section>
+
+    <!-- SECTION 3 -->
+    <section class="entry" id="s3" data-toc="Bốn kịch bản sụp đổ">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 03</span>
+      <h2>Bốn kịch bản sụp đổ lặp đi lặp lại</h2>
+      <p class="summary-line">Sản phẩm AI không chết ngẫu nhiên mà theo bốn kịch bản quen thuộc.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M20 106 H140"/>
+        <rect x="30" y="86" width="22" height="20"/>
+        <rect x="54" y="86" width="22" height="20"/>
+        <rect x="42" y="66" width="22" height="20"/>
+        <rect class="b" x="96" y="86" width="22" height="20" transform="rotate(14 107 96)"/>
+        <rect x="104" y="44" width="22" height="20" transform="rotate(-24 115 54)"/>
+        <path class="s" d="M84 40 L76 56 L88 58 L80 74"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Phân tích danh sách nghĩa địa AI năm nay, người nói nhận ra các sản phẩm không sụp đổ ngẫu nhiên mà thường rơi vào <strong>bốn kịch bản lặp đi lặp lại</strong>.</li>
+    <li><strong>Kịch bản 1 (phổ biến nhất) — bị ông lớn tích hợp luôn tính năng tương tự</strong> vào nền tảng gốc. Relay, công cụ tự động hóa công việc bằng AI tồn tại suốt 5 năm: ngay khi OpenAI và Google đưa tự động hóa tương tự vào thẳng hệ thống của họ, người dùng hết lý do mở thêm một ứng dụng riêng, Relay đóng cửa tháng 8 năm nay. Ứng dụng <em>"Hues"</em> (biến tài liệu thành hội thoại podcast) chịu chung số phận tháng 5 sau khi Spotify tung tính năng y hệt cho hàng trăm triệu người dùng sẵn có. Atlas cũng dừng theo cách này, chỉ khác là OpenAI tự sáp nhập tính năng hay nhất của nó vào thẳng ChatGPT.</li>
+    <li><strong>Kịch bản 2 — chi phí vận hành quá đắt</strong>, doanh thu không đủ bù. Mỗi đoạn video hay câu trả lời AI đều tiêu tốn tài nguyên máy chủ khổng lồ. Bên cạnh Sora, nền tảng nhập vai nhân vật ảo <em>"Fix AI"</em> thu hút hơn 1 triệu người dùng nhờ miễn phí rộng rãi nhưng vẫn đóng cửa vì không gánh nổi hóa đơn máy chủ. <em>"Trong lĩnh vực AI thì càng có nhiều người dùng miễn phí thì công ty lại càng lỗ nhanh."</em></li>
+    <li><strong>Kịch bản 3 — mất niềm tin người dùng hoặc vướng kiện tụng.</strong> Character AI lao dốc sau hàng loạt vụ kiện liên quan đến an toàn của trẻ vị thành niên, cộng thêm thư cảnh báo từ Disney yêu cầu ngừng dùng các nhân vật có bản quyền. Tính năng Recall của Microsoft, tự động chụp màn hình máy tính liên tục, vấp làn sóng phản đối vì lo lộ mật khẩu cá nhân, khiến hãng phải tạm hoãn ra mắt gần một năm trời.</li>
+    <li><strong>Kịch bản 4 — vội tung sản phẩm khi trải nghiệm chưa hoàn thiện.</strong> Humane AI Pin vừa xử lý chậm, vừa thường trả lời sai, thậm chí hộp sạc còn bị cảnh báo nguy cơ cháy nổ. Máy bỏ túi Rabbit R1 dù bán được tới 100.000 chiếc ngay đợt mở bán đầu, sau đó cũng bị cộng đồng chê vì phần mềm quá dang dở.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Bốn nguyên nhân này chính là <em>"bộ lọc thực tế"</em> để bạn đánh giá độ an toàn của những công cụ AI đang dùng mỗi ngày.</p>
+  </div>
+</section>
+
+    <!-- SECTION 4 -->
+    <section class="entry" id="s4" data-toc="Năm dấu hiệu cảnh báo">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 04</span>
+      <h2>Năm dấu hiệu cảnh báo sớm</h2>
+      <p class="summary-line">Chạm từ ba dấu hiệu trở lên thì nên chuẩn bị đường lui ngay.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M80 20 L136 104 H24 Z"/>
+        <path class="s" d="M80 48 V78"/>
+        <circle class="s" cx="80" cy="90" r="3"/>
+        <path class="thin" d="M18 112 H142"/>
+        <circle class="b" cx="30" cy="30" r="4"/>
+        <circle class="b" cx="130" cy="30" r="4"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bộ tiêu chí người nói <strong>tự đúc rút</strong> từ nghĩa địa AI năm nay, không phải danh sách có sẵn trên mặt báo — để mở điện thoại hoặc máy tính lên tự rà soát ứng dụng của mình ngay. Cách đọc: mới một dấu hiệu thì chưa cần quá lo; <strong>chạm từ ba dấu hiệu trở lên</strong> thì nên chủ động chuẩn bị đường lui từ bây giờ.</li>
+    <li><strong>Dấu hiệu 1 — tính năng cốt lõi vừa được ChatGPT, Gemini hoặc Claude tích hợp</strong> (cách Relay và <em>"Hype"</em> bị đào thải). Ví dụ: một ngày mở ChatGPT lên thấy nó giải quyết gọn đúng việc bạn đang trả phí cho một ứng dụng bên ngoài — nhà phát triển ứng dụng đó đang có nguy cơ mất khách.</li>
+    <li><strong>Dấu hiệu 2 — miễn phí quá hào phóng</strong> nhưng mô hình kiếm tiền rất mập mờ. <em>"Fix AI"</em> từng cho dùng miễn phí thoải mái cho đến ngày cạn ngân sách vận hành. Công cụ tạo ảnh hoặc video AI cho dùng thả ga mà không thu phí nghĩa là có một quỹ đầu tư nào đó đang bù lỗ tiền máy chủ thay bạn, và khoản bù lỗ này chắc chắn không kéo dài mãi.</li>
+    <li><strong>Dấu hiệu 3 — rất lâu không có bản cập nhật</strong> và đội ngũ phát triển giữ im lặng. Sản phẩm khỏe mạnh liên tục ra tính năng mới, vá lỗi, phản hồi cộng đồng; khi trang thông báo đứng yên nhiều tháng liền và thắc mắc của người dùng không ai giải đáp, dự án đang bị bỏ ngỏ.</li>
+    <li><strong>Dấu hiệu 4 — đang vướng kiện tụng hoặc tranh chấp bản quyền.</strong> Bài học Character AI: nền tảng nào khai thác hình ảnh, giọng nói hay nhân vật nổi tiếng mà chưa có bản quyền chính thức đều có thể bị buộc dừng chỉ sau một lá thư cảnh báo từ đội ngũ luật sư.</li>
+    <li><strong>Dấu hiệu 5 (ít người ngờ tới nhất) — là ứng dụng phụ của một tập đoàn lớn</strong>, không phải sản phẩm chủ lực, như Atlas và Notion Mail. Tập đoàn lớn khó sụp đổ nhưng luôn sẵn sàng khai tử thẳng tay dự án phụ thử nghiệm để dồn nguồn lực cho sản phẩm cốt lõi — <em>"cái mác của hãng lớn ấy nó hoàn toàn không phải là cái tấm thẻ bảo hành trọn đời cho công cụ mà đang sử dụng"</em>.</li>
+    <li><strong>Việc làm ngay:</strong> tạm dừng video vài giây, mở danh sách các ứng dụng AI đang trả phí hàng tháng và đối chiếu xem mỗi công cụ dính bao nhiêu dấu hiệu.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Rà từng công cụ đang trả phí theo năm dấu hiệu; càng nhiều dấu hiệu, càng phải chuẩn bị đường lui sớm.</p>
+  </div>
+</section>
+
+    <!-- SECTION 5 -->
+    <section class="entry" id="s5" data-toc="Ba việc giữ đường lui">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 05</span>
+      <h2>Ba việc cần làm ngay để giữ đường lui</h2>
+      <p class="summary-line">Dữ liệu nằm ở nền tảng nào thì sống chết theo nền tảng đó.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M24 44 H70 L64 92 H30 Z"/>
+        <path class="thin" d="M34 44 C34 28 60 28 60 44"/>
+        <path class="b" d="M78 68 H100"/>
+        <path class="b" d="M92 60 L100 68 L92 76"/>
+        <rect x="108" y="40" width="34" height="18" rx="3"/>
+        <rect x="108" y="62" width="34" height="18" rx="3"/>
+        <rect x="108" y="84" width="34" height="18" rx="3"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhận diện dấu hiệu rủi ro mới giải quyết <strong>một nửa vấn đề</strong>; nửa quan trọng còn lại: nếu công cụ đang gắn bó bất ngờ báo đóng cửa sau vài tuần thì bạn mất gì và chuẩn bị ra sao để bảo toàn tài sản công việc.</li>
+    <li>Quy luật rút từ năm câu chuyện: <em>"dữ liệu của bạn nằm ở nền tảng nào thì nó sẽ sống hoặc chết theo cái nền tảng đó."</em> Người dùng Notion Mail giữ được thư quan trọng vì dữ liệu gốc nằm trên Gmail, nhưng thư nháp và quy tắc phân loại chỉ lưu trong Notion Mail thì mất trắng; dấu trang trên Atlas và video chưa kịp tải về từ Sora cũng cùng cảnh ngộ. Họ không làm sai điều gì — chỉ vô tình đặt toàn bộ dữ liệu vào <strong>một cái giỏ duy nhất</strong>, và chiếc giỏ đó bỗng biến mất.</li>
+    <li><strong>Việc 1 — định kỳ xuất dữ liệu quan trọng ra định dạng phổ thông:</strong> video tải về máy dạng MP4, văn bản xuất ra Word hoặc PDF, hình ảnh lưu độc lập trên ổ cứng cá nhân. Sao lưu <strong>mỗi tháng một lần</strong> với những công cụ chứa tài liệu công việc cốt lõi. Đừng đợi nhận email báo đóng cửa mới cuống cuồng tải về, vì lúc đó thời gian thường rất gấp.</li>
+    <li><strong>Việc 2 — với công cụ AI quy mô nhỏ, trả phí theo tháng thay vì mua gói năm.</strong> Gói năm chiết khấu hấp dẫn, nhưng Humane AI Pin chỉ hoàn tiền cho khách mua trong 90 ngày cuối, và Character AI vẫn tự trừ phí hàng tháng ngay cả khi đang nộp đơn phá sản. Với nền tảng trụ cột như ChatGPT, Gemini hay Claude, mua gói năm là hợp lý; với ứng dụng ngách có từ hai dấu hiệu cảnh báo trở lên, thanh toán từng tháng là <em>"cái cách rẻ nhất để bạn mua sự an toàn cho chính cái túi tiền của riêng mình"</em>.</li>
+    <li><strong>Việc 3 — ghi chép lại phương pháp và quy trình</strong> bạn đang vận hành trên công cụ. Tài sản giá trị nhất sau nhiều tháng gắn bó không chỉ là file kết quả mà là kinh nghiệm sử dụng: câu lệnh nào cho kết quả chuẩn nhất, thông số nào cần tinh chỉnh, các bước diễn ra theo thứ tự nào. Người dùng Notion Mail tiếc các quy tắc tự động gắn nhãn chính vì đã mất hệ thống thiết lập này. Lưu toàn bộ câu lệnh và quy tắc ra một file tài liệu riêng thì chỉ mất <strong>một buổi chiều</strong> để chuyển sang công cụ thay thế.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Ba thói quen này không giúp ứng dụng sống lâu hơn, nhưng bảo đảm <em>"bạn sẽ không bao giờ phải bắt đầu lại từ con số 0"</em> khi nó ngừng hoạt động.</p>
+  </div>
+</section>
+
+    <!-- SECTION 6 -->
+    <section class="entry" id="s6" data-toc="Mượn công cụ, mài kỹ năng">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 06</span>
+      <h2>Mượn công cụ để mài giũa kỹ năng</h2>
+      <p class="summary-line">Công cụ có thể đóng cửa, kỹ năng nghề nghiệp vẫn thuộc về bạn.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path class="thin" d="M24 100 H136"/>
+        <path d="M34 100 L46 78 H114 L126 100"/>
+        <path d="M66 78 L96 34"/>
+        <path d="M90 30 L104 40 L98 48 L84 38 Z"/>
+        <path class="b" d="M108 22 L114 16"/>
+        <path class="b" d="M114 30 L122 28"/>
+        <circle cx="52" cy="40" r="10"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Nhìn xa hơn chuyện sao lưu, còn một <strong>giá trị cốt lõi</strong> mà không công cụ AI nào mang theo khi biến mất. Phần này dành cho sinh viên đang đi học và người trẻ mới vào thị trường lao động.</li>
+    <li>Hai bạn trẻ cùng bắt đầu học sản xuất video bằng Sora cuối năm ngoái. Bạn thứ nhất <strong>học thuộc vị trí từng nút bấm</strong> và mẹo tinh chỉnh chỉ có trên giao diện Sora. Bạn thứ hai <strong>rèn tư duy đạo diễn hình ảnh</strong>: mô tả bối cảnh và ánh sáng sống động, chọn góc máy, sắp nhịp chuyển cảnh cuốn hút.</li>
+    <li>Tháng 3 năm nay Sora bị khai tử: bạn thứ nhất rơi vào thế bị động, phải học lại từ đầu; bạn thứ hai chỉ cần mở một nền tảng tạo video AI khác và nhập đúng câu mô tả chuyên môn đã thành thạo, vì năng lực cốt lõi nằm nguyên trong tư duy. <em>"Công cụ công nghệ ấy thì à có thể đóng cửa bất cứ lúc nào nhưng mà kỹ năng nghề nghiệp ấy thì sẽ vẫn mãi thuộc về bạn."</em></li>
+    <li><strong>Quyết định 1 — khi chọn công cụ AI để học</strong>, tự hỏi: <em>"khi thành thạo nó ấy mình sẽ tích lũy thêm được cái tư duy gì để mà áp dụng sang các nền tảng khác?"</em> thay vì chạy theo những cái tên gây sốt nhất thời.</li>
+    <li><strong>Quyết định 2 — khi viết hồ sơ xin việc</strong>, mô tả rõ kỹ năng thực tế bạn giải quyết được nhờ AI thay vì chỉ liệt kê tên phần mềm, bởi <em>"tên một ứng dụng nó hoàn toàn có thể biến mất khỏi thị trường trước khi nhà tuyển dụng kịp đọc đến CV của bạn"</em>.</li>
+    <li><strong>Quyết định 3 — khi cân nhắc đầu quân cho startup AI</strong>, lấy bộ năm dấu hiệu cảnh báo ra đánh giá độ bền vững của sản phẩm, vì bạn đang chọn môi trường gắn bó sự nghiệp vài năm chứ không phải cài một ứng dụng dùng thử vài ngày.</li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Nguyên tắc</span>
+    <p>Không phải ngại thử công cụ mới — nền tảng mới vẫn rất đáng khám phá. Chỉ cần giữ vững: <em>"hãy mượn công cụ để mài giũa cái kỹ năng của mình ấy. Tuyệt đối đừng để toàn bộ năng lực của bản thân bị trói chặt vào sự tồn vong của một phần mềm duy nhất."</em></p>
+  </div>
+</section>
+
+    <!-- SECTION 7 -->
+    <section class="entry" id="s7" data-toc="Tài sản không bị khai tử">
+  <div class="entry-head">
+    <div>
+      <span class="eyebrow">Mục 07</span>
+      <h2>Tài sản không bao giờ bị khai tử</h2>
+      <p class="summary-line">Kỹ năng và tư duy trong đầu là thứ duy nhất không ai đóng cửa được.</p>
+    </div>
+    <div class="frame">
+      <svg class="ill" viewBox="0 0 160 120" aria-hidden="true">
+        <path d="M56 104 V88 C40 82 36 66 40 52 C44 30 66 20 84 22 C106 24 120 42 118 62 C116 74 110 80 108 92 V104"/>
+        <path class="thin" d="M56 104 H108"/>
+        <path class="b" d="M80 40 L84 52 L96 52 L86 60 L90 72 L80 64 L70 72 L74 60 L64 52 L76 52 Z"/>
+        <path class="thin" d="M126 34 L134 28"/>
+        <path class="thin" d="M128 52 H138"/>
+      </svg>
+    </div>
+  </div>
+  <ul class="points">
+    <li>Bức tranh nghĩa địa AI năm 2026 để lại một bài học lớn: <strong>bất kỳ công cụ AI nào cũng có thể đóng cửa đột ngột</strong> và người dùng luôn chịu thiệt đầu tiên.</li>
+    <li><em>"Tài sản duy nhất nó không bao giờ bị khai tử chính là cái kỹ năng và tư duy nằm trong chính đầu óc của bạn."</em></li>
+    <li>Người nói đã ghim ở bình luận đầu tiên <strong>bản tự kiểm</strong> năm dấu hiệu và ba việc phải làm ngay; gợi ý chụp màn hình lưu lại để <strong>mỗi tháng</strong> mở ra đối chiếu một lần.</li>
+    <li>Câu hỏi để lại: <em>"Công cụ AI nào mà nếu ngày mai nó bất ngờ thông báo đóng cửa bạn sẽ cảm thấy nuối tiếc nhất?"</em></li>
+  </ul>
+  <div class="callout">
+    <span class="clabel">Bài học</span>
+    <p>Công cụ AI nào cũng có thể đóng cửa; kỹ năng và tư duy của bạn là tài sản duy nhất không bị khai tử.</p>
+  </div>
+</section>
+
+    <footer>
+      Nguồn: Kênh Under30 (YouTube) — video "AI đang tạo ra nhiều startup thất bại"; dẫn TechCrunch, S&amp;P Global, Wall Street Journal · Ghi chú 2026-11-21 · 2026 · <a href="https://www.youtube.com/watch?v=NRJO125cKrQ" target="_blank" rel="noopener">Bản gốc ↗</a>
+    </footer>
+
+  </main>
+</div>
+
+<!-- MOBILE DRAWER CONTROLS -->
+<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sidebar">☰ Mục lục</button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function setDrawer(open){
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', function(){
+    setDrawer(!sidebar.classList.contains('open'));
+  });
+  backdrop.addEventListener('click', function(){ setDrawer(false); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ setDrawer(false); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    a.addEventListener('click', function(){ setDrawer(false); });
+  });
+
+  // Scrollspy
+  var desktop = window.matchMedia('(min-width:901px)');
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        Array.prototype.forEach.call(document.querySelectorAll('.toc a'), function(l){
+          l.classList.remove('active');
+        });
+        var link = links[en.target.id];
+        if(link){
+          link.classList.add('active');
+          if(desktop.matches){ link.scrollIntoView({block:'nearest'}); }
+        }
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('section.entry'), function(s){
+    io.observe(s);
+  });
+})();
+</script>
+</body>
+</html>
