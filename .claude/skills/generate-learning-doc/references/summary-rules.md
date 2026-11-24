@@ -27,7 +27,7 @@ Split the script into the parts the speaker actually uses — "thứ nhất / th
 
 Why these rules matter: the notes are the only thing the HTML step sees. A quote paraphrased here, a number dropped, or a character flattened into "mọi người" is lost for good — step 2 is forbidden from going back to the script to recover it.
 
-Shortening a verbatim quote means cutting words out of it (optionally with `…`), never rewording it. If transcript noise garbles a quote, fix only obvious caption errors (split words, missing diacritics on a clear word) and keep the rest.
+Shortening a verbatim quote means trimming it from either end, or replacing a cut stretch in the middle with `…`; never rewording it. Every piece between `…` must be an unbroken run of the script, spoken filler included ("cái", "ấy", "thì", "à", "nó"): dropping one filler word from the middle without `…` makes the quote fail `check_quotes.py`. If transcript noise garbles a quote, fix only obvious caption errors (split words, missing diacritics on a clear word) and keep the rest.
 
 Auto-captions often mangle foreign names and units (a person's name heard as random English words, "đồng là" for "đô la"). When the source context you're given (book/video title, author) makes the real name or unit certain, write the corrected form. When it isn't certain, keep what was heard rather than guessing: a wrong "correction" looks trustworthy and can't be caught later. At the end of the notes, list every correction under `## Sửa lỗi phiên âm` as `nghe: "…" → sửa: "…"` so the orchestrator can check it.
 
