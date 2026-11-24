@@ -19,7 +19,8 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
   "kicker": "Sổ tay tư duy · Giải mã Jim Rohn",
   "subtitle": "Bảy trụ cột rèn tư duy và quản lý cảm xúc: trí tuệ không bẩm sinh mà là hành trình bạn tự tạo ra.",
   "pills": ["7 phần", "Nguồn · Jim Rohn", "Ghi chú · No.13"],
-  "source": "Nguồn: Kênh Giải mã Jim Rohn (YouTube) · Ghi chú No.13 · 2026"
+  "source": "Nguồn: Kênh Giải mã Jim Rohn (YouTube) · Ghi chú No.13 · 2026",
+  "source_url": "https://www.youtube.com/watch?v=XXXXXXXXXXX"
 }
 ```
 
@@ -28,6 +29,7 @@ The design (tokens, fonts, layout, sidebar, stamp, scrollspy, mobile drawer, red
 - `subtitle`: 1–2 sentences, based on the notes' `Tóm lược`. It is also the page's `<meta name="description">`, which the site index shows under the title. Paraphrase it without quoting: meta fields are plain text, so a quote here can't get its `<em>` styling. Put the quote in a section instead.
 - `pills`: exactly 3 — part count, source, `Ghi chú · No.NN`.
 - `source`: footer line, taken from the notes' `Nguồn`.
+- `source_url`: the original link, exactly as the orchestrator gives it. The footer links to it, and a YouTube URL also embeds the video under the hero (the script renders both; never put an `<iframe>` in `sections.html`). Leave the key out when the orchestrator gives none.
 - `chapter` (only for a book chapter): the chapter number as given, e.g. `"1"` or `"4–5"`. The script puts it in the browser tab title and the file name (`NN-chuong-04-05-<slug>.html`). Leave the key out for anything else.
 - Plain text only (the script escapes it). Keep the JSON valid UTF-8, no HTML.
 

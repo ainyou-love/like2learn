@@ -27,7 +27,7 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
 
 ## 0. Gather inputs
 
-1. **Raw content.** YouTube URL: fetch it in item 5 (below). Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
+1. **Raw content.** YouTube URL: fetch it in item 6 (below). Pasted text: use it as is. File path: `.txt`/`.md` → Read it; `.pdf` → Read with `pages`; `.docx` → load the `anthropic-skills:docx` skill to extract the text. Nothing given → ask for it.
 2. **Folder.** `index.html` shows `resources/` as a folder tree, so pick where the entry belongs:
    - one chapter (or a few) of a book → `resources/ebooks/<Author>/<Book>/`, e.g. `ebooks/Donald-Trump/Nghe-thuat-dam-phan/`, and note the chapter number for step 2
    - a standalone video or talk → `resources/Custom-Post/`
@@ -36,7 +36,8 @@ raw script ──► [1] Fable: sectioned notes ──► quote check ──► 
    If the source doesn't make the folder obvious, ask with AskUserQuestion and list the existing folders (`find resources -type d`). Folder names use ASCII with hyphens, like the existing ones.
 3. **Entry number.** Use the number the user gave. If they gave none, take the highest `NN` in the chosen folder (`ls resources/<folder>/[0-9][0-9]-*.html`), add 1 (a new folder starts at 01), and confirm it with AskUserQuestion (gaps like a missing No.10 may be deliberate, so don't fill them silently). Each folder keeps its own sequence; only `Custom-Post` notes get `/NN` short links. If `resources/<folder>/NN-*.html` already exists, ask before overwriting — that's a published entry.
 4. **Time.** Run `date +%Y%m%d%H%M%S` and `date +%Y` in Bash. Don't trust your own sense of today's date.
-5. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
+5. **Source URL.** Keep the original link (the YouTube URL, or a link the user gave with pasted text). Step 2 puts it in `meta.json` as `source_url`: the footer links to it and a YouTube URL is embedded as a player under the hero. Pasted text with no link → `none`; ask only if the user mentioned a source they can link.
+6. **Work dir.** `tmp/learning-notes/<NN>-<timestamp>/`. Write the raw content to `raw.txt` there, unchanged. Subagents read the file instead of getting the script pasted into their prompt, so nothing gets lost when the prompt is copied.
 
    For a YouTube URL, let the script write `raw.txt`. It needs `uv`, which installs the library on first run:
 
@@ -86,6 +87,7 @@ Read <skill-dir>/references/page-content.md — it is your full instruction set.
 Notes (only content source): <work>/notes.md
 Entry number: <NN>   Year: <YYYY>
 Book chapter: <e.g. 4–5, or "none">
+Source URL: <the YouTube/original link, or "none">
 Write meta.json and sections.html into: <work>/
 Build into: resources/<folder>
 Do not edit assets/template.html, do not read raw.txt, do not pass --force.

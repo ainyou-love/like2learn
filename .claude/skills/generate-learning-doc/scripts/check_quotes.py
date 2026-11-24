@@ -6,6 +6,11 @@ Usage: python3 check_quotes.py <notes.md> <raw.txt>
 Captions break lines mid-sentence, so both sides are compared with whitespace
 collapsed and punctuation/case ignored. A quote shortened with "…" or "..." is
 checked fragment by fragment.
+
+Quote marks pair within one line: "…" with ", “…” with ”. Short quotes (a name
+like "Hues") are paired and then skipped, so they can't throw off the pairing
+of the quotes after them. The `## Sửa lỗi phiên âm` list is skipped: its
+corrected forms are meant to differ from the script.
 """
 import re
 import sys
@@ -21,8 +26,10 @@ def norm(text):
 
 def main():
     notes = Path(sys.argv[1]).read_text(encoding="utf-8")
+    notes = re.split(r"^## Sửa lỗi phiên âm", notes, flags=re.M)[0]
     raw = norm(Path(sys.argv[2]).read_text(encoding="utf-8"))
-    quotes = re.findall(r"[\"“]([^\"”]{6,})[\"”]", notes)
+    pairs = re.findall(r'"([^"\n]*)"|“([^”\n]*)”', notes)
+    quotes = [q for q in (a or b for a, b in pairs) if len(q.strip()) >= 6]
     missing = []
     for q in quotes:
         fragments = [f for f in re.split(r"…|\.\.\.", q) if len(norm(f).split()) >= 3]

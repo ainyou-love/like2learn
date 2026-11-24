@@ -4,7 +4,8 @@
 Usage:
   python3 build_doc.py --meta meta.json --sections sections.html --out-dir resources/<folder> [--force]
 
-meta.json keys: no, title, year, kicker, subtitle, pills (list), source; optional chapter ("1", "4–5")
+meta.json keys: no, title, year, kicker, subtitle, pills (list), source;
+  optional chapter ("1", "4–5"), source_url (original link; a YouTube URL also embeds the video)
 Entry numbers are unique within a folder: each folder (Custom-Post, one book, one topic) keeps its own sequence.
 sections.html: consecutive <section class="entry" id="sN" data-toc="..."> blocks.
 """
@@ -26,6 +27,26 @@ def slugify(text):
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def youtube_id(url):
+    m = re.search(r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/|live/)|youtu\.be/)([A-Za-z0-9_-]{11})", url)
+    return m.group(1) if m else None
+
+
+def video_block(url, title):
+    vid = youtube_id(url)
+    if not vid:
+        return ""
+    esc = html.escape
+    return (
+        '    <figure class="video">\n'
+        f'      <div class="player"><iframe src="https://www.youtube-nocookie.com/embed/{vid}" title="{esc(title)}" '
+        'allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+        'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>\n'
+        f'      <figcaption>Video gốc · <a href="{esc(url)}" target="_blank" rel="noopener">Xem trên YouTube ↗</a></figcaption>\n'
+        '    </figure>\n'
+    )
 
 
 def split_sections(fragment):
@@ -90,6 +111,9 @@ def main():
     if missing:
         sys.exit(f"ERROR meta.json missing: {', '.join(missing)}")
     no = f"{int(meta['no']):02d}"
+    source_url = str(meta.get("source_url", "")).strip()
+    if source_url and not re.match(r"https?://", source_url):
+        sys.exit(f"ERROR source_url must start with http(s)://: {source_url}")
     chapter = str(meta.get("chapter", "")).strip()
 
     blocks, leftover = split_sections(Path(args.sections).read_text(encoding="utf-8"))
@@ -124,7 +148,9 @@ def main():
         "{{META_PILLS}}": "\n".join(f'        <span class="pill">{esc(p, quote=False)}</span>' for p in meta["pills"]),
         "{{TOC_ITEMS}}": "\n".join(toc),
         "{{SECTIONS}}": "\n\n".join(f"    <!-- SECTION {i} -->\n    {b}" for i, b in enumerate(blocks, 1)),
-        "{{SOURCE_LINE}}": esc(meta["source"], quote=False),
+        "{{VIDEO}}": video_block(source_url, meta["title"]),
+        "{{SOURCE_LINE}}": esc(meta["source"], quote=False)
+        + (f' · <a href="{esc(source_url)}" target="_blank" rel="noopener">Bản gốc ↗</a>' if source_url else ""),
     }
     for key, value in replacements.items():
         out = out.replace(key, value)
